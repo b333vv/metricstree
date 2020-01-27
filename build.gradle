@@ -1,0 +1,33 @@
+plugins {
+    id "org.jetbrains.intellij" version "0.4.15"
+    id "java"
+}
+
+apply plugin: 'java'
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+intellij {
+    version 'IC-193.5233.102'
+    plugins 'java'
+}
+
+group = 'org.jacoquev'
+description = 'Code metrics for Java IntelliJ IDEA plugin'
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    //Libraries
+    compile (group: 'org.jscience', name: 'jscience', version: '4.3.1') {
+        exclude group: 'org.javolution'
+    }
+
+    //Testing
+    testCompile group: 'junit', name: 'junit', version: '4.10'
+}
+

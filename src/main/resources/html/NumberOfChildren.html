@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+
+        strong {
+            font-family: white
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Number of Children</title>
+</head>
+<body>
+<h2>Number of Children (NOC)</h2>
+<br/>
+<p>
+    Calculates the total number of direct subclasses of given class.
+    This metric measures how many sub-classes are going to inherit the methods of the parent class.
+    The size of NOC approximately indicates the level of reuse in an application.
+    If NOC grows it means reuse increases.
+    On the other hand, as NOC increases, the amount of testing will also increase because more children in a class
+    indicate more responsibility.
+    So, NOC represents the effort required to test the class and reuse.
+</p>
+<br/>
+<dt><strong>Highly Related Software Quality
+    Properties</strong></dt>
+
+<dd>
+
+    <dl>
+        <dt><strong>Re-Usability</strong></dt>
+
+        <dd>
+            is positively influenced by attributes assessed with
+            NOC.
+
+            <dl>
+                <dt><strong>Understandability for
+                    Reuse:</strong></dt>
+
+                <dd>
+                    Understanding a class is supported if it has a
+                    high number of children. First numerous children
+                    show directly a high re-use (re-usability) of the
+                    class under concern. Further with numerous
+                    children exist many examples on how to re-use the
+                    class, which helps to understand weather a class
+                    is suitable, and how it can be re-used for a
+                    particular tasks.
+
+                    <p>Understandability increases with increasing
+                        NOC.</p>
+                </dd>
+
+                <dt><strong>Learnability for Reuse:</strong></dt>
+
+                <dd>
+                    Learning (acquiring and memorizing knowledge) how
+                    to (re-)use a class by extending it is influenced
+                    by the number of children the class under concern
+                    has. A high number of children, that is many
+                    re-using child classes, allows acquiring
+                    versatile knowledge on how to re-use a particular
+                    class in different situations. This supports
+                    through redundancy memorizing the knowledge about
+                    how to re-use a particular class.
+
+                    <p>Learnability increases with a increasing
+                        NOC.</p>
+                </dd>
+
+                <dt><strong>Operability for Reuse:</strong></dt>
+
+                <dd>
+                    Understanding if a class can be integrated and
+                    controlled by software engineers/developers
+                    depends on the number of children a class has. A
+                    high number of children indicates that a
+                    particular class is well integrated into an
+                    existing software system. This means, that it is
+                    suitable for several different tasks,
+                    self-descriptive since there exist many examples
+                    on its usage, having a higher error tolerance,
+                    since it is involved each time one of its
+                    children is tested.
+
+                    <p>Operability increases with increasing NOC.</p>
+                </dd>
+
+                <dt><strong>Attractiveness for Reuse:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children
+                    appears more attractive to the software
+                    engineer/developer. It is a eye-catcher in a
+                    class diagram or other representations since it
+                    stands out by having many children. Associated
+                    assumptions could be, that the class is stable,
+                    since it is tested each time a child is tested,
+                    that is well documented and understood, since it
+                    has been extended so often, that it is easier to
+                    understand, since there are many examples of
+                    usage, that it helps to understand the children,
+                    if the parent class has been understood, that is
+                    plays a central role in the design, since many
+                    classes extend its functionality.
+
+                    <p>Attractiveness increases with increasing
+                        NOC.</p>
+                </dd>
+            </dl>
+        </dd>
+
+        <dt><strong>Maintainability</strong></dt>
+
+        <dd>
+            is negatively and positively influenced by attributes
+            assessed with NOC.
+
+            <dl>
+                <dt><strong>Changeability:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children has a
+                    lower changeability. The effort spent on
+                    modification, fault removal or environmental
+                    change is increased, since many child classes are
+                    extending its functionality, depending on the
+                    parent class. The side effects of modifications
+                    are harder to predict. Fault removal effects
+                    child classes. The need for environmental change
+                    has to consider the child classes.
+
+                    <p>Changeability decreases with increasing
+                        NOC.</p>
+                </dd>
+            </dl>
+        </dd>
+
+        <dt><strong>Portability</strong></dt>
+
+        <dd>
+            is negatively influenced by attributes assessed with
+            NOC.
+
+            <dl>
+                <dt><strong>Replaceability:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children is
+                    difficult to replace. The children are dependent
+                    on it, by extending specific functionality and
+                    can depend on certain functionality the parent
+                    class provides. It is difficult to find another
+                    class satisfying these specific needs, allowing
+                    to replace the parent class.
+
+                    <p>Replaceability decreases with increasing
+                        NOC.</p>
+                </dd>
+            </dl>
+        </dd>
+    </dl>
+</dd>
+
+<dt><strong>Related Software Quality
+    Properties</strong></dt>
+
+<dd>
+    &nbsp;
+
+    <dl>
+        <dt><strong>Reliability</strong></dt>
+
+        <dd>
+            is positively influenced by attributes assessed with
+
+            <dl>
+                <dt><strong>Maturity:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children has a
+                    high maturity. The frequency of failure by faults
+                    is low, since the many faults have been
+                    identified in the various ways the child classes
+                    interact with the parents. The parent class is
+                    heavily used, since it is used each time a child
+                    class is used.
+
+                    <p>Maturity increases with increasing NOC.</p>
+                </dd>
+            </dl>
+        </dd>
+
+        <dt><strong>Maintainability</strong></dt>
+
+        <dd>
+            is positively and negatively influenced by attributes
+            assessed with NOC.
+
+            <dl>
+                <dt><strong>Analysability:</strong></dt>
+
+                <dd>
+                    To analyze a class having a higher number of
+                    children requires higher effort. Diagnosis of
+                    deficiencies or causes of failures involves the
+                    children of a parent class. They have access to
+                    the functionality and data provided by a class
+                    and have to be involved in the analysis.
+                    Identifying parts in a parent class which need to
+                    be modified requires the analysis of all child
+                    classes, which are effected by the modification.
+                    To analyze a class completely it is also
+                    necessary to look at its children to be able to
+                    have the complete picture.
+
+                    <p>Analysability decreases with increasing
+                        NOC.</p>
+                </dd>
+
+                <dt><strong>Stability:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children bears
+                    a higher risk of unexpected effect of
+                    modification. Child classes are re-using parent
+                    classes in various ways. They are directly
+                    effected by modifications making it difficult to
+                    predict how stable a class or software product
+                    would be after modification.
+
+                    <p>Stability decreases with increasing NOC.</p>
+                </dd>
+
+                <dt><strong>Testability:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children
+                    requires a higher effort for validating the
+                    modified software. All depending child classes
+                    need to be included in the tests as well, since
+                    modifications in the parent class have direct
+                    impact on the extending child classes. The amount
+                    of designed and implemented autonomous test aid
+                    functions and test complexity is increased.
+
+                    <p>Testability decreases with increasing NOC.</p>
+                </dd>
+            </dl>
+        </dd>
+
+        <dt><strong>Portability</strong></dt>
+
+        <dd>
+            is negatively influenced by attributes assessed with
+            NOC.
+
+            <dl>
+                <dt><strong>Adaptability:</strong></dt>
+
+                <dd>
+                    A class having a higher number of children is
+                    difficult adapt to different specified
+                    environments. The children are dependent on it,
+                    by extending specific functionality and can
+                    depend on certain functionality the parent class
+                    provides. Adapting the parent class to a new
+                    environment, can make it unsuitable for the
+                    children, requiring adaptation in them as well.
+
+                    <p>Adaptability decreases with increasing
+                        NOC.</p>
+                </dd>
+            </dl>
+        </dd>
+    </dl>
+</dd>
+
+<dt><strong>References</strong></dt>
+
+<p>
+    S.R.Chidamber and C.F.Kamerer, A metrics Suite for Object-Oriented Design. IEEE Trans. Software Engineering, vol.
+    SE-20, no.6, 476-493, 1994.
+</p>
+</body>
+</html>
