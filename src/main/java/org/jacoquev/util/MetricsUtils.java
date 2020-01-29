@@ -110,7 +110,7 @@ public class MetricsUtils {
         T result = null;
         try {
             result = ReadAction.nonBlocking(task)
-                    .inSmartMode(project)
+                    .inSmartMode(getProject())
                     .submit(AppExecutorUtil.getAppExecutorService())
                     .get();
         } catch (ExecutionException | InterruptedException e) {

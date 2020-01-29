@@ -34,6 +34,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
     private static final Logger LOG = Logger.getInstance(MetricsToolWindowPanel.class);
@@ -48,7 +49,6 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     private MetricTreeBuilder metricTreeBuilder;
     private MetricsConsole console;
     private JScrollPane scrollableTablePanel;
-    private JScrollPane scrollableMetricPanel;
     private VirtualFile virtualFile;
 
     public MetricsToolWindowPanel(CurrentFileController scope, Project project) {
@@ -83,7 +83,7 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
 
     private void createTabs() {
         metricsDescriptionPanel = new MetricsDescriptionPanel();
-        scrollableMetricPanel = ScrollPaneFactory.createScrollPane(
+        JScrollPane scrollableMetricPanel = ScrollPaneFactory.createScrollPane(
                 metricsDescriptionPanel.getPanel(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
