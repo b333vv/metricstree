@@ -47,4 +47,15 @@ public class TypeMetricsTest extends LightJavaCodeInsightFixtureTestCase {
         assertEquals(result, numberOfChildren.meter(javaClass));
     }
 
+    public void testWeightedMethodCount() {
+        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        WeightedMethodCount weightedMethodCount = new WeightedMethodCount();
+        ImmutableSet<Metric> result = ImmutableSet
+                .of(Metric.of("WMC", "Weighted Method Count",
+                        "/html/WeightedMethodCount.html", 19));
+
+        assertEquals(result, weightedMethodCount.meter(javaClass));
+    }
 }

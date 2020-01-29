@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>Weighted Method Count</title>
+</head>
+<body>
+<h3>Weighted Method Count (Weighted Method per Class) (WMC)</h3>
+<p>A weighted sum of methods implemented within a class. It
+    is parameterized by a way to compute the weight of each
+    method. Possible weight metrics are:</p>
+<ul>
+    <li>McCabe Cyclomatic Complexity</li>
+    <li>Lines of Code</li>
+    <li>1 (unweighted WMC).</li>
+</ul>
+<p>Submitted realisation uses McCabe Cyclomatic Complexity to obtain Weighted Method Count value.</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Re-Usability&nbsp;</strong></dt>
+
+            <dd>
+                depends on the weight metric, which influences the
+                attributes assessed with WMC negatively or
+                positively.
+
+                <p>Re-Usability declines with increasing unweighted
+                    WMC.</p>
+
+                <dl>
+                    <dt><strong>Understandability for Reuse</strong></dt>
+
+                    <dd>
+                        Understanding if a class is suitable for reuse
+                        depends on the size of its interface.
+
+                        <p>Understandability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Learnability for Reuse</strong></dt>
+
+                    <dd>
+                        Learning if a class is suitable for reuse depends
+                        on the size of its interface.
+
+                        <p>Learnability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Operability for Reuse - Programmability</strong></dt>
+
+                    <dd>
+                        How well a class can be integrated depends on the
+                        size of its interface.
+
+                        <p>Programmability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Attractiveness</strong></dt>
+
+                    <dd>
+                        Attractiveness of a class depends on the size and
+                        complexity of the potentially reused code.
+                        Depending on the weight metric, WMC allows an
+                        assessment of size or complexity.
+
+                        <p>Attractiveness increases with increasing
+                            unweighted WMC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Maintainability</strong></dt>
+
+            <dd>
+                declines with increasing WMC.
+
+                <dl>
+                    <dt><strong>Analyzability</strong></dt>
+
+                    <dd>
+                        The effort and time for diagnosis of deficiencies
+                        or causes of failures in a class, or for
+                        identification of parts to be modified is
+                        directly related to the size and complexity of
+                        the class. Depending on the weight metric, WMC
+                        allows an assessment of size or complexity.
+
+                        <p>Analyzability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Changeability</strong></dt>
+
+                    <dd>
+                        Changing a class requires prior understanding,
+                        which, in turn, is more complicated for large and
+                        complex systems. Depending on the weight metric,
+                        WMC allows an assessment of size or complexity.
+
+                        <p>Changeability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Testability</strong></dt>
+
+                    <dd>
+                        Complete testing requires coverage of all
+                        execution paths. The number of possible execution
+                        paths of a class increases with the number of
+                        methods and their control flow complexity.
+                        Depending on the weight metric, WMC allows an
+                        assessment of the number of methods and their
+                        complexity.
+
+                        <p>Testability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Portability</strong></dt>
+
+            <dd>
+                declines with increasing WMC.
+
+                <dl>
+                    <dt><strong>Adaptability</strong></dt>
+
+                    <dd>
+                        As for changeability,
+                        the size of software has a direct impact. Each
+                        modification requires understanding which is more
+                        complicated for large systems. Size is
+                        specifically assessed by the weighted versions of
+                        WMC.
+
+                        <p>Adaptability declines with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Replaceablity</strong></dt>
+
+                    <dd>
+                        The substitute of a component must imitate its
+                        interface. Large interfaces are difficult to
+                        check for substitutability and to actually
+                        substitute. Interface size is specifically
+                        assessed by the unweighted WMC.
+
+                        <p>Replaceablity decline with increasing
+                            unweighted WMC.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+
+    <dt><strong>Related Software Quality
+        Properties</strong></dt>
+
+    <dd>
+        &nbsp;
+
+        <dl>
+            <dt><strong>Functionality</strong></dt>
+
+            <dd>
+                might increase with increasing WMC.
+
+                <dl>
+                    <dt><strong>Interoperability</strong></dt>
+
+                    <dd>
+                        Interoperability requires to be able to locate
+                        the parts of a system responsible for
+                        interoperability. The size of in these parts
+                        might indicate a better ability to interact.
+
+                        <p>Interoperability might increase if the
+                            unweighted WMC increases.</p>
+                    </dd>
+
+                    <dt><strong>Security</strong></dt>
+
+                    <dd>
+                        Relating WMC to security requires to be able to
+                        locate the parts of a system responsible for
+                        security. The size of these parts might indicate
+                        a higher security.
+
+                        <p>Security might increase with increasing
+                            unweighted WMC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Reliability</strong></dt>
+
+            <dd>
+                might increase with increasing WMC.
+
+                <dl>
+                    <dt><strong>Maturity</strong></dt>
+
+                    <dd>
+                        Due to reduced analyzability and testability,
+                        bugs mights be left in the software. Therefore,
+                        also maturity may be influenced negatively by
+                        WMC.
+
+                        <p>Maturity might decline with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Fault-tolerance</strong></dt>
+
+                    <dd>
+                        Relating WMC to fault-tolerance requires to be
+                        able to locate the parts of a system responsible
+                        for fault-tolerance. The size of these parts
+                        might indicate a better ability to interact.
+
+                        <p>Fault-tolerance might increase if the
+                            unweighted WMC increases.</p>
+                    </dd>
+
+                    <dt><strong>Recoverability</strong></dt>
+
+                    <dd>
+                        Relating WMC to recoverability requires to be
+                        able to locate the parts of a system responsible
+                        for recoverability. The size of these parts might
+                        indicate a higher recoverability.
+
+                        <p>Recoverability might increase if the
+                            unweighted WMC increases.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Efficiency</strong></dt>
+
+            <dd>
+                might decline with increasing WMC.
+
+                <dl>
+                    <dt><strong>Time Behavior</strong></dt>
+
+                    <dd>
+                        Static size might indicate a higher execution
+                        time due to increased number of instruction cache
+                        misses, long jumps, etc.
+
+                        <p>Time behavior might get worse with increasing
+                            unweighted WMC.</p>
+                    </dd>
+
+                    <dt><strong>Resource Utilization</strong></dt>
+
+                    <dd>
+                        Static size might indicate a higher memory
+                        utilization.
+
+                        <p>Resource utilization might get worse if the
+                            unweighted WMC increases.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Maintainability</strong></dt>
+
+            <dd>
+                declines with increasing WMC.
+
+                <dl>
+                    <dt><strong>Stability</strong></dt>
+
+                    <dd>
+                        Due to reduced analyzability and testability,
+                        also stability may be influenced negatively by
+                        size.
+
+                        <p>Stability might decline with increasing
+                            unweighted WMC.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
