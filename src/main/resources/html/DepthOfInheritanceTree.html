@@ -7,332 +7,325 @@
             font-family: Arial, Helvetica, sans-serif, lightgray;
         }
 
-        strong {
-            font-family: white
-        }
     </style>
     <meta charset="UTF-8">
     <title>Number of Children</title>
 </head>
 <body>
-<h2>Depth of Inheritance Tree (DIT)</h2>
-<br/>
+<h3>Depth of Inheritance Tree (DIT)</h3>
 <p>
     Depth of Inheritance Tree (DIT) is the maximum length of a path from a class to a root class in the inheritance
     structure of a system.
     DIT measures how many super-classes can affect a class.
 </p>
-<dt><strong>Highly Related Software Quality
-    Properties</strong></dt>
-
-<dd>
-    &nbsp;
-
-    <dl>
-        <dt><strong>Re-Usability</strong></dt>
-
-        <dd>
-            is both negatively and positively influenced by
-            attributed assess with DIT.
-
-            <dl>
-                <dt><strong>Understandability for
-                    Reuse:</strong></dt>
-
-                <dd>
-                    Understanding if a class is suitable for reuse
-                    depends on the size of its interface. Classes
-                    that are deep down in the classes hierarchy
-                    potentially inherit many methods from
-                    super-classes. Moreover, the definitions of
-                    inherited methods are not local to the class
-                    making it even harder to analyze it.
-
-                    <p>Understandability declines with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Learnability for Reuse:</strong></dt>
-
-                <dd>
-                    Learning how to use a class depends on the size
-                    of its interface. Classes that are deep down in
-                    the classes hierarchy potentially inherit many
-                    methods from super-classes. Moreover, the
-                    definitions of inherited methods are not local to
-                    the class making it even harder to analyze it.
-
-                    <p>Learnability declines with increasing DIT.</p>
-                </dd>
-
-                <dt><strong>Operability for Reuse -
-                    Programmability:</strong></dt>
-
-                <dd>
-                    How well a class can be integrated depends on the
-                    size of its interface. Classes that are deep down
-                    in the classes hierarchy potentially inherit many
-                    methods from super-classes. Moreover, the
-                    definitions of inherited methods are not local to
-                    the class making it even harder to analyze it.
-
-                    <p>Programmability declines with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Attractiveness:</strong></dt>
-
-                <dd>
-                    Attractiveness of a class depends on the size of
-                    the potentially reused javaCode. Classes that are
-                    deep down in the classes hierarchy potentially
-                    inherit many methods from super-classes.
-
-                    <p>Attractiveness increases with increasing
-                        DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-
-        <dt><strong>Maintainability</strong></dt>
-
-        <dd>
-            declines with increasing DIT.
-
-            <dl>
-                <dt><strong>Analyzability:</strong></dt>
-
-                <dd>
-                    The effort and time for diagnosis of deficiencies
-                    or causes of failures in a class, or for
-                    identification of parts to be modified is related
-                    to the number of methods of the class. Classes
-                    that are deep down in the classes hierarchy
-                    potentially inherit many methods from
-                    super-classes. Moreover, the definitions of
-                    inherited methods are not local to the class
-                    making it even harder to analyze it.
-
-                    <p>Analyzability declines with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Changeability:</strong></dt>
-
-                <dd>
-                    Changing a class requires prior understanding,
-                    which, in turn, is more complicated for classes
-                    with many methods. Classes that are deep down in
-                    the classes hierarchy potentially inherit many
-                    methods from super-classes. Moreover, the
-                    definitions of inherited methods are not local to
-                    the class making it even harder to understand it.
-
-                    <p>Changeability declines with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Testability:</strong></dt>
-
-                <dd>
-                    Complete testing requires coverage of all
-                    execution paths. The number of possible execution
-                    paths of a class increases with the number of
-                    methods and their control flow complexity.
-                    Classes that are deep down in the classes
-                    hierarchy potentially inherit many methods from
-                    super-classes. Due to late binding, super-class
-                    methods need to be tested again in the sub-class
-                    context. This makes it it potentially harder to
-                    test classes deep down in the classes hierarchy.
-
-                    <p>Testability declines with increasing DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-
-        <dt><strong>Portability</strong></dt>
-
-        <dd>
-            declines with increasing DIT.
-
-            <dl>
-                <dt><strong>Adaptability:</strong></dt>
-
-                <dd>
-                    As for changeability,
-                    the size of software has a direct impact. Classes
-                    that are deep down in the classes hierarchy
-                    potentially inherit many methods from
-                    super-classes. Moreover, the definitions of
-                    inherited methods are not local to the class
-                    making it even harder to analyze it.
-
-                    <p>Adaptability declines with increasing DIT.</p>
-                </dd>
-
-                <dt><strong>Replaceablity:</strong></dt>
-
-                <dd>
-                    The substitute of a component must imitate its
-                    interface. Large interfaces are difficult to
-                    check for substitutability and to actually
-                    substitute. Interface size increases for classes
-                    that are deep down in the classes hierarchy.
-
-                    <p>Replaceablity decline with increasing DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-    </dl>
-</dd>
-
-<dt><strong>Related Software Quality
-    Properties</strong></dt>
-
-<dd>
-    &nbsp;
-
-    <dl>
-        <dt><strong>Functionality</strong></dt>
-
-        <dd>
-            might increase with increasing DIT.
-
-            <dl>
-                <dt><strong>Interoperability:</strong></dt>
-
-                <dd>
-                    Relating DIT to interoperability requires to be
-                    able to locate hierarchy (sub-)structures of a
-                    system responsible for interoperability. A high
-                    DIT in these hierarchy (sub-)structures might
-                    indicate a better ability to interact.
-
-                    <p>Interoperability might increase with
-                        increasing DIT.</p>
-                </dd>
-
-                <dt><strong>Security:</strong></dt>
-
-                <dd>
-                    Relating DIT to security requires to be able to
-                    locate hierarchy (sub-)structures of a system
-                    responsible for interoperability. A high DIT in
-                    these hierarchy (sub-)structures might indicate a
-                    higher security.
-
-                    <p>Security might increase with increasing
-                        DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-
-        <dt><strong>Reliability</strong></dt>
-
-        <dd>
-            is both positively and negatively influenced by
-            attributes assessed with DIT.
-
-            <dl>
-                <dt><strong>Maturity:</strong></dt>
-
-                <dd>
-                    Due to reduced analyzability
-                    and testability,
-                    bugs mights be left in the software. Therefore,
-                    also maturity may be influenced negatively by
-                    DIT.
-
-                    <p>Maturity might decline with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Fault-tolerance</strong></dt>
-
-                <dd>
-                    Relating DIT to fault-tolerance requires to be
-                    able to locate hierarchy (sub-)structures of a
-                    system responsible for interoperability. A high
-                    DIT in these hierarchy (sub-)structures might
-                    indicate a better ability to interact.
-
-                    <p>Fault-Tolerance might increase with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Recoverability</strong></dt>
-
-                <dd>
-                    Relating DIT to recoverability requires to be
-                    able to locate hierarchy (sub-)structures of a
-                    system responsible for interoperability. A high
-                    DIT in these hierarchy (sub-)structures might
-                    indicate a higher recoverability.
-
-                    <p>Recoverability might increase with increasing
-                        DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-
-        <dt><strong>Efficiency</strong></dt>
-
-        <dd>
-            might decline with increasing DIT.
-
-            <dl>
-                <dt><strong>Time Behavior:</strong></dt>
-
-                <dd>
-                    Static size might indicate a higher execution
-                    time due to increased number of instruction cache
-                    misses, long jumps, etc. Classes inheriting many
-                    attributes are potentially large. Moreover, late
-                    binding requires indirect calls and prevents
-                    optimizations in the context of the caller.
-
-                    <p>Time behavior might get worse with increasing
-                        DIT.</p>
-                </dd>
-
-                <dt><strong>Resource Utilization:</strong></dt>
-
-                <dd>
-                    Static size might indicate a higher memory
-                    utilization.
-
-                    <p>Resource utilization might get worse with
-                        increasing DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-
-        <dt><strong>Maintainability</strong></dt>
-
-        <dd>
-            declines with increasing DIT.
-
-            <dl>
-                <dt><strong>Stability:</strong></dt>
-
-                <dd>
-                    Due to reduced analyzability
-                    and testability,
-                    also stability may be influenced negatively by
-                    size.
-
-                    <p>Stability might decline with increasing
-                        DIT.</p>
-                </dd>
-            </dl>
-        </dd>
-    </dl>
-</dd>
-<p>
-    See
-    S.R.Chidamber and C.F.Kamerer, A metrics Suite for Object-Oriented Design. IEEE Trans. Software Engineering, vol.
-    SE-20, no.6, 476-493, 1994.
-</p>
+<dl>
+    <dt><strong>Highly Related Software Quality
+        Properties</strong></dt>
+
+    <dd>
+        &nbsp;
+
+        <dl>
+            <dt><strong>Re-Usability</strong></dt>
+
+            <dd>
+                is both negatively and positively influenced by
+                attributed assess with DIT.
+
+                <dl>
+                    <dt><strong>Understandability for
+                        Reuse:</strong></dt>
+
+                    <dd>
+                        Understanding if a class is suitable for reuse
+                        depends on the size of its interface. Classes
+                        that are deep down in the classes hierarchy
+                        potentially inherit many methods from
+                        super-classes. Moreover, the definitions of
+                        inherited methods are not local to the class
+                        making it even harder to analyze it.
+
+                        <p>Understandability declines with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Learnability for Reuse:</strong></dt>
+
+                    <dd>
+                        Learning how to use a class depends on the size
+                        of its interface. Classes that are deep down in
+                        the classes hierarchy potentially inherit many
+                        methods from super-classes. Moreover, the
+                        definitions of inherited methods are not local to
+                        the class making it even harder to analyze it.
+
+                        <p>Learnability declines with increasing DIT.</p>
+                    </dd>
+
+                    <dt><strong>Operability for Reuse -
+                        Programmability:</strong></dt>
+
+                    <dd>
+                        How well a class can be integrated depends on the
+                        size of its interface. Classes that are deep down
+                        in the classes hierarchy potentially inherit many
+                        methods from super-classes. Moreover, the
+                        definitions of inherited methods are not local to
+                        the class making it even harder to analyze it.
+
+                        <p>Programmability declines with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Attractiveness:</strong></dt>
+
+                    <dd>
+                        Attractiveness of a class depends on the size of
+                        the potentially reused javaCode. Classes that are
+                        deep down in the classes hierarchy potentially
+                        inherit many methods from super-classes.
+
+                        <p>Attractiveness increases with increasing
+                            DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Maintainability</strong></dt>
+
+            <dd>
+                declines with increasing DIT.
+
+                <dl>
+                    <dt><strong>Analyzability:</strong></dt>
+
+                    <dd>
+                        The effort and time for diagnosis of deficiencies
+                        or causes of failures in a class, or for
+                        identification of parts to be modified is related
+                        to the number of methods of the class. Classes
+                        that are deep down in the classes hierarchy
+                        potentially inherit many methods from
+                        super-classes. Moreover, the definitions of
+                        inherited methods are not local to the class
+                        making it even harder to analyze it.
+
+                        <p>Analyzability declines with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Changeability:</strong></dt>
+
+                    <dd>
+                        Changing a class requires prior understanding,
+                        which, in turn, is more complicated for classes
+                        with many methods. Classes that are deep down in
+                        the classes hierarchy potentially inherit many
+                        methods from super-classes. Moreover, the
+                        definitions of inherited methods are not local to
+                        the class making it even harder to understand it.
+
+                        <p>Changeability declines with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Testability:</strong></dt>
+
+                    <dd>
+                        Complete testing requires coverage of all
+                        execution paths. The number of possible execution
+                        paths of a class increases with the number of
+                        methods and their control flow complexity.
+                        Classes that are deep down in the classes
+                        hierarchy potentially inherit many methods from
+                        super-classes. Due to late binding, super-class
+                        methods need to be tested again in the sub-class
+                        context. This makes it it potentially harder to
+                        test classes deep down in the classes hierarchy.
+
+                        <p>Testability declines with increasing DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Portability</strong></dt>
+
+            <dd>
+                declines with increasing DIT.
+
+                <dl>
+                    <dt><strong>Adaptability:</strong></dt>
+
+                    <dd>
+                        As for changeability,
+                        the size of software has a direct impact. Classes
+                        that are deep down in the classes hierarchy
+                        potentially inherit many methods from
+                        super-classes. Moreover, the definitions of
+                        inherited methods are not local to the class
+                        making it even harder to analyze it.
+
+                        <p>Adaptability declines with increasing DIT.</p>
+                    </dd>
+
+                    <dt><strong>Replaceablity:</strong></dt>
+
+                    <dd>
+                        The substitute of a component must imitate its
+                        interface. Large interfaces are difficult to
+                        check for substitutability and to actually
+                        substitute. Interface size increases for classes
+                        that are deep down in the classes hierarchy.
+
+                        <p>Replaceablity decline with increasing DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+
+    <dt><strong>Related Software Quality
+        Properties</strong></dt>
+
+    <dd>
+        &nbsp;
+
+        <dl>
+            <dt><strong>Functionality</strong></dt>
+
+            <dd>
+                might increase with increasing DIT.
+
+                <dl>
+                    <dt><strong>Interoperability:</strong></dt>
+
+                    <dd>
+                        Relating DIT to interoperability requires to be
+                        able to locate hierarchy (sub-)structures of a
+                        system responsible for interoperability. A high
+                        DIT in these hierarchy (sub-)structures might
+                        indicate a better ability to interact.
+
+                        <p>Interoperability might increase with
+                            increasing DIT.</p>
+                    </dd>
+
+                    <dt><strong>Security:</strong></dt>
+
+                    <dd>
+                        Relating DIT to security requires to be able to
+                        locate hierarchy (sub-)structures of a system
+                        responsible for interoperability. A high DIT in
+                        these hierarchy (sub-)structures might indicate a
+                        higher security.
+
+                        <p>Security might increase with increasing
+                            DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Reliability</strong></dt>
+
+            <dd>
+                is both positively and negatively influenced by
+                attributes assessed with DIT.
+
+                <dl>
+                    <dt><strong>Maturity:</strong></dt>
+
+                    <dd>
+                        Due to reduced analyzability
+                        and testability,
+                        bugs mights be left in the software. Therefore,
+                        also maturity may be influenced negatively by
+                        DIT.
+
+                        <p>Maturity might decline with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Fault-tolerance</strong></dt>
+
+                    <dd>
+                        Relating DIT to fault-tolerance requires to be
+                        able to locate hierarchy (sub-)structures of a
+                        system responsible for interoperability. A high
+                        DIT in these hierarchy (sub-)structures might
+                        indicate a better ability to interact.
+
+                        <p>Fault-Tolerance might increase with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Recoverability</strong></dt>
+
+                    <dd>
+                        Relating DIT to recoverability requires to be
+                        able to locate hierarchy (sub-)structures of a
+                        system responsible for interoperability. A high
+                        DIT in these hierarchy (sub-)structures might
+                        indicate a higher recoverability.
+
+                        <p>Recoverability might increase with increasing
+                            DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Efficiency</strong></dt>
+
+            <dd>
+                might decline with increasing DIT.
+
+                <dl>
+                    <dt><strong>Time Behavior:</strong></dt>
+
+                    <dd>
+                        Static size might indicate a higher execution
+                        time due to increased number of instruction cache
+                        misses, long jumps, etc. Classes inheriting many
+                        attributes are potentially large. Moreover, late
+                        binding requires indirect calls and prevents
+                        optimizations in the context of the caller.
+
+                        <p>Time behavior might get worse with increasing
+                            DIT.</p>
+                    </dd>
+
+                    <dt><strong>Resource Utilization:</strong></dt>
+
+                    <dd>
+                        Static size might indicate a higher memory
+                        utilization.
+
+                        <p>Resource utilization might get worse with
+                            increasing DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Maintainability</strong></dt>
+
+            <dd>
+                declines with increasing DIT.
+
+                <dl>
+                    <dt><strong>Stability:</strong></dt>
+
+                    <dd>
+                        Due to reduced analyzability
+                        and testability,
+                        also stability may be influenced negatively by
+                        size.
+
+                        <p>Stability might decline with increasing
+                            DIT.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
 </body>
 </html>

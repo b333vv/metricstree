@@ -21,7 +21,7 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
     private void loadInitialValues() {
         metrics.put("NOC", new MetricStub("NOC", "Number of Children", false, 0.00, 0.00, 0, 10));
         metrics.put("DIT", new MetricStub("DIT", "Depth of Inheritance Tree", false, 0.00, 0.00, 0, 5));
-        metrics.put("WMC", new MetricStub("WMC", "Weighted methods per Class", true, 0.00, 3.14, 0, 0));
+        metrics.put("WMC", new MetricStub("WMC", "Weighted methods per Class", false, 0.00, 0.00, 0, 20));
     }
 
     public Map<String, MetricStub> getMetrics() {
