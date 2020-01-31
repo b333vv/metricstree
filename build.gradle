@@ -7,8 +7,8 @@ apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.9
+targetCompatibility = 1.9
 
 intellij { plugins = ['java'] }
 
