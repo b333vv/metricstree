@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>Response for a Class</title>
+</head>
+<body>
+<h3>Response for a Class (RFC)</h3>
+<p>The Response for Class (RFC) metric is the total number of methods that can potentially be
+    executed in response to a message received by an object of a class.
+    This number is the sum of the methods of the class, and all distinct methods are invoked directly within the class methods.
+    Additionally, inherited methods are counted, but overridden methods are not,
+    because only one method of a particular signature will always be available to an object of a given class.</p>
+<p>
+    Included in the set of metrics proposed by Chidamber and Kemerer.
+    See <br />
+    <em>
+        S.&nbsp;R. Chidamber and C.&nbsp;F. Kemerer.
+        A Metrics Suite for Object Oriented Design.
+        In IEEE Transactions on Software Engineering,
+        volume 20 (6), pages 476-493, June 1994.
+    </em>
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dt><strong>Re-Usability</strong></dt>
+    <dd>
+        is both negatively and positively influenced by
+        attributed assessed with <i>Response For a Class</i>.
+        <dl>
+            <dt><strong>Understandability for
+                Reuse</strong></dt>
+            <dd>
+                Understanding if a class is suitable for reuse
+                depends on its complexity and size of the method
+                set it is related to.
+                <p>Understandability declines with increasing RFC.</p>
+            </dd>
+            <dt><strong>Attractiveness</strong></dt>
+            <dd>
+                Attractiveness of a class depends on the
+                complexity of the potentially reused code.
+                Response For a Class allows an assessment of
+                complexity.
+                <p>Attractiveness increases with increasing RFC.</p>
+            </dd>
+        </dl>
+    </dd>
+    <dt><strong>Maintainability</strong></dt>
+    <dd>
+        declines with increasing response set size.
+        <dl>
+            <dt><strong>Analysability</strong></dt>
+            <dd>
+                The effort and time for diagnosis of deficiencies
+                or causes of failures, or for identification of
+                parts to be modified is directly related to the
+                number of executed methods in response to a
+                message.
+                <p>Analysability declines with increasing RFC.</p>
+            </dd>
+            <dt><strong>Changeability</strong></dt>
+            <dd>
+                Each modification must be correct for all
+                execution paths. The size of the response set for
+                a class (RFC) gives an idea about how many
+                methods are potentially contributing to the size
+                of the execution paths.
+                <p>Changeability declines with increasing RFC.</p>
+            </dd>
+            <dt><strong>Testability</strong></dt>
+            <dd>
+                Complete testing requires coverage of all
+                execution paths. Response For a Class computes
+                the number of methods (directly) involved in
+                handling a particular message.
+                <p>Testability declines with increasing RFC.</p>
+            </dd>
+        </dl>
+    </dd>
+    <dt><strong>Portability</strong></dt>
+    <dd>
+        declines with increasing response set size.
+        <dl>
+            <dt><strong>Adaptability</strong></dt>
+            <dd>
+                As for changeability,
+                the complexity the control structure of software
+                has a direct impact. Each modification must be
+                correct for all execution paths. The size of the
+                response set for a class (RFC) gives an idea
+                about how many methods are potentially
+                contributing to the size of the execution paths.
+                <p>Adaptability declines with increasing RFC.</p>
+            </dd>
+        </dl>
+    </dd>
+</dl>
+</dd>
+<dt><strong>Related Software Quality Properties</strong></dt>
+<dd>
+    <dl>
+        <dt><strong>Reliability</strong></dt>
+        <dd>
+            might decrease with increasing response set size.
+            <dl>
+                <dt><strong>Maturity</strong></dt>
+                <dd>
+                    Due to reduced analyzability and testability,
+                    bugs mights be left in the software. Therefore,
+                    also maturity may be influenced negatively by
+                    response set size.
+                    <p>Maturity might decline with increasing RFC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Re-Usability</strong></dt>
+        <dd>
+            is both negatively and positively influenced by
+            attributed assess with Response For a Class.
+            <dl>
+                <dt><strong>Learnability for Reuse</strong></dt>
+                <dd>
+                    Learning if a class is suitable for reuse depends
+                    on the complexity of its interface (public
+                    methods) and the number of methods in other
+                    classes called in response to a received message.
+                    <p>Learnability declines with increasing RFC.</p>
+                </dd>
+                <dt><strong>Operability for Reuse - Programmability</strong></dt>
+                <dd>
+                    How well a class can be integrated depends the
+                    complexity of its interface and dependency on
+                    other classes (implementing not local methods).
+                    <p>Programmability declines with increasing RFC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Efficiency</strong></dt>
+        <dd>
+            might decline with increasing response set size.
+            <dl>
+                <dt><strong>Time Behavior</strong></dt>
+                <dd>
+                    Static complexity might indicate a higher
+                    execution complexity.
+                    <p>Time behavior might get worse with increasing
+                        RFC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Maintainability</strong></dt>
+        <dd>
+            declines with increasing response set size.
+            <dl>
+                <dt><strong>Stability</strong></dt>
+                <dd>
+                    Due to reduced analysability and testability,
+                    also stability may be influenced negatively by
+                    response set size.
+                    <p>Stability might decline with increasing RFC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Portability</strong></dt>
+        <dd>
+            declines with increasing response set size.
+            <dl>
+                <dt><strong>Replaceablity</strong></dt>
+                <dd>
+                    The substitute of a component must imitate its
+                    observable behavior. Components with complex
+                    control structures and response sets might have a
+                    more complex observable behavior making it more
+                    difficult to check substitutability and to
+                    actually substitute a component.
+                    <p>Replaceablity declines with increasing RFC.</p>
+                </dd>
+            </dl>
+        </dd>
+    </dl>
+</dd>
+</body>
+</html>

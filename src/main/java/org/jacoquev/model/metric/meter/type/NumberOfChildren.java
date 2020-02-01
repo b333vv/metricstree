@@ -26,7 +26,7 @@ public class NumberOfChildren implements Meter<JavaClass> {
             return result;
         });
         return ImmutableSet.of(
-                Metric.of("NOC", "Number of Children",
+                Metric.of("NOC", "Number Of Children",
                         "/html/NumberOfChildren.html", numberOfChildren)
         );
     }

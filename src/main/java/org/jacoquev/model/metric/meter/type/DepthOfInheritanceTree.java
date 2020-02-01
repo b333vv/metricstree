@@ -8,6 +8,7 @@ import com.intellij.psi.PsiTypeParameter;
 import org.jacoquev.model.code.JavaClass;
 import org.jacoquev.model.metric.Meter;
 import org.jacoquev.model.metric.Metric;
+import org.jacoquev.model.metric.util.TypeUtils;
 import org.jacoquev.util.MetricsUtils;
 
 import java.util.Set;
@@ -18,11 +19,7 @@ public class DepthOfInheritanceTree implements Meter<JavaClass> {
         PsiClass psiClass = javaClass.getPsiClass();
         long depthOfInheritanceTree = MetricsUtils.callInReadAction(() -> {
             long result = 0;
-            if (!(psiClass.isInterface() ||
-                    psiClass.isEnum() ||
-                    psiClass instanceof PsiAnonymousClass ||
-                    psiClass instanceof PsiTypeParameter ||
-                    psiClass.getParent() instanceof PsiDeclarationStatement)) {
+            if (TypeUtils.isConcrete(psiClass)) {
                 result = getInheritanceDepth(psiClass);
             }
             return result;

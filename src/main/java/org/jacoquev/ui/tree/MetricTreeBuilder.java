@@ -1,6 +1,5 @@
 package org.jacoquev.ui.tree;
 
-import com.intellij.openapi.project.Project;
 import org.jacoquev.model.code.JavaClass;
 import org.jacoquev.model.code.JavaMethod;
 import org.jacoquev.model.code.JavaPackage;
@@ -17,11 +16,9 @@ import java.util.stream.Collectors;
 
 public class MetricTreeBuilder {
     private DefaultTreeModel model;
-    private Project project;
     private JavaProject javaProject;
 
-    public MetricTreeBuilder(Project project, JavaProject javaProject) {
-        this.project = project;
+    public MetricTreeBuilder(JavaProject javaProject) {
         this.javaProject = javaProject;
     }
 

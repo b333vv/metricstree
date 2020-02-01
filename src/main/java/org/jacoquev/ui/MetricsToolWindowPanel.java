@@ -7,10 +7,17 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.RangeMarker;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiMethod;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTabbedPane;
@@ -32,9 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 
-@SuppressWarnings("FieldCanBeLocal")
 public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
     private static final Logger LOG = Logger.getInstance(MetricsToolWindowPanel.class);
@@ -136,26 +143,20 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     public void refresh() {
         if (virtualFile != null) {
             MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(virtualFile));
-//            treeSelectionChanged();
         }
     }
 
     private void calculateMetrics(@NotNull VirtualFile virtualFile) {
         ModelBuilder modelBuilder = new ModelBuilder(project);
-
         JavaProject javaProject = modelBuilder.buildJavaProject(virtualFile);
-
         RunnerFactory.getProcessor().run(javaProject);
-
-        metricTreeBuilder = new MetricTreeBuilder(project, javaProject);
-
+        metricTreeBuilder = new MetricTreeBuilder(javaProject);
         buildTreeModel();
         console.info("Evaluating metrics values for " + virtualFile.getPresentableName());
     }
 
     public void buildTreeModel() {
         DefaultTreeModel metricsTreeModel = metricTreeBuilder.createMetricTreeModel();
-
         metricsTree.setModel(metricsTreeModel);
         metricsTable.init(metricTreeBuilder.getJavaProject());
     }
@@ -164,7 +165,7 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
         AbstractNode node = metricsTree.getSelectedNode();
         if (node instanceof MetricNode) {
             Metric metric = ((MetricNode) node).getMetric();
-            bottomPanel.setMetric(metric);
+            bottomPanel.setData(metric);
             metricsDescriptionPanel.setMetric(metric);
             metricsTable.clear();
             rightPanel.remove(0);
@@ -172,7 +173,7 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof ClassNode) {
-            bottomPanel.setMetric(null);
+            bottomPanel.setData(((ClassNode) node).getJavaClass());
             metricsDescriptionPanel.clear();
             JavaClass javaClass = ((ClassNode) node).getJavaClass();
             metricsTable.set(javaClass);
@@ -181,7 +182,7 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof MethodNode) {
-            bottomPanel.setMetric(null);
+            bottomPanel.setData(((MethodNode) node).getJavaMethod());
             metricsDescriptionPanel.clear();
             JavaMethod javaMethod = ((MethodNode) node).getJavaMethod();
             metricsTable.set(javaMethod);
@@ -190,7 +191,7 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else {
-            bottomPanel.setMetric(null);
+            bottomPanel.clear();
             metricsDescriptionPanel.clear();
             metricsTable.clear();
         }
@@ -199,13 +200,4 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     public MetricsConsole getConsole() {
         return console;
     }
-
-
-    //    public VirtualFile getVirtualFile() {
-//        return virtualFile;
-//    }
-//
-//    public void setVirtualFile(VirtualFile virtualFile) {
-//        this.virtualFile = virtualFile;
-//    }
 }
