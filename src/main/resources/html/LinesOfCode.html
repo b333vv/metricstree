@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Number of Children</title>
+</head>
+<body>
+<h3>Lines of code (LOC)</h3>
+<p>Lines of code simply counts the lines of source code
+    (line break characters) of a certain software entity. It is
+    a simple yet powerful metric to assess the complexity of
+    software entities. Since it is depending on code
+    conventions and format, it is critical to use it in
+    generated codes since it may lack of line breaks.
+    Additionally it can only be measured in the source code
+    itself from the front-end and is therefore a front-end side
+    metric.
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                is both negatively and positively influenced by size.
+                <dl>
+                    <dt><strong>Understandability for Reuse</strong></dt>
+                    <dd>
+                        Understanding whether a software entity is suitable for reuse, or not, depends on its size.
+                    <p>Understandability declines with increasing LOC.</p>
+                    </dd>
+<dt><strong>Attractiveness</strong></dt>
+<dd>Attractiveness of a software entitydepends on the size of the potentially reused code.
+    <p>Attractiveness increases with increasing LOC.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>Maintainability</strong></dt>
+<dd>
+    declines with increasing LOC.
+    <dl>
+        <dt><strong>Analyzability</strong></dt>
+        <dd>
+            The effort and time for diagnosis of deficiencies
+            or causes of failures in a software entity, or
+            for identification of parts to be modified is
+            directly related to its size.
+            <p>Analyzability declines with increasing LOC.</p>
+        </dd>
+        <dt><strong>Changeability</strong></dt>
+        <dd>
+            Changing a software entity requires prior
+            understanding, which, in turn, is more
+            complicated for large systems.
+            <p>Changeability declines with increasing LOC.</p>
+        </dd>
+        <dt><strong>Testability</strong></dt>
+        <dd>
+            Complete testing requires coverage of all
+            execution paths. The number of possible execution
+            paths of a software entity increases with its
+            size.
+            <p>Testability declines with increasing LOC.</p>
+        </dd>
+    </dl>
+</dd>
+<dt><strong>Portability</strong></dt>
+<dd>
+    declines with increasing LOC.
+    <dl>
+        <dt><strong>Adaptability</strong></dt>
+        <dd>
+            As for changeability,
+            the size of a software entity has a direct
+            impact. Each modification requires understanding
+            which is more complicated for large systems.
+            <p>Adaptability declines with increasing LOC.</p>
+        </dd>
+    </dl>
+</dd>
+</dl>
+</dd>
+<dt><strong>Related Software Quality Properties</strong></dt>
+<dd>
+    <dl>
+        <dt><strong>Functionality</strong></dt>
+        <dd>
+            might increase with increasing LOC.
+            <dl>
+                <dt><strong>Interoperability</strong></dt>
+                <dd>
+                    Interoperability requires to be able to locate
+                    the parts of a system responsible for
+                    interoperability. The size of these parts might
+                    indicate a better ability to interact.
+                    <p>Interoperability might increase with increasing LOC.</p>
+                </dd>
+                <dt><strong>Security</strong></dt>
+                <dd>
+                    Relating LOC to security requires to be able to
+                    locate the parts of a system responsible for
+                    security. The size of these parts might indicate
+                    a higher security.
+                    <p>Security might increase with increasing LOC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Reliability</strong></dt>
+        <dd>
+            might increase with increasing LOC.
+            <dl>
+                <dt><strong>Maturity</strong></dt>
+                <dd>
+                    Due to reduced analyzability
+                    and testability,
+                    bugs might be left in the software. Therefore,
+                    also maturity may be influenced negatively by
+                    code size.
+                    <p>Maturity might decline with increasing LOC.</p>
+                </dd>
+                <dt><strong>Fault-tolerance</strong></dt>
+                <dd>
+                    Relating LOC to fault-tolerance requires to be
+                    able to locate the parts of a system responsible
+                    for fault-tolerance. The size of these parts
+                    might indicate a better ability to interact.
+                    <p>Fault-Tolerance might increase with increasing LOC.</p>
+                </dd>
+                <dt><strong>Recoverability</strong></dt>
+                <dd>
+                    Relating LOC to recoverability requires to be
+                    able to locate the parts of a system responsible
+                    for recoverability. The size of these parts might
+                    indicate a higher recoverability.
+                    <p>Recoverability might increase with increasing LOC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Re-Usability</strong></dt>
+        <dd>
+            might decrease with increasing LOC.
+            <dl>
+                <dt><strong>Learnability for Reuse</strong></dt>
+                <dd>
+                    Learning if a software entity is suitable for
+                    reuse depends on the size and complexity of its
+                    interface. LOC is a general size metric, but not
+                    specifically assessing interface size and
+                    complexity.
+                    <p>Learnability might decline with increasing LOC.</p>
+                </dd>
+                <dt><strong>Operability for Reuse -
+                    Programmability</strong></dt>
+                <dd>
+                    How well a class can be integrated depends the
+                    complexity of its interface. LOC is a general
+                    size metric, but not specifically assessing
+                    interface size and complexity.
+                    <p>Programmability might decline with increasing LOC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Efficiency</strong></dt>
+        <dd>
+            might decline with increasing LOC.
+            <dl>
+                <dt><strong>Time Behavior</strong></dt>
+                <dd>
+                    Static size might indicate a higher execution
+                    time due to increased number of instruction cache
+                    misses, long jumps, etc.
+                    <p>Time behavior might get worse with increasing LOC.</p>
+                </dd>
+                <dt><strong>Resource Utilization</strong></dt>
+                <dd>
+                    Static size might indicate a higher memory
+                    utilization.
+                    <p>Resource utilization might get worse with increasing LOC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Maintainability</strong></dt>
+        <dd>
+            declines with increasing LOC.
+            <dl>
+                <dt><strong>Stability</strong></dt>
+                <dd>
+                    Due to reduced analyzability
+                    and testability,
+                    also stability may be influenced negatively by
+                    size.
+                    <p>Stability might decline with increasing LOC.</p>
+                </dd>
+            </dl>
+        </dd>
+        <dt><strong>Portability</strong></dt>
+        <dd>
+            declines with increasing LOC.
+            <dl>
+                <dt><strong>Replaceablity</strong></dt>
+                <dd>
+                    The substitute of a component must imitate its
+                    observable behavior. Large components have the
+                    potential of a more complex observable behavior
+                    making it more difficult to check
+                    substitutability and to actually substitute a
+                    component. Interface size and complexity, an
+                    attribute directly connected to replaceability,
+                    is not specifically assessed by LOC.
+                    <p>Replaceablity might declines with increasing LOC.</p>
+                </dd>
+            </dl>
+        </dd>
+    </dl>
+</dd>
+</dl>
+</body>
+</html>

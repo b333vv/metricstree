@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>McCabe Cyclomatic Complexity</title>
+</head>
+<body>
+<h3>McCabe Cyclomatic Complexity (CC)</h3>
+<p>
+    McCabe Cyclomatic Complexity (CC) is a measure of the control structure complexity of software.
+    It is the number of linearly independent paths and therefore, the minimum number of independent
+    paths when executing the software.
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                is both negatively and positively influenced by
+                attributed assess with Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Understandability for Reuse</strong></dt>
+                    <dd>
+                        Understanding if a class is suitable for reuse
+                        depends on its complexity.
+                        <p>Understandability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Learnability for Reuse</strong></dt>
+                    <dd>
+                        Learning if a class is suitable for reuse depends
+                        on the complexity of its interface. Systems with
+                        high control complexity may also have a complex
+                        (behavioral) interface.
+                        <p>Learnability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Operability for Reuse - Programmability</strong></dt>
+                    <dd>
+                        How well a class can be integrated depends the
+                        complexity of its interface. Systems with high
+                        control complexity may also have a complex
+                        (behavioral) interface.
+                        <p>Programmability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Attractiveness</strong></dt>
+                    <dd>
+                        Attractiveness of a class depends on the
+                        complexity of the potentially reused code.
+                        Cyclomatic Complexity allows an assessment
+                        complexity.
+                        <p>Attractiveness increases with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Maintainability</strong></dt>
+            <dd>
+                declines with increasing Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Analyzability</strong></dt>
+                    <dd>
+                        The effort and time for diagnosis of deficiencies
+                        or causes of failures, or for identification of
+                        parts to be modified is directly related to the
+                        number of execution paths, i.e. the complexity of
+                        the control flow.
+                        <p>Analyzability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Changeability</strong></dt>
+                    <dd>
+                        Each modification must be correct for all
+                        execution paths. Cyclomatic Complexity computes
+                        the number of the linearly independent paths, a
+                        lower bound of all execution paths ignoring
+                        multiple iterations.
+                        <p>Changeability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Testability</strong></dt>
+                    <dd>
+                        Complete testing requires coverage of all
+                        execution paths. Cyclomatic Complexity computes
+                        the number of the linearly independent paths, a
+                        lower bound of all execution paths ignoring
+                        multiple iterations.
+                        <p>Testability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Portability</strong></dt>
+            <dd>
+                declines with increasing Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Adaptability</strong></dt>
+                    <dd>
+                        As for changeability,
+                        the complexity the control structure of software
+                        has a direct impact. Each modification must be
+                        correct for all execution paths. Cyclomatic
+                        Complexity computes the number of the linearly
+                        independent paths, a lower bound of all execution
+                        paths ignoring multiple iterations.
+                        <p>Adaptability declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Replaceablity</strong></dt>
+                    <dd>
+                        The substitute of a component must imitate its
+                        observable behavior. Components with complex
+                        control structures might have a more complex
+                        observable behavior making it more difficult to
+                        check substitutability and to actually substitute
+                        a component.
+                        <p>Replaceablity declines with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+    <dt><strong>Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Functionality</strong></dt>
+            <dd>
+                might increase with increasing Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Interoperability</strong></dt>
+                    <dd>
+                        Relating Cyclomatic Complexity to
+                        interoperability requires to be able to locate
+                        the parts of a system responsible for
+                        interoperability. Complexity in these parts might
+                        indicate a better ability to interact.
+                    </dd>
+                    <dt><strong>Security</strong></dt>
+                    <dd>
+                        Relating Cyclomatic Complexity to security
+                        requires to be able to locate the parts of a
+                        system responsible for security. Complexity in
+                        these parts might indicate a higher security.
+                        <p>Security might increase with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Reliability</strong></dt>
+            <dd>
+                might increase with increasing Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Maturity</strong></dt>
+                    <dd>
+                        Due to reduced analyzability
+                        and testability,
+                        bugs mights be left in the software. Therefore,
+                        also maturity may be influenced negatively by
+                        control-flow complexity.
+                        <p>Maturity might decline with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                    <dt><strong>Fault-tolerance</strong></dt>
+                    <dd>
+                        Relating Cyclomatic Complexity to fault-tolerance
+                        requires to be able to locate the parts of a
+                        system responsible for fault-tolerance.
+                        Complexity in these parts might indicate a better
+                        ability to interact.
+                    </dd>
+                    <dt><strong>Recoverability</strong></dt>
+                    <dd>
+                        Relating Cyclomatic Complexity to recoverability
+                        requires to be able to locate the parts of a
+                        system responsible for recoverability. Complexity
+                        in these parts might indicate a higher
+                        recoverability.
+                        Recoverability might increase with increasing CC
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Efficiency</strong></dt>
+            <dd>
+                might decline with increasing Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Time Behavior</strong></dt>
+                    <dd>
+                        Static complexity might indicate a higher
+                        execution complexity.
+                        <p>Time behavior might get worse with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Maintainability</strong></dt>
+            <dd>
+                declines with increasing Cyclomatic Complexity.
+                <dl>
+                    <dt><strong>Stability</strong></dt>
+                    <dd>
+                        Due to reduced analyzability
+                        and testability,
+                        also stability may be influenced negatively by
+                        control-flow complexity.
+                        <p>Stability might decline with increasing Cyclomatic Complexity.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
+</body>
+</html>

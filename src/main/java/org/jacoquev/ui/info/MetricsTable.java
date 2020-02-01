@@ -54,8 +54,6 @@ public class MetricsTable {
     public void init(JavaProject javaProject) {
         JavaPackage javaPackage = javaProject.getPackages().iterator().next();
         JavaClass javaClass = javaPackage.getTypes().iterator().next();
-        Border b = IdeBorderFactory.createTitledBorder(javaClass.getName());
-        panel.setBorder(b);
         set(javaClass);
     }
 
@@ -64,6 +62,8 @@ public class MetricsTable {
     }
 
     public void set(JavaCode javaCode) {
+        Border b = IdeBorderFactory.createTitledBorder(javaCode.getName());
+        panel.setBorder(b);
         Set<Metric> metrics = javaCode.getMetrics();
         List<Metric> sortedMetrics = metrics.stream()
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))

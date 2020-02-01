@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>Number of Children</title>
+</head>
+<body>
+<h3>Lack of Cohesion of Methods (DIT)</h3>
+<p>
+    The Lack of Cohesion in Methods metric is a measure for the number of not connected method pairs in a class
+    representing independent parts having no cohesion. It represents the difference between the number of method
+    pairs not having instance variables in common, and the number of method pairs having common instance variables.
+</p>
+<p>
+    Included in the set of metrics proposed by Chidamber and Kemerer.
+    See <br />
+    <em>
+        S.&nbsp;R. Chidamber and C.&nbsp;F. Kemerer.
+        A Metrics Suite for Object Oriented Design.
+        In IEEE Transactions on Software Engineering,
+        volume 20 (6), pages 476-493, June 1994.
+    </em>
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Reliability</strong></dt>
+            <dd>
+                is positively influenced by cohesion.
+                <dl>
+                    <dt><strong>Maturity</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to maturity, since a
+                        mature system ought to have high cohesion values.
+                        <p>Maturity decreases with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                is negatively influenced by coupling.
+                <dl>
+                    <dt><strong>Understandability for Reuse</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to understandability for
+                        reuse, since they implement only one concept.
+                        <p>Understandability decreases with increasing LCOM.</p>
+                    </dd>
+                    <dt><strong>Attractiveness</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to attractiveness for
+                        reuse, since they implement only one concept.
+                        <p>Attractiveness decreases with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Maintainability</strong></dt>
+            <dd>
+                decreases with increasing LCOM.
+                <dl>
+                    <dt><strong>Analyzability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to analyzability, since
+                        they implement only one concept.
+                        <p>Analyzability decreases with increasing LCOM.</p>
+                    </dd>
+                    <dt><strong>Changeability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to changeability, since
+                        they implement only one concept.
+                        <p>Changeability decreases with increasing LCOM.</p>
+                    </dd>
+                    <dt><strong>Stability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to stability, since they
+                        implement only one concept.
+                        <p>Stability decreases with increasing LCOM.</p>
+                    </dd>
+                    <dt><strong>Testability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to testability, since
+                        they implement only one concept.
+                        <p>Testability decreases with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Portability</strong></dt>
+            <dd>
+                decreases with increasing LCOM.
+                <dl>
+                    <dt><strong>Adaptability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to adaptability, since
+                        they implement only one concept.
+                        <p>Adaptability decreases with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+    <dt><strong>Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                might decrease with increasing LCOM.
+                <dl>
+                    <dt><strong>Learnability for Reuse</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to learnability, since
+                        they implement only one concept.
+                        <p>Learnability might decrease with increasing LCOM.</p>
+                    </dd>
+                    <dt><strong>Operability for Reuse - Programmability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to programmability, since
+                        they implement only one concept.
+                        <p>Programmability might decrease with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Efficiency</strong></dt>
+            <dd>
+                might decrease with increasing LCOM.
+                <dl>
+                    <dt><strong>Time Behavior</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        directly related to time behavior, since they
+                        implement only one concept, and do not do any
+                        unrelated time consuming tasks.
+                        <p>Time behavior might get worse with increasing LCOM.</p>
+                    </dd>
+                    <dt><strong>Resource Utilization</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        directly related to resource utilization, since
+                        they implement only one concept, and do not do
+                        any unrelated resource utilization.
+                        <p>Resource utilization might get worse with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Portability</strong></dt>
+            <dd>
+                decreases with increasing LCOM.
+                <dl>
+                    <dt><strong>Replaceablity</strong></dt>
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        directly related to replaceability, since they
+                        implement only one concept.
+                        <p>Replaceablity might decreases with increasing LCOM.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
+</body>
+</html>
