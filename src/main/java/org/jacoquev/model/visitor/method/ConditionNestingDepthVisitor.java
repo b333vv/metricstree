@@ -1,12 +1,12 @@
 package org.jacoquev.model.visitor.method;
 
-import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiIfStatement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiStatement;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.MethodUtils;
 
-public class ConditionNestingDepthVisitor extends JavaRecursiveElementVisitor {
+public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
     private long result = 0;
     private long methodNestingCount = 0;
     private long maximumDepth = 0;
@@ -14,6 +14,7 @@ public class ConditionNestingDepthVisitor extends JavaRecursiveElementVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
+        long conditionNestingDepth = 0;
         if (methodNestingCount == 0) {
             maximumDepth = 0;
             currentDepth = 0;
@@ -23,15 +24,17 @@ public class ConditionNestingDepthVisitor extends JavaRecursiveElementVisitor {
         methodNestingCount--;
         if (methodNestingCount == 0) {
             if (!MethodUtils.isAbstract(method)) {
-                result = maximumDepth;
+                conditionNestingDepth = maximumDepth;
             }
         }
+        metric = Metric.of("CND", "Condition Nesting Depth",
+                "/html/ConditionNestingDepth.html", conditionNestingDepth);
     }
 
     @Override
     public void visitIfStatement(PsiIfStatement statement) {
         boolean isAlreadyCounted = false;
-        if (statement.getParent()instanceof PsiIfStatement) {
+        if (statement.getParent() instanceof PsiIfStatement) {
             final PsiIfStatement parent = (PsiIfStatement) statement.getParent();
             final PsiStatement elseBranch = parent.getElseBranch();
             if (statement.equals(elseBranch)) {

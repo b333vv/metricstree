@@ -1,6 +1,7 @@
 package org.jacoquev.ui.tree;
 
 import com.intellij.ui.ColoredTreeCellRenderer;
+import org.jacoquev.ui.tree.node.AbstractNode;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

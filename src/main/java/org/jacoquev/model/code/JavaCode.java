@@ -3,7 +3,11 @@ package org.jacoquev.model.code;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.intellij.psi.JavaElementVisitor;
+import com.intellij.psi.PsiElementVisitor;
 import org.jacoquev.model.metric.Metric;
+import org.jacoquev.model.visitor.type.JavaClassVisitor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -51,7 +55,7 @@ public abstract class JavaCode {
         return Objects.hashCode(getName(), getParent());
     }
 
-    synchronized void addMetric(Metric metric) {
+    public synchronized void addMetric(Metric metric) {
         metrics.put(metric.getName(), metric);
     }
 
@@ -80,6 +84,10 @@ public abstract class JavaCode {
     protected void addChild(JavaCode child) {
         child.parent = this;
         this.children.add(child);
+    }
+
+    protected void accept(PsiElementVisitor visitor) {
+
     }
 }
 

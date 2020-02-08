@@ -1,10 +1,11 @@
 package org.jacoquev.model.visitor.method;
 
 import com.intellij.psi.*;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.MethodUtils;
 
-public class LoopNestingDepthVisitor extends JavaRecursiveElementVisitor {
-    private long result = 0;
+public class LoopNestingDepthVisitor extends JavaMethodVisitor {
+    private long loopNestingDepth = 0;
     private long methodNestingCount = 0;
     private long maximumDepth = 0;
     private long currentDepth = 0;
@@ -20,9 +21,11 @@ public class LoopNestingDepthVisitor extends JavaRecursiveElementVisitor {
         methodNestingCount--;
         if (methodNestingCount == 0) {
             if (!MethodUtils.isAbstract(method)) {
-                result = maximumDepth;
+                loopNestingDepth = maximumDepth;
             }
         }
+        metric = Metric.of("LND", "Loop Nesting Depth",
+                "/html/LoopNestingDepth.html", loopNestingDepth);
     }
 
     @Override
@@ -60,9 +63,5 @@ public class LoopNestingDepthVisitor extends JavaRecursiveElementVisitor {
 
     private void exitScope() {
         currentDepth--;
-    }
-
-    public long getResult() {
-        return result;
     }
 }

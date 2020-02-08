@@ -19,6 +19,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import org.jacoquev.ui.MetricsToolWindowPanel;
 import org.jacoquev.ui.tree.MetricsTreeFilter;
+import org.jacoquev.ui.ProjectMetricsPanel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -31,6 +32,7 @@ public class MetricsUtils {
     private static Project project;
     private static MetricsTreeFilter metricsTreeFilter = new MetricsTreeFilter();
     private static MetricsToolWindowPanel metricsToolWindowPanel;
+    private static ProjectMetricsPanel projectMetricsPanel;
 
     private MetricsUtils() {
         // Utility class
@@ -121,5 +123,17 @@ public class MetricsUtils {
 
     public static void refreshMetricsTree() {
         metricsToolWindowPanel.refresh();
+    }
+
+    public static void setProjectMetricsPanel(ProjectMetricsPanel value) {
+        projectMetricsPanel = value;
+    }
+
+    public static ProjectMetricsPanel getProjectMetricsPanel() {
+        return projectMetricsPanel;
+    }
+
+    public static void calculateProjectMetrics() {
+        projectMetricsPanel.calculate();
     }
 }

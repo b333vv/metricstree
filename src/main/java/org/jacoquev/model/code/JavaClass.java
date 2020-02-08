@@ -1,9 +1,13 @@
 package org.jacoquev.model.code;
 
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElementVisitor;
+import org.jacoquev.model.visitor.type.JavaClassVisitor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JavaClass extends JavaCode {
     private final PsiClass psiClass;
@@ -13,9 +17,22 @@ public class JavaClass extends JavaCode {
         this.psiClass = aClass;
     }
 
-    @SuppressWarnings("unchecked")
+    public void addClass(JavaClass javaClass) {
+        addChild(javaClass);
+    }
+
     public Set<JavaMethod> getMethods() {
-        return (Set<JavaMethod>) (Set<?>) getChildren();
+        return children.stream()
+                .filter(c -> c instanceof JavaMethod)
+                .map(c -> (JavaMethod) c)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<JavaClass> getClasses() {
+        return children.stream()
+                .filter(c -> c instanceof JavaClass)
+                .map(c -> (JavaClass) c)
+                .collect(Collectors.toSet());
     }
 
     public void addMethod(JavaMethod javaMethod) {
@@ -47,5 +64,12 @@ public class JavaClass extends JavaCode {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getPsiClass());
+    }
+
+    @Override
+    public void accept(PsiElementVisitor visitor) {
+        if (visitor instanceof JavaClassVisitor) {
+            ((JavaClassVisitor) visitor).visitJavaClass(this);
+        }
     }
 }

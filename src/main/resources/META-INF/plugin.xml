@@ -26,6 +26,9 @@
         <component>
             <implementation-class>org.jacoquev.ui.log.MetricsConsole</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jacoquev.ui.ProjectMetricsPanel</implementation-class>
+        </component>
     </project-components>
 
     <actions>
@@ -43,9 +46,16 @@
         </action>
         <action id="Metrics.Configure"
                 class="org.jacoquev.actions.ConfigureProject"
-                text="Configure Come4J"
+                text="Configure"
                 description="Configure"
                 icon="AllIcons.General.Settings">
+        </action>
+
+        <action id="Metrics.CalculateProjectMetrics"
+                class="org.jacoquev.actions.CalculateProjectMetrics"
+                text="Calculate Project Metrics"
+                description="Calculate project metrics"
+                icon="AllIcons.RunConfigurations.TestState.Run">
         </action>
 
 
@@ -83,11 +93,16 @@
             <reference id="Metrics.ShowNotSetValueMetrics"/>
         </group>
 
-        <group id="Metrics.ProcessesToolbar">
+        <group id="Metrics.ClassMetricsToolbar">
             <reference id="Metrics.FilterMetricsTree"/>
             <reference id="Metrics.RefreshMetricsTree"/>
             <separator/>
             <reference id="Metrics.Configure"/>
+        </group>
+
+        <group id="Metrics.ProjectMetricsToolbar">
+            <reference id="Metrics.CalculateProjectMetrics"/>
+            <separator/>
         </group>
 
         <action id="Metrics.LogConsoleClean"

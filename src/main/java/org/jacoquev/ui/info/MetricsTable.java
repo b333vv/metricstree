@@ -52,9 +52,9 @@ public class MetricsTable {
     }
 
     public void init(JavaProject javaProject) {
-        JavaPackage javaPackage = javaProject.getPackages().iterator().next();
-        JavaClass javaClass = javaPackage.getTypes().iterator().next();
-        set(javaClass);
+//        JavaPackage javaPackage = javaProject.getPackages().iterator().next();
+//        JavaClass javaClass = javaPackage.getClasses().iterator().next();
+        set(javaProject);
     }
 
     public void clear() {

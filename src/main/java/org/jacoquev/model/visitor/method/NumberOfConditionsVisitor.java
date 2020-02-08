@@ -1,14 +1,14 @@
 package org.jacoquev.model.visitor.method;
 
-import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
+import org.jacoquev.model.metric.Metric;
 
-public class NumberOfConditionsVisitor extends JavaRecursiveElementVisitor {
+public class NumberOfConditionsVisitor extends JavaMethodVisitor {
     private long count = 0;
     private long depth = 0;
-    private long result = 0;
+    private long numberOfConditions = 0;
 
     @Override
     public void visitExpression(PsiExpression expression) {
@@ -29,11 +29,9 @@ public class NumberOfConditionsVisitor extends JavaRecursiveElementVisitor {
         super.visitMethod(method);
         depth--;
         if (depth == 0) {
-            result = count;
+            numberOfConditions = count;
         }
-    }
-
-    public long getResult() {
-        return result;
+        metric = Metric.of("NOCdt", "Number Of Conditions",
+                "/html/NumberOfConditions.html", numberOfConditions);
     }
 }

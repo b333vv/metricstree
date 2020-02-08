@@ -1,9 +1,12 @@
 package org.jacoquev.model.code;
 
+import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.MethodSignature;
+import org.jacoquev.model.visitor.method.JavaMethodVisitor;
+import org.jacoquev.model.visitor.type.JavaClassVisitor;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -55,5 +58,12 @@ public class JavaMethod extends JavaCode {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getPsiMethod());
+    }
+
+    @Override
+    public void accept(PsiElementVisitor visitor) {
+        if (visitor instanceof JavaMethodVisitor) {
+            ((JavaMethodVisitor) visitor).visitJavaMethod(this);
+        }
     }
 }

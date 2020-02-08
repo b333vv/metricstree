@@ -4,6 +4,8 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.SideBorder;
 import org.jacoquev.model.code.JavaClass;
 import org.jacoquev.model.code.JavaMethod;
+import org.jacoquev.model.code.JavaPackage;
+import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.Metric;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +31,24 @@ public class BottomPanel {
 
     public void setData(@NotNull Metric metric) {
         String description = metric.getDescription();
+        if (description == null) {
+            nothingToDisplay(true);
+            return;
+        }
+        updateDescription(description);
+    }
+
+    public void setData(@NotNull JavaProject javaProject) {
+        String description = javaProject.getName();
+        if (description == null) {
+            nothingToDisplay(true);
+            return;
+        }
+        updateDescription(description);
+    }
+
+    public void setData(@NotNull JavaPackage javaPackage) {
+        String description = javaPackage.getName();
         if (description == null) {
             nothingToDisplay(true);
             return;

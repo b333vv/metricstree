@@ -1,6 +1,7 @@
 package org.jacoquev.ui.tree;
 
 import com.intellij.ui.treeStructure.Tree;
+import org.jacoquev.ui.tree.node.AbstractNode;
 
 import javax.annotation.CheckForNull;
 import javax.swing.tree.TreeModel;

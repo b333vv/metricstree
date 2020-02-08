@@ -9,19 +9,30 @@ import org.jacoquev.ui.log.MetricsLogPanel;
 import org.jacoquev.util.MetricsService;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {
-    public static final String TAB_METRICS_TREE = "Metrics tree";
+    public static final String TAB_CLASS_METRICS_TREE = "Class Metrics Tree";
+    public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics Tree";
     public static final String TAB_LOGS = "Log";
 
-    private static void addMetricsTreeTab(Project project, ToolWindow toolWindow) {
-        MetricsService.setMetricsSettings(project);
+    private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
         CurrentFileController currentFileController = new CurrentFileController(project);
         MetricsToolWindowPanel metricsToolWindowPanel = new MetricsToolWindowPanel(currentFileController, project);
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(
                         metricsToolWindowPanel,
-                        TAB_METRICS_TREE,
+                        TAB_CLASS_METRICS_TREE,
                         false);
         toolWindow.getContentManager().addDataProvider(metricsToolWindowPanel);
+        toolWindow.getContentManager().addContent(treeContent);
+    }
+
+    private static void addProjectMetricsTreeTab(Project project, ToolWindow toolWindow) {
+        ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
+        Content treeContent = toolWindow.getContentManager().getFactory()
+                .createContent(
+                        projectMetricsPanel,
+                        TAB_PROJECT_METRICS_TREE,
+                        false);
+        toolWindow.getContentManager().addDataProvider(projectMetricsPanel);
         toolWindow.getContentManager().addContent(treeContent);
     }
 
@@ -36,7 +47,9 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(Project project, final ToolWindow toolWindow) {
-        addMetricsTreeTab(project, toolWindow);
+        MetricsService.setMetricsSettings(project);
+        addClassMetricsTreeTab(project, toolWindow);
+        addProjectMetricsTreeTab(project, toolWindow);
         addLogTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);
     }

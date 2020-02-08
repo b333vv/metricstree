@@ -4,6 +4,9 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +35,9 @@ public class CurrentFileController {
         MetricsUtils.setProject(project);
         VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
         if (selectedFile != null && selectedFile.getFileType().getName().equals("JAVA")) {
-            panel.update(selectedFile);
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
+            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+            panel.update(psiJavaFile);
         }
     }
 
