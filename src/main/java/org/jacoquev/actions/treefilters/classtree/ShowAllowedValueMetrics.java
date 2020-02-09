@@ -1,4 +1,4 @@
-package org.jacoquev.actions.treefilters;
+package org.jacoquev.actions.treefilters.classtree;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,12 +15,12 @@ public class ShowAllowedValueMetrics extends ToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getMetricsTreeFilter().isAllowedValueMetricsVisible();
+        return MetricsUtils.getClassMetricsTreeFilter().isAllowedValueMetricsVisible();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getMetricsTreeFilter().setAllowedValueMetricsVisible(state);
+        MetricsUtils.getClassMetricsTreeFilter().setAllowedValueMetricsVisible(state);
         MetricsUtils.getMetricsToolWindowPanel().buildTreeModel();
     }
 }

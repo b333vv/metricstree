@@ -3,7 +3,7 @@ package org.jacoquev.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jacoquev.util.MetricsUtils;
 
-public class CalculateProjectMetrics extends AbstractAction {
+public class CalculateProjectMetricsAction extends AbstractAction {
 
     @Override
     protected boolean isEnabled(AnActionEvent e) {

@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import org.jacoquev.util.MetricsConfigurable;
 
-public class ConfigureProject extends AbstractAction {
+public class ConfigureProjectAction extends AbstractAction {
 
   @Override
   protected boolean isEnabled(AnActionEvent e) {

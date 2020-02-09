@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.MouseEvent;
 
-public class FilterMetricsTree extends AbstractAction {
+public class FilterClassMetricsTreeAction extends AbstractAction {
 
     @Override
     protected boolean isEnabled(AnActionEvent e) {
@@ -22,7 +22,7 @@ public class FilterMetricsTree extends AbstractAction {
     private void showPopup(@NotNull AnActionEvent e) {
         final ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup =
-                (DefaultActionGroup) actionManager.getAction("Metrics.FilterMetricsTreeGroup");
+                (DefaultActionGroup) actionManager.getAction("Metrics.FilterClassMetricsTreeGroup");
 
         ActionPopupMenu actionPopupMenu =
                 ActionManager.getInstance().createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, actionGroup);

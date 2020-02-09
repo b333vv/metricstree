@@ -7,7 +7,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.DumbServiceImpl;
@@ -16,6 +18,8 @@ import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import org.jacoquev.ui.MetricsToolWindowPanel;
 import org.jacoquev.ui.tree.MetricsTreeFilter;
@@ -30,9 +34,11 @@ public class MetricsUtils {
 
     private static final Logger LOG = Logger.getInstance(MetricsUtils.class);
     private static Project project;
-    private static MetricsTreeFilter metricsTreeFilter = new MetricsTreeFilter();
+    private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
+    private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
     private static MetricsToolWindowPanel metricsToolWindowPanel;
     private static ProjectMetricsPanel projectMetricsPanel;
+    private static boolean autoscroll = true;
 
     private MetricsUtils() {
         // Utility class
@@ -96,8 +102,12 @@ public class MetricsUtils {
         return DumbServiceImpl.getInstance(project);
     }
 
-    public static MetricsTreeFilter getMetricsTreeFilter() {
-        return metricsTreeFilter;
+    public static MetricsTreeFilter getClassMetricsTreeFilter() {
+        return classMetricsTreeFilter;
+    }
+
+    public static MetricsTreeFilter getProjectMetricsTreeFilter() {
+        return projectMetricsTreeFilter;
     }
 
     public static MetricsToolWindowPanel getMetricsToolWindowPanel() {
@@ -135,5 +145,62 @@ public class MetricsUtils {
 
     public static void calculateProjectMetrics() {
         projectMetricsPanel.calculate();
+    }
+
+    public static boolean isAutoscroll() {
+        return autoscroll;
+    }
+
+    public static void setAutoscroll(boolean autoscroll) {
+        MetricsUtils.autoscroll = autoscroll;
+    }
+
+    @Nullable
+    private static VirtualFile getVirtualFile(PsiElement psiElement) {
+        if (psiElement == null) {
+            return null;
+        }
+        final PsiFile containingFile = psiElement.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
+        return containingFile.getVirtualFile();
+    }
+
+    public static boolean isElementInSelectedFile(Project project,
+                                                  PsiElement psiElement) {
+        final VirtualFile elementFile = getVirtualFile(psiElement);
+        if (elementFile == null) {
+            return false;
+        }
+        final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+        final VirtualFile[] currentEditedFiles = fileEditorManager.getSelectedFiles();
+
+        for (final VirtualFile file : currentEditedFiles) {
+            if (elementFile.equals(file)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Nullable
+    public static Editor getEditorIfSelected(Project project,
+                                             PsiElement psiElement) {
+        final VirtualFile elementFile = getVirtualFile(psiElement);
+        if (elementFile == null) {
+            return null;
+        }
+
+        final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+        final FileEditor fileEditor = fileEditorManager.getSelectedEditor(elementFile);
+
+        Editor editor = null;
+
+        if (fileEditor != null && fileEditor instanceof TextEditor) {
+            editor = ((TextEditor) fileEditor).getEditor();
+        }
+
+        return editor;
     }
 }

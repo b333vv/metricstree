@@ -13,14 +13,12 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.builder.ProjectModelBuilder;
+import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectMetricsRunner
-//        implements UserDataHolder
-        {
+public class ProjectMetricsRunner {
 
     private final Project project;
     private final AnalysisScope scope;
@@ -31,7 +29,7 @@ public class ProjectMetricsRunner
     }
 
     public final void execute(JavaProject javaProject) {
-        final Task.Backgroundable task = new Task.Backgroundable(project, "Calculating metrics", true) {
+        final Task.Backgroundable task = new Task.Backgroundable(project, "Calculating Metrics", true) {
 
             @Override
             public void run(@NotNull final ProgressIndicator indicator) {
@@ -56,18 +54,6 @@ public class ProjectMetricsRunner
         final ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         final int numFiles = scope.getFileCount();
-//        final List<MetricCalculator> calculators = new ArrayList<MetricCalculator>(numMetrics);
-//        for (final MetricInstance metricInstance : metrics) {
-//            indicator.checkCanceled();
-//            if (!metricInstance.isEnabled()) {
-//                continue;
-//            }
-//            final Metric metric = metricInstance.getMetric();
-//            final MetricCalculator calculator = metric.createCalculator();
-//
-//            calculators.add(calculator);
-//            calculator.beginMetricsRun(metric, resultsHolder, this);
-//        }
 
         scope.accept(new PsiElementVisitor() {
             private int progress = 0;
@@ -97,19 +83,13 @@ public class ProjectMetricsRunner
                 progress++;
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
-//                for (MetricVisitor visitor : visitors) {
-//                    visitor.visit(psiFile);
-//                }
+
                 indicator.setIndeterminate(false);
                 indicator.setFraction((double) progress / (double) numFiles);
             }
         });
         indicator.setIndeterminate(false);
         indicator.setText("Build project metrics tree");
-//        for (MetricCalculator calculator : calculators) {
-//            indicator.checkCanceled();
-//            calculator.endMetricsRun();
-//        }
     }
 
     public void onFinish() {
@@ -117,16 +97,4 @@ public class ProjectMetricsRunner
     }
 
     public void onCancel() {}
-
-//    private Map userData = new HashMap();
-//
-//    @Override
-//    public final <T> T getUserData(@NotNull Key<T> key) {
-//        return (T) userData.get(key);
-//    }
-//
-//    @Override
-//    public final <T> void putUserData(@NotNull Key<T> key, T t) {
-//        userData.put(key, t);
-//    }
 }

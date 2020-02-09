@@ -32,59 +32,93 @@
     </project-components>
 
     <actions>
-        <action id="Metrics.FilterMetricsTree"
-                class="org.jacoquev.actions.FilterMetricsTree"
+        <action id="Metrics.FilterClassMetricsTree"
+                class="org.jacoquev.actions.FilterClassMetricsTreeAction"
+                text="Filter Metrics Tree"
+                description="Filter metrics tree"
+                icon="AllIcons.General.Filter">
+        </action>
+        <action id="Metrics.FilterProjectMetricsTree"
+                class="org.jacoquev.actions.FilterProjectMetricsTreeAction"
                 text="Filter Metrics Tree"
                 description="Filter metrics tree"
                 icon="AllIcons.General.Filter">
         </action>
         <action id="Metrics.RefreshMetricsTree"
-                class="org.jacoquev.actions.RefreshMetricsTree"
+                class="org.jacoquev.actions.RefreshMetricsTreeAction"
                 text="Refresh Metrics Tree"
                 description="Refresh metrics tree"
                 icon="AllIcons.Actions.Refresh">
         </action>
         <action id="Metrics.Configure"
-                class="org.jacoquev.actions.ConfigureProject"
+                class="org.jacoquev.actions.ConfigureProjectAction"
                 text="Configure"
                 description="Configure"
                 icon="AllIcons.General.Settings">
         </action>
 
         <action id="Metrics.CalculateProjectMetrics"
-                class="org.jacoquev.actions.CalculateProjectMetrics"
+                class="org.jacoquev.actions.CalculateProjectMetricsAction"
                 text="Calculate Project Metrics"
                 description="Calculate project metrics"
-                icon="AllIcons.RunConfigurations.TestState.Run">
+                icon="AllIcons.Actions.Execute">
+        </action>
+
+        <action id="Metrics.Autoscroll"
+                class="org.jacoquev.actions.SetAutoscrollAction"
+                text="Autoscroll To Source In Editor"
+                description="Autoscroll to source In editor"
+                icon="AllIcons.General.AutoscrollToSource">
         </action>
 
 
-        <!--        <action id="Metrics.ShowProjectMetrics"-->
-        <!--                class="org.jacoquev.actions.treefilters.ShowProjectMetrics">-->
-        <!--        </action>-->
-        <!--        <action id="Metrics.ShowPackageMetrics"-->
-        <!--                class="org.jacoquev.actions.treefilters.ShowPackageMetrics">-->
-        <!--        </action>-->
+        <action id="Metrics.ShowProjectMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
+        </action>
+        <action id="Metrics.ShowPackageMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowPackageMetrics">
+        </action>
         <action id="Metrics.ShowClassMetrics"
-                class="org.jacoquev.actions.treefilters.ShowClassMetrics">
+                class="org.jacoquev.actions.treefilters.classtree.ShowClassMetrics">
         </action>
         <action id="Metrics.ShowMethodMetrics"
-                class="org.jacoquev.actions.treefilters.ShowMethodMetrics">
+                class="org.jacoquev.actions.treefilters.classtree.ShowMethodMetrics">
         </action>
 
         <action id="Metrics.ShowAllowedValueMetrics"
-                class="org.jacoquev.actions.treefilters.ShowAllowedValueMetrics">
+                class="org.jacoquev.actions.treefilters.classtree.ShowAllowedValueMetrics">
         </action>
         <action id="Metrics.ShowDisallowedValueMetrics"
-                class="org.jacoquev.actions.treefilters.ShowDisallowedValueMetrics">
+                class="org.jacoquev.actions.treefilters.classtree.ShowDisallowedValueMetrics">
         </action>
         <action id="Metrics.ShowNotSetValueMetrics"
-                class="org.jacoquev.actions.treefilters.ShowNotSetValueMetrics">
+                class="org.jacoquev.actions.treefilters.classtree.ShowNotSetValueMetrics">
         </action>
 
-        <group id="Metrics.FilterMetricsTreeGroup">
-            <!--            <reference id="Metrics.ShowProjectMetrics"/>-->
-            <!--            <reference id="Metrics.ShowPackageMetrics"/>-->
+        <action id="Metrics.ProjectTreeShowProjectMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowPackageMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowPackageMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowClassMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowClassMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowMethodMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowMethodMetrics">
+        </action>
+
+        <action id="Metrics.ProjectTreeShowAllowedValueMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowAllowedValueMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowDisallowedValueMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowDisallowedValueMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowNotSetValueMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowNotSetValueMetrics">
+        </action>
+
+        <group id="Metrics.FilterClassMetricsTreeGroup">
             <reference id="Metrics.ShowClassMetrics"/>
             <reference id="Metrics.ShowMethodMetrics"/>
             <separator/>
@@ -93,16 +127,29 @@
             <reference id="Metrics.ShowNotSetValueMetrics"/>
         </group>
 
+        <group id="Metrics.FilterProjectMetricsTreeGroup">
+            <reference id="Metrics.ProjectTreeShowProjectMetrics"/>
+            <reference id="Metrics.ProjectTreeShowPackageMetrics"/>
+            <reference id="Metrics.ProjectTreeShowClassMetrics"/>
+            <reference id="Metrics.ProjectTreeShowMethodMetrics"/>
+            <separator/>
+            <reference id="Metrics.ProjectTreeShowAllowedValueMetrics"/>
+            <reference id="Metrics.ProjectTreeShowDisallowedValueMetrics"/>
+            <reference id="Metrics.ProjectTreeShowNotSetValueMetrics"/>
+        </group>
+
         <group id="Metrics.ClassMetricsToolbar">
-            <reference id="Metrics.FilterMetricsTree"/>
+            <reference id="Metrics.FilterClassMetricsTree"/>
             <reference id="Metrics.RefreshMetricsTree"/>
             <separator/>
             <reference id="Metrics.Configure"/>
         </group>
 
         <group id="Metrics.ProjectMetricsToolbar">
+            <reference id="Metrics.FilterProjectMetricsTree"/>
             <reference id="Metrics.CalculateProjectMetrics"/>
             <separator/>
+            <reference id="Metrics.Autoscroll"/>
         </group>
 
         <action id="Metrics.LogConsoleClean"

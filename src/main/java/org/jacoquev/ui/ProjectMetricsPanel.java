@@ -8,10 +8,12 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.jacoquev.model.code.*;
@@ -24,6 +26,7 @@ import org.jacoquev.ui.log.MetricsConsole;
 import org.jacoquev.ui.tree.MetricsTree;
 import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jacoquev.ui.tree.node.*;
+import org.jacoquev.util.EditorOpener;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NonNls;
 
@@ -136,7 +139,7 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
         metricsTree.setModel(metricsTreeModel);
         metricsTable.init(projectMetricTreeBuilder.getJavaProject());
-        console.info("Evaluating metrics values for " + project.getName() + " finished");
+//        console.info("Evaluating metrics values for " + project.getName() + " finished");
     }
 
     public void treeSelectionChanged() {
@@ -167,6 +170,7 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
             rightPanel.add(scrollableTablePanel);
             rightPanel.revalidate();
             rightPanel.repaint();
+            openInEditor(javaClass.getPsiClass());
         } else if (node instanceof MethodNode) {
             bottomPanel.setData(((MethodNode) node).getJavaMethod());
             metricsDescriptionPanel.clear();
@@ -176,10 +180,23 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
             rightPanel.add(scrollableTablePanel);
             rightPanel.revalidate();
             rightPanel.repaint();
+            openInEditor(javaMethod.getPsiMethod());
         } else {
             bottomPanel.clear();
             metricsDescriptionPanel.clear();
             metricsTable.clear();
+        }
+    }
+
+    private void openInEditor(PsiElement psiElement) {
+        if (MetricsUtils.isAutoscroll()) {
+            final EditorOpener caretMover = new EditorOpener(project);
+            if (psiElement != null) {
+                Editor editor = caretMover.openInEditor(psiElement);
+                if (editor != null) {
+                    caretMover.moveEditorCaret(psiElement);
+                }
+            }
         }
     }
 

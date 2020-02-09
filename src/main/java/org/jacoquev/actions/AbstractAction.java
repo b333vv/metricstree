@@ -36,9 +36,6 @@ public abstract class AbstractAction extends AnAction {
     }
 
     /**
-     * Whether the action should be visible in a place.
-     * Examples: MainMenu, ProjectViewPopup, GoToAction
-     *
      * @see com.intellij.openapi.actionSystem.ActionPlaces
      */
     protected boolean isVisible(String place) {
