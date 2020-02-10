@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JavaClass extends JavaCode {
     private final PsiClass psiClass;
@@ -21,18 +22,18 @@ public class JavaClass extends JavaCode {
         addChild(javaClass);
     }
 
-    public Set<JavaMethod> getMethods() {
+    public Stream<JavaMethod> getMethods() {
         return children.stream()
                 .filter(c -> c instanceof JavaMethod)
-                .map(c -> (JavaMethod) c)
-                .collect(Collectors.toSet());
+                .map(c -> (JavaMethod) c);
+//                .collect(Collectors.toSet());
     }
 
-    public Set<JavaClass> getClasses() {
+    public Stream<JavaClass> getClasses() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
-                .map(c -> (JavaClass) c)
-                .collect(Collectors.toSet());
+                .map(c -> (JavaClass) c);
+//                .collect(Collectors.toSet());
     }
 
     public void addMethod(JavaMethod javaMethod) {

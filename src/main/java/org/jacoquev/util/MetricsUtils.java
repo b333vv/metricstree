@@ -131,6 +131,16 @@ public class MetricsUtils {
         return result;
     }
 
+    public static void runInReadAction(Runnable task) {
+        try {
+            ReadAction.nonBlocking(task)
+                    .inSmartMode(getProject())
+                    .submit(AppExecutorUtil.getAppExecutorService());
+        } catch (Exception e) {
+            metricsToolWindowPanel.getConsole().error(e.getMessage());
+        }
+    }
+
     public static void refreshMetricsTree() {
         metricsToolWindowPanel.refresh();
     }

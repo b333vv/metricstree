@@ -10,6 +10,7 @@ import org.jacoquev.model.visitor.type.JavaClassVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public abstract class JavaCode {
     private final Map<String, Metric> metrics;
@@ -22,15 +23,16 @@ public abstract class JavaCode {
         this.name = name;
         this.children = new HashSet<>();
         this.metrics = new HashMap<>();
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new HashMap<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public Set<Metric> getMetrics() {
-        return ImmutableSet.copyOf(metrics.values());
+    public Stream<Metric> getMetrics() {
+//        return ImmutableSet.copyOf(metrics.values());
+        return metrics.values().stream();
     }
 
     public Optional<Metric> getMetric(String name) {

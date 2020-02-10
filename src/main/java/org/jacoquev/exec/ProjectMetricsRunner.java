@@ -1,4 +1,4 @@
-package org.jacoquev.ui.exec;
+package org.jacoquev.exec;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.fileTypes.FileType;
@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.jacoquev.model.builder.ProjectModelBuilder;
+import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,10 +23,16 @@ public class ProjectMetricsRunner {
 
     private final Project project;
     private final AnalysisScope scope;
+    private static DependencyMap dependencyMap;
 
     public ProjectMetricsRunner(Project project, AnalysisScope scope) {
         this.project = project;
         this.scope = scope;
+        dependencyMap = new DependencyMap();
+    }
+
+    public static DependencyMap getDependencyMap() {
+        return dependencyMap;
     }
 
     public final void execute(JavaProject javaProject) {
@@ -50,7 +57,7 @@ public class ProjectMetricsRunner {
     }
 
     public void calculate(JavaProject javaProject) {
-        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder();
+        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
         final ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         final int numFiles = scope.getFileCount();
@@ -84,11 +91,15 @@ public class ProjectMetricsRunner {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
 
+                dependencyMap.build(psiJavaFile);
+
                 indicator.setIndeterminate(false);
                 indicator.setFraction((double) progress / (double) numFiles);
             }
         });
         indicator.setIndeterminate(false);
+        indicator.setText("Calculating metrics");
+        MetricsUtils.runInReadAction(() -> projectModelBuilder.calculateMetrics());
         indicator.setText("Build project metrics tree");
     }
 

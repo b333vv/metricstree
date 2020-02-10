@@ -18,7 +18,7 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.jacoquev.model.code.*;
 import org.jacoquev.model.metric.Metric;
-import org.jacoquev.ui.exec.ProjectMetricsRunner;
+import org.jacoquev.exec.ProjectMetricsRunner;
 import org.jacoquev.ui.info.BottomPanel;
 import org.jacoquev.ui.info.MetricsDescriptionPanel;
 import org.jacoquev.ui.info.MetricsTable;

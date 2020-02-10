@@ -21,7 +21,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
         ProjectNode projectNode = new ProjectNode(javaProject);
         model = new DefaultTreeModel(projectNode);
         model.setRoot(projectNode);
-        List<JavaPackage> sortedPackages = javaProject.getPackages().stream()
+        List<JavaPackage> sortedPackages = javaProject.getPackages()
                 .sorted((p1, p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList());
         for (JavaPackage javaPackage : sortedPackages) {
             PackageNode packageNode = new PackageNode(javaPackage);
@@ -32,13 +32,13 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     private void addPackages(PackageNode parentNode) {
-        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().getPackages().stream()
+        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().getPackages()
                 .sorted((p1, p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList());
         for (JavaPackage javaPackage : sortedPackages) {
             PackageNode packageNode = new PackageNode(javaPackage);
             parentNode.add(packageNode);
             addPackages(packageNode);
-            List<JavaClass> sortedClasses = packageNode.getJavaPackage().getClasses().stream()
+            List<JavaClass> sortedClasses = packageNode.getJavaPackage().getClasses()
                     .sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList());
             for (JavaClass childJavaClass : sortedClasses) {
                 ClassNode childClassNode = new ClassNode(childJavaClass);

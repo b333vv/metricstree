@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JavaPackage extends JavaCode {
     private Map<String, JavaClass> typeLookup;
@@ -23,18 +24,18 @@ public class JavaPackage extends JavaCode {
         return psiPackage;
     }
 
-    public Set<JavaClass> getClasses() {
+    public Stream<JavaClass> getClasses() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
-                .map(c -> (JavaClass) c)
-                .collect(Collectors.toSet());
+                .map(c -> (JavaClass) c);
+//                .collect(Collectors.toSet());
     }
 
-    public Set<JavaPackage> getPackages() {
+    public Stream<JavaPackage> getPackages() {
         return children.stream()
                 .filter(c -> c instanceof JavaPackage)
-                .map(c -> (JavaPackage) c)
-                .collect(Collectors.toSet());
+                .map(c -> (JavaPackage) c);
+//                .collect(Collectors.toSet());
     }
 
     public void addClass(JavaClass javaClass) {

@@ -27,7 +27,7 @@ public abstract class MetricTreeBuilder {
     }
 
     protected void addSubClasses(ClassNode parentClassNode) {
-        List<JavaClass> sortedClasses = parentClassNode.getJavaClass().getClasses().stream()
+        List<JavaClass> sortedClasses = parentClassNode.getJavaClass().getClasses()
                 .sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList());
         for (JavaClass javaClass : sortedClasses) {
             ClassNode classNode = new ClassNode(javaClass);
@@ -38,7 +38,7 @@ public abstract class MetricTreeBuilder {
     }
 
     protected void addTypeMetricsAndMethodNodes(ClassNode classNode) {
-        List<JavaMethod> sortedMethods = classNode.getJavaClass().getMethods().stream()
+        List<JavaMethod> sortedMethods = classNode.getJavaClass().getMethods()
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
         for (JavaMethod javaMethod : sortedMethods) {
             MethodNode methodNode = new MethodNode(javaMethod);
@@ -48,8 +48,8 @@ public abstract class MetricTreeBuilder {
             }
         }
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
-            Set<Metric> metrics = classNode.getJavaClass().getMetrics();
-            List<Metric> sortedMetrics = metrics.stream()
+//            Set<Metric> metrics = classNode.getJavaClass().getMetrics();
+            List<Metric> sortedMetrics = classNode.getJavaClass().getMetrics()
                     .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
             for (Metric metric : sortedMetrics) {
                 if (mustBeShown(metric)) {
@@ -61,8 +61,8 @@ public abstract class MetricTreeBuilder {
     }
 
     protected void addMethodMetricsNodes(MethodNode methodNode) {
-        Set<Metric> metrics = methodNode.getJavaMethod().getMetrics();
-        List<Metric> sortedMetrics = metrics.stream()
+//        Set<Metric> metrics = methodNode.getJavaMethod().getMetrics();
+        List<Metric> sortedMetrics = methodNode.getJavaMethod().getMetrics()
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
         for (Metric metric : sortedMetrics) {
             if (mustBeShown(metric)) {

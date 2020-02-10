@@ -17,9 +17,8 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     public DefaultTreeModel createClassMetricTreeModel() {
-        JavaPackage javaPackage = javaProject.getPackages().iterator().next();
-        Iterator<JavaClass> typeIterator = javaPackage.getClasses().iterator();
-        JavaClass rootJavaClass = typeIterator.next();
+        JavaPackage javaPackage = javaProject.getPackages().findFirst().get();
+        JavaClass rootJavaClass = javaPackage.getClasses().findFirst().get();
         ClassNode rootClassNode = new ClassNode(rootJavaClass);
         model = new DefaultTreeModel(rootClassNode);
         model.setRoot(rootClassNode);

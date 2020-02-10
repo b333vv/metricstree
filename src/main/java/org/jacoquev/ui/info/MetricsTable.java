@@ -64,8 +64,7 @@ public class MetricsTable {
     public void set(JavaCode javaCode) {
         Border b = IdeBorderFactory.createTitledBorder(javaCode.getName());
         panel.setBorder(b);
-        Set<Metric> metrics = javaCode.getMetrics();
-        List<Metric> sortedMetrics = metrics.stream()
+        List<Metric> sortedMetrics = javaCode.getMetrics()
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);

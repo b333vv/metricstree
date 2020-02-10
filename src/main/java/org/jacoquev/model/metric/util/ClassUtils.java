@@ -20,6 +20,11 @@ public class ClassUtils {
             psiClass.getParent() instanceof PsiDeclarationStatement);
     }
 
+    public static boolean isAnonymous(PsiClass aClass) {
+        return aClass instanceof PsiAnonymousClass || aClass instanceof PsiTypeParameter ||
+                aClass.getParent() instanceof PsiDeclarationStatement;
+    }
+
     @Nullable
     public static PsiPackage findPackage(PsiElement element) {
         if (element == null) {
