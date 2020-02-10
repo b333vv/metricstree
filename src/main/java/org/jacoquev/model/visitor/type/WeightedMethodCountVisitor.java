@@ -2,8 +2,8 @@ package org.jacoquev.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
-import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
+import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.model.visitor.util.MethodComplexityVisitor;
 
 import java.util.Arrays;
@@ -11,14 +11,12 @@ import java.util.Arrays;
 public class WeightedMethodCountVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        long weightedMethodCount = 0;
-
+        metric.setName("WMC");
+        metric.setDescription("Weighted Method Count");
+        metric.setDescriptionUrl("/html/WeightedMethodCount.html");
         if (ClassUtils.isConcrete(psiClass)) {
-            weightedMethodCount = getWeightedMethodCount(psiClass);
+            metric.setValue(Value.of(getWeightedMethodCount(psiClass)));
         }
-
-        metric = Metric.of("WMC", "Weighted Method Count",
-                "/html/WeightedMethodCount.html", weightedMethodCount);
     }
 
     private long getWeightedMethodCount(PsiClass psiClass) {

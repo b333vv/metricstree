@@ -33,6 +33,10 @@ public class Metric {
         this.range = Range.of(from, to);
     }
 
+    public static Metric of() {
+        return new Metric("Metric name", "Metric description", Value.UNDEFINED);
+    }
+
     public static Metric of(String name, String description, long from, long to) {
         return new Metric(name, description, Value.of(from), Value.of(to));
     }
@@ -67,6 +71,18 @@ public class Metric {
 
     public static Metric of(String name, String description, String descriptionUrl, double value) {
         return new Metric(name, description, descriptionUrl, Value.of(value));
+    }
+
+    public void setValue(Value value) {
+        this.value = value;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getName() {

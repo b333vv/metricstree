@@ -1,8 +1,8 @@
 package org.jacoquev.model.visitor.type;
 
 import com.intellij.psi.*;
-import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
+import org.jacoquev.model.metric.value.Value;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,13 +16,16 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
+        metric.setName("LCOM");
+        metric.setDescription("Lack Of Cohesion Of Methods");
+        metric.setDescriptionUrl("/html/LackOfCohesionOfMethods.html");
         if (ClassUtils.isConcrete(psiClass)) {
-            final Set<PsiMethod> applicableMethods = getApplicableMethods(psiClass);
-            final Map<PsiMethod, Set<PsiField>> fieldsPerMethod = calculateFieldUsage(applicableMethods);
-            final Map<PsiMethod, Set<PsiMethod>> linkedMethods = calculateMethodLinkage(applicableMethods);
-            final Set<Set<PsiMethod>> components = calculateComponents(applicableMethods, fieldsPerMethod, linkedMethods);
-            metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
-                    "/html/LackOfCohesionOfMethods.html", components.size());
+            Set<PsiMethod> applicableMethods = getApplicableMethods(psiClass);
+            Map<PsiMethod, Set<PsiField>> fieldsPerMethod = calculateFieldUsage(applicableMethods);
+            Map<PsiMethod, Set<PsiMethod>> linkedMethods = calculateMethodLinkage(applicableMethods);
+            Set<Set<PsiMethod>> components = calculateComponents(applicableMethods,
+                    fieldsPerMethod, linkedMethods);
+            metric.setValue(Value.of(components.size()));
         }
     }
 
@@ -31,7 +34,7 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
             "clone", "readObject", "writeObject");
 
     @NotNull
-    public Set<PsiMethod> getApplicableMethods(@NotNull final PsiClass aClass) {
+    public Set<PsiMethod> getApplicableMethods(@NotNull PsiClass aClass) {
         final PsiMethod[] methods = aClass.getMethods();
         final Set<PsiMethod> applicableMethods = new HashSet<>();
         for (PsiMethod method : methods) {

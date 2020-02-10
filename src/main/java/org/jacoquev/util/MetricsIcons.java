@@ -11,6 +11,7 @@ public class MetricsIcons {
   public static final Icon CLASS_METRIC = IconLoader.getIcon("/images/classMetric11Yellow.svg");
   public static final Icon METHOD_METRIC = IconLoader.getIcon("/images/methodMetric11Yellow.svg");
   public static final Icon CONSTRUCTOR = IconLoader.getIcon("/images/constructor.svg");
+  public static final Icon NA = IconLoader.getIcon("/images/na.svg");
 
   private MetricsIcons() {
     // only static

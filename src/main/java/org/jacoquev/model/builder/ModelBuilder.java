@@ -19,7 +19,8 @@ public abstract class ModelBuilder {
             new NumberOfOperationsVisitor(),
             new NumberOfOverriddenMethodsVisitor(),
             new ResponseForClassVisitor(),
-            new WeightedMethodCountVisitor()
+            new WeightedMethodCountVisitor(),
+            new NumberOfAttributesAndMethods()
     );
 
     private Set<JavaMethodVisitor> methodVisitors = Set.of(
@@ -73,6 +74,6 @@ public abstract class ModelBuilder {
         }
     }
 
-    protected void addClassToClassesSet(JavaClass javaClass) {};
-    protected void addMethodToMethodsSet(JavaMethod javaMethod) {};
+    protected void addClassToClassesSet(JavaClass javaClass) {}
+    protected void addMethodToMethodsSet(JavaMethod javaMethod) {}
 }

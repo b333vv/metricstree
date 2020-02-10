@@ -1,9 +1,9 @@
 package org.jacoquev.model.visitor.method;
 
 import com.intellij.psi.PsiMethod;
-import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.CommonUtils;
 import org.jacoquev.model.metric.util.MethodUtils;
+import org.jacoquev.model.metric.value.Value;
 
 public class LinesOfCodeVisitor extends JavaMethodVisitor {
     @Override
@@ -11,7 +11,9 @@ public class LinesOfCodeVisitor extends JavaMethodVisitor {
         int methodNestingDepth = 0;
         long elementCount = 0;
         long linesOfCode = 0;
-
+        metric.setName("LOC");
+        metric.setDescription("Lines Of Code");
+        metric.setDescriptionUrl("/html/LinesOfCode.html");
         if (!MethodUtils.isAbstract(method)) {
             super.visitMethod(method);
             if (methodNestingDepth == 0) {
@@ -25,7 +27,6 @@ public class LinesOfCodeVisitor extends JavaMethodVisitor {
         if (methodNestingDepth == 0) {
             linesOfCode = elementCount;
         }
-        metric = Metric.of("LOC", "Lines Of Code",
-                "/html/LinesOfCode.html", linesOfCode);
+        metric.setValue(Value.of(linesOfCode));
     }
 }

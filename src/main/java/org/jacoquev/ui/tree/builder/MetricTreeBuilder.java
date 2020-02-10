@@ -48,7 +48,6 @@ public abstract class MetricTreeBuilder {
             }
         }
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
-//            Set<Metric> metrics = classNode.getJavaClass().getMetrics();
             List<Metric> sortedMetrics = classNode.getJavaClass().getMetrics()
                     .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
             for (Metric metric : sortedMetrics) {
@@ -61,7 +60,6 @@ public abstract class MetricTreeBuilder {
     }
 
     protected void addMethodMetricsNodes(MethodNode methodNode) {
-//        Set<Metric> metrics = methodNode.getJavaMethod().getMetrics();
         List<Metric> sortedMetrics = methodNode.getJavaMethod().getMetrics()
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
         for (Metric metric : sortedMetrics) {

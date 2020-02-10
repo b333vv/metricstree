@@ -3,17 +3,19 @@ package org.jacoquev.model.visitor.method;
 import com.intellij.psi.PsiIfStatement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiStatement;
-import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.MethodUtils;
+import org.jacoquev.model.metric.value.Value;
 
 public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
-    private long result = 0;
     private long methodNestingCount = 0;
     private long maximumDepth = 0;
     private long currentDepth = 0;
 
     @Override
     public void visitMethod(PsiMethod method) {
+        metric.setName("CND");
+        metric.setDescription("Condition Nesting Depth");
+        metric.setDescriptionUrl("/html/ConditionNestingDepth.html");
         long conditionNestingDepth = 0;
         if (methodNestingCount == 0) {
             maximumDepth = 0;
@@ -27,8 +29,7 @@ public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
                 conditionNestingDepth = maximumDepth;
             }
         }
-        metric = Metric.of("CND", "Condition Nesting Depth",
-                "/html/ConditionNestingDepth.html", conditionNestingDepth);
+        metric.setValue(Value.of(conditionNestingDepth));
     }
 
     @Override
@@ -58,9 +59,5 @@ public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
 
     private void exitScope() {
         currentDepth--;
-    }
-
-    public long getResult() {
-        return result;
     }
 }

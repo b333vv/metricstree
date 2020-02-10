@@ -1,19 +1,19 @@
 package org.jacoquev.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
-import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
+import org.jacoquev.model.metric.value.Value;
 
 public class DepthOfInheritanceTreeVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        long depthOfInheritanceTree = 0;
+        metric.setName("DIT");
+        metric.setDescription("Depth Of Inheritance Tree");
+        metric.setDescriptionUrl("/html/DepthOfInheritanceTree.html");
         if (ClassUtils.isConcrete(psiClass)) {
-            depthOfInheritanceTree = getInheritanceDepth(psiClass);
+            metric.setValue(Value.of(getInheritanceDepth(psiClass)));
         }
-        metric = Metric.of("DIT", "Depth Of Inheritance Tree",
-                        "/html/DepthOfInheritanceTree.html", depthOfInheritanceTree);
     }
 
     private long getInheritanceDepth(PsiClass psiClass) {

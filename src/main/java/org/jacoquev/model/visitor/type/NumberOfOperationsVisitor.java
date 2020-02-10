@@ -1,18 +1,18 @@
 package org.jacoquev.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
-import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
+import org.jacoquev.model.metric.value.Value;
 
 public class NumberOfOperationsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        long numberOfOperations = 0;
+        metric.setName("NOO");
+        metric.setDescription("Number Of Operations");
+        metric.setDescriptionUrl("/html/NumberOfOperations.html");
         if (ClassUtils.isConcrete(psiClass)) {
-            numberOfOperations = psiClass.getAllMethods().length;
+            metric.setValue(Value.of(psiClass.getAllMethods().length));
         }
-        metric = Metric.of("NOO", "Number Of Operations",
-                "/html/NumberOfOperations.html", numberOfOperations);
     }
 }

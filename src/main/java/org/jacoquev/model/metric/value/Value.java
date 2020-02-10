@@ -20,6 +20,12 @@ import java.util.stream.Collector;
 public class Value implements Comparable<Value> {
     public static final Value ZERO = new Value(LargeInteger.ZERO);
     public static final Value ONE = new Value(LargeInteger.ONE);
+    public static final Value UNDEFINED = new Value(LargeInteger.ZERO) {
+        @Override
+        public String toString() {
+            return "N/A";
+        }
+    };
     private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0########");
     private Number value;
 
