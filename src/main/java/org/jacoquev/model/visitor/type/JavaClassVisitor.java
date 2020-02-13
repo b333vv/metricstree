@@ -7,7 +7,7 @@ import org.jacoquev.model.metric.Metric;
 
 public abstract class JavaClassVisitor extends JavaRecursiveElementVisitor {
 
-    protected Metric metric = Metric.of();
+    protected Metric metric;
 
     public void visitJavaClass(JavaClass javaClass) {
         PsiClass psiClass = javaClass.getPsiClass();

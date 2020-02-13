@@ -1,6 +1,7 @@
 package org.jacoquev.model.visitor.method;
 
 import com.intellij.psi.*;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.MethodUtils;
 import org.jacoquev.model.metric.value.Value;
 
@@ -11,9 +12,8 @@ public class NumberOfLoopsVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric.setName("NOLPS");
-        metric.setDescription("Number Of Loops");
-        metric.setDescriptionUrl("/html/NumberOfLoops.html");
+        metric = Metric.of("NOLPS", "Number Of Loops",
+                "/html/NumberOfLoops.html", Value.UNDEFINED);
         if (methodNestingDepth == 0) {
             elementCount = 0;
         }
@@ -23,7 +23,8 @@ public class NumberOfLoopsVisitor extends JavaMethodVisitor {
         if (methodNestingDepth == 0 && !MethodUtils.isAbstract(method)) {
             numberOfLoops = elementCount;
         }
-        metric.setValue(Value.of(numberOfLoops));
+        metric = Metric.of("NOLPS", "Number Of Loops",
+                "/html/NumberOfLoops.html", numberOfLoops);
     }
 
     @Override

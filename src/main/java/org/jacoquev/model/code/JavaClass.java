@@ -5,6 +5,8 @@ import com.intellij.psi.PsiElementVisitor;
 import org.jacoquev.model.visitor.type.JavaClassVisitor;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaClass extends JavaCode {

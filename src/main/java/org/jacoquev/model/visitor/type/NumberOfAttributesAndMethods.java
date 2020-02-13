@@ -4,6 +4,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
 import org.jacoquev.model.metric.value.Value;
 
@@ -11,9 +12,8 @@ public class NumberOfAttributesAndMethods extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric.setName("SIZE2");
-        metric.setDescription("Number of Attributes and Methods");
-        metric.setDescriptionUrl("/html/NumberOfAttributesAndMethods.html");
+        metric = Metric.of("SIZE2", "Number of Attributes and Methods",
+                "/html/NumberOfAttributesAndMethods.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             PsiMethod[] methods = psiClass.getAllMethods();
             PsiField[] fields = psiClass.getAllFields();
@@ -33,7 +33,8 @@ public class NumberOfAttributesAndMethods extends JavaClassVisitor {
                     numAttributes++;
                 }
             }
-            metric.setValue(Value.of(numOperations + numAttributes));
+            metric = Metric.of("SIZE2", "Number of Attributes and Methods",
+                    "/html/NumberOfAttributesAndMethods.html", numOperations + numAttributes);
         }
     }
 }

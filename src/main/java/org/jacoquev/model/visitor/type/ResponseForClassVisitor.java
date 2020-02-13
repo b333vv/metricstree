@@ -4,6 +4,7 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiCallExpression;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
 import org.jacoquev.model.metric.value.Value;
 
@@ -14,9 +15,8 @@ import java.util.Set;
 public class ResponseForClassVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        metric.setName("RFC");
-        metric.setDescription("Response For Class");
-        metric.setDescriptionUrl("/html/ResponseForClass.html");
+        metric = Metric.of("RFC", "Response For Class",
+                "/html/ResponseForClass.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             Set<PsiMethod> methodsCalled = new HashSet<>();
             super.visitClass(psiClass);
@@ -35,7 +35,8 @@ public class ResponseForClassVisitor extends JavaClassVisitor {
                     }
                 }
             });
-            metric.setValue(Value.of(methodsCalled.size()));
+            metric = Metric.of("RFC", "Response For Class",
+                    "/html/ResponseForClass.html", methodsCalled.size());
         }
     }
 }

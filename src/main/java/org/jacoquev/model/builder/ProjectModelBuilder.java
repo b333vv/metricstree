@@ -87,12 +87,11 @@ public class ProjectModelBuilder extends ModelBuilder {
         javaProject.addMethodToMethodsSet(javaMethod);
     }
 
+
     public void calculateMetrics() {
         javaProject.getAllClasses().forEach(c -> {
             deferredClassVisitors.stream().forEach(v -> c.accept(v));
         });
-//        javaProject.getAllMethods().forEach(m -> {
-//            methodVisitors.stream().forEach(v -> m.accept(v));
-//        });
+
     }
 }

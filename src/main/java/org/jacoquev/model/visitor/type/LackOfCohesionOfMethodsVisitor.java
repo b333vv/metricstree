@@ -1,6 +1,7 @@
 package org.jacoquev.model.visitor.type;
 
 import com.intellij.psi.*;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
 import org.jacoquev.model.metric.value.Value;
 import org.jetbrains.annotations.Contract;
@@ -16,16 +17,16 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric.setName("LCOM");
-        metric.setDescription("Lack Of Cohesion Of Methods");
-        metric.setDescriptionUrl("/html/LackOfCohesionOfMethods.html");
+        metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
+                "/html/LackOfCohesionOfMethods.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             Set<PsiMethod> applicableMethods = getApplicableMethods(psiClass);
             Map<PsiMethod, Set<PsiField>> fieldsPerMethod = calculateFieldUsage(applicableMethods);
             Map<PsiMethod, Set<PsiMethod>> linkedMethods = calculateMethodLinkage(applicableMethods);
             Set<Set<PsiMethod>> components = calculateComponents(applicableMethods,
                     fieldsPerMethod, linkedMethods);
-            metric.setValue(Value.of(components.size()));
+            metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
+                    "/html/LackOfCohesionOfMethods.html", components.size());
         }
     }
 

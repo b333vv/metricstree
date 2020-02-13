@@ -7,14 +7,14 @@ import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiElementVisitor;
 import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.visitor.type.JavaClassVisitor;
+import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class JavaCode {
-    private final Map<String, Metric> metrics;
-    private final Map<String, String> attributes;
+    private final Set<Metric> metrics;
     protected Set<JavaCode> children;
     private String name;
     private JavaCode parent = null;
@@ -22,8 +22,7 @@ public abstract class JavaCode {
     public JavaCode(String name) {
         this.name = name;
         this.children = new HashSet<>();
-        this.metrics = new HashMap<>();
-        this.attributes = new HashMap<>();
+        this.metrics = new HashSet<>();
     }
 
     public String getName() {
@@ -31,16 +30,7 @@ public abstract class JavaCode {
     }
 
     public Stream<Metric> getMetrics() {
-//        return ImmutableSet.copyOf(metrics.values());
-        return metrics.values().stream();
-    }
-
-    public Optional<Metric> getMetric(String name) {
-        return Optional.ofNullable(this.metrics.get(name));
-    }
-
-    public Map<String, String> getAttributes() {
-        return ImmutableMap.copyOf(attributes);
+        return metrics.stream();
     }
 
     @Override
@@ -58,15 +48,7 @@ public abstract class JavaCode {
     }
 
     public synchronized void addMetric(Metric metric) {
-        metrics.put(metric.getName(), metric);
-    }
-
-    public synchronized void addAttribute(String key, String value) {
-        this.attributes.put(key, value);
-    }
-
-    public void addAttribute(Map.Entry<String, String> attribute) {
-        addAttribute(attribute.getKey(), attribute.getValue());
+        metrics.add(metric);
     }
 
     public void addMetrics(Set<Metric> metrics) {

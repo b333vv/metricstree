@@ -3,6 +3,7 @@ package org.jacoquev.model.visitor.method;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.value.Value;
 
 public class NumberOfConditionsVisitor extends JavaMethodVisitor {
@@ -22,9 +23,8 @@ public class NumberOfConditionsVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric.setName("NOCND");
-        metric.setDescription("Number Of Conditions");
-        metric.setDescriptionUrl("/html/NumberOfConditions.html");
+        metric = Metric.of("NOCND", "Number Of Conditions",
+                "/html/NumberOfConditions.html", Value.UNDEFINED);
         if (depth == 0) {
             count = 0;
         }
@@ -34,6 +34,7 @@ public class NumberOfConditionsVisitor extends JavaMethodVisitor {
         if (depth == 0) {
             numberOfConditions = count;
         }
-        metric.setValue(Value.of(numberOfConditions));
+        metric = Metric.of("NOCND", "Number Of Conditions",
+                "/html/NumberOfConditions.html", numberOfConditions);
     }
 }

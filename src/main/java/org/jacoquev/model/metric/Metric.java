@@ -73,18 +73,6 @@ public class Metric {
         return new Metric(name, description, descriptionUrl, Value.of(value));
     }
 
-    public void setValue(Value value) {
-        this.value = value;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getName() {
         return name;
     }
@@ -125,10 +113,6 @@ public class Metric {
         return range;
     }
 
-    public void setRange(Range range) {
-        this.range = range;
-    }
-
     public boolean hasAllowableValue() {
         return range.includes(value);
     }
@@ -137,7 +121,4 @@ public class Metric {
         return descriptionUrl;
     }
 
-    public void setDescriptionUrl(String descriptionUrl) {
-        this.descriptionUrl = descriptionUrl;
-    }
 }

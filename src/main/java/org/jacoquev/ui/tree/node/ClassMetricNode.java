@@ -11,7 +11,6 @@ public class ClassMetricNode extends MetricNode {
     }
 
     protected Icon getIcon() {
-//        return AllIcons.Nodes.Class;
         return MetricsIcons.CLASS_METRIC;
     }
 }

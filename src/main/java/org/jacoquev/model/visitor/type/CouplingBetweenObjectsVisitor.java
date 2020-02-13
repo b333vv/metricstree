@@ -15,16 +15,16 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass aClass) {
         super.visitClass(aClass);
-        metric.setName("CBO");
-        metric.setDescription("Coupling Between Objects");
-        metric.setDescriptionUrl("/html/CouplingBetweenObjects.html");
+        metric = Metric.of("CBO", "Coupling Between Objects",
+                "/html/CouplingBetweenObjects.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(aClass)) {
             DependencyMap dependencyMap = getDependencyMap();
             Set<PsiClass> dependencies = dependencyMap.calculateDependencies(aClass);
             Set<PsiClass> dependents = dependencyMap.calculateDependents(aClass);
             Set<PsiClass> union = new HashSet<>(dependencies);
             union.addAll(dependents);
-            metric.setValue(Value.of(union.size()));
+            metric = Metric.of("CBO", "Coupling Between Objects",
+                    "/html/CouplingBetweenObjects.html", union.size());
         }
     }
 }

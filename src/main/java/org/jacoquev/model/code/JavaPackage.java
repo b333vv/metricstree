@@ -2,6 +2,8 @@ package org.jacoquev.model.code;
 
 import com.intellij.psi.PsiPackage;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaPackage extends JavaCode {

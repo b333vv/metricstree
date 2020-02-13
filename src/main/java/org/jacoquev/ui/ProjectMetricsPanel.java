@@ -48,7 +48,7 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     private MetricsConsole console;
     private JScrollPane scrollableTablePanel;
     private VirtualFile virtualFile;
-    private JavaProject javaProject;
+    private JavaProject storedJavaProject;
 
     public ProjectMetricsPanel(Project project) {
         super(false, true);
@@ -126,12 +126,12 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     }
 
     public void calculate() {
-        javaProject = new JavaProject(project.getName());
+        JavaProject javaProject = new JavaProject(project.getName());
         console.info("Evaluating metrics values for " + project.getName() + " started");
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
-        ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope);
-        projectMetricsRunner.execute(javaProject);
+        ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
+        projectMetricsRunner.execute();
         projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
     }
 

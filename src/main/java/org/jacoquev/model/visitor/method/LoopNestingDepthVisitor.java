@@ -1,6 +1,7 @@
 package org.jacoquev.model.visitor.method;
 
 import com.intellij.psi.*;
+import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.MethodUtils;
 import org.jacoquev.model.metric.value.Value;
 
@@ -12,9 +13,8 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric.setName("LND");
-        metric.setDescription("Loop Nesting Depth");
-        metric.setDescriptionUrl("/html/LoopNestingDepth.html");
+        metric = Metric.of("LND", "Loop Nesting Depth",
+                "/html/LoopNestingDepth.html", Value.UNDEFINED);
         if (methodNestingCount == 0) {
             maximumDepth = 0;
             currentDepth = 0;
@@ -27,7 +27,8 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
                 loopNestingDepth = maximumDepth;
             }
         }
-        metric.setValue(Value.of(loopNestingDepth));
+        metric = Metric.of("LND", "Loop Nesting Depth",
+                "/html/LoopNestingDepth.html", loopNestingDepth);
     }
 
     @Override
