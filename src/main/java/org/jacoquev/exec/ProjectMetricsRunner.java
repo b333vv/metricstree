@@ -1,11 +1,11 @@
 package org.jacoquev.exec;
 
 import com.intellij.analysis.AnalysisScope;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -17,10 +17,11 @@ import com.intellij.psi.PsiJavaFile;
 import org.jacoquev.model.builder.ProjectModelBuilder;
 import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
+import org.jacoquev.model.visitor.pack.PackageCouplingCalculator;
+import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jacoquev.util.MetricsUtils;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.swing.tree.DefaultTreeModel;
 
 public class ProjectMetricsRunner {
 
@@ -32,15 +33,40 @@ public class ProjectMetricsRunner {
     private ProgressIndicator indicator;
     private int numFiles;
     private int progress = 0;
-    ProjectMetricsCalculateTask task;
+    private BackgroundTaskQueue queue;
+
+    private Runnable calculate = new Runnable() {
+        @Override
+        public void run() {
+            projectModelBuilder = new ProjectModelBuilder(javaProject);
+            indicator = ProgressManager.getInstance().getProgressIndicator();
+            indicator.setText("Initializing");
+            numFiles = scope.getFileCount();
+            scope.accept(new PsiJavaFileVisitor());
+            indicator.setText("Calculating metrics");
+        }
+    };
+
+    private Runnable postCalculate = new Runnable() {
+        @Override
+        public void run() {
+            ReadAction.run(() -> projectModelBuilder.calculateMetrics());
+            PackageCouplingCalculator packageCouplingCalculator = new PackageCouplingCalculator();
+            MetricsUtils.runInReadAction(() -> packageCouplingCalculator.calculate(javaProject));
+            ReadAction.run(() -> packageCouplingCalculator.calculate(javaProject));
+
+            ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
+            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
+            MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
+        }
+    };
 
     public ProjectMetricsRunner(Project project, AnalysisScope scope, JavaProject javaProject ) {
         this.project = project;
         this.scope = scope;
         this.javaProject = javaProject;
         dependencyMap = new DependencyMap();
-        task = new ProjectMetricsCalculateTask(project,
-                "Calculating Metrics", true);
+        queue = new BackgroundTaskQueue(project, "Calculating Metrics");
     }
 
     public static DependencyMap getDependencyMap() {
@@ -48,49 +74,15 @@ public class ProjectMetricsRunner {
     }
 
     public final void execute() {
-        task.queue();
+        MetricsBackgroundableTask task1 = new MetricsBackgroundableTask(project,
+                "Calculating Metrics", true, calculate, null,
+                () -> queue.clear(), null);
+        MetricsBackgroundableTask task2 = new MetricsBackgroundableTask(project,
+                "Post Processing", true, postCalculate, null,
+                () -> queue.clear(), null);
+        queue.run(task1);
+        queue.run(task2);
     }
-
-    public void calculate() {
-        projectModelBuilder = new ProjectModelBuilder(javaProject);
-        indicator = ProgressManager.getInstance().getProgressIndicator();
-        indicator.setText("Initializing");
-        numFiles = scope.getFileCount();
-        scope.accept(new PsiJavaFileVisitor());
-        indicator.setText("Calculating metrics");
-        MetricsUtils.runInReadAction(() -> projectModelBuilder.calculateMetrics());
-        indicator.setText("Build project metrics tree");
-    }
-
-    public void onFinish() {
-        MetricsUtils.getProjectMetricsPanel().buildTreeModel();
-    }
-
-    public void onCancel() {}
-
-    class ProjectMetricsCalculateTask extends Task.Backgroundable {
-
-        public ProjectMetricsCalculateTask(@Nullable Project project,
-                                           @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
-                                           boolean canBeCancelled) {
-            super(project, title, canBeCancelled);
-        }
-
-        @Override
-        public void run(@NotNull ProgressIndicator indicator) {
-            calculate();
-        }
-
-        @Override
-        public void onSuccess() {
-            onFinish();
-        }
-
-        @Override
-        public void onCancel() {
-            ProjectMetricsRunner.this.onCancel();
-        }
-    };
 
     class PsiJavaFileVisitor extends PsiElementVisitor {
             @Override

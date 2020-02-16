@@ -48,7 +48,7 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     private MetricsConsole console;
     private JScrollPane scrollableTablePanel;
     private VirtualFile virtualFile;
-    private JavaProject storedJavaProject;
+    private JavaProject javaProject;
 
     public ProjectMetricsPanel(Project project) {
         super(false, true);
@@ -126,16 +126,16 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     }
 
     public void calculate() {
-        JavaProject javaProject = new JavaProject(project.getName());
-        console.info("Evaluating metrics values for " + project.getName() + " started");
+        javaProject = new JavaProject(project.getName());
+        console.info("Evaluating metrics values for project: " + project.getName());
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
         ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
         projectMetricsRunner.execute();
-        projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
     }
 
     public void buildTreeModel() {
+        projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
         DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
         metricsTree.setModel(metricsTreeModel);
         metricsTable.init(projectMetricTreeBuilder.getJavaProject());
@@ -204,4 +204,8 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         return console;
     }
 
+    public void showResults(DefaultTreeModel metricsTreeModel) {
+        metricsTree.setModel(metricsTreeModel);
+        metricsTable.init(javaProject);
+    }
 }

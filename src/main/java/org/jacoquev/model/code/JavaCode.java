@@ -1,20 +1,18 @@
 package org.jacoquev.model.code;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiElementVisitor;
 import org.jacoquev.model.metric.Metric;
-import org.jacoquev.model.visitor.type.JavaClassVisitor;
-import org.jacoquev.util.MetricsUtils;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public abstract class JavaCode {
-    private final Set<Metric> metrics;
+    private Map<String, Metric> metrics;
     protected Set<JavaCode> children;
     private String name;
     private JavaCode parent = null;
@@ -22,7 +20,8 @@ public abstract class JavaCode {
     public JavaCode(String name) {
         this.name = name;
         this.children = new HashSet<>();
-        this.metrics = new HashSet<>();
+//        this.metrics = new ConcurrentHashMap<>();
+        this.metrics = new HashMap<>();
     }
 
     public String getName() {
@@ -30,7 +29,7 @@ public abstract class JavaCode {
     }
 
     public Stream<Metric> getMetrics() {
-        return metrics.stream();
+        return metrics.values().stream();
     }
 
     @Override
@@ -47,8 +46,8 @@ public abstract class JavaCode {
         return Objects.hashCode(getName(), getParent());
     }
 
-    public synchronized void addMetric(Metric metric) {
-        metrics.add(metric);
+    public void addMetric(Metric metric) {
+        metrics.put(metric.getName(), metric);
     }
 
     public void addMetrics(Set<Metric> metrics) {
