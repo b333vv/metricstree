@@ -54,18 +54,20 @@ public class ProjectMetricsRunner {
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator();
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
 
-            PolymorphismFactorCalculator polymorphismFactorCalculator = new PolymorphismFactorCalculator(scope);
-            ReadAction.run(() -> polymorphismFactorCalculator.calculate(javaProject));
-
-            MethodHidingFactorCalculator methodHidingFactorCalculator = new MethodHidingFactorCalculator(scope);
-            ReadAction.run(() -> methodHidingFactorCalculator.calculate(javaProject));
-
-            AttributeHidingFactorCalculator attributeHidingFactorCalculator = new AttributeHidingFactorCalculator(scope);
-            ReadAction.run(() -> attributeHidingFactorCalculator.calculate(javaProject));
+//            PolymorphismFactorCalculator polymorphismFactorCalculator = new PolymorphismFactorCalculator(scope);
+//            ReadAction.run(() -> polymorphismFactorCalculator.calculate(javaProject));
+//
+//            MethodHidingFactorCalculator methodHidingFactorCalculator = new MethodHidingFactorCalculator(scope);
+//            ReadAction.run(() -> methodHidingFactorCalculator.calculate(javaProject));
+//
+//            AttributeHidingFactorCalculator attributeHidingFactorCalculator = new AttributeHidingFactorCalculator(scope);
+//            ReadAction.run(() -> attributeHidingFactorCalculator.calculate(javaProject));
 
             MethodInheritanceFactorCalculator methodInheritanceFactorCalculator = new MethodInheritanceFactorCalculator(scope);
             ReadAction.run(() -> methodInheritanceFactorCalculator.calculate(javaProject));
 
+            AttributeInheritanceFactorCalculator attributeInheritanceFactorCalculator = new AttributeInheritanceFactorCalculator(scope);
+            ReadAction.run(() -> attributeInheritanceFactorCalculator.calculate(javaProject));
 
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
