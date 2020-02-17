@@ -47,31 +47,30 @@ public class ProjectMetricsRunner {
         }
     };
 
-    private Runnable postCalculate = new Runnable() {
+    private Runnable martinMetricSetCalculating = new Runnable() {
         @Override
         public void run() {
             ReadAction.run(() -> projectModelBuilder.calculateMetrics());
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator();
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
+        }
+    };
 
-//            PolymorphismFactorCalculator polymorphismFactorCalculator = new PolymorphismFactorCalculator(scope);
-//            ReadAction.run(() -> polymorphismFactorCalculator.calculate(javaProject));
-//
-//            MethodHidingFactorCalculator methodHidingFactorCalculator = new MethodHidingFactorCalculator(scope);
-//            ReadAction.run(() -> methodHidingFactorCalculator.calculate(javaProject));
-//
-//            AttributeHidingFactorCalculator attributeHidingFactorCalculator = new AttributeHidingFactorCalculator(scope);
-//            ReadAction.run(() -> attributeHidingFactorCalculator.calculate(javaProject));
+    private Runnable moodMetricSetCalculating = new Runnable() {
+        @Override
+        public void run() {
+            MoodMetricsSetCalculator moodMetricsSetCalculator = new MoodMetricsSetCalculator(scope);
+            ReadAction.run(() -> moodMetricsSetCalculator.calculate(javaProject));
 
-            MethodInheritanceFactorCalculator methodInheritanceFactorCalculator = new MethodInheritanceFactorCalculator(scope);
-            ReadAction.run(() -> methodInheritanceFactorCalculator.calculate(javaProject));
+//            ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
+//            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
+//            MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
+        }
+    };
 
-            AttributeInheritanceFactorCalculator attributeInheritanceFactorCalculator = new AttributeInheritanceFactorCalculator(scope);
-            ReadAction.run(() -> attributeInheritanceFactorCalculator.calculate(javaProject));
-
-            CouplingFactorCalculator couplingFactorCalculator = new CouplingFactorCalculator(scope);
-            ReadAction.run(() -> couplingFactorCalculator.calculate(javaProject));
-
+    private Runnable buildTree = new Runnable() {
+        @Override
+        public void run() {
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
             MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
@@ -92,13 +91,18 @@ public class ProjectMetricsRunner {
 
     public final void execute() {
         MetricsBackgroundableTask task1 = new MetricsBackgroundableTask(project,
-                "Calculating Metrics", true, calculate, null,
+                "Calculating Metrics...", true, calculate, null,
                 () -> queue.clear(), null);
         MetricsBackgroundableTask task2 = new MetricsBackgroundableTask(project,
-                "Post Processing", true, postCalculate, null,
+                "Package Level Metrics: Robert C. Martin Metrics Set Calculating...", true, martinMetricSetCalculating, null,
                 () -> queue.clear(), null);
+        MetricsBackgroundableTask task3 = new MetricsBackgroundableTask(project,
+                "Project Level Metrics: MOOD Metrics Set Calculating...", true, moodMetricSetCalculating, null,
+                () -> queue.clear(), buildTree);
+
         queue.run(task1);
         queue.run(task2);
+        queue.run(task3);
     }
 
     class PsiJavaFileVisitor extends PsiElementVisitor {
@@ -123,12 +127,14 @@ public class ProjectMetricsRunner {
                     return;
                 }
                 final String fileName = psiFile.getName();
-                indicator.setText("Handling file " + fileName);
+                indicator.setText("Processing " + fileName + "...");
                 progress++;
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
 
                 dependencyMap.build(psiJavaFile);
+
+                indicator.setIndeterminate(false);
 
                 indicator.setFraction((double) progress / (double) numFiles);
             }
