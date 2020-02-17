@@ -69,6 +69,9 @@ public class ProjectMetricsRunner {
             AttributeInheritanceFactorCalculator attributeInheritanceFactorCalculator = new AttributeInheritanceFactorCalculator(scope);
             ReadAction.run(() -> attributeInheritanceFactorCalculator.calculate(javaProject));
 
+            CouplingFactorCalculator couplingFactorCalculator = new CouplingFactorCalculator(scope);
+            ReadAction.run(() -> couplingFactorCalculator.calculate(javaProject));
+
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
             MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
