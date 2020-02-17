@@ -1,4 +1,4 @@
-package org.jacoquev.model.visitor.pack;
+package org.jacoquev.model.calculator;
 
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;

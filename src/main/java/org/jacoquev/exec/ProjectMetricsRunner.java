@@ -15,9 +15,10 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.jacoquev.model.builder.ProjectModelBuilder;
+import org.jacoquev.model.calculator.PolymorphismFactorCalculator;
 import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
-import org.jacoquev.model.visitor.pack.RobertMartinMetricsSetCalculator;
+import org.jacoquev.model.calculator.RobertMartinMetricsSetCalculator;
 import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jacoquev.util.MetricsUtils;
 
@@ -53,6 +54,9 @@ public class ProjectMetricsRunner {
             ReadAction.run(() -> projectModelBuilder.calculateMetrics());
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator();
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
+
+            PolymorphismFactorCalculator polymorphismFactorCalculator = new PolymorphismFactorCalculator(project);
+            ReadAction.run(() -> polymorphismFactorCalculator.calculate(javaProject));
 
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
