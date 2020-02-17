@@ -1,6 +1,7 @@
 package org.jacoquev.model.metric.util;
 
 import com.intellij.psi.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -36,6 +37,16 @@ public class ClassUtils {
             return null;
         }
         return JavaDirectoryService.getInstance().getPackage(directory);
+    }
+
+    @NotNull
+    public static String calculatePackageName(PsiElement element) {
+        final PsiFile file = element.getContainingFile();
+        if (!(file instanceof PsiJavaFile)) {
+            return "";
+        }
+        final PsiJavaFile javaFile = (PsiJavaFile) file;
+        return javaFile.getPackageName();
     }
 
     public static PsiPackage[] calculatePackagesRecursive(PsiElement element) {

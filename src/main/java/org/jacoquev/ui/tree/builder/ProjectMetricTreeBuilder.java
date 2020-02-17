@@ -20,6 +20,14 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
         ProjectNode projectNode = new ProjectNode(javaProject);
         model = new DefaultTreeModel(projectNode);
         model.setRoot(projectNode);
+
+        javaProject.getMetrics()
+                .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
+                .forEach(m -> {
+                    MetricNode metricNode = new ProjectMetricNode(m);
+                    projectNode.add(metricNode);
+                });
+
         javaProject.getPackages()
                 .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
                 .map(PackageNode::new).forEach(packageNode -> {
