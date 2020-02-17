@@ -49,6 +49,6 @@ public class MetricNode extends AbstractNode {
                         AllIcons.Actions.Commit));
             }
         }
-        renderer.append(metric.getDescription() + " : " + metric.getFormattedValue());
+        renderer.append(metric.getDescription() + " = " + metric.getFormattedValue());
     }
 }

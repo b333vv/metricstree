@@ -31,12 +31,6 @@ public class PackageCouplingCalculator {
                     int efferentCoupling = numExternalDependenciesPerPackage.getBucketValue(p.getPsiPackage());
                     double instability = (afferentCoupling + efferentCoupling) == 0 ? 0.0 :
                             (double) efferentCoupling / ((double) afferentCoupling + (double) efferentCoupling);
-                    MetricsUtils.getProjectMetricsPanel().getConsole().info(
-                            "Package: " + p.getName()
-                            + " afferentCoupling = " + afferentCoupling
-                            + " efferentCoupling = " + efferentCoupling
-                            + " instability = " + instability
-                    );
                     p.addMetric(Metric.of(
                             "Ce",
                             "Efferent Coupling",
@@ -52,11 +46,6 @@ public class PackageCouplingCalculator {
                             "Instability",
                             "/html/Instability.html",
                             instability));
-                    MetricsUtils.getProjectMetricsPanel().getConsole().info(
-                            "was added - Package: " + p.getName());
-                            p.getMetrics().forEach(m -> MetricsUtils.getProjectMetricsPanel().getConsole().info(
-                            " " + m.getName()
-                            + " = " + m.getValue()));
                 });
     }
 
