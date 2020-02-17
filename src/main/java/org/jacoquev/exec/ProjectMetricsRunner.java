@@ -15,6 +15,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.jacoquev.model.builder.ProjectModelBuilder;
+import org.jacoquev.model.calculator.AttributeHidingFactorCalculator;
 import org.jacoquev.model.calculator.MethodHidingFactorCalculator;
 import org.jacoquev.model.calculator.PolymorphismFactorCalculator;
 import org.jacoquev.model.code.DependencyMap;
@@ -56,11 +57,14 @@ public class ProjectMetricsRunner {
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator();
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
 
-            PolymorphismFactorCalculator polymorphismFactorCalculator = new PolymorphismFactorCalculator(project);
+            PolymorphismFactorCalculator polymorphismFactorCalculator = new PolymorphismFactorCalculator(scope);
             ReadAction.run(() -> polymorphismFactorCalculator.calculate(javaProject));
 
             MethodHidingFactorCalculator methodHidingFactorCalculator = new MethodHidingFactorCalculator(scope);
             ReadAction.run(() -> methodHidingFactorCalculator.calculate(javaProject));
+
+            AttributeHidingFactorCalculator attributeHidingFactorCalculator = new AttributeHidingFactorCalculator(scope);
+            ReadAction.run(() -> attributeHidingFactorCalculator.calculate(javaProject));
 
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();

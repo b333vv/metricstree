@@ -1,5 +1,6 @@
 package org.jacoquev.model.calculator;
 
+import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
@@ -14,19 +15,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PolymorphismFactorCalculator {
-    private Project project;
+    private AnalysisScope scope;
     private Map<PsiClass, Integer> subclassesPerClass = new HashMap<>();
     private int numOverridingMethods = 0;
     private int numOverridePotentials = 0;
 
-    public PolymorphismFactorCalculator(Project project) {
-        this.project = project;
+    public PolymorphismFactorCalculator(AnalysisScope scope) {
+        this.scope = scope;
     }
 
     public void calculate(JavaProject javaProject) {
 
-        javaProject.getAllClasses()
-                .forEach(c -> c.getPsiClass().accept(new Visitor()));
+        scope.accept(new Visitor());
+
+//        javaProject.getAllClasses()
+//                .forEach(c -> c.getPsiClass().accept(new Visitor()));
 
         double polymorphismFactor = numOverridePotentials == 0 ? 1.0 :
                     (double) numOverridingMethods / (double) numOverridePotentials;
@@ -59,7 +62,7 @@ public class PolymorphismFactorCalculator {
             return subclassesPerClass.get(aClass);
         }
         int numSubclasses = 0;
-        final GlobalSearchScope globalScope = GlobalSearchScope.allScope(project);
+        final GlobalSearchScope globalScope = GlobalSearchScope.allScope(scope.getProject());
         final Query<PsiClass> query = ClassInheritorsSearch.search(
                 aClass, globalScope, true, true, true);
             for (final PsiClass inheritor : query) {
