@@ -17,6 +17,7 @@ import com.intellij.psi.PsiJavaFile;
 import org.jacoquev.model.builder.ProjectModelBuilder;
 import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
+import org.jacoquev.model.visitor.pack.PackageAbstractnessCalculator;
 import org.jacoquev.model.visitor.pack.PackageCouplingCalculator;
 import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jacoquev.util.MetricsUtils;
@@ -52,8 +53,9 @@ public class ProjectMetricsRunner {
         public void run() {
             ReadAction.run(() -> projectModelBuilder.calculateMetrics());
             PackageCouplingCalculator packageCouplingCalculator = new PackageCouplingCalculator();
-            MetricsUtils.runInReadAction(() -> packageCouplingCalculator.calculate(javaProject));
+            PackageAbstractnessCalculator packageAbstractnessCalculator = new PackageAbstractnessCalculator();
             ReadAction.run(() -> packageCouplingCalculator.calculate(javaProject));
+            ReadAction.run(() -> packageAbstractnessCalculator.calculate(javaProject));
 
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
