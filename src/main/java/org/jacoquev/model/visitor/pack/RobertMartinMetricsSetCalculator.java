@@ -2,6 +2,7 @@ package org.jacoquev.model.visitor.pack;
 
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiPackage;
 import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
@@ -16,9 +17,12 @@ import java.util.Set;
 
 import static org.jacoquev.exec.ProjectMetricsRunner.getDependencyMap;
 
-public class PackageCouplingCalculator {
+public class RobertMartinMetricsSetCalculator {
     private BucketedCount<PsiPackage> numExternalDependenciesPerPackage = new BucketedCount<>();
     private BucketedCount<PsiPackage> numExternalDependentsPerPackage = new BucketedCount<>();
+
+    private BucketedCount<PsiPackage> numAbstractClassesPerPackage = new BucketedCount<>();
+    private BucketedCount<PsiPackage> numClassesPerPackage = new BucketedCount<>();
 
     public void calculate(JavaProject javaProject) {
 
@@ -29,7 +33,7 @@ public class PackageCouplingCalculator {
                 .forEach(p -> {
                     int afferentCoupling = numExternalDependentsPerPackage.getBucketValue(p.getPsiPackage());
                     int efferentCoupling = numExternalDependenciesPerPackage.getBucketValue(p.getPsiPackage());
-                    double instability = (afferentCoupling + efferentCoupling) == 0 ? 0.0 :
+                    double instability = (afferentCoupling + efferentCoupling) == 0 ? 1.0 :
                             (double) efferentCoupling / ((double) afferentCoupling + (double) efferentCoupling);
                     p.addMetric(Metric.of(
                             "Ce",
@@ -46,6 +50,23 @@ public class PackageCouplingCalculator {
                             "Instability",
                             "/html/Instability.html",
                             instability));
+
+                    int numClasses = numClassesPerPackage.getBucketValue(p.getPsiPackage());
+                    int numAbstractClasses = numAbstractClassesPerPackage.getBucketValue(p.getPsiPackage());
+                    double abstractness = numClasses == 0 ? 0.0 :
+                            (double) numAbstractClasses / (double) numClasses;
+                    p.addMetric(Metric.of(
+                            "A",
+                            "Abstractness",
+                            "/html/Abstractness.html",
+                            abstractness));
+
+                    double distance = Math.abs(1.0 - instability - abstractness);
+                    p.addMetric(Metric.of(
+                            "D",
+                            "Normalized Distance From Main Sequence",
+                            "/html/NormalizedDistanceFromMainSequence.html",
+                            distance));
                 });
     }
 
@@ -70,6 +91,11 @@ public class PackageCouplingCalculator {
             numExternalDependentsPerPackage.createBucket(psiPackage);
             Set<PsiPackage> packageDependents = dependencyMap.calculatePackageDependents(psiClass);
             numExternalDependentsPerPackage.incrementBucketValue(psiPackage, packageDependents.size());
+
+            if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
+                numAbstractClassesPerPackage.incrementBucketValue(psiPackage);
+            }
+            numClassesPerPackage.incrementBucketValue(psiPackage);
         }
     }
 }
