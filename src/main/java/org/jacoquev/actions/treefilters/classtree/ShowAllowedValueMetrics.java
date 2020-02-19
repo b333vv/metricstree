@@ -21,6 +21,6 @@ public class ShowAllowedValueMetrics extends ToggleAction {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         MetricsUtils.getClassMetricsTreeFilter().setAllowedValueMetricsVisible(state);
-        MetricsUtils.getMetricsToolWindowPanel().buildTreeModel();
+        MetricsUtils.getClassMetricsPanel().buildTreeModel();
     }
 }

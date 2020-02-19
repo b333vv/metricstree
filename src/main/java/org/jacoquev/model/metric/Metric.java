@@ -9,7 +9,7 @@ public class Metric {
     private String name;
     private String description;
     private Value value;
-    private Range range = Range.UNDEFINED_RANGE;
+    private Range range = Range.UNDEFINED;
     private String descriptionUrl;
 
     protected Metric(String name, String description, String descriptionUrl, Value value) {

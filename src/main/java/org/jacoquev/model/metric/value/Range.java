@@ -1,7 +1,7 @@
 package org.jacoquev.model.metric.value;
 
 public class Range {
-    public static final Range UNDEFINED_RANGE = new Range(Value.of(0), Value.of(0)) {
+    public static final Range UNDEFINED = new Range(Value.UNDEFINED, Value.UNDEFINED) {
         @Override
         public boolean includes(Value value) {
             return true;

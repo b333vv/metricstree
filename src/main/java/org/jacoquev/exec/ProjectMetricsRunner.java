@@ -61,10 +61,6 @@ public class ProjectMetricsRunner {
         public void run() {
             MoodMetricsSetCalculator moodMetricsSetCalculator = new MoodMetricsSetCalculator(scope);
             ReadAction.run(() -> moodMetricsSetCalculator.calculate(javaProject));
-
-//            ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-//            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
-//            MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
         }
     };
 
@@ -90,19 +86,21 @@ public class ProjectMetricsRunner {
     }
 
     public final void execute() {
-        MetricsBackgroundableTask task1 = new MetricsBackgroundableTask(project,
+        MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
                 "Calculating Metrics...", true, calculate, null,
                 () -> queue.clear(), null);
-        MetricsBackgroundableTask task2 = new MetricsBackgroundableTask(project,
-                "Package Level Metrics: Robert C. Martin Metrics Set Calculating...", true, martinMetricSetCalculating, null,
+        MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
+                "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
+                true, martinMetricSetCalculating, null,
                 () -> queue.clear(), null);
-        MetricsBackgroundableTask task3 = new MetricsBackgroundableTask(project,
-                "Project Level Metrics: MOOD Metrics Set Calculating...", true, moodMetricSetCalculating, null,
+        MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
+                "Project Level Metrics: MOOD Metrics Set Calculating...",
+                true, moodMetricSetCalculating, null,
                 () -> queue.clear(), buildTree);
 
-        queue.run(task1);
-        queue.run(task2);
-        queue.run(task3);
+        queue.run(classMetricsTask);
+        queue.run(packageMetricsTask);
+        queue.run(projectMetricsTask);
     }
 
     class PsiJavaFileVisitor extends PsiElementVisitor {
@@ -131,13 +129,9 @@ public class ProjectMetricsRunner {
                 progress++;
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
-
                 dependencyMap.build(psiJavaFile);
-
                 indicator.setIndeterminate(false);
-
                 indicator.setFraction((double) progress / (double) numFiles);
             }
-
         }
 }

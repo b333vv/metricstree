@@ -17,14 +17,19 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     public DefaultTreeModel createClassMetricTreeModel() {
-        JavaPackage javaPackage = javaProject.getPackages().findFirst().get();
-        JavaClass rootJavaClass = javaPackage.getClasses().findFirst().get();
-        ClassNode rootClassNode = new ClassNode(rootJavaClass);
-        model = new DefaultTreeModel(rootClassNode);
-        model.setRoot(rootClassNode);
-        addSubClasses(rootClassNode);
-        addTypeMetricsAndMethodNodes(rootClassNode);
-        return model;
+        if (getMetricsTreeFilter().isClassMetricsVisible()
+            || getMetricsTreeFilter().isMethodMetricsVisible()) {
+            JavaPackage javaPackage = javaProject.getPackages().findFirst().get();
+            JavaClass rootJavaClass = javaPackage.getClasses().findFirst().get();
+            ClassNode rootClassNode = new ClassNode(rootJavaClass);
+            model = new DefaultTreeModel(rootClassNode);
+            model.setRoot(rootClassNode);
+            addSubClasses(rootClassNode);
+            addTypeMetricsAndMethodNodes(rootClassNode);
+            return model;
+        } else {
+            return null;
+        }
     }
 
     @Override

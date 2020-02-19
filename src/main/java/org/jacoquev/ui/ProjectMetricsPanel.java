@@ -132,14 +132,12 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         analysisScope.setIncludeTestSource(false);
         ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
         projectMetricsRunner.execute();
+        projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
     }
 
     public void buildTreeModel() {
-        projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
         DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
-        metricsTree.setModel(metricsTreeModel);
-        metricsTable.init(projectMetricTreeBuilder.getJavaProject());
-//        console.info("Evaluating metrics values for " + project.getName() + " finished");
+        showResults(metricsTreeModel);
     }
 
     public void treeSelectionChanged() {
@@ -154,38 +152,40 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof ProjectNode) {
-            bottomPanel.setData(((ProjectNode) node).getJavaProject());
-            metricsDescriptionPanel.clear();
-            metricsTable.clear();
+            JavaProject javaProject = ((ProjectNode) node).getJavaProject();
+            bottomPanel.setData(javaProject);
+            metricsTable.set(javaProject);
+            rightPanelRepaint();
         } else if (node instanceof PackageNode) {
-            bottomPanel.setData(((PackageNode) node).getJavaPackage());
-            metricsDescriptionPanel.clear();
-            metricsTable.clear();
+            JavaPackage javaPackage = ((PackageNode) node).getJavaPackage();
+            bottomPanel.setData(javaPackage);
+            metricsTable.set(javaPackage);
+            rightPanelRepaint();
         } else if (node instanceof ClassNode) {
-            bottomPanel.setData(((ClassNode) node).getJavaClass());
-            metricsDescriptionPanel.clear();
             JavaClass javaClass = ((ClassNode) node).getJavaClass();
+            bottomPanel.setData(javaClass);
             metricsTable.set(javaClass);
-            rightPanel.remove(0);
-            rightPanel.add(scrollableTablePanel);
-            rightPanel.revalidate();
-            rightPanel.repaint();
+            rightPanelRepaint();
             openInEditor(javaClass.getPsiClass());
         } else if (node instanceof MethodNode) {
-            bottomPanel.setData(((MethodNode) node).getJavaMethod());
-            metricsDescriptionPanel.clear();
             JavaMethod javaMethod = ((MethodNode) node).getJavaMethod();
+            bottomPanel.setData(javaMethod);
             metricsTable.set(javaMethod);
-            rightPanel.remove(0);
-            rightPanel.add(scrollableTablePanel);
-            rightPanel.revalidate();
-            rightPanel.repaint();
+            rightPanelRepaint();
             openInEditor(javaMethod.getPsiMethod());
         } else {
             bottomPanel.clear();
             metricsDescriptionPanel.clear();
             metricsTable.clear();
         }
+    }
+
+    private void rightPanelRepaint() {
+        metricsDescriptionPanel.clear();
+        rightPanel.remove(0);
+        rightPanel.add(scrollableTablePanel);
+        rightPanel.revalidate();
+        rightPanel.repaint();
     }
 
     private void openInEditor(PsiElement psiElement) {
@@ -206,6 +206,10 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
 
     public void showResults(DefaultTreeModel metricsTreeModel) {
         metricsTree.setModel(metricsTreeModel);
-        metricsTable.init(javaProject);
+        if (metricsTreeModel == null) {
+            metricsTable.clear();
+        } else {
+            metricsTable.init(javaProject);
+        }
     }
 }

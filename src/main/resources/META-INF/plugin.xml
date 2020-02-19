@@ -94,6 +94,15 @@
         <action id="Metrics.ShowNotSetValueMetrics"
                 class="org.jacoquev.actions.treefilters.classtree.ShowNotSetValueMetrics">
         </action>
+        <action id="Metrics.ShowNotApplicableMetrics"
+                class="org.jacoquev.actions.treefilters.classtree.ShowNotApplicableMetrics">
+        </action>
+        <action id="Metrics.ShowChidamberKemererMetrics"
+                class="org.jacoquev.actions.treefilters.classtree.ShowChidamberKemererMetrics">
+        </action>
+        <action id="Metrics.ShowLorenzKiddMetrics"
+                class="org.jacoquev.actions.treefilters.classtree.ShowLorenzKiddMetrics">
+        </action>
 
         <action id="Metrics.ProjectTreeShowProjectMetrics"
                 class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
@@ -117,6 +126,21 @@
         <action id="Metrics.ProjectTreeShowNotSetValueMetrics"
                 class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowNotSetValueMetrics">
         </action>
+        <action id="Metrics.ProjectTreeShowNotApplicableMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowNotApplicableMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowChidamberKemererMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowChidamberKemererMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowLorenzKiddMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowLorenzKiddMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowRobertMartinrMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowRobertMartinMetrics">
+        </action>
+        <action id="Metrics.ProjectTreeShowMoodMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowMoodMetrics">
+        </action>
 
         <group id="Metrics.FilterClassMetricsTreeGroup">
             <reference id="Metrics.ShowClassMetrics"/>
@@ -125,6 +149,10 @@
             <reference id="Metrics.ShowAllowedValueMetrics"/>
             <reference id="Metrics.ShowDisallowedValueMetrics"/>
             <reference id="Metrics.ShowNotSetValueMetrics"/>
+            <reference id="Metrics.ShowNotApplicableMetrics"/>
+            <separator/>
+            <reference id="Metrics.ShowChidamberKemererMetrics"/>
+            <reference id="Metrics.ShowLorenzKiddMetrics"/>
         </group>
 
         <group id="Metrics.FilterProjectMetricsTreeGroup">
@@ -136,6 +164,12 @@
             <reference id="Metrics.ProjectTreeShowAllowedValueMetrics"/>
             <reference id="Metrics.ProjectTreeShowDisallowedValueMetrics"/>
             <reference id="Metrics.ProjectTreeShowNotSetValueMetrics"/>
+            <reference id="Metrics.ProjectTreeShowNotApplicableMetrics"/>
+            <separator/>
+            <reference id="Metrics.ProjectTreeShowChidamberKemererMetrics"/>
+            <reference id="Metrics.ProjectTreeShowLorenzKiddMetrics"/>
+            <reference id="Metrics.ProjectTreeShowRobertMartinrMetrics"/>
+            <reference id="Metrics.ProjectTreeShowMoodMetrics"/>
         </group>
 
         <group id="Metrics.ClassMetricsToolbar">

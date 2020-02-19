@@ -21,6 +21,6 @@ public class ShowMethodMetrics extends ToggleAction {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         MetricsUtils.getClassMetricsTreeFilter().setMethodMetricsVisible(state);
-        MetricsUtils.getMetricsToolWindowPanel().buildTreeModel();
+        MetricsUtils.getClassMetricsPanel().buildTreeModel();
     }
 }

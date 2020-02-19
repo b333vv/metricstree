@@ -6,22 +6,22 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectTreeShowNotSetValueMetrics extends ToggleAction {
+public class ProjectTreeShowNotApplicableMetrics extends ToggleAction {
 
 
-    public ProjectTreeShowNotSetValueMetrics() {
-        super("Show Metrics Whose Allowed Values Are Not Set", "Show or dont show metrics whose allowed values are not set",
+    public ProjectTreeShowNotApplicableMetrics() {
+        super("Show Not Applicable Metrics", "Show or dont show not applicable metrics",
                 AllIcons.General.BalloonWarning);
     }
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getProjectMetricsTreeFilter().isNotSetValueMetricsVisible();
+        return MetricsUtils.getProjectMetricsTreeFilter().isNotApplicableMetricsVisible();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getProjectMetricsTreeFilter().setNotSetValueMetricsVisible(state);
+        MetricsUtils.getProjectMetricsTreeFilter().setNotApplicableMetricsVisible(state);
         MetricsUtils.getProjectMetricsPanel().buildTreeModel();
     }
 }

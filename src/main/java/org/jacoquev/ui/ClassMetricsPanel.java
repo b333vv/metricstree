@@ -38,9 +38,9 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 
-public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
+public class ClassMetricsPanel extends SimpleToolWindowPanel {
     private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
-    private static final Logger LOG = Logger.getInstance(MetricsToolWindowPanel.class);
+    private static final Logger LOG = Logger.getInstance(ClassMetricsPanel.class);
     private final CurrentFileController scope;
     private final Project project;
     private final MetricsTree metricsTree;
@@ -54,13 +54,13 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     private JScrollPane scrollableTablePanel;
     private PsiJavaFile psiJavaFile;
 
-    public MetricsToolWindowPanel(CurrentFileController scope, Project project) {
+    public ClassMetricsPanel(CurrentFileController scope, Project project) {
         super(false, true);
 
         this.project = project;
         this.scope = scope;
 
-        MetricsUtils.setMetricsToolWindowPanel(this);
+        MetricsUtils.setClassMetricsPanel(this);
 
         final ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
@@ -155,7 +155,11 @@ public class MetricsToolWindowPanel extends SimpleToolWindowPanel {
     public void buildTreeModel() {
         DefaultTreeModel metricsTreeModel = classMetricTreeBuilder.createClassMetricTreeModel();
         metricsTree.setModel(metricsTreeModel);
-        metricsTable.init(classMetricTreeBuilder.getJavaProject());
+        if (metricsTreeModel == null) {
+            metricsTable.clear();
+        } else {
+            metricsTable.init(classMetricTreeBuilder.getJavaProject());
+        }
     }
 
     public void treeSelectionChanged() {

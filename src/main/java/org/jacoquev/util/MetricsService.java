@@ -18,7 +18,7 @@ public class MetricsService {
     public static Range getRangeForMetric(String metricName) {
         MetricsSettings.MetricStub metricStub = metricsSettings.getMetrics().get(metricName);
         if (metricStub == null) {
-            return Range.UNDEFINED_RANGE;
+            return Range.UNDEFINED;
         }
         if (metricStub.isDoubleValue()) {
             return Range.of(Value.of(metricStub.getMinDoubleValue()), Value.of(metricStub.getMaxDoubleValue()));

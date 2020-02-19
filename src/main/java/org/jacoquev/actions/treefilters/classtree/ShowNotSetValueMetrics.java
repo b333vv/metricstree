@@ -10,7 +10,7 @@ public class ShowNotSetValueMetrics extends ToggleAction {
 
 
     public ShowNotSetValueMetrics() {
-        super("Show Metrics Whose Allowed Values Are not Set", "Show or dont show metrics whose allowed values are not set",
+        super("Show Metrics Whose Allowed Values Are Not Set", "Show or dont show metrics whose allowed values are not set",
                 AllIcons.General.BalloonWarning);
     }
 
@@ -22,6 +22,6 @@ public class ShowNotSetValueMetrics extends ToggleAction {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         MetricsUtils.getClassMetricsTreeFilter().setNotSetValueMetricsVisible(state);
-        MetricsUtils.getMetricsToolWindowPanel().buildTreeModel();
+        MetricsUtils.getClassMetricsPanel().buildTreeModel();
     }
 }

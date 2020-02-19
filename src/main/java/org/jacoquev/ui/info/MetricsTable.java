@@ -5,9 +5,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.jacoquev.model.code.JavaClass;
 import org.jacoquev.model.code.JavaCode;
-import org.jacoquev.model.code.JavaPackage;
 import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.value.Range;
@@ -17,7 +15,6 @@ import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MetricsTable {
@@ -52,8 +49,6 @@ public class MetricsTable {
     }
 
     public void init(JavaProject javaProject) {
-//        JavaPackage javaPackage = javaProject.getPackages().iterator().next();
-//        JavaClass javaClass = javaPackage.getClasses().iterator().next();
         set(javaProject);
     }
 
@@ -137,7 +132,7 @@ public class MetricsTable {
         private Icon getRowIcon(Metric metric) {
             if (!metric.hasAllowableValue()) {
                 return AllIcons.General.BalloonError;
-            } else if (metric.getRange() == Range.UNDEFINED_RANGE) {
+            } else if (metric.getRange() == Range.UNDEFINED) {
                 return AllIcons.General.BalloonWarning;
             }
             return AllIcons.Actions.Commit;

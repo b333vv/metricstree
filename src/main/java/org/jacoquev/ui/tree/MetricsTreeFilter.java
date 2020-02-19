@@ -1,93 +1,127 @@
 package org.jacoquev.ui.tree;
 
 public class MetricsTreeFilter {
-    private boolean isProjectMetricsVisible;
-    private boolean isPackageMetricsVisible;
-    private boolean isClassMetricsVisible;
-    private boolean isMethodMetricsVisible;
-    private boolean isAllowedValueMetricsVisible;
-    private boolean isDisallowedValueMetricsVisible;
-    private boolean isNotSetValueMetricsVisible;
+    private boolean projectMetricsVisible;
+    private boolean packageMetricsVisible;
+    private boolean classMetricsVisible;
+    private boolean methodMetricsVisible;
+    private boolean allowedValueMetricsVisible;
+    private boolean disallowedValueMetricsVisible;
+    private boolean notSetValueMetricsVisible;
+    private boolean notApplicableMetricsVisible;
+    private boolean chidamberKemererMetricsSetVisible;
+    private boolean lorenzKiddMetricsSetVisible;
+    private boolean robertMartinMetricsSetVisible;
+    private boolean moodMetricsSetVisible;
 
     public MetricsTreeFilter() {
-        this.isProjectMetricsVisible = true;
-        this.isPackageMetricsVisible = true;
-        this.isClassMetricsVisible = true;
-        this.isMethodMetricsVisible = true;
-        this.isAllowedValueMetricsVisible = true;
-        this.isDisallowedValueMetricsVisible = true;
-        this.isNotSetValueMetricsVisible = true;
-    }
-
-    public MetricsTreeFilter(boolean isProjectMetricsVisible,
-                             boolean isPackageMetricsVisible,
-                             boolean isClassMetricsVisible,
-                             boolean isMethodMetricsVisible,
-                             boolean isAllowedValueMetricsVisible,
-                             boolean isDisallowedValueMetricsVisible,
-                             boolean isNotSetValueMetricsVisible) {
-        this.isProjectMetricsVisible = isProjectMetricsVisible;
-        this.isPackageMetricsVisible = isPackageMetricsVisible;
-        this.isClassMetricsVisible = isClassMetricsVisible;
-        this.isMethodMetricsVisible = isMethodMetricsVisible;
-        this.isAllowedValueMetricsVisible = isAllowedValueMetricsVisible;
-        this.isDisallowedValueMetricsVisible = isDisallowedValueMetricsVisible;
-        this.isNotSetValueMetricsVisible = isNotSetValueMetricsVisible;
+        this.projectMetricsVisible = true;
+        this.packageMetricsVisible = true;
+        this.classMetricsVisible = true;
+        this.methodMetricsVisible = true;
+        this.allowedValueMetricsVisible = true;
+        this.disallowedValueMetricsVisible = true;
+        this.notSetValueMetricsVisible = true;
+        this.notApplicableMetricsVisible = true;
+        this.chidamberKemererMetricsSetVisible = true;
+        this.lorenzKiddMetricsSetVisible = true;
+        this.robertMartinMetricsSetVisible = true;
+        this.moodMetricsSetVisible = true;
     }
 
     public boolean isProjectMetricsVisible() {
-        return isProjectMetricsVisible;
+        return projectMetricsVisible;
     }
 
     public void setProjectMetricsVisible(boolean projectMetricsVisible) {
-        isProjectMetricsVisible = projectMetricsVisible;
+        this.projectMetricsVisible = projectMetricsVisible;
     }
 
     public boolean isPackageMetricsVisible() {
-        return isPackageMetricsVisible;
+        return packageMetricsVisible;
     }
 
     public void setPackageMetricsVisible(boolean packageMetricsVisible) {
-        isPackageMetricsVisible = packageMetricsVisible;
+        this.packageMetricsVisible = packageMetricsVisible;
     }
 
     public boolean isClassMetricsVisible() {
-        return isClassMetricsVisible;
+        return classMetricsVisible;
     }
 
     public void setClassMetricsVisible(boolean classMetricsVisible) {
-        isClassMetricsVisible = classMetricsVisible;
+        this.classMetricsVisible = classMetricsVisible;
     }
 
     public boolean isMethodMetricsVisible() {
-        return isMethodMetricsVisible;
+        return methodMetricsVisible;
     }
 
     public void setMethodMetricsVisible(boolean methodMetricsVisible) {
-        isMethodMetricsVisible = methodMetricsVisible;
+        this.methodMetricsVisible = methodMetricsVisible;
     }
 
     public boolean isAllowedValueMetricsVisible() {
-        return isAllowedValueMetricsVisible;
+        return allowedValueMetricsVisible;
     }
 
     public void setAllowedValueMetricsVisible(boolean allowedValueMetricsVisible) {
-        isAllowedValueMetricsVisible = allowedValueMetricsVisible;
+        this.allowedValueMetricsVisible = allowedValueMetricsVisible;
     }
 
     public boolean isDisallowedValueMetricsVisible() {
-        return isDisallowedValueMetricsVisible;
+        return disallowedValueMetricsVisible;
     }
 
     public void setDisallowedValueMetricsVisible(boolean disallowedValueMetricsVisible) {
-        isDisallowedValueMetricsVisible = disallowedValueMetricsVisible;
+        this.disallowedValueMetricsVisible = disallowedValueMetricsVisible;
     }
 
     public boolean isNotSetValueMetricsVisible() {
-        return isNotSetValueMetricsVisible;
+        return notSetValueMetricsVisible;
     }
 
     public void setNotSetValueMetricsVisible(boolean notSetValueMetricsVisible) {
-        isNotSetValueMetricsVisible = notSetValueMetricsVisible;
+        this.notSetValueMetricsVisible = notSetValueMetricsVisible;
+    }
+
+    public boolean isNotApplicableMetricsVisible() {
+        return notApplicableMetricsVisible;
+    }
+
+    public void setNotApplicableMetricsVisible(boolean notApplicableMetricsVisible) {
+        this.notApplicableMetricsVisible = notApplicableMetricsVisible;
+    }
+
+    public boolean isChidamberKemererMetricsSetVisible() {
+        return chidamberKemererMetricsSetVisible;
+    }
+
+    public void setChidamberKemererMetricsSetVisible(boolean chidamberKemererMetricsSetVisible) {
+        this.chidamberKemererMetricsSetVisible = chidamberKemererMetricsSetVisible;
+    }
+
+    public boolean isLorenzKiddMetricsSetVisible() {
+        return lorenzKiddMetricsSetVisible;
+    }
+
+    public void setLorenzKiddMetricsSetVisible(boolean lorenzKiddMetricsSetVisible) {
+        this.lorenzKiddMetricsSetVisible = lorenzKiddMetricsSetVisible;
+    }
+
+    public boolean isRobertMartinMetricsSetVisible() {
+        return robertMartinMetricsSetVisible;
+    }
+
+    public void setRobertMartinMetricsSetVisible(boolean robertMartinMetricsSetVisible) {
+        this.robertMartinMetricsSetVisible = robertMartinMetricsSetVisible;
+    }
+
+    public boolean isMoodMetricsSetVisible() {
+        return moodMetricsSetVisible;
+    }
+
+    public void setMoodMetricsSetVisible(boolean moodMetricsSetVisible) {
+        this.moodMetricsSetVisible = moodMetricsSetVisible;
     }
 }

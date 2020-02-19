@@ -39,7 +39,7 @@ public class MetricNode extends AbstractNode {
             renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
                     AllIcons.General.BalloonError));
         } else {
-            if (metric.getRange() == Range.UNDEFINED_RANGE) {
+            if (metric.getRange() == Range.UNDEFINED) {
                 renderer.setIconToolTip("The desired value range is not set for this metric");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
                         AllIcons.General.BalloonWarning));

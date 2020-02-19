@@ -1,27 +1,26 @@
 package org.jacoquev.actions.treefilters.classtree;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ShowDisallowedValueMetrics extends ToggleAction {
+public class ShowChidamberKemererMetrics extends ToggleAction {
 
 
-    public ShowDisallowedValueMetrics() {
-        super("Show Metrics with Disallowed Values", "Show or dont show metrics with disallowed values",
-                AllIcons.General.BalloonError);
+    public ShowChidamberKemererMetrics() {
+        super("Show Chidamber-Kemerer Metrics Set",
+                "Show or dont show Chidamber-Kemerer metrics set", null);
     }
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getClassMetricsTreeFilter().isDisallowedValueMetricsVisible();
+        return MetricsUtils.getClassMetricsTreeFilter().isChidamberKemererMetricsSetVisible();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getClassMetricsTreeFilter().setDisallowedValueMetricsVisible(state);
+        MetricsUtils.getClassMetricsTreeFilter().setChidamberKemererMetricsSetVisible(state);
         MetricsUtils.getClassMetricsPanel().buildTreeModel();
     }
 }

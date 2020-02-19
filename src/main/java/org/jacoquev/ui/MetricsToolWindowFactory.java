@@ -15,13 +15,13 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
         CurrentFileController currentFileController = new CurrentFileController(project);
-        MetricsToolWindowPanel metricsToolWindowPanel = new MetricsToolWindowPanel(currentFileController, project);
+        ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(currentFileController, project);
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(
-                        metricsToolWindowPanel,
+                        classMetricsPanel,
                         TAB_CLASS_METRICS_TREE,
                         false);
-        toolWindow.getContentManager().addDataProvider(metricsToolWindowPanel);
+        toolWindow.getContentManager().addDataProvider(classMetricsPanel);
         toolWindow.getContentManager().addContent(treeContent);
     }
 

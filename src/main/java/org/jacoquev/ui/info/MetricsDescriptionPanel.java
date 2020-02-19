@@ -3,6 +3,7 @@ package org.jacoquev.ui.info;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.util.ui.JBImageIcon;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.jacoquev.model.metric.Metric;
@@ -16,25 +17,23 @@ import java.net.URL;
 import static java.awt.GridBagConstraints.*;
 
 public class MetricsDescriptionPanel {
-    JEditorPane jEditorPane;
-    private JTextPane metricDescription;
+    private JEditorPane metricDescription;
+    private JLabel metricFormula;
     private JPanel rightMetricPanel;
-    private JLabel allowableRangeLabel;
     private JLabel allowableRangeValue;
-    private JLabel currentValueLabel;
     private JLabel currentValue;
 
     public MetricsDescriptionPanel() {
         rightMetricPanel = new JPanel(new GridBagLayout());
-        allowableRangeLabel = new JLabel("Allowable value range:");
+        JLabel allowableRangeLabel = new JLabel("Allowable value range:");
         allowableRangeValue = new JLabel();
-        currentValueLabel = new JLabel("Calculated metrics value:");
+        JLabel currentValueLabel = new JLabel("Calculated metrics value:");
         currentValue = new JLabel();
-        jEditorPane = new JEditorPane();
-        jEditorPane.setEditable(false);
+        metricDescription = new JEditorPane();
+        metricDescription.setEditable(false);
 
         JScrollPane scrollableMetricDescriptionPanel = ScrollPaneFactory.createScrollPane(
-                jEditorPane,
+                metricDescription,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricDescriptionPanel.getVerticalScrollBar().setUnitIncrement(10);
@@ -65,15 +64,15 @@ public class MetricsDescriptionPanel {
 
         try {
             URL url = MetricsDescriptionPanel.class.getResource(metric.getDescriptionUrl());
-            jEditorPane.setPage(url);
+            metricDescription.setPage(url);
         } catch (Exception e) {
-            jEditorPane.setContentType("text/html");
-            jEditorPane.setText("<html>Page not found.</html>");
+            metricDescription.setContentType("text/html");
+            metricDescription.setText("<html>Page not found.</html>");
         }
 
         if (!metric.hasAllowableValue()) {
             currentValue.setIcon(AllIcons.General.BalloonError);
-        } else if (metric.getRange() == Range.UNDEFINED_RANGE) {
+        } else if (metric.getRange() == Range.UNDEFINED) {
             currentValue.setIcon(AllIcons.General.BalloonWarning);
         } else {
             currentValue.setIcon(AllIcons.Actions.Commit);

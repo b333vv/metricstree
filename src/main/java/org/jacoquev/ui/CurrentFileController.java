@@ -12,13 +12,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class CurrentFileController {
     private final Project project;
-    private MetricsToolWindowPanel panel;
+    private ClassMetricsPanel panel;
 
     public CurrentFileController(Project project) {
         this.project = project;
     }
 
-    public void setPanel(MetricsToolWindowPanel panel) {
+    public void setPanel(ClassMetricsPanel panel) {
         this.panel = panel;
         initEventHandling();
         update();

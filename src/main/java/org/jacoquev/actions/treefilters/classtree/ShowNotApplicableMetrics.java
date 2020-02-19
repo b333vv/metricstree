@@ -6,22 +6,22 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ShowDisallowedValueMetrics extends ToggleAction {
+public class ShowNotApplicableMetrics extends ToggleAction {
 
 
-    public ShowDisallowedValueMetrics() {
-        super("Show Metrics with Disallowed Values", "Show or dont show metrics with disallowed values",
-                AllIcons.General.BalloonError);
+    public ShowNotApplicableMetrics() {
+        super("Show Not Applicable Metrics", "Show or dont show not applicable metrics",
+                AllIcons.General.BalloonWarning);
     }
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getClassMetricsTreeFilter().isDisallowedValueMetricsVisible();
+        return MetricsUtils.getClassMetricsTreeFilter().isNotApplicableMetricsVisible();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getClassMetricsTreeFilter().setDisallowedValueMetricsVisible(state);
+        MetricsUtils.getClassMetricsTreeFilter().setNotApplicableMetricsVisible(state);
         MetricsUtils.getClassMetricsPanel().buildTreeModel();
     }
 }

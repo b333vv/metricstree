@@ -21,7 +21,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.concurrency.AppExecutorUtil;
-import org.jacoquev.ui.MetricsToolWindowPanel;
+import org.jacoquev.ui.ClassMetricsPanel;
 import org.jacoquev.ui.tree.MetricsTreeFilter;
 import org.jacoquev.ui.ProjectMetricsPanel;
 
@@ -36,7 +36,7 @@ public class MetricsUtils {
     private static Project project;
     private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
-    private static MetricsToolWindowPanel metricsToolWindowPanel;
+    private static ClassMetricsPanel classMetricsPanel;
     private static ProjectMetricsPanel projectMetricsPanel;
     private static boolean autoscroll = true;
 
@@ -110,12 +110,12 @@ public class MetricsUtils {
         return projectMetricsTreeFilter;
     }
 
-    public static MetricsToolWindowPanel getMetricsToolWindowPanel() {
-        return metricsToolWindowPanel;
+    public static ClassMetricsPanel getClassMetricsPanel() {
+        return classMetricsPanel;
     }
 
-    public static void setMetricsToolWindowPanel(MetricsToolWindowPanel value) {
-        metricsToolWindowPanel = value;
+    public static void setClassMetricsPanel(ClassMetricsPanel value) {
+        classMetricsPanel = value;
     }
 
     public static <T> T callInReadAction(Callable<T> task) {
@@ -126,7 +126,7 @@ public class MetricsUtils {
                     .submit(AppExecutorUtil.getAppExecutorService())
                     .get();
         } catch (ExecutionException | InterruptedException e) {
-            metricsToolWindowPanel.getConsole().error(e.getMessage());
+            classMetricsPanel.getConsole().error(e.getMessage());
         }
         return result;
     }
@@ -137,12 +137,12 @@ public class MetricsUtils {
                     .inSmartMode(getProject())
                     .submit(AppExecutorUtil.getAppExecutorService());
         } catch (Exception e) {
-            metricsToolWindowPanel.getConsole().error(e.getMessage());
+            classMetricsPanel.getConsole().error(e.getMessage());
         }
     }
 
     public static void refreshMetricsTree() {
-        metricsToolWindowPanel.refresh();
+        classMetricsPanel.refresh();
     }
 
     public static void setProjectMetricsPanel(ProjectMetricsPanel value) {
