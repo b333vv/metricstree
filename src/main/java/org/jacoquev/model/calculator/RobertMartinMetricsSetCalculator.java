@@ -1,9 +1,7 @@
 package org.jacoquev.model.calculator;
 
-import com.intellij.psi.JavaRecursiveElementVisitor;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiPackage;
+import com.intellij.analysis.AnalysisScope;
+import com.intellij.psi.*;
 import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.Metric;
@@ -18,16 +16,21 @@ import java.util.Set;
 import static org.jacoquev.exec.ProjectMetricsRunner.getDependencyMap;
 
 public class RobertMartinMetricsSetCalculator {
+    private final AnalysisScope scope;
+
     private BucketedCount<PsiPackage> numExternalDependenciesPerPackage = new BucketedCount<>();
     private BucketedCount<PsiPackage> numExternalDependentsPerPackage = new BucketedCount<>();
 
     private BucketedCount<PsiPackage> numAbstractClassesPerPackage = new BucketedCount<>();
     private BucketedCount<PsiPackage> numClassesPerPackage = new BucketedCount<>();
 
+    public RobertMartinMetricsSetCalculator(AnalysisScope scope) {
+        this.scope = scope;
+    }
+
     public void calculate(JavaProject javaProject) {
 
-        javaProject.getAllClasses()
-                .forEach(c -> c.getPsiClass().accept(new Visitor()));
+        scope.accept(new Visitor());
 
         javaProject.getAllPackages()
                 .forEach(p -> {
@@ -53,7 +56,7 @@ public class RobertMartinMetricsSetCalculator {
 
                     int numClasses = numClassesPerPackage.getBucketValue(p.getPsiPackage());
                     int numAbstractClasses = numAbstractClassesPerPackage.getBucketValue(p.getPsiPackage());
-                    double abstractness = numClasses == 0 ? 0.0 :
+                    double abstractness = numClasses == 0 ? 1.0 :
                             (double) numAbstractClasses / (double) numClasses;
                     p.addMetric(Metric.of(
                             "A",
@@ -73,6 +76,11 @@ public class RobertMartinMetricsSetCalculator {
     private class Visitor extends JavaRecursiveElementVisitor {
 
         @Override
+        public void visitFile(PsiFile psiFile) {
+            super.visitFile(psiFile);
+        }
+
+        @Override
         public void visitClass(PsiClass psiClass) {
             super.visitClass(psiClass);
             if (ClassUtils.isAnonymous(psiClass)) {
@@ -82,6 +90,7 @@ public class RobertMartinMetricsSetCalculator {
             if (psiPackage == null) {
                 return;
             }
+
             DependencyMap dependencyMap = getDependencyMap();
 
             numExternalDependenciesPerPackage.createBucket(psiPackage);

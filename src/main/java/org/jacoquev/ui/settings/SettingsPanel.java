@@ -22,7 +22,7 @@ public class SettingsPanel {
         rootPropertiesPane = new JPanel(new BorderLayout());
 
         tabs.insertTab("Metrics settings", null, metricsSettingsPanel.getComponent(), "Configure metrics", 0);
-        tabs.insertTab("Quality model settings", null, rootPropertiesPane, "Configure quality model settings", 1);
+//        tabs.insertTab("Quality model settings", null, rootPropertiesPane, "Configure quality model settings", 1);
 
         root.add(tabs, BorderLayout.CENTER);
     }

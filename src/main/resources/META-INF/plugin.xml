@@ -14,7 +14,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="Metrics" anchor="bottom" icon="/images/come4j.svg"
+        <toolWindow id="11Metrics" anchor="bottom" icon="/images/jacoquev.svg"
                     factoryClass="org.jacoquev.ui.MetricsToolWindowFactory"/>
 
     </extensions>

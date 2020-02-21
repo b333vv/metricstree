@@ -8,6 +8,7 @@ import com.intellij.util.ui.JBUI;
 import org.jacoquev.model.code.JavaCode;
 import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.Metric;
+import org.jacoquev.model.metric.Sets;
 import org.jacoquev.model.metric.value.Range;
 
 import javax.swing.*;
@@ -38,7 +39,7 @@ public class MetricsTable {
         table.getColumnModel().getColumn(3).setHeaderValue("Allowable value range");
 
         table.getColumnModel().getColumn(0).setMaxWidth(30);
-        table.getColumnModel().getColumn(2).setMaxWidth(50);
+        table.getColumnModel().getColumn(2).setMaxWidth(100);
         table.getColumnModel().getColumn(3).setMaxWidth(200);
 
         panel = new JBScrollPane(table);
@@ -122,9 +123,17 @@ public class MetricsTable {
                 case 1:
                     return metric.getDescription();
                 case 2:
-                    return metric.getFormattedValue();
+                    if (Sets.inMoodMetricsSet(metric.getName())) {
+                        return metric.getValue().percentageFormat();
+                    } else {
+                        return metric.getFormattedValue();
+                    }
                 case 3:
-                    return metric.getRange();
+                    if (Sets.inMoodMetricsSet(metric.getName())) {
+                        return metric.getRange().percentageFormat();
+                    } else {
+                        return metric.getRange();
+                    }
             }
             return metric;
         }

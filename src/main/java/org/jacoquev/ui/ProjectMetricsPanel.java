@@ -47,7 +47,6 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     private ProjectMetricTreeBuilder projectMetricTreeBuilder;
     private MetricsConsole console;
     private JScrollPane scrollableTablePanel;
-    private VirtualFile virtualFile;
     private JavaProject javaProject;
 
     public ProjectMetricsPanel(Project project) {

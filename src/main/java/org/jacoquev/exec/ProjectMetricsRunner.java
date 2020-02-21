@@ -51,7 +51,7 @@ public class ProjectMetricsRunner {
         @Override
         public void run() {
             ReadAction.run(() -> projectModelBuilder.calculateMetrics());
-            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator();
+            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope);
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
         }
     };

@@ -29,7 +29,7 @@ public class FilterClassMetricsTreeAction extends AbstractAction {
 
         ToolWindow toolWindow =
                 ToolWindowManager.getInstance(e.getProject())
-                        .getToolWindow("Metrics");
+                        .getToolWindow("11Metrics");
         actionPopupMenu.getComponent().show(
                 toolWindow.getComponent().getComponent(0),
                 ((MouseEvent) e.getInputEvent()).getX(),

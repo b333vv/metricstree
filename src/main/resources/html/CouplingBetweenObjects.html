@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Coupling Between Objects</title>
+</head>
+<body>
+<h3>Coupling Between Objects (CBO)</h3>
+<p>
+    Coupling Between Objects (CBO) is the number of other classes that a class is coupled to.
+</p>
+<p>
+    Included in the set of metrics proposed by Chidamber and Kemerer.
+    See <br />
+    <em>
+        S.&nbsp;R. Chidamber and C.&nbsp;F. Kemerer.
+        A Metrics Suite for Object Oriented Design.
+        In IEEE Transactions on Software Engineering,
+        volume 20 (6), pages 476-493, June 1994.
+    </em>
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                is negatively influenced by coupling.
+                <dl>
+                    <dt><strong>Understandability for Reuse:</strong></dt>
+                    <dd>
+                        Parts, which have a high (outgoing) efferent
+                        coupling may be highly inversely related to
+                        understandability, since they are using other
+                        parts of the system which need to be understood
+                        as well.
+                        <p>Understandability decreases with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Attractiveness:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be highly inversely related to
+                        attractiveness, since they are using other parts
+                        of the system which need to be understood as
+                        well, and represent dependencies.
+                        <p>Attractiveness decreases with increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Maintainability</strong></dt>
+            <dd>
+                decreases with increasing CBO.
+                <dl>
+                    <dt><strong>Analyzability:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be highly inversely related to
+                        analyzability, since they are using other parts
+                        of the system which need to be analyzed as well.
+                        <p>Analyzability decreases with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Changeability:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to
+                        changeability, since they are using other parts
+                        of the system which might need to be changed as
+                        well.
+                        <p>Changeability decreases with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Stability:</strong></dt>
+                    <dd>
+                        Parts showing a high (outgoing) efferent coupling
+                        may be inversely related to stability, since they
+                        are using other parts of the system, which are
+                        can affect them.
+                        <p>Stability decreases with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Testability:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be highly inversely related to
+                        testability, since they are using other parts of
+                        the system which increase the number of possible
+                        test paths.
+                        <p>Testability decreases with increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Portability</strong></dt>
+            <dd>
+                decreases with increasing CBO.
+                <dl>
+                    <dt><strong>Adaptability:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to
+                        adaptability, since they are using other parts of
+                        the system that might need to be adapted as well.
+                        <p>Adaptability decreases with increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+    <dt><strong>Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Functionality</strong></dt>
+            <dd>
+                is both negatively and positively influenced by
+                coupling.
+                <dl>
+                    <dt><strong>Interoperability:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be directly related to
+                        interoperability, since they are
+                        using/interacting with other parts of the system.
+                        <p>Interoperability might increase with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Security:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to security,
+                        since they can be affected by security problems
+                        in other parts of the system.
+                        <p>Security might decrease with increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Reliability</strong></dt>
+            <dd>
+                might decrease with increasing CBO.
+                <dl>
+                    <dt><strong>Fault-tolerance:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to
+                        fault-tolerance, since they can be affected by
+                        faults in other parts of the system.
+                        <p>Fault-Tolerance might decrease with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Recoverability:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to
+                        recoverability, since their data is distributed
+                        in other parts of the system making their
+                        recovery difficult.
+                        <p>Recoverability might decrease with increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                might decrease with increasing CBO.
+                <dl>
+                    <dt><strong>Learnability for Reuse:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to
+                        learnability, since they are using other parts of
+                        the system which need to be understood as well.
+                        <p>Learnability might decrease with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Operability for Reuse - Programmability:</strong></dt>
+                    <dd>
+                        Parts having a high (outgoing) efferent coupling
+                        may be inversely related to learnability, since
+                        they are using other parts of the system, which
+                        represent dependencies.
+                        <p>Programmability might decrease with increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Efficiency</strong></dt>
+            <dd>
+                might decrease with increasing CBO.
+                <dl>
+                    <dt><strong>Time Behavior:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to time
+                        behavior, since they are using other parts of the
+                        system, thus execution during test or operation
+                        does not stay local, but might involve huge parts
+                        of the system.
+                        <p>Time behavior might get worse with increasing CBO.</p>
+                    </dd>
+                    <dt><strong>Resource Utilization:</strong></dt>
+                    <dd>
+                        Parts that have a high (outgoing) efferent
+                        coupling may be inversely related to resource
+                        utilization, since they are using other parts of
+                        the system, thus execution during test or
+                        operation does not stay local, but might involve
+                        huge parts of the system.
+                        <p>Resource utilization might get worse with    increasing CBO.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
+</body>
+</html>

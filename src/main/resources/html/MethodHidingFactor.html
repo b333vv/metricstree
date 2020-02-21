@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:width="http://www.w3.org/1999/xhtml" xmlns:text-align="http://www.w3.org/1999/xhtml">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Method Hiding Factor</title>
+</head>
+<body>
+<h3>Method Hiding Factor (MHF)</h3>
+<p>
+    MHF is defined as the ratio of the sum of the invisibilities of all methods defined in all classes to the
+    total number of methods defined in the system. The invisibility of a method is the percentage of the total
+    classes from which this method is not visible.
+</p>
+<p>
+    Included in the MOOD set of metrics proposed by Brito e Abreu F. and Carapuça R.
+    See
+    <br />
+    <em>
+        Brito e Abreu F. and Carapuça R.
+        Object-Oriented Software Engineering: Measuring and controlling the development process,
+        4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994
+    </em>
+</p>
+<h3>Software quality correlation</h3>
+<p>
+    The number of visible methods is a measure of the class functionality.
+    Increasing the overall functionality will reduce MHF.
+    In order to implement this functionality, a top-down approach must be adopted,
+    where the abstract interface (visible methods) should only be the tip of the iceberg.
+    In other words, the implementation of the class interface should be a stepwise decomposition process,
+    where more and more details are added. This decomposition will use hidden methods,
+    thus obtaining the above-mentioned information-hiding benefits and favoring an MHF increase.
+    This apparent contradiction is reconciled by considering MHF to have values within an interval.
+    A very low MHF value would indicate an insufficiently abstracted implementation.
+    Conversely, a high MHF value would indicate very little functionality.
+    The best thing for MHF is to be within an interval.
+</p>
+<p>
+    According to reported studies [1, 2, 3, 4] the minimum and maximum allowed values of this metric are 9.5% and 36.9% respectively.
+    <br/>
+    <br/>
+<em>
+    [1]  F. Abreu, M. Goulãoand, R. Esteves, Towardthe Design Quality Evaluation of Object-Oriented Software Systems, Proceedings of the 5th  International Conference on Software Quality,  Austin, Texas, USA, 1995.
+    <br/>
+    [2]  F. Abreu and W. Melo, Evaluating the Impact of  Object-Oriented Design on Software Quality,  Proceeding of the 3rd International Software Metrics Symposium (METRICS’96), IEEE, Berlin, Germany, pp. 90-99, 1996.
+    <br/>
+    [3]  F. Abreu, S. Estevesand M. Goulao, TheDesign of Eiffel Programs: Quantitative Evaluation Using the MOOD Metrics, Proceedings of TOOLS'96, Santa Barbara, CA, USA, 1996.
+    <br/>
+    [4]  R. Harrison, S. Counsell and R. Nithi, An evaluation of the MOOD set of object-oriented software metrics, IEEE Transaction on Software Engineering, 24(6), 1998, pp. 491-496.
+</em>
+</p>
+</body>
+</html>

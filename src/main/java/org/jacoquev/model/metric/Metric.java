@@ -5,6 +5,8 @@ import org.jacoquev.model.metric.value.Range;
 import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.util.MetricsService;
 
+import java.text.NumberFormat;
+
 public class Metric {
     private String name;
     private String description;

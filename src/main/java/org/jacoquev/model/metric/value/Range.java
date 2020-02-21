@@ -1,5 +1,7 @@
 package org.jacoquev.model.metric.value;
 
+import java.text.NumberFormat;
+
 public class Range {
     public static final Range UNDEFINED = new Range(Value.UNDEFINED, Value.UNDEFINED) {
         @Override
@@ -51,6 +53,16 @@ public class Range {
                 from +
                 ".." +
                 to +
+                "]";
+    }
+
+    public String percentageFormat() {
+        NumberFormat format = NumberFormat.getPercentInstance();
+        format.setMinimumFractionDigits(2);
+        return "[" +
+                format.format(from.getValue()) +
+                ".." +
+                format.format(to.getValue()) +
                 "]";
     }
 }

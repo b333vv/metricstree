@@ -3,10 +3,10 @@ package org.jacoquev.ui.info;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.util.ui.JBImageIcon;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.jacoquev.model.metric.Metric;
+import org.jacoquev.model.metric.Sets;
 import org.jacoquev.model.metric.value.Range;
 
 import javax.swing.*;
@@ -18,7 +18,6 @@ import static java.awt.GridBagConstraints.*;
 
 public class MetricsDescriptionPanel {
     private JEditorPane metricDescription;
-    private JLabel metricFormula;
     private JPanel rightMetricPanel;
     private JLabel allowableRangeValue;
     private JLabel currentValue;
@@ -59,8 +58,13 @@ public class MetricsDescriptionPanel {
     public void setMetric(Metric metric) {
         Border b = IdeBorderFactory.createTitledBorder(metric.getDescription());
         rightMetricPanel.setBorder(b);
-        allowableRangeValue.setText(metric.getRange().toString());
-        currentValue.setText(metric.getValue().toString());
+        if (Sets.inMoodMetricsSet(metric.getName())) {
+            allowableRangeValue.setText(metric.getRange().percentageFormat());
+            currentValue.setText(metric.getValue().percentageFormat());
+        } else {
+            allowableRangeValue.setText(metric.getRange().toString());
+            currentValue.setText(metric.getValue().toString());
+        }
 
         try {
             URL url = MetricsDescriptionPanel.class.getResource(metric.getDescriptionUrl());

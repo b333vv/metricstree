@@ -7,6 +7,7 @@ import org.jscience.mathematics.number.Real;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -314,6 +315,12 @@ public class Value implements Comparable<Value> {
         } else {
             return this;
         }
+    }
+
+    public String percentageFormat() {
+        NumberFormat format = NumberFormat.getPercentInstance();
+        format.setMinimumFractionDigits(2);
+        return format.format(value);
     }
 }
 

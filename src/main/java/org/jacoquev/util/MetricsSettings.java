@@ -19,9 +19,26 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
     }
 
     private void loadInitialValues() {
-        metrics.put("NOC", new MetricStub("NOC", "Number of Children", false, 0.00, 0.00, 0, 10));
-        metrics.put("DIT", new MetricStub("DIT", "Depth of Inheritance Tree", false, 0.00, 0.00, 0, 5));
-        metrics.put("WMC", new MetricStub("WMC", "Weighted methods per Class", false, 0.00, 0.00, 0, 20));
+        metrics.put("NOC", new MetricStub("NOC", "Number Of Children",
+                false, 0.00, 0.00, 0, 10));
+        metrics.put("DIT", new MetricStub("DIT", "Depth Of Inheritance Tree",
+                false, 0.00, 0.00, 0, 5));
+        metrics.put("WMC", new MetricStub("WMC", "Weighted Methods Per Class",
+                false, 0.00, 0.00, 0, 20));
+
+
+        metrics.put("MHF", new MetricStub("MHF", "Method Hiding Factor",
+                true, 0.095, 0.369, 0, 0));
+        metrics.put("AHF", new MetricStub("AHF", "Attribute Hiding Factor",
+                true, 0.677, 1.0, 0, 0));
+        metrics.put("MIF", new MetricStub("MIF", "Method Inheritance Factor",
+                true, 0.609, 0.844, 0, 0));
+        metrics.put("AIF", new MetricStub("AIF", "Attribute Inheritance Factor",
+                true, 0.374, 0.757, 0, 0));
+        metrics.put("CF", new MetricStub("CF", "Coupling Factor",
+                true, 0.00, 0.243, 0, 0));
+        metrics.put("PF", new MetricStub("PF", "Polymorphism Factor",
+                true, 0.017, 0.151, 0, 0));
     }
 
     public Map<String, MetricStub> getMetrics() {

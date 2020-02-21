@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Afferent Coupling</title>
+</head>
+<body>
+<h3>Afferent Coupling (Ca)</h3>
+<p>
+    Afferent Coupling between packages (Ca) measures the total number of external classes coupled to
+    classes of a package due to incoming coupling (coupling from classes external classes of the package,
+    uses CBO definition of coupling). Each class counts only once. Zero if the package does not
+    contain any classes or if external classes do not use the package's classes.
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Portability</strong></dt>
+            <dd>
+                is negatively influenced by attributes assessed with
+                Ca.
+                <dl>
+                    <dt><strong>Replaceability</strong></dt>
+                    <dd>Parts of a system showing a high afferent
+                        (ingoing) coupling from other system parts may be
+                        highly inversely related to replaceability, since
+                        other parts depend on it. Replaceability decreases
+                        with increasing Ca.</dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+    <dt><strong>Related Software Quality Properties</strong></dt>
+    <dd>
+        <dl>
+            <dt><strong>Functionality</strong></dt>
+            <dd>
+                is positively and negatively influenced by attributes
+                assessed with Ca.
+                <dl>
+                    <dt><strong>Interoperability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high afferent
+                        (ingoing) coupling to other system parts may be
+                        directly related to interoperability, since they
+                        are used/interacted with from other parts of the
+                        system.
+                        <p>Interoperability decreases with increasing Ca.</p>
+                    </dd>
+                    <dt><strong>Security</strong></dt>
+                    <dd>
+                        Parts of a system showing a high afferent
+                        (ingoing) coupling from other system parts may be
+                        inversely related to security, since they can be
+                        influenced in many ways from other parts of the
+                        system.
+                        <p>Security decreases with increasing Ca.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Reliability</strong></dt>
+            <dd>
+                is negatively influenced by attributes assessed with
+                Ca.
+                <dl>
+                    <dt><strong>Fault-tolerance</strong></dt>
+                    <dd>
+                        Parts of a system showing a high afferent
+                        (ingoing) coupling from other system parts may be
+                        inversely related to fault-tolerance, since a
+                        local fault might be propagated to other parts of
+                        the system.
+                        <p>Fault-tolerance decreases with increasing
+                            Ca.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Re-Usability</strong></dt>
+            <dd>
+                is positively influenced by attributes assessed with
+                Ca.
+                <dl>
+                    <dt><strong>Learnability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high afferent
+                        (ingoing) coupling from other system parts may be
+                        directly related to learnability, since other
+                        parts of the system using them serve as examples.
+                        <p>Learnability increases with increasing Ca.</p>
+                    </dd>
+                    <dt><strong>Operability for Reuse - Programmability</strong></dt>
+                    <dd>
+                        The part of a system that has a high afferent
+                        (ingoing) coupling from other system parts may be
+                        directly related to programmability, since other
+                        parts of the system using it serve as examples.
+                        <p>Operability for Reuse - Programmability
+                            increases with increasing Ca.</p>
+                    </dd>
+                    <dt><strong>Attractiveness</strong></dt>
+                    <dd>
+                        Parts of a system showing a high afferent
+                        (ingoing) coupling from other system parts may be
+                        directly related to attractiveness, since other
+                        parts of the system use them might show a good
+                        re-usability.
+                        <p>Attractiveness increases with increasing
+                            Ca.</p>
+                    </dd>
+                </dl>
+            </dd>
+            <dt><strong>Maintainability</strong></dt>
+            <dd>
+                is negatively influenced by attributes assessed with
+                Ca.
+                <dl>
+                    <dt><strong>Stability</strong></dt>
+                    <dd>
+                        Parts of a system showing a high afferent
+                        (ingoing) coupling from other system parts may be
+                        inversely related to stability, since other parts
+                        are affected by them.
+                        <p>Stability decreases with increasing Ca.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
+</body>
+</html>

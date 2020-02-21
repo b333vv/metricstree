@@ -3,6 +3,7 @@ package org.jacoquev.ui.tree.node;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.scale.JBUIScale;
 import org.jacoquev.model.metric.Metric;
+import org.jacoquev.model.metric.Sets;
 import org.jacoquev.model.metric.value.Range;
 import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.ui.tree.CompositeIcon;
@@ -10,6 +11,8 @@ import org.jacoquev.ui.tree.TreeCellRenderer;
 import org.jacoquev.util.MetricsIcons;
 
 import javax.swing.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 public class MetricNode extends AbstractNode {
 
@@ -49,6 +52,10 @@ public class MetricNode extends AbstractNode {
                         AllIcons.Actions.Commit));
             }
         }
-        renderer.append(metric.getDescription() + " = " + metric.getFormattedValue());
+        if (Sets.inMoodMetricsSet(metric.getName())) {
+            renderer.append(metric.getDescription() + " = " + metric.getValue().percentageFormat());
+        } else {
+            renderer.append(metric.getDescription() + " = " + metric.getFormattedValue());
+        }
     }
 }
