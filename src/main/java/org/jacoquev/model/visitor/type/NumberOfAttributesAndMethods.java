@@ -12,7 +12,7 @@ public class NumberOfAttributesAndMethods extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("SIZE2", "Number of Attributes and Methods",
+        metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
                 "/html/NumberOfAttributesAndMethods.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             PsiMethod[] methods = psiClass.getAllMethods();
@@ -33,7 +33,7 @@ public class NumberOfAttributesAndMethods extends JavaClassVisitor {
                     numAttributes++;
                 }
             }
-            metric = Metric.of("SIZE2", "Number of Attributes and Methods",
+            metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
                     "/html/NumberOfAttributesAndMethods.html", numOperations + numAttributes);
         }
     }

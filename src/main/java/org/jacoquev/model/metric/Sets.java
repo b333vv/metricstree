@@ -21,7 +21,8 @@ public class Sets {
     //    NOO: Number of Operations
     //    NOAM: Number of Added Methods
     //    NOOM: Number of Overridden Methods
-    private static final Set<String> lorenzKiddMetricsSet = Set.of("NOA", "NOO", "NOAM", "NOOM");
+    //    SIZE2: Number of Attributes and Methods
+    private static final Set<String> lorenzKiddMetricsSet = Set.of("NOA", "NOO", "NOAM", "NOOM", "SIZE2");
     public static final boolean inLorenzKiddMetricsSet(String metricName) {
         return lorenzKiddMetricsSet.contains(metricName);
     }

@@ -30,8 +30,9 @@ public abstract class ModelBuilder {
             new ConditionNestingDepthVisitor(),
             new LoopNestingDepthVisitor(),
             new McCabeCyclomaticComplexityVisitor(),
-            new NumberOfConditionsVisitor(),
-            new NumberOfLoopsVisitor()
+            new NumberOfLoopsVisitor(),
+            new FanInVisitor(),
+            new FanOutVisitor()
     );
 
     protected void createJavaClass(JavaPackage javaPackage, PsiJavaFile psiJavaFile) {
