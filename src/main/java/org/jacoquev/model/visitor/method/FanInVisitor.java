@@ -19,9 +19,9 @@ public class FanInVisitor extends JavaMethodVisitor {
             result = 0;
             currentMethod = method;
             final Query<PsiReference> references = ReferencesSearch.search(method);
-            for (final PsiReference reference : references) {
-                final PsiElement element = reference.getElement();
-                if (element != null && element.getParent() instanceof PsiCallExpression) {
+            for (PsiReference reference : references) {
+                PsiElement element = reference.getElement();
+                if (element.getParent() instanceof PsiCallExpression) {
                     result++;
                 }
             }
@@ -39,7 +39,7 @@ public class FanInVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethodCallExpression(PsiMethodCallExpression expression) {
-        final PsiMethod method = expression.resolveMethod();
+        PsiMethod method = expression.resolveMethod();
         if (currentMethod != null && currentMethod.equals(method)) {
             result--;
         }

@@ -18,6 +18,28 @@
     uses CBO definition of coupling). Each class counts only once. Zero if the package does not
     contain any classes or if external classes do not use the package's classes.
 </p>
+<p>
+<div align="center">
+    <img src="img/Ca.jpg" alt="Afferent Coupling (Ce)"/>
+</div>
+In the picture above it can be seen that class A has only 1 incoming dependency (from class X),
+that is why the value for metrics Ca equals 1.
+High values of metric Ca usually suggest high component stability. This is due to the fact that the class
+depends on many other classes. Therefore, it can’t be modified significantly because, in this case,
+the probability of spreading such changes increases.
+Preferred values for the metric Ca are in the range of 0 to 500.
+</p>
+<br/>
+<p>
+    Included in the set of metrics proposed by Robert C. Martin
+    See
+    <br />
+    <em>
+        Martin, R.C.: Agile Software Development: Principles, Patterns, and Practices.
+        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+    </em>
+</p>
+<br/>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>

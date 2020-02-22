@@ -48,9 +48,9 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
 
         //Robert C. Martin metrics set
         metrics.put("Ce", new MetricStub("Ce", "Efferent Coupling",
-                false, 0.00, 0.00, 0, 10));
+                false, 0.00, 0.00, 0, 20));
         metrics.put("Ca", new MetricStub("Ca", "Afferent Coupling",
-                false, 0.00, 0.00, 0, 10));
+                false, 0.00, 0.00, 0, 500));
         metrics.put("I", new MetricStub("I", "Instability",
                 true, 0.00, 1.00, 0, 0));
         metrics.put("A", new MetricStub("A", "Abstractness",

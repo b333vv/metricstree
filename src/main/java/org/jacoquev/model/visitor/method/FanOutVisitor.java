@@ -1,8 +1,8 @@
 package org.jacoquev.model.visitor.method;
 
-import com.intellij.psi.*;
-import com.intellij.psi.search.searches.ReferencesSearch;
-import com.intellij.util.Query;
+import com.intellij.psi.PsiCallExpression;
+import com.intellij.psi.PsiLambdaExpression;
+import com.intellij.psi.PsiMethod;
 import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.value.Value;
 
@@ -19,11 +19,9 @@ public class FanOutVisitor extends JavaMethodVisitor {
             result = 0;
             currentMethod = method;
         }
-
         methodNestingDepth++;
         super.visitMethod(method);
         methodNestingDepth--;
-
         if (methodNestingDepth == 0) {
             metric = Metric.of("FANOUT", "Fan-Out",
                     "/html/FanOut.html", result);
@@ -37,7 +35,7 @@ public class FanOutVisitor extends JavaMethodVisitor {
     @Override
     public void visitCallExpression(PsiCallExpression callExpression) {
         super.visitCallExpression(callExpression);
-        final PsiMethod method = callExpression.resolveMethod();
+        PsiMethod method = callExpression.resolveMethod();
         if (method == null || method.getContainingClass() == null || method.equals(currentMethod)) {
             return;
         }

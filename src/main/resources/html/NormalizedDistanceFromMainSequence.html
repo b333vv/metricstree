@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: darkslategray;
+            font-family: Arial, Helvetica, sans-serif, lightgray;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Normalized Distance From Main Sequence</title>
+</head>
+<body>
+<h3>Normalized Distance From Main Sequence (D)</h3>
+<p>
+    This metric is used to measure the balance between stability and abstractness and is
+    calculated using the following formula: D = |A + I - 1|, where A - abstractness, I – instability.
+    The value of metric D may be interpreted in the following way: if we put a given class on a graph of
+    the main sequence (see picture below) its distance from the main sequence will be proportional to
+    the value of D.
+</p>
+<p>
+<div align="center">
+    <img src="img/NormalizedDistanceFromMainSequence.jpg" alt="Normalized Distance From Main Sequence"/>
+</div>
+The value of the metric D should be as low as possible so that the components were located close
+to the main sequence. In addition, the two extremely unfavourable cases are considered:
+<ul>
+    <li>
+        A = 0 and I = 0, a package is extremely stable and concrete,
+        the situation is undesirable because the package is very stiff
+        and can’t be extended;
+    </li>
+    <li>
+        A = 1 and I = 1, rather impossible situation because a completely
+        abstract package must have some connection to the outside, so that
+        the instance that implements the functionality defined in abstract
+        classes contained in this package could be created.
+    </li>
+</ul>
+</p>
+<br/>
+<p>
+    Included in the set of metrics proposed by Robert C. Martin
+    See
+    <br />
+    <em>
+        Martin, R.C.: Agile Software Development: Principles, Patterns, and Practices.
+        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+    </em>
+</p>
+</body>
+</html>

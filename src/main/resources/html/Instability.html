@@ -19,6 +19,37 @@
     Each class counts only once. Zero if the package does not contain any classes or if external
     classes are not used by the package's classes.
 </p>
+<p>
+<div align="center">
+    <img src="img/I.jpg" alt="Instability (I)"/>
+</div>
+In the picture above it can be seen that class A has 3 outgoing and 1 incoming dependencies,
+therefore according to the formula value of metric I will equal 0,75.
+On the basis of value of metric I we can distinguish two types of components:
+<ul>
+    <li>
+        The ones having many outgoing dependencies and not many of incoming ones (value I is close to 1),
+        which are rather unstable due to the possibility of easy changes to these packages;
+    </li>
+    <li>
+        The ones having many incoming dependencies and not many of outgoing ones (value I is close to 0),
+        therefore they are rather more difficult in modifying due to their greater responsibility.
+    </li>
+</ul>
+Preferred values for the metric I should fall within the ranges of 0 to 0.3 or 0.7 to 1.
+Packages should be very stable or unstable, therefore we should avoid packages of intermediate stability.
+</p>
+<br/>
+<p>
+    Included in the set of metrics proposed by Robert C. Martin
+    See
+    <br />
+    <em>
+        Martin, R.C.: Agile Software Development: Principles, Patterns, and Practices.
+        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+    </em>
+</p>
+<br/>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>

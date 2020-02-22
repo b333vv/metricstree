@@ -18,6 +18,27 @@
     uses Ce definition of coupling). Each class counts only once. Zero if the package does not
     contain any classes or if external classes are not used by the package's classes.
 </p>
+<p>
+<div align="center">
+    <img src="img/Ce.jpg" alt="Efferent Coupling (Ce)"/>
+</div>
+    In the picture above it can be seen that class A has outgoing dependencies to 3 other classes,
+    that is why metric Ce for this class is 3.
+    The high value of the metric Ce > 20 indicates instability of a package, change in any of the numerous
+    external classes can cause the need for changes to the package. Preferred values for the metric
+    Ce are in the range of 0 to 20, higher values cause problems with care and development of code.
+</p>
+<br/>
+<p>
+    Included in the set of metrics proposed by Robert C. Martin
+    See
+    <br />
+    <em>
+        Martin, R.C.: Agile Software Development: Principles, Patterns, and Practices.
+        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+    </em>
+</p>
+<br/>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>
