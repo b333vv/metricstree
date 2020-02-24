@@ -44,6 +44,7 @@ public class MoodMetricsSetCalculator {
 
     private int numOverridingMethods = 0;
     private int numOverridePotentials = 0;
+    private int numNewMethods = 0;
 
     public MoodMetricsSetCalculator(AnalysisScope scope) {
         this.scope = scope;
@@ -176,11 +177,12 @@ public class MoodMetricsSetCalculator {
             for (PsiMethod method : methods) {
                 final PsiMethod[] superMethods = method.findSuperMethods();
                 if (superMethods.length == 0) {
-                    numOverridePotentials += getSubclassCount(aClass);
+                    numNewMethods++;
                 } else {
                     numOverridingMethods++;
                 }
             }
+            numOverridePotentials += numNewMethods * getSubclassCount(aClass);
         }
 
         private void processMethodInheritanceFactor(PsiClass aClass) {

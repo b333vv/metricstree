@@ -56,7 +56,7 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
         metrics.put("A", new MetricStub("A", "Abstractness",
                 true, 0.00, 1.00, 0, 0));
         metrics.put("D", new MetricStub("D", "Normalized Distance From Main Sequence",
-                true, 0.00, 1.00, 0, 0));
+                true, 0.00, 0.70, 0, 0));
 
         //MOOD metrics set
         metrics.put("MHF", new MetricStub("MHF", "Method Hiding Factor",
