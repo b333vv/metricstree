@@ -10,6 +10,7 @@ import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.Bag;
 import org.jacoquev.model.metric.util.ClassUtils;
+import org.jacoquev.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -173,16 +174,19 @@ public class MoodMetricsSetCalculator {
         }
 
         private void processPolymorphismFactor(PsiClass aClass) {
+            int newMethodsCount = 0;
+            int overriddenMethodsCount = 0;
             final PsiMethod[] methods = aClass.getMethods();
             for (PsiMethod method : methods) {
                 final PsiMethod[] superMethods = method.findSuperMethods();
                 if (superMethods.length == 0) {
-                    numNewMethods++;
+                    newMethodsCount++;
                 } else {
-                    numOverridingMethods++;
+                    overriddenMethodsCount++;
                 }
             }
-            numOverridePotentials += numNewMethods * getSubclassCount(aClass);
+            numOverridePotentials += newMethodsCount * getSubclassCount(aClass);
+            numOverridingMethods += overriddenMethodsCount;
         }
 
         private void processMethodInheritanceFactor(PsiClass aClass) {
@@ -278,7 +282,6 @@ public class MoodMetricsSetCalculator {
 
             if (method.hasModifierProperty(PsiModifier.PRIVATE) ||
                     containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
-                //don't do anything
             } else if (method.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
                 totalMethodsVisibility += getSubclassCount(containingClass);
