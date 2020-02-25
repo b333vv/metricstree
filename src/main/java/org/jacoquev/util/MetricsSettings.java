@@ -21,30 +21,30 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
     private void loadInitialValues() {
         //Chidamber-Kemerer metrics set
         metrics.put("WMC", new MetricStub("WMC", "Weighted Methods Per Class",
-                false, 0.00, 0.00, 0, 100));
+                false, 0.00, 0.00, 0, 24));
         metrics.put("DIT", new MetricStub("DIT", "Depth Of Inheritance Tree",
                 false, 0.00, 0.00, 0, 5));
-        metrics.put("NOC", new MetricStub("NOC", "Number Of Children",
-                false, 0.00, 0.00, 0, 100));
+//        metrics.put("NOC", new MetricStub("NOC", "Number Of Children",
+//                false, 0.00, 0.00, 0, 100));
         metrics.put("CBO", new MetricStub("CBO", "Coupling Between Object",
-                false, 0.00, 0.00, 0, 5));
+                false, 0.00, 0.00, 0, 13));
         metrics.put("RFC", new MetricStub("RFC", "Response For A Class",
-                false, 0.00, 0.00, 0, 100));
-        metrics.put("LCOM", new MetricStub("LCOM", "Lack Of Cohesion In Methods",
-                false, 0.00, 0.00, 0, 500));
+                false, 0.00, 0.00, 0, 44));
+//        metrics.put("LCOM", new MetricStub("LCOM", "Lack Of Cohesion In Methods",
+//                false, 0.00, 0.00, 0, 500));
 
         //Lorenz-Kidd metrics set
         metrics.put("NOA", new MetricStub("NOA", "Number Of Attributes",
-                false, 0.00, 0.00, 0, 30));
+                false, 0.00, 0.00, 0, 40));
         metrics.put("NOO", new MetricStub("NOO", "Number Of Operations",
-                false, 0.00, 0.00, 0, 100));
-        metrics.put("NOAM", new MetricStub("NOAM", "Number Of Added Methods",
-                false, 0.00, 0.00, 0, 10));
+                false, 0.00, 0.00, 0, 20));
+//        metrics.put("NOAM", new MetricStub("NOAM", "Number Of Added Methods",
+//                false, 0.00, 0.00, 0, 10));
         metrics.put("NOOM", new MetricStub("NOOM", "Number of Overridden Methods",
-                false, 0.00, 0.00, 0, 5));
+                false, 0.00, 0.00, 0, 3));
 
-        metrics.put("SIZE2", new MetricStub("SIZE2", "Number Of Attributes And Methods",
-                false, 0.00, 0.00, 0, 130));
+//        metrics.put("SIZE2", new MetricStub("SIZE2", "Number Of Attributes And Methods",
+//                false, 0.00, 0.00, 0, 130));
 
         //Robert C. Martin metrics set
         metrics.put("Ce", new MetricStub("Ce", "Efferent Coupling",
@@ -73,16 +73,20 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
                 true, 0.017, 0.151, 0, 0));
 
         //Methods metrics set
-        metrics.put("CND", new MetricStub("CND", "Condition Nesting Depth",
-                false, 0.00, 0.00, 0, 50));
+//        metrics.put("CND", new MetricStub("CND", "Condition Nesting Depth",
+//                false, 0.00, 0.00, 0, 50));
         metrics.put("LOC", new MetricStub("LOC", "Lines Of Code",
-                false, 0.00, 0.00, 0, 200));
-        metrics.put("LND", new MetricStub("LND", "Loop Nesting Depth",
-                false, 0.00, 0.00, 0, 4));
-        metrics.put("CC", new MetricStub("CC", "McCabe Cyclomatic Complexity",
-                false, 0.00, 0.00, 0, 50));
-        metrics.put("NOL", new MetricStub("NOL", "Number Of Loops",
-                false, 0.00, 0.00, 0, 10));
+                false, 0.00, 0.00, 0, 500));
+//        metrics.put("LND", new MetricStub("LND", "Loop Nesting Depth",
+//                false, 0.00, 0.00, 0, 4));
+//        metrics.put("CC", new MetricStub("CC", "McCabe Cyclomatic Complexity",
+//                false, 0.00, 0.00, 0, 50));
+//        metrics.put("NOL", new MetricStub("NOL", "Number Of Loops",
+//                false, 0.00, 0.00, 0, 10));
+//        metrics.put("FANIN", new MetricStub("FANIN", "Fan-In",
+//                false, 0.00, 0.00, 0, 5));
+//        metrics.put("FANOUT", new MetricStub("FANOUT", "Fan-Out",
+//                false, 0.00, 0.00, 0, 5));
     }
 
     public Map<String, MetricStub> getMetrics() {
