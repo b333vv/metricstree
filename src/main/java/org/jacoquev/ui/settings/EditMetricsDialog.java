@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import org.jacoquev.util.MetricsSettings;
+import org.jacoquev.util.MetricsAllowableValueRanges;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -22,7 +22,7 @@ public class EditMetricsDialog extends DialogWrapper {
     private JLabel maxValueLabel;
     private JSpinner minValue;
     private JSpinner maxValue;
-    private MetricsSettings.MetricStub metricStub = null;
+    private MetricsAllowableValueRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub = null;
     private boolean spinnerIsDouble;
 
 
@@ -52,16 +52,16 @@ public class EditMetricsDialog extends DialogWrapper {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (spinnerIsDouble) {
-                    metricStub.setMinDoubleValue((Double) minValue.getModel().getValue());
-                    metricStub.setMaxDoubleValue((Double) maxValue.getModel().getValue());
-                    if (metricStub.getMaxDoubleValue() >= metricStub.getMinDoubleValue()) {
+                    metricsAllowableValueRangeStub.setMinDoubleValue((Double) minValue.getModel().getValue());
+                    metricsAllowableValueRangeStub.setMaxDoubleValue((Double) maxValue.getModel().getValue());
+                    if (metricsAllowableValueRangeStub.getMaxDoubleValue() >= metricsAllowableValueRangeStub.getMinDoubleValue()) {
                         super.actionPerformed(e);
                         dispose();
                     }
                 } else {
-                    metricStub.setMinLongValue((Long) minValue.getModel().getValue());
-                    metricStub.setMaxLongValue((Long) maxValue.getModel().getValue());
-                    if (metricStub.getMaxLongValue() >= metricStub.getMinLongValue()) {
+                    metricsAllowableValueRangeStub.setMinLongValue((Long) minValue.getModel().getValue());
+                    metricsAllowableValueRangeStub.setMaxLongValue((Long) maxValue.getModel().getValue());
+                    if (metricsAllowableValueRangeStub.getMaxLongValue() >= metricsAllowableValueRangeStub.getMinLongValue()) {
                         super.actionPerformed(e);
                         dispose();
                     }
@@ -78,27 +78,27 @@ public class EditMetricsDialog extends DialogWrapper {
         return panel;
     }
 
-    public MetricsSettings.MetricStub getMetricStub() {
-        return metricStub;
+    public MetricsAllowableValueRanges.MetricsAllowableValueRangeStub getMetricsAllowableValueRangeStub() {
+        return metricsAllowableValueRangeStub;
     }
 
-    public void setMetricStub(MetricsSettings.MetricStub metricStub) {
-        this.metricStub = metricStub;
-        Border b = IdeBorderFactory.createTitledBorder(this.metricStub.getDescription());
+    public void setMetricsAllowableValueRangeStub(MetricsAllowableValueRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub) {
+        this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
+        Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getDescription());
         panel.setBorder(b);
         SpinnerNumberModel minModel;
         SpinnerNumberModel maxModel;
-        if (metricStub.isDoubleValue()) {
+        if (metricsAllowableValueRangeStub.isDoubleValue()) {
             spinnerIsDouble = true;
-            minModel = new SpinnerNumberModel(Double.valueOf(this.metricStub.getMinDoubleValue()),
+            minModel = new SpinnerNumberModel(Double.valueOf(this.metricsAllowableValueRangeStub.getMinDoubleValue()),
                     Double.valueOf(0.00), Double.valueOf(1000000.00), Double.valueOf(0.01));
-            maxModel = new SpinnerNumberModel(Double.valueOf(this.metricStub.getMaxDoubleValue()),
+            maxModel = new SpinnerNumberModel(Double.valueOf(this.metricsAllowableValueRangeStub.getMaxDoubleValue()),
                     Double.valueOf(0.00), Double.valueOf(1000000.00), Double.valueOf(0.01));
         } else {
             spinnerIsDouble = false;
-            minModel = new SpinnerNumberModel(Long.valueOf(this.metricStub.getMinLongValue()),
+            minModel = new SpinnerNumberModel(Long.valueOf(this.metricsAllowableValueRangeStub.getMinLongValue()),
                     Long.valueOf(0), Long.valueOf(1000000), Long.valueOf(1));
-            maxModel = new SpinnerNumberModel(Long.valueOf(this.metricStub.getMaxLongValue()),
+            maxModel = new SpinnerNumberModel(Long.valueOf(this.metricsAllowableValueRangeStub.getMaxLongValue()),
                     Long.valueOf(0), Long.valueOf(1000000), Long.valueOf(1));
         }
         minValue.setModel(minModel);

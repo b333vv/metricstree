@@ -21,7 +21,7 @@ import org.jacoquev.model.builder.ClassModelBuilder;
 import org.jacoquev.model.metric.Metric;
 import org.jacoquev.ui.info.BottomPanel;
 import org.jacoquev.ui.info.MetricsDescriptionPanel;
-import org.jacoquev.ui.info.MetricsTable;
+import org.jacoquev.ui.info.ClassOrMethodMetricsTable;
 import org.jacoquev.ui.log.MetricsConsole;
 import org.jacoquev.ui.tree.*;
 import org.jacoquev.ui.tree.builder.ClassMetricTreeBuilder;
@@ -48,7 +48,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
     private MetricsDescriptionPanel metricsDescriptionPanel;
     private JBTabbedPane detailsTab;
     private JBPanel rightPanel;
-    private MetricsTable metricsTable;
+    private ClassOrMethodMetricsTable classOrMethodMetricsTable;
     private ClassMetricTreeBuilder classMetricTreeBuilder;
     private MetricsConsole console;
     private JScrollPane scrollableTablePanel;
@@ -92,9 +92,9 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricPanel.getVerticalScrollBar().setUnitIncrement(10);
 
-        metricsTable = new MetricsTable();
+        classOrMethodMetricsTable = new ClassOrMethodMetricsTable();
         scrollableTablePanel = ScrollPaneFactory.createScrollPane(
-                metricsTable.getComponent(),
+                classOrMethodMetricsTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
@@ -156,9 +156,9 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
         DefaultTreeModel metricsTreeModel = classMetricTreeBuilder.createClassMetricTreeModel();
         metricsTree.setModel(metricsTreeModel);
         if (metricsTreeModel == null) {
-            metricsTable.clear();
+            classOrMethodMetricsTable.clear();
         } else {
-            metricsTable.init(classMetricTreeBuilder.getJavaProject());
+            classOrMethodMetricsTable.init(classMetricTreeBuilder.getJavaProject());
         }
     }
 
@@ -168,7 +168,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
             Metric metric = ((MetricNode) node).getMetric();
             bottomPanel.setData(metric);
             metricsDescriptionPanel.setMetric(metric);
-            metricsTable.clear();
+            classOrMethodMetricsTable.clear();
             rightPanel.remove(0);
             rightPanel.add(metricsDescriptionPanel.getPanel());
             rightPanel.revalidate();
@@ -177,7 +177,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
             bottomPanel.setData(((ClassNode) node).getJavaClass());
             metricsDescriptionPanel.clear();
             JavaClass javaClass = ((ClassNode) node).getJavaClass();
-            metricsTable.set(javaClass);
+            classOrMethodMetricsTable.set(javaClass);
             rightPanel.remove(0);
             rightPanel.add(scrollableTablePanel);
             rightPanel.revalidate();
@@ -186,7 +186,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
             bottomPanel.setData(((MethodNode) node).getJavaMethod());
             metricsDescriptionPanel.clear();
             JavaMethod javaMethod = ((MethodNode) node).getJavaMethod();
-            metricsTable.set(javaMethod);
+            classOrMethodMetricsTable.set(javaMethod);
             rightPanel.remove(0);
             rightPanel.add(scrollableTablePanel);
             rightPanel.revalidate();
@@ -194,7 +194,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
         } else {
             bottomPanel.clear();
             metricsDescriptionPanel.clear();
-            metricsTable.clear();
+            classOrMethodMetricsTable.clear();
         }
     }
 

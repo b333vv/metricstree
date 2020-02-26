@@ -12,7 +12,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
@@ -21,7 +20,7 @@ import org.jacoquev.model.metric.Metric;
 import org.jacoquev.exec.ProjectMetricsRunner;
 import org.jacoquev.ui.info.BottomPanel;
 import org.jacoquev.ui.info.MetricsDescriptionPanel;
-import org.jacoquev.ui.info.MetricsTable;
+import org.jacoquev.ui.info.ClassOrMethodMetricsTable;
 import org.jacoquev.ui.log.MetricsConsole;
 import org.jacoquev.ui.tree.MetricsTree;
 import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
@@ -43,7 +42,7 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     private BottomPanel bottomPanel;
     private MetricsDescriptionPanel metricsDescriptionPanel;
     private JBPanel rightPanel;
-    private MetricsTable metricsTable;
+    private ClassOrMethodMetricsTable classOrMethodMetricsTable;
     private ProjectMetricTreeBuilder projectMetricTreeBuilder;
     private MetricsConsole console;
     private JScrollPane scrollableTablePanel;
@@ -86,9 +85,9 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricPanel.getVerticalScrollBar().setUnitIncrement(10);
 
-        metricsTable = new MetricsTable();
+        classOrMethodMetricsTable = new ClassOrMethodMetricsTable();
         scrollableTablePanel = ScrollPaneFactory.createScrollPane(
-                metricsTable.getComponent(),
+                classOrMethodMetricsTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
@@ -145,7 +144,7 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
             Metric metric = ((MetricNode) node).getMetric();
             bottomPanel.setData(metric);
             metricsDescriptionPanel.setMetric(metric);
-            metricsTable.clear();
+            classOrMethodMetricsTable.clear();
             rightPanel.remove(0);
             rightPanel.add(metricsDescriptionPanel.getPanel());
             rightPanel.revalidate();
@@ -153,29 +152,29 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         } else if (node instanceof ProjectNode) {
             JavaProject javaProject = ((ProjectNode) node).getJavaProject();
             bottomPanel.setData(javaProject);
-            metricsTable.set(javaProject);
+            classOrMethodMetricsTable.set(javaProject);
             rightPanelRepaint();
         } else if (node instanceof PackageNode) {
             JavaPackage javaPackage = ((PackageNode) node).getJavaPackage();
             bottomPanel.setData(javaPackage);
-            metricsTable.set(javaPackage);
+            classOrMethodMetricsTable.set(javaPackage);
             rightPanelRepaint();
         } else if (node instanceof ClassNode) {
             JavaClass javaClass = ((ClassNode) node).getJavaClass();
             bottomPanel.setData(javaClass);
-            metricsTable.set(javaClass);
+            classOrMethodMetricsTable.set(javaClass);
             rightPanelRepaint();
             openInEditor(javaClass.getPsiClass());
         } else if (node instanceof MethodNode) {
             JavaMethod javaMethod = ((MethodNode) node).getJavaMethod();
             bottomPanel.setData(javaMethod);
-            metricsTable.set(javaMethod);
+            classOrMethodMetricsTable.set(javaMethod);
             rightPanelRepaint();
             openInEditor(javaMethod.getPsiMethod());
         } else {
             bottomPanel.clear();
             metricsDescriptionPanel.clear();
-            metricsTable.clear();
+            classOrMethodMetricsTable.clear();
         }
     }
 
@@ -206,9 +205,9 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
     public void showResults(DefaultTreeModel metricsTreeModel) {
         metricsTree.setModel(metricsTreeModel);
         if (metricsTreeModel == null) {
-            metricsTable.clear();
+            classOrMethodMetricsTable.clear();
         } else {
-            metricsTable.init(javaProject);
+            classOrMethodMetricsTable.init(javaProject);
         }
     }
 }

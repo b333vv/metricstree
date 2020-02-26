@@ -45,7 +45,6 @@ public class MoodMetricsSetCalculator {
 
     private int numOverridingMethods = 0;
     private int numOverridePotentials = 0;
-    private int numNewMethods = 0;
 
     public MoodMetricsSetCalculator(AnalysisScope scope) {
         this.scope = scope;

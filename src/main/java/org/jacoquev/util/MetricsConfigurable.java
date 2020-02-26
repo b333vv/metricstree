@@ -1,22 +1,3 @@
-/*
- * SonarLint for IntelliJ IDEA
- * Copyright (C) 2019 SonarSource
- * sonarlint@sonarsource.com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
- */
 package org.jacoquev.util;
 
 import com.intellij.openapi.options.Configurable;
@@ -33,19 +14,21 @@ import javax.swing.*;
  */
 public class MetricsConfigurable implements Configurable, Configurable.NoMargin, Configurable.NoScroll {
   private final Project project;
-  private final MetricsSettings metricsSettings;
+  private final MetricsAllowableValueRanges metricsAllowableValueRanges;
+  private final ClassMetricsTreeSettings classMetricsTreeSettings;
 
   private SettingsPanel panel;
 
   public MetricsConfigurable(Project project) {
     this.project = project;
-    this.metricsSettings = project.getComponent(MetricsSettings.class);
+    this.metricsAllowableValueRanges = project.getComponent(MetricsAllowableValueRanges.class);
+    this.classMetricsTreeSettings = project.getComponent(ClassMetricsTreeSettings.class);
   }
 
   @Nls
   @Override
   public String getDisplayName() {
-    return "Come4J";
+    return "Jacoquev";
   }
 
   @Nullable
@@ -65,13 +48,15 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
   @Override
   public boolean isModified() {
-    return panel != null && panel.isModified(metricsSettings);
+    return panel != null && (panel.isModified(metricsAllowableValueRanges)
+                                    || panel.isModified(classMetricsTreeSettings));
   }
 
   @Override
   public void apply() {
     if (panel != null) {
-      panel.save(metricsSettings);
+      panel.save(metricsAllowableValueRanges);
+      panel.save(classMetricsTreeSettings);
       onSave();
     }
   }

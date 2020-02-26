@@ -2,15 +2,16 @@ package org.jacoquev.ui.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
-import org.jacoquev.util.MetricsSettings;
+import org.jacoquev.util.ClassMetricsTreeSettings;
+import org.jacoquev.util.MetricsAllowableValueRanges;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class SettingsPanel {
     private final JPanel root;
-    private final MetricsSettingsPanel metricsSettingsPanel;
-    private final JPanel rootPropertiesPane;
+    private final MetricsAllowableValueRangesPanel metricsAllowableValueRangesPanel;
+    private final ClassMetricsTreePanel classMetricsTreePanel;
     private final Project project;
 
     public SettingsPanel(Project project) {
@@ -18,11 +19,12 @@ public class SettingsPanel {
         root = new JPanel(new BorderLayout());
         JBTabbedPane tabs = new JBTabbedPane();
 
-        metricsSettingsPanel = new MetricsSettingsPanel(project);
-        rootPropertiesPane = new JPanel(new BorderLayout());
+        metricsAllowableValueRangesPanel = new MetricsAllowableValueRangesPanel(project);
+        classMetricsTreePanel = new ClassMetricsTreePanel(project);
 
-        tabs.insertTab("Metrics settings", null, metricsSettingsPanel.getComponent(), "Configure metrics", 0);
-//        tabs.insertTab("Quality model settings", null, rootPropertiesPane, "Configure quality model settings", 1);
+        tabs.insertTab("Metrics Allowed Values", null, metricsAllowableValueRangesPanel.getComponent(), "Configure allowed values ", 0);
+        tabs.insertTab("Class Metrics Tree", null, classMetricsTreePanel.getComponent(), "Configure class metrics tree", 1);
+//        tabs.insertTab("Project Metrics Tree", null, rootPropertiesPane, "Configure project metrics tree", 2);
 
         root.add(tabs, BorderLayout.CENTER);
     }
@@ -35,11 +37,19 @@ public class SettingsPanel {
         return root;
     }
 
-    public boolean isModified(MetricsSettings metricsSettings) {
-        return metricsSettingsPanel.isModified(metricsSettings);
+    public boolean isModified(MetricsAllowableValueRanges metricsAllowableValueRanges) {
+        return metricsAllowableValueRangesPanel.isModified(metricsAllowableValueRanges);
     }
 
-    public void save(MetricsSettings metricsSettings) {
-        metricsSettingsPanel.save(metricsSettings);
+    public boolean isModified(ClassMetricsTreeSettings classMetricsTreeSettings) {
+        return classMetricsTreePanel.isModified(classMetricsTreeSettings);
+    }
+
+    public void save(MetricsAllowableValueRanges metricsAllowableValueRanges) {
+        metricsAllowableValueRangesPanel.save(metricsAllowableValueRanges);
+    }
+
+    public void save(ClassMetricsTreeSettings classMetricsTreeSettings) {
+        classMetricsTreePanel.save(classMetricsTreeSettings);
     }
 }

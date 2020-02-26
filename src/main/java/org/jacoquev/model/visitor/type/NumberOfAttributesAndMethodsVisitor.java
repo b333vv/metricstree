@@ -8,7 +8,7 @@ import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.util.ClassUtils;
 import org.jacoquev.model.metric.value.Value;
 
-public class NumberOfAttributesAndMethods extends JavaClassVisitor {
+public class NumberOfAttributesAndMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);

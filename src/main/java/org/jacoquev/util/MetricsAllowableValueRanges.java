@@ -9,73 +9,73 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@State(name = "MetricsSettings", storages = {@Storage("metrics.xml")})
-public final class MetricsSettings implements PersistentStateComponent<MetricsSettings>, ProjectComponent {
+@State(name = "MetricsAllowableValueRanges", storages = {@Storage("metrics-allowed-value-ranges.xml")})
+public final class MetricsAllowableValueRanges implements PersistentStateComponent<MetricsAllowableValueRanges>, ProjectComponent {
 
-    private Map<String, MetricStub> metrics = new HashMap<>();
+    private Map<String, MetricsAllowableValueRangeStub> metrics = new HashMap<>();
 
-    public MetricsSettings() {
+    public MetricsAllowableValueRanges() {
         loadInitialValues();
     }
 
     private void loadInitialValues() {
         //Chidamber-Kemerer metrics set
-        metrics.put("WMC", new MetricStub("WMC", "Weighted Methods Per Class",
+        metrics.put("WMC", new MetricsAllowableValueRangeStub("WMC", "Weighted Methods Per Class",
                 false, 0.00, 0.00, 0, 24));
-        metrics.put("DIT", new MetricStub("DIT", "Depth Of Inheritance Tree",
+        metrics.put("DIT", new MetricsAllowableValueRangeStub("DIT", "Depth Of Inheritance Tree",
                 false, 0.00, 0.00, 0, 5));
 //        metrics.put("NOC", new MetricStub("NOC", "Number Of Children",
 //                false, 0.00, 0.00, 0, 100));
-        metrics.put("CBO", new MetricStub("CBO", "Coupling Between Object",
+        metrics.put("CBO", new MetricsAllowableValueRangeStub("CBO", "Coupling Between Object",
                 false, 0.00, 0.00, 0, 13));
-        metrics.put("RFC", new MetricStub("RFC", "Response For A Class",
+        metrics.put("RFC", new MetricsAllowableValueRangeStub("RFC", "Response For A Class",
                 false, 0.00, 0.00, 0, 44));
 //        metrics.put("LCOM", new MetricStub("LCOM", "Lack Of Cohesion In Methods",
 //                false, 0.00, 0.00, 0, 500));
 
         //Lorenz-Kidd metrics set
-        metrics.put("NOA", new MetricStub("NOA", "Number Of Attributes",
+        metrics.put("NOA", new MetricsAllowableValueRangeStub("NOA", "Number Of Attributes",
                 false, 0.00, 0.00, 0, 40));
-        metrics.put("NOO", new MetricStub("NOO", "Number Of Operations",
+        metrics.put("NOO", new MetricsAllowableValueRangeStub("NOO", "Number Of Operations",
                 false, 0.00, 0.00, 0, 20));
 //        metrics.put("NOAM", new MetricStub("NOAM", "Number Of Added Methods",
 //                false, 0.00, 0.00, 0, 10));
-        metrics.put("NOOM", new MetricStub("NOOM", "Number of Overridden Methods",
+        metrics.put("NOOM", new MetricsAllowableValueRangeStub("NOOM", "Number of Overridden Methods",
                 false, 0.00, 0.00, 0, 3));
 
 //        metrics.put("SIZE2", new MetricStub("SIZE2", "Number Of Attributes And Methods",
 //                false, 0.00, 0.00, 0, 130));
 
         //Robert C. Martin metrics set
-        metrics.put("Ce", new MetricStub("Ce", "Efferent Coupling",
+        metrics.put("Ce", new MetricsAllowableValueRangeStub("Ce", "Efferent Coupling",
                 false, 0.00, 0.00, 0, 20));
-        metrics.put("Ca", new MetricStub("Ca", "Afferent Coupling",
+        metrics.put("Ca", new MetricsAllowableValueRangeStub("Ca", "Afferent Coupling",
                 false, 0.00, 0.00, 0, 500));
-        metrics.put("I", new MetricStub("I", "Instability",
+        metrics.put("I", new MetricsAllowableValueRangeStub("I", "Instability",
                 true, 0.00, 1.00, 0, 0));
-        metrics.put("A", new MetricStub("A", "Abstractness",
+        metrics.put("A", new MetricsAllowableValueRangeStub("A", "Abstractness",
                 true, 0.00, 1.00, 0, 0));
-        metrics.put("D", new MetricStub("D", "Normalized Distance From Main Sequence",
+        metrics.put("D", new MetricsAllowableValueRangeStub("D", "Normalized Distance From Main Sequence",
                 true, 0.00, 0.70, 0, 0));
 
         //MOOD metrics set
-        metrics.put("MHF", new MetricStub("MHF", "Method Hiding Factor",
+        metrics.put("MHF", new MetricsAllowableValueRangeStub("MHF", "Method Hiding Factor",
                 true, 0.095, 0.369, 0, 0));
-        metrics.put("AHF", new MetricStub("AHF", "Attribute Hiding Factor",
+        metrics.put("AHF", new MetricsAllowableValueRangeStub("AHF", "Attribute Hiding Factor",
                 true, 0.677, 1.0, 0, 0));
-        metrics.put("MIF", new MetricStub("MIF", "Method Inheritance Factor",
+        metrics.put("MIF", new MetricsAllowableValueRangeStub("MIF", "Method Inheritance Factor",
                 true, 0.609, 0.844, 0, 0));
-        metrics.put("AIF", new MetricStub("AIF", "Attribute Inheritance Factor",
+        metrics.put("AIF", new MetricsAllowableValueRangeStub("AIF", "Attribute Inheritance Factor",
                 true, 0.374, 0.757, 0, 0));
-        metrics.put("CF", new MetricStub("CF", "Coupling Factor",
+        metrics.put("CF", new MetricsAllowableValueRangeStub("CF", "Coupling Factor",
                 true, 0.00, 0.243, 0, 0));
-        metrics.put("PF", new MetricStub("PF", "Polymorphism Factor",
+        metrics.put("PF", new MetricsAllowableValueRangeStub("PF", "Polymorphism Factor",
                 true, 0.017, 0.151, 0, 0));
 
         //Methods metrics set
 //        metrics.put("CND", new MetricStub("CND", "Condition Nesting Depth",
 //                false, 0.00, 0.00, 0, 50));
-        metrics.put("LOC", new MetricStub("LOC", "Lines Of Code",
+        metrics.put("LOC", new MetricsAllowableValueRangeStub("LOC", "Lines Of Code",
                 false, 0.00, 0.00, 0, 500));
 //        metrics.put("LND", new MetricStub("LND", "Loop Nesting Depth",
 //                false, 0.00, 0.00, 0, 4));
@@ -89,40 +89,40 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
 //                false, 0.00, 0.00, 0, 5));
     }
 
-    public Map<String, MetricStub> getMetrics() {
+    public Map<String, MetricsAllowableValueRangeStub> getMetrics() {
         return new HashMap<>(metrics);
     }
 
-    public void setMetrics(Map<String, MetricStub> metrics) {
+    public void setMetrics(Map<String, MetricsAllowableValueRangeStub> metrics) {
         this.metrics.clear();
         this.metrics.putAll(metrics);
     }
 
-    public List<MetricStub> getMetricsList() {
+    public List<MetricsAllowableValueRangeStub> getMetricsList() {
         return new ArrayList<>(metrics.values());
     }
 
-    public void updateMetrics(@NotNull HashMap<String, MetricStub> newMetrics) {
+    public void updateMetrics(@NotNull HashMap<String, MetricsAllowableValueRangeStub> newMetrics) {
         newMetrics.forEach((key, value) -> metrics.replace(key, value));
     }
 
     @Override
-    public synchronized MetricsSettings getState() {
+    public synchronized MetricsAllowableValueRanges getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(MetricsSettings state) {
+    public synchronized void loadState(MetricsAllowableValueRanges state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
     @NotNull
     @Override
     public String getComponentName() {
-        return "MetricsSettings";
+        return "MetricsAllowableValueRangesSettings";
     }
 
-    public static class MetricStub {
+    public static class MetricsAllowableValueRangeStub {
         private String name;
         private String description;
         private boolean doubleValue;
@@ -131,8 +131,8 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
         private long minLongValue;
         private long maxLongValue;
 
-        public MetricStub(String name, String description, boolean doubleValue,
-                          double minDoubleValue, double maxDoubleValue, long minLongValue, long maxLongValue) {
+        public MetricsAllowableValueRangeStub(String name, String description, boolean doubleValue,
+                                              double minDoubleValue, double maxDoubleValue, long minLongValue, long maxLongValue) {
             this.name = name;
             this.description = description;
             this.doubleValue = doubleValue;
@@ -142,15 +142,10 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
             this.maxLongValue = maxLongValue;
         }
 
-        public MetricStub() {
-        }
+        public MetricsAllowableValueRangeStub(){}
 
         public boolean isDoubleValue() {
             return doubleValue;
-        }
-
-        public void setDoubleValue(boolean doubleValue) {
-            this.doubleValue = doubleValue;
         }
 
         public double getMinDoubleValue() {
@@ -189,23 +184,15 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
             return name;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-
         public String getDescription() {
             return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof MetricStub)) return false;
-            MetricStub that = (MetricStub) o;
+            if (!(o instanceof MetricsAllowableValueRangeStub)) return false;
+            MetricsAllowableValueRangeStub that = (MetricsAllowableValueRangeStub) o;
             return doubleValue == that.doubleValue &&
                     Double.compare(that.getMinDoubleValue(), getMinDoubleValue()) == 0 &&
                     Double.compare(that.getMaxDoubleValue(), getMaxDoubleValue()) == 0 &&
@@ -217,7 +204,8 @@ public final class MetricsSettings implements PersistentStateComponent<MetricsSe
 
         @Override
         public int hashCode() {
-            return Objects.hash(getName(), getDescription(), doubleValue, getMinDoubleValue(), getMaxDoubleValue(), getMinLongValue(), getMaxLongValue());
+            return Objects.hash(getName(), getDescription(), doubleValue, getMinDoubleValue(),
+                    getMaxDoubleValue(), getMinLongValue(), getMaxLongValue());
         }
     }
 

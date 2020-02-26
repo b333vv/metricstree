@@ -18,12 +18,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MetricsTable {
+public class ClassOrMethodMetricsTable {
     private final JBTable table;
     private final Model model;
     private final JBScrollPane panel;
 
-    public MetricsTable() {
+    public ClassOrMethodMetricsTable() {
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
