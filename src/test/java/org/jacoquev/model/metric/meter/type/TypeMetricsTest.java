@@ -13,7 +13,7 @@ public class TypeMetricsTest extends LightJavaCodeInsightFixtureTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         MetricsUtils.setProject(this.getProject());
-        MetricsService.setMetricsAllowableValueRanges(this.getProject());
+        MetricsService.init(this.getProject());
         myFixture.configureByFiles("Object.java", "JavaCode.java", "JavaClass.java", "JavaMethod.java",
                 "JavaPackage.java", "JavaProject.java");
     }

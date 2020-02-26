@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import org.jacoquev.util.MetricsAllowableValueRanges;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;

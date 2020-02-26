@@ -6,6 +6,10 @@ import org.jacoquev.model.metric.value.Range;
 import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.model.visitor.method.*;
 import org.jacoquev.model.visitor.type.*;
+import org.jacoquev.ui.settings.ClassMetricsTreeSettings;
+import org.jacoquev.ui.settings.MetricsAllowableValueRanges;
+import org.jacoquev.ui.settings.MetricsTreeSettingsStub;
+import org.jacoquev.ui.settings.ProjectMetricsTreeSettings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +18,7 @@ import java.util.stream.Stream;
 public class MetricsService {
     private static MetricsAllowableValueRanges metricsAllowableValueRanges;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
+    private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
     static {
         visitors.put("NOAM", new NumberOfAddedMethodsVisitor());
@@ -40,9 +45,10 @@ public class MetricsService {
         // Utility class
     }
 
-    public static void setMetricsAllowableValueRanges(Project project) {
+    public static void init(Project project) {
         metricsAllowableValueRanges = MetricsUtils.get(project, MetricsAllowableValueRanges.class);
         classMetricsTreeSettings = MetricsUtils.get(project, ClassMetricsTreeSettings.class);
+        projectMetricsTreeSettings = MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
     }
 
     public static Range getRangeForMetric(String metricName) {
@@ -60,14 +66,28 @@ public class MetricsService {
 
     public static Stream<JavaRecursiveElementVisitor> getJavaClassVisitorsForClassMetricsTree() {
         return classMetricsTreeSettings.getMetricsList().stream()
-                .filter(ClassMetricsTreeSettings.ClassMetricsTreeStub::isNeedToConsider)
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> visitors.get(m.getName()))
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
     public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForClassMetricsTree() {
         return classMetricsTreeSettings.getMetricsList().stream()
-                .filter(ClassMetricsTreeSettings.ClassMetricsTreeStub::isNeedToConsider)
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                .map(m -> visitors.get(m.getName()))
+                .filter(m -> m instanceof JavaMethodVisitor);
+    }
+
+    public static Stream<JavaRecursiveElementVisitor> getJavaClassVisitorsForProjectMetricsTree() {
+        return projectMetricsTreeSettings.getMetricsList().stream()
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                .map(m -> visitors.get(m.getName()))
+                .filter(m -> m instanceof JavaClassVisitor);
+    }
+
+    public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForProjectMetricsTree() {
+        return projectMetricsTreeSettings.getMetricsList().stream()
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> visitors.get(m.getName()))
                 .filter(m -> m instanceof JavaMethodVisitor);
     }

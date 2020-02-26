@@ -21,10 +21,13 @@
 
     <project-components>
         <component>
-            <implementation-class>org.jacoquev.util.MetricsAllowableValueRanges</implementation-class>
+            <implementation-class>org.jacoquev.ui.settings.MetricsAllowableValueRanges</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jacoquev.util.ClassMetricsTreeSettings</implementation-class>
+            <implementation-class>org.jacoquev.ui.settings.ClassMetricsTreeSettings</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jacoquev.ui.settings.ProjectMetricsTreeSettings</implementation-class>
         </component>
         <component>
             <implementation-class>org.jacoquev.ui.log.MetricsConsole</implementation-class>

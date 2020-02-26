@@ -3,7 +3,6 @@ package org.jacoquev.ui.settings;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.jacoquev.util.ClassMetricsTreeSettings;
 import org.jacoquev.util.MetricsUtils;
 
 import javax.swing.*;
@@ -12,16 +11,19 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassMetricsTreeTable {
+public class MetricsTreeSettingsTable {
     private final JBTable table;
     private final JPanel panel;
     private final Model model;
     private Project project;
 
-    public ClassMetricsTreeTable(String emptyLabel,
-                                 Project project) {
+    public MetricsTreeSettingsTable(String emptyLabel,
+                                    Project project,
+                                    List<MetricsTreeSettingsStub> rows) {
         this.project = project;
         model = new Model();
+        model.setRows(rows);
+
         table = new JBTable(model);
         table.setShowGrid(false);
         table.setIntercellSpacing(JBUI.emptySize());
@@ -54,18 +56,23 @@ public class ClassMetricsTreeTable {
         return panel;
     }
 
-    public void set(List<ClassMetricsTreeSettings.ClassMetricsTreeStub> data) {
+    public void set(List<MetricsTreeSettingsStub> data) {
         model.set(data);
     }
 
-    public List<ClassMetricsTreeSettings.ClassMetricsTreeStub> get() {
+    public List<MetricsTreeSettingsStub> get() {
         return new ArrayList<>(model.items());
     }
 
     private class Model extends AbstractTableModel {
         private final int COLUMN_COUNT = 5;
-        ClassMetricsTreeSettings classMetricsTreeSettings = MetricsUtils.get(ClassMetricsTreeTable.this.project, ClassMetricsTreeSettings.class);
-        private List<ClassMetricsTreeSettings.ClassMetricsTreeStub> rows = classMetricsTreeSettings.getMetricsList();
+//        ClassMetricsTreeSettings classMetricsTreeSettings =
+//                MetricsUtils.get(ClassMetricsTreeTable.this.project, ClassMetricsTreeSettings.class);
+        private List<MetricsTreeSettingsStub> rows;
+
+        public void setRows(List<MetricsTreeSettingsStub> rows) {
+            this.rows = rows;
+        }
 
         @Override
         public int getRowCount() {
@@ -105,18 +112,18 @@ public class ClassMetricsTreeTable {
             return "";
         }
 
-        public void set(List<ClassMetricsTreeSettings.ClassMetricsTreeStub> rows) {
+        public void set(List<MetricsTreeSettingsStub> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
-        public List<ClassMetricsTreeSettings.ClassMetricsTreeStub> items() {
+        public List<MetricsTreeSettingsStub> items() {
             return rows;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            ClassMetricsTreeSettings.ClassMetricsTreeStub item = rows.get(rowIndex);
+            MetricsTreeSettingsStub item = rows.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     return item.isNeedToConsider();

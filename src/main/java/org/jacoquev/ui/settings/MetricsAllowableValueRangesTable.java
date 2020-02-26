@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.jacoquev.util.MetricsAllowableValueRanges;
 import org.jacoquev.util.MetricsUtils;
 
 import javax.swing.*;

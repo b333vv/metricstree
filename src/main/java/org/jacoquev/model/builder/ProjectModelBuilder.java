@@ -1,5 +1,6 @@
 package org.jacoquev.model.builder;
 
+import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
 import org.jacoquev.model.code.JavaClass;
@@ -9,11 +10,13 @@ import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.util.ClassUtils;
 import org.jacoquev.model.visitor.type.CouplingBetweenObjectsVisitor;
 import org.jacoquev.model.visitor.type.JavaClassVisitor;
+import org.jacoquev.util.MetricsService;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class ProjectModelBuilder extends ModelBuilder {
 
@@ -87,6 +90,16 @@ public class ProjectModelBuilder extends ModelBuilder {
         javaProject.addMethodToMethodsSet(javaMethod);
     }
 
+
+    @Override
+    protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
+        return MetricsService.getJavaClassVisitorsForProjectMetricsTree();
+    }
+
+    @Override
+    protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors() {
+        return MetricsService.getJavaMethodVisitorsForProjectMetricsTree();
+    }
 
     public void calculateMetrics() {
         javaProject.getAllClasses().forEach(c -> {

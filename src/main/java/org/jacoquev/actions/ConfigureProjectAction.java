@@ -2,7 +2,7 @@ package org.jacoquev.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
-import org.jacoquev.util.MetricsConfigurable;
+import org.jacoquev.ui.settings.MetricsConfigurable;
 
 public class ConfigureProjectAction extends AbstractAction {
 

@@ -1,7 +1,6 @@
 package org.jacoquev.ui.settings;
 
 import com.intellij.openapi.project.Project;
-import org.jacoquev.util.MetricsAllowableValueRanges;
 
 import javax.swing.*;
 import java.util.List;

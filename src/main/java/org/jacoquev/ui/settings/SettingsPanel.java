@@ -2,8 +2,7 @@ package org.jacoquev.ui.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
-import org.jacoquev.util.ClassMetricsTreeSettings;
-import org.jacoquev.util.MetricsAllowableValueRanges;
+import org.jacoquev.util.MetricsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +10,8 @@ import java.awt.*;
 public class SettingsPanel {
     private final JPanel root;
     private final MetricsAllowableValueRangesPanel metricsAllowableValueRangesPanel;
-    private final ClassMetricsTreePanel classMetricsTreePanel;
+    private final ClassMetricsTreeSettingsPanel classMetricsTreeSettingsPanel;
+    private final ProjectMetricsTreeSettingsPanel projectMetricsTreeSettingsPanel;
     private final Project project;
 
     public SettingsPanel(Project project) {
@@ -19,12 +19,18 @@ public class SettingsPanel {
         root = new JPanel(new BorderLayout());
         JBTabbedPane tabs = new JBTabbedPane();
 
+        ClassMetricsTreeSettings classMetricsTreeSettings =
+                MetricsUtils.get(project, ClassMetricsTreeSettings.class);
+        ProjectMetricsTreeSettings projectMetricsTreeSettings =
+                MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
+
         metricsAllowableValueRangesPanel = new MetricsAllowableValueRangesPanel(project);
-        classMetricsTreePanel = new ClassMetricsTreePanel(project);
+        classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(project, classMetricsTreeSettings);
+        projectMetricsTreeSettingsPanel = new ProjectMetricsTreeSettingsPanel(project, projectMetricsTreeSettings);
 
         tabs.insertTab("Metrics Allowed Values", null, metricsAllowableValueRangesPanel.getComponent(), "Configure allowed values ", 0);
-        tabs.insertTab("Class Metrics Tree", null, classMetricsTreePanel.getComponent(), "Configure class metrics tree", 1);
-//        tabs.insertTab("Project Metrics Tree", null, rootPropertiesPane, "Configure project metrics tree", 2);
+        tabs.insertTab("Class Metrics Tree", null, classMetricsTreeSettingsPanel.getComponent(), "Configure class metrics tree", 1);
+        tabs.insertTab("Project Metrics Tree", null, projectMetricsTreeSettingsPanel.getComponent(), "Configure project metrics tree", 2);
 
         root.add(tabs, BorderLayout.CENTER);
     }
@@ -42,7 +48,11 @@ public class SettingsPanel {
     }
 
     public boolean isModified(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        return classMetricsTreePanel.isModified(classMetricsTreeSettings);
+        return classMetricsTreeSettingsPanel.isModified(classMetricsTreeSettings);
+    }
+
+    public boolean isModified(ProjectMetricsTreeSettings projectMetricsTreeSettings) {
+        return projectMetricsTreeSettingsPanel.isModified(projectMetricsTreeSettings);
     }
 
     public void save(MetricsAllowableValueRanges metricsAllowableValueRanges) {
@@ -50,6 +60,10 @@ public class SettingsPanel {
     }
 
     public void save(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        classMetricsTreePanel.save(classMetricsTreeSettings);
+        classMetricsTreeSettingsPanel.save(classMetricsTreeSettings);
+    }
+
+    public void save(ProjectMetricsTreeSettings projectMetricsTreeSettings) {
+        projectMetricsTreeSettingsPanel.save(projectMetricsTreeSettings);
     }
 }

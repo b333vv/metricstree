@@ -1,4 +1,4 @@
-package org.jacoquev.util;
+package org.jacoquev.ui.settings;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ProjectComponent;
