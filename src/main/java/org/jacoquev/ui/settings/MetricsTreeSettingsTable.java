@@ -1,11 +1,14 @@
 package org.jacoquev.ui.settings;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.jacoquev.util.MetricsUtils;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -49,7 +52,10 @@ public class MetricsTreeSettingsTable {
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         panel = new JPanel(new BorderLayout());
-        panel.add(new JScrollPane(table));
+        JScrollPane jScrollPane = new JBScrollPane(table);
+        Border b = IdeBorderFactory.createTitledBorder("These class level and method level metrics should be calculated");
+        jScrollPane.setBorder(b);
+        panel.add(jScrollPane);
     }
 
     public JPanel getComponent() {
@@ -66,8 +72,6 @@ public class MetricsTreeSettingsTable {
 
     private class Model extends AbstractTableModel {
         private final int COLUMN_COUNT = 5;
-//        ClassMetricsTreeSettings classMetricsTreeSettings =
-//                MetricsUtils.get(ClassMetricsTreeTable.this.project, ClassMetricsTreeSettings.class);
         private List<MetricsTreeSettingsStub> rows;
 
         public void setRows(List<MetricsTreeSettingsStub> rows) {

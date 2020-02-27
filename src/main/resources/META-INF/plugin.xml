@@ -189,6 +189,8 @@
             <reference id="Metrics.FilterProjectMetricsTree"/>
             <reference id="Metrics.CalculateProjectMetrics"/>
             <separator/>
+            <reference id="Metrics.Configure"/>
+            <separator/>
             <reference id="Metrics.Autoscroll"/>
         </group>
 

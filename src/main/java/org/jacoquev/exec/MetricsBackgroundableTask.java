@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class MetricsBackgroundableTask extends Task.Backgroundable {
 
-    Runnable task;
-    Runnable onSuccess;
-    Runnable onCancel;
-    Runnable onFinished;
+    private Runnable task;
+    private Runnable onSuccess;
+    private Runnable onCancel;
+    private Runnable onFinished;
 
     public MetricsBackgroundableTask(@Nullable Project project,
                                      @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
@@ -52,5 +52,9 @@ public class MetricsBackgroundableTask extends Task.Backgroundable {
         if (onCancel != null) {
             onCancel.run();
         }
+    }
+
+    public void setOnFinished(Runnable onFinished) {
+        this.onFinished = onFinished;
     }
 }

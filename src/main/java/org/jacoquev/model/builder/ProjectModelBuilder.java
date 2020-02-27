@@ -12,10 +12,7 @@ import org.jacoquev.model.visitor.type.CouplingBetweenObjectsVisitor;
 import org.jacoquev.model.visitor.type.JavaClassVisitor;
 import org.jacoquev.util.MetricsService;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class ProjectModelBuilder extends ModelBuilder {
@@ -26,10 +23,6 @@ public class ProjectModelBuilder extends ModelBuilder {
         super();
         this.javaProject = javaProject;
     }
-
-    private Set<JavaClassVisitor> deferredClassVisitors = Set.of(
-            new CouplingBetweenObjectsVisitor()
-    );
 
     public void addJavaFileToJavaProject(JavaProject javaProject, PsiJavaFile psiJavaFile) {
         JavaPackage javaPackage = findOrCreateJavaPackage(javaProject, psiJavaFile);
@@ -102,9 +95,9 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     public void calculateMetrics() {
-        javaProject.getAllClasses().forEach(c -> {
-            deferredClassVisitors.stream().forEach(v -> c.accept(v));
-        });
+        javaProject.getAllClasses().forEach(c ->
+            MetricsService.getDeferredJavaClassVisitorsForProjectMetricsTree()
+                    .forEach(v -> c.accept(v)));
 
     }
 }

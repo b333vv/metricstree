@@ -19,6 +19,7 @@ import org.jacoquev.model.calculator.*;
 import org.jacoquev.model.code.DependencyMap;
 import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.jacoquev.util.MetricsService;
 import org.jacoquev.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -89,17 +90,40 @@ public class ProjectMetricsRunner {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
                 "Calculating Metrics...", true, calculate, null,
                 () -> queue.clear(), null);
+
+        if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
+            classMetricsTask.setOnFinished(buildTree);
+            queue.run(classMetricsTask);
+            return;
+        }
+        if (!MetricsService.isNeedToConsiderProjectMetrics()) {
+            MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
+                    "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
+                    true, martinMetricSetCalculating, null,
+                    () -> queue.clear(), buildTree);
+            queue.run(classMetricsTask);
+            queue.run(packageMetricsTask);
+            return;
+        }
+        if (!MetricsService.isNeedToConsiderPackageMetrics()) {
+            MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
+                    "Project Level Metrics: MOOD Metrics Set Calculating...",
+                    true, moodMetricSetCalculating, null,
+                    () -> queue.clear(), buildTree);
+            queue.run(classMetricsTask);
+            queue.run(projectMetricsTask);
+            return;
+        }
+        queue.run(classMetricsTask);
         MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                 "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                 true, martinMetricSetCalculating, null,
                 () -> queue.clear(), null);
+        queue.run(packageMetricsTask);
         MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
                 "Project Level Metrics: MOOD Metrics Set Calculating...",
                 true, moodMetricSetCalculating, null,
                 () -> queue.clear(), buildTree);
-
-        queue.run(classMetricsTask);
-        queue.run(packageMetricsTask);
         queue.run(projectMetricsTask);
     }
 

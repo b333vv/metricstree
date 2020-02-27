@@ -20,6 +20,7 @@ public class MetricsService {
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
+    private static Map<String, JavaRecursiveElementVisitor> deferredVisitors = new HashMap<>();
     static {
         visitors.put("NOAM", new NumberOfAddedMethodsVisitor());
         visitors.put("LCOM", new LackOfCohesionOfMethodsVisitor());
@@ -31,7 +32,6 @@ public class MetricsService {
         visitors.put("RFC", new ResponseForClassVisitor());
         visitors.put("WMC", new WeightedMethodCountVisitor());
         visitors.put("SIZE2", new NumberOfAttributesAndMethodsVisitor());
-        visitors.put("CBO", new CouplingBetweenObjectsVisitor());
         visitors.put("LOC", new LinesOfCodeVisitor());
         visitors.put("CND", new ConditionNestingDepthVisitor());
         visitors.put("LND", new LoopNestingDepthVisitor());
@@ -39,6 +39,7 @@ public class MetricsService {
         visitors.put("NOL", new NumberOfLoopsVisitor());
         visitors.put("FANIN", new FanInVisitor());
         visitors.put("FANOUT", new FanOutVisitor());
+        deferredVisitors.put("CBO", new CouplingBetweenObjectsVisitor());
     }
 
     private MetricsService() {
@@ -85,10 +86,25 @@ public class MetricsService {
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
+    public static Stream<JavaRecursiveElementVisitor> getDeferredJavaClassVisitorsForProjectMetricsTree() {
+        return projectMetricsTreeSettings.getMetricsList().stream()
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                .map(m -> deferredVisitors.get(m.getName()))
+                .filter(m -> m instanceof JavaClassVisitor);
+    }
+
     public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> visitors.get(m.getName()))
                 .filter(m -> m instanceof JavaMethodVisitor);
+    }
+
+    public static boolean isNeedToConsiderProjectMetrics() {
+        return projectMetricsTreeSettings.isNeedToConsiderProjectMetrics();
+    }
+
+    public static boolean isNeedToConsiderPackageMetrics() {
+        return projectMetricsTreeSettings.isNeedToConsiderPackageMetrics();
     }
 }

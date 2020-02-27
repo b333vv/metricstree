@@ -14,12 +14,17 @@ import java.util.List;
 public final class ProjectMetricsTreeSettings implements PersistentStateComponent<ProjectMetricsTreeSettings>, ProjectComponent {
 
     private List<MetricsTreeSettingsStub> projectTreeMetrics = new ArrayList<>();
+    private boolean needToConsiderProjectMetrics;
+    private boolean needToConsiderPackageMetrics;
 
     public ProjectMetricsTreeSettings() {
         loadInitialValues();
     }
 
     private void loadInitialValues() {
+        needToConsiderProjectMetrics = true;
+        needToConsiderPackageMetrics = true;
+
         //Chidamber-Kemerer metrics set
         projectTreeMetrics.add(new MetricsTreeSettingsStub("WMC", "Weighted Methods Per Class",
                 "Class level", "Chidamber-Kemerer metrics set", true));
@@ -94,4 +99,19 @@ public final class ProjectMetricsTreeSettings implements PersistentStateComponen
         return new ArrayList<>(projectTreeMetrics);
     }
 
+    public boolean isNeedToConsiderProjectMetrics() {
+        return needToConsiderProjectMetrics;
+    }
+
+    public void setNeedToConsiderProjectMetrics(boolean needToConsiderProjectMetrics) {
+        this.needToConsiderProjectMetrics = needToConsiderProjectMetrics;
+    }
+
+    public boolean isNeedToConsiderPackageMetrics() {
+        return needToConsiderPackageMetrics;
+    }
+
+    public void setNeedToConsiderPackageMetrics(boolean needToConsiderPackageMetrics) {
+        this.needToConsiderPackageMetrics = needToConsiderPackageMetrics;
+    }
 }
