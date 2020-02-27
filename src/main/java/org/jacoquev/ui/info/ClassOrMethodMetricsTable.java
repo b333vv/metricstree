@@ -66,7 +66,7 @@ public class ClassOrMethodMetricsTable {
         model.set(sortedMetrics);
     }
 
-    private class Model extends AbstractTableModel {
+    private static class Model extends AbstractTableModel {
 
         private final int COLUMN_COUNT = 4;
         private List<Metric> rows = Collections.EMPTY_LIST;
@@ -102,7 +102,7 @@ public class ClassOrMethodMetricsTable {
         }
 
         @Override
-        public Class getColumnClass(int column) {
+        public Class<?> getColumnClass(int column) {
             if (column == 0) {
                 return Icon.class;
             }

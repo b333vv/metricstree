@@ -144,7 +144,7 @@ public class MetricsTreeSettingsTable {
         }
 
         @Override
-        public Class getColumnClass(int column) {
+        public Class<?> getColumnClass(int column) {
             if (column == 0) {
                 return Boolean.class;
             }

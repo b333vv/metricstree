@@ -6,17 +6,14 @@ import org.jacoquev.model.metric.value.Range;
 import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.model.visitor.method.*;
 import org.jacoquev.model.visitor.type.*;
-import org.jacoquev.ui.settings.ClassMetricsTreeSettings;
-import org.jacoquev.ui.settings.MetricsAllowableValuesRanges;
-import org.jacoquev.ui.settings.MetricsTreeSettingsStub;
-import org.jacoquev.ui.settings.ProjectMetricsTreeSettings;
+import org.jacoquev.ui.settings.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 public class MetricsService {
-    private static MetricsAllowableValuesRanges metricsAllowableValuesRanges;
+    private static MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
@@ -47,14 +44,14 @@ public class MetricsService {
     }
 
     public static void init(Project project) {
-        metricsAllowableValuesRanges = MetricsUtils.get(project, MetricsAllowableValuesRanges.class);
+        metricsAllowableValuesRangesSettings = MetricsUtils.get(project, MetricsAllowableValuesRangesSettings.class);
         classMetricsTreeSettings = MetricsUtils.get(project, ClassMetricsTreeSettings.class);
         projectMetricsTreeSettings = MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
     }
 
     public static Range getRangeForMetric(String metricName) {
-        MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub =
-                metricsAllowableValuesRanges.getMetrics().get(metricName);
+        MetricsAllowableValuesRangeStub metricsAllowableValueRangeStub =
+                metricsAllowableValuesRangesSettings.getControlledMetrics().get(metricName);
         if (metricsAllowableValueRangeStub == null) {
             return Range.UNDEFINED;
         }

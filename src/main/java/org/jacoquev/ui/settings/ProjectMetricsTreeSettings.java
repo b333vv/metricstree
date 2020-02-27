@@ -8,7 +8,9 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @State(name = "ProjectMetricsTreeSettings", storages = {@Storage("project-metrics-tree.xml")})
 public final class ProjectMetricsTreeSettings implements PersistentStateComponent<ProjectMetricsTreeSettings>, ProjectComponent {
@@ -96,7 +98,13 @@ public final class ProjectMetricsTreeSettings implements PersistentStateComponen
     }
 
     public List<MetricsTreeSettingsStub> getMetricsList() {
-        return new ArrayList<>(projectTreeMetrics);
+        Comparator<MetricsTreeSettingsStub> compareByLevelAndName = Comparator
+                .comparing(MetricsTreeSettingsStub::getLevel)
+                .thenComparing(MetricsTreeSettingsStub::getName);
+        return projectTreeMetrics.stream()
+                .sorted(compareByLevelAndName)
+                .collect(Collectors.toList());
+//        return new ArrayList<>(projectTreeMetrics);
     }
 
     public boolean isNeedToConsiderProjectMetrics() {

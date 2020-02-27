@@ -6,9 +6,10 @@ import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class MetricsAllowableValuesRangesPanel implements ConfigurationPanel<MetricsAllowableValuesRanges> {
+public class MetricsAllowableValuesRangesPanel implements ConfigurationPanel<MetricsAllowableValuesRangesSettings> {
     private static final String EMPTY_LABEL = "No metrics configured";
     private final Project project;
     private JPanel panel;
@@ -24,26 +25,27 @@ public class MetricsAllowableValuesRangesPanel implements ConfigurationPanel<Met
     }
 
     @Override
-    public boolean isModified(MetricsAllowableValuesRanges settings) {
-        List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> rows = settings.getMetricsList();
+    public boolean isModified(MetricsAllowableValuesRangesSettings settings) {
+        List<MetricsAllowableValuesRangeStub> rows = settings.getControlledMetricsList();
         return !rows.equals(metricsAllowableValuesRangesTable.get());
     }
 
     @Override
-    public void save(MetricsAllowableValuesRanges settings) {
-        Map<String, MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> newMetricsMap = metricsAllowableValuesRangesTable.get()
+    public void save(MetricsAllowableValuesRangesSettings settings) {
+        Map<String, MetricsAllowableValuesRangeStub> newMetricsMap = metricsAllowableValuesRangesTable.get()
                 .stream()
-                .collect(Collectors.toMap(MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub::getName, Function.identity()));
-        settings.setMetrics(newMetricsMap);
+                .collect(Collectors.toMap(MetricsAllowableValuesRangeStub::getName, Function.identity()));
+        settings.setControlledMetrics(newMetricsMap);
     }
 
     @Override
-    public void load(MetricsAllowableValuesRanges settings) {
-        metricsAllowableValuesRangesTable.set(settings.getMetricsList());
+    public void load(MetricsAllowableValuesRangesSettings settings) {
+        metricsAllowableValuesRangesTable.set(settings.getControlledMetricsList());
     }
 
     private void createUIComponents() {
-        Function<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub, MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> onEdit = value -> {
+
+        Function<MetricsAllowableValuesRangeStub, MetricsAllowableValuesRangeStub> onEdit = value -> {
             EditAllowableValuesRangeForMetricDialog dialog = new EditAllowableValuesRangeForMetricDialog(project);
             dialog.setMetricsAllowableValueRangeStub(value);
             if (dialog.showAndGet() && dialog.getMetricsAllowableValueRangeStub() != null) {
@@ -52,7 +54,16 @@ public class MetricsAllowableValuesRangesPanel implements ConfigurationPanel<Met
             return null;
         };
 
-        metricsAllowableValuesRangesTable = new MetricsAllowableValuesRangesTable(EMPTY_LABEL, onEdit, project);
+        Supplier<MetricsAllowableValuesRangeStub> onAdd = () -> {
+            AddAllowableValuesRangeForMetricDialog dialog = new AddAllowableValuesRangeForMetricDialog(project);
+            if (dialog.showAndGet() && dialog.getMetricsAllowableValueRangeStub() != null) {
+
+                return dialog.getMetricsAllowableValueRangeStub();
+            }
+            return null;
+        };
+
+        metricsAllowableValuesRangesTable = new MetricsAllowableValuesRangesTable(EMPTY_LABEL, onEdit, onAdd, project);
         panel = metricsAllowableValuesRangesTable.getComponent();
     }
 }

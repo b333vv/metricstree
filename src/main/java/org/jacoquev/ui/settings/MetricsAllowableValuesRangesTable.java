@@ -12,23 +12,27 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class MetricsAllowableValuesRangesTable {
-    private final Function<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub, MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> onEdit;
+    private final Function<MetricsAllowableValuesRangeStub,
+            MetricsAllowableValuesRangeStub> onEdit;
+    private final Supplier<MetricsAllowableValuesRangeStub> onAdd;
     private final JBTable table;
     private final JPanel panel;
     private final Model model;
     private Project project;
 
     public MetricsAllowableValuesRangesTable(String emptyLabel,
-                                             Function<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub, MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> onEdit,
+                                             Function<MetricsAllowableValuesRangeStub,
+                                                     MetricsAllowableValuesRangeStub> onEdit,
+                                             Supplier<MetricsAllowableValuesRangeStub> onAdd,
                                              Project project) {
         this.project = project;
-
         this.onEdit = onEdit;
+        this.onAdd = onAdd;
 
         model = new Model();
         table = new JBTable(model);
@@ -41,6 +45,12 @@ public class MetricsAllowableValuesRangesTable {
         table.getTableHeader().setReorderingAllowed(false);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        table.getColumnModel().getColumn(0).setMaxWidth(50);
+        table.getColumnModel().getColumn(1).setMaxWidth(300);
+        table.getColumnModel().getColumn(2).setMaxWidth(200);
+        table.getColumnModel().getColumn(3).setMaxWidth(100);
+        table.getColumnModel().getColumn(4).setMaxWidth(100);
+
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
@@ -51,8 +61,12 @@ public class MetricsAllowableValuesRangesTable {
         });
 
         ToolbarDecorator toolbarDecorator = ToolbarDecorator.createDecorator(table)
+                .setAddActionName("Add")
+                .setAddAction(e -> addEntry())
                 .setEditActionName("Edit")
                 .setEditAction(e -> editEntry())
+                .setRemoveActionName("Remove")
+                .setRemoveAction(e -> removeEntry())
                 .disableUpDownActions();
 
         panel = new JPanel(new BorderLayout());
@@ -63,30 +77,48 @@ public class MetricsAllowableValuesRangesTable {
         return panel;
     }
 
-    public void set(List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> data) {
+    public void set(List<MetricsAllowableValuesRangeStub> data) {
         model.set(data);
     }
 
-    public List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> get() {
+    public List<MetricsAllowableValuesRangeStub> get() {
         return new ArrayList<>(model.items());
     }
 
     private void editEntry() {
         int selectedIndex = table.getSelectedRow();
-
         if (selectedIndex >= 0) {
-            MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub value = model.items().get(selectedIndex);
-            MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub newValue = onEdit.apply(value);
+            MetricsAllowableValuesRangeStub value = model.items().get(selectedIndex);
+            MetricsAllowableValuesRangeStub newValue = onEdit.apply(value);
             if (newValue != null) {
                 model.items().set(selectedIndex, newValue);
             }
         }
     }
 
+    private void addEntry() {
+        MetricsAllowableValuesRangeStub newValue = onAdd.get();
+        if (newValue != null) {
+            model.items().add(newValue);
+        }
+    }
+
+    private void removeEntry() {
+        int selectedIndex = table.getSelectedRow();
+        if (selectedIndex >= 0) {
+            MetricsAllowableValuesRangeStub value = model.items().get(selectedIndex);
+            MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings =
+                    MetricsUtils.get(MetricsAllowableValuesRangesTable.this.project, MetricsAllowableValuesRangesSettings.class);
+            metricsAllowableValuesRangesSettings.addToUnControlledMetrics(value);
+            model.items().remove(value);
+        }
+    }
+
     private class Model extends AbstractTableModel {
-        private final int COLUMN_COUNT = 3;
-        MetricsAllowableValuesRanges metricsAllowableValuesRanges = MetricsUtils.get(MetricsAllowableValuesRangesTable.this.project, MetricsAllowableValuesRanges.class);
-        private List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> rows = metricsAllowableValuesRanges.getMetricsList();
+        private final int COLUMN_COUNT = 5;
+        MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings =
+                MetricsUtils.get(MetricsAllowableValuesRangesTable.this.project, MetricsAllowableValuesRangesSettings.class);
+        private List<MetricsAllowableValuesRangeStub> rows = metricsAllowableValuesRangesSettings.getControlledMetricsList();
 
         @Override
         public int getRowCount() {
@@ -107,33 +139,41 @@ public class MetricsAllowableValuesRangesTable {
         public String getColumnName(int column) {
             switch (column) {
                 case 0:
-                    return "Name";
+                    return "Metric";
                 case 1:
-                    return "Min value";
+                    return "Description";
                 case 2:
+                    return "Level";
+                case 3:
+                    return "Min value";
+                case 4:
                     return "Max value";
             }
             return "";
         }
 
-        public void set(List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> rows) {
+        public void set(List<MetricsAllowableValuesRangeStub> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
-        public List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> items() {
+        public List<MetricsAllowableValuesRangeStub> items() {
             return rows;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub item = rows.get(rowIndex);
+            MetricsAllowableValuesRangeStub item = rows.get(rowIndex);
             switch (columnIndex) {
                 case 0:
-                    return item.getDescription();
+                    return item.getName();
                 case 1:
-                    return item.isDoubleValue() ? item.getMinDoubleValue() : item.getMinLongValue();
+                    return item.getDescription();
                 case 2:
+                    return item.getLevel();
+                case 3:
+                    return item.isDoubleValue() ? item.getMinDoubleValue() : item.getMinLongValue();
+                case 4:
                     return item.isDoubleValue() ? item.getMaxDoubleValue() : item.getMaxLongValue();
             }
             return item;
