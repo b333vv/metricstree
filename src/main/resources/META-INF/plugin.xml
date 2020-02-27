@@ -14,14 +14,14 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="11Metrics" anchor="bottom" icon="/images/jacoquev.svg"
+        <toolWindow id="MetricsTree" anchor="bottom" icon="/images/jacoquev.svg"
                     factoryClass="org.jacoquev.ui.MetricsToolWindowFactory"/>
 
     </extensions>
 
     <project-components>
         <component>
-            <implementation-class>org.jacoquev.ui.settings.MetricsAllowableValueRanges</implementation-class>
+            <implementation-class>org.jacoquev.ui.settings.MetricsAllowableValuesRanges</implementation-class>
         </component>
         <component>
             <implementation-class>org.jacoquev.ui.settings.ClassMetricsTreeSettings</implementation-class>

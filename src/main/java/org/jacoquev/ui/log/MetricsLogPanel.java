@@ -31,7 +31,7 @@ import org.jacoquev.util.MetricsUtils;
 import javax.swing.*;
 
 public class MetricsLogPanel extends SimpleToolWindowPanel {
-  private static final String ID = "11Metrics";
+  private static final String ID = "MetricsTree";
 
   private final ToolWindow toolWindow;
   private final Project project;

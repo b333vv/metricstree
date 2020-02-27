@@ -16,17 +16,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
-public class MetricsAllowableValueRangesTable {
-    private final Function<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub, MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> onEdit;
+public class MetricsAllowableValuesRangesTable {
+    private final Function<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub, MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> onEdit;
     private final JBTable table;
     private final JPanel panel;
     private final Model model;
-    private HashMap<String, MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> updatedMetrics = new HashMap<>();
     private Project project;
 
-    public MetricsAllowableValueRangesTable(String emptyLabel,
-                                            Function<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub, MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> onEdit,
-                                            Project project) {
+    public MetricsAllowableValuesRangesTable(String emptyLabel,
+                                             Function<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub, MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> onEdit,
+                                             Project project) {
         this.project = project;
 
         this.onEdit = onEdit;
@@ -64,35 +63,30 @@ public class MetricsAllowableValueRangesTable {
         return panel;
     }
 
-    public void set(List<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> data) {
+    public void set(List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> data) {
         model.set(data);
     }
 
-    public List<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> get() {
+    public List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> get() {
         return new ArrayList<>(model.items());
-    }
-
-    public HashMap<String, MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> getUpdatedMetrics() {
-        return updatedMetrics;
     }
 
     private void editEntry() {
         int selectedIndex = table.getSelectedRow();
 
         if (selectedIndex >= 0) {
-            MetricsAllowableValueRanges.MetricsAllowableValueRangeStub value = model.items().get(selectedIndex);
-            MetricsAllowableValueRanges.MetricsAllowableValueRangeStub newValue = onEdit.apply(value);
+            MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub value = model.items().get(selectedIndex);
+            MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub newValue = onEdit.apply(value);
             if (newValue != null) {
                 model.items().set(selectedIndex, newValue);
-                updatedMetrics.put(newValue.getName(), newValue);
             }
         }
     }
 
     private class Model extends AbstractTableModel {
         private final int COLUMN_COUNT = 3;
-        MetricsAllowableValueRanges metricsAllowableValueRanges = MetricsUtils.get(MetricsAllowableValueRangesTable.this.project, MetricsAllowableValueRanges.class);
-        private List<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> rows = metricsAllowableValueRanges.getMetricsList();
+        MetricsAllowableValuesRanges metricsAllowableValuesRanges = MetricsUtils.get(MetricsAllowableValuesRangesTable.this.project, MetricsAllowableValuesRanges.class);
+        private List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> rows = metricsAllowableValuesRanges.getMetricsList();
 
         @Override
         public int getRowCount() {
@@ -122,18 +116,18 @@ public class MetricsAllowableValueRangesTable {
             return "";
         }
 
-        public void set(List<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> rows) {
+        public void set(List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
-        public List<MetricsAllowableValueRanges.MetricsAllowableValueRangeStub> items() {
+        public List<MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub> items() {
             return rows;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            MetricsAllowableValueRanges.MetricsAllowableValueRangeStub item = rows.get(rowIndex);
+            MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub item = rows.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     return item.getDescription();

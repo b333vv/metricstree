@@ -15,19 +15,19 @@ import java.awt.event.ActionEvent;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class EditMetricsDialog extends DialogWrapper {
+public class EditAllowableValuesRangeForMetricDialog extends DialogWrapper {
     private JPanel panel;
     private JLabel minValueLabel;
     private JLabel maxValueLabel;
     private JSpinner minValue;
     private JSpinner maxValue;
-    private MetricsAllowableValueRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub = null;
+    private MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub = null;
     private boolean spinnerIsDouble;
 
 
-    public EditMetricsDialog(Project project) {
+    public EditAllowableValuesRangeForMetricDialog(Project project) {
         super(project, false);
-        setTitle("Edit metrics settings");
+        setTitle("Edit Allowable Values Range For Metric");
 
         panel = new JPanel(new GridBagLayout());
         minValueLabel = new JLabel("Minimum of allowed value:");
@@ -77,11 +77,11 @@ public class EditMetricsDialog extends DialogWrapper {
         return panel;
     }
 
-    public MetricsAllowableValueRanges.MetricsAllowableValueRangeStub getMetricsAllowableValueRangeStub() {
+    public MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub getMetricsAllowableValueRangeStub() {
         return metricsAllowableValueRangeStub;
     }
 
-    public void setMetricsAllowableValueRangeStub(MetricsAllowableValueRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub) {
+    public void setMetricsAllowableValueRangeStub(MetricsAllowableValuesRanges.MetricsAllowableValueRangeStub metricsAllowableValueRangeStub) {
         this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
         Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getDescription());
         panel.setBorder(b);

@@ -22,10 +22,10 @@ public class ProjectMetricsTreeSettingsPanel implements ConfigurationPanel<Proje
     public ProjectMetricsTreeSettingsPanel(Project project, ProjectMetricsTreeSettings projectMetricsTreeSettings) {
         this.project = project;
         needToConsiderProjectMetrics =
-                new JCheckBox("Project metrics (MOOD metrics set: MHF, AHF, MIF, AIF, PF, CF) should be calculated",
+                new JCheckBox("Project level metrics (MOOD metrics set: MHF, AHF, MIF, AIF, PF, CF) should be calculated",
                         projectMetricsTreeSettings.isNeedToConsiderProjectMetrics());
         needToConsiderPackageMetrics =
-                new JCheckBox("Package metrics (Robert C. Martin metrics set: Ce, Ca, I, A, D) should be calculated",
+                new JCheckBox("Package level metrics (Robert C. Martin metrics set: Ce, Ca, I, A, D) should be calculated",
                         projectMetricsTreeSettings.isNeedToConsiderPackageMetrics());
 
         createUIComponents(projectMetricsTreeSettings);

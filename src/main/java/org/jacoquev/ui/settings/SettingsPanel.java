@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class SettingsPanel {
     private final JPanel root;
-    private final MetricsAllowableValueRangesPanel metricsAllowableValueRangesPanel;
+    private final MetricsAllowableValuesRangesPanel metricsAllowableValuesRangesPanel;
     private final ClassMetricsTreeSettingsPanel classMetricsTreeSettingsPanel;
     private final ProjectMetricsTreeSettingsPanel projectMetricsTreeSettingsPanel;
     private final Project project;
@@ -24,11 +24,11 @@ public class SettingsPanel {
         ProjectMetricsTreeSettings projectMetricsTreeSettings =
                 MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
 
-        metricsAllowableValueRangesPanel = new MetricsAllowableValueRangesPanel(project);
+        metricsAllowableValuesRangesPanel = new MetricsAllowableValuesRangesPanel(project);
         classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(project, classMetricsTreeSettings);
         projectMetricsTreeSettingsPanel = new ProjectMetricsTreeSettingsPanel(project, projectMetricsTreeSettings);
 
-        tabs.insertTab("Metrics Allowed Values", null, metricsAllowableValueRangesPanel.getComponent(), "Configure allowed values ", 0);
+        tabs.insertTab("Metrics Allowed Values", null, metricsAllowableValuesRangesPanel.getComponent(), "Configure allowed values ", 0);
         tabs.insertTab("Class Metrics Tree", null, classMetricsTreeSettingsPanel.getComponent(), "Configure class metrics tree", 1);
         tabs.insertTab("Project Metrics Tree", null, projectMetricsTreeSettingsPanel.getComponent(), "Configure project metrics tree", 2);
 
@@ -43,8 +43,8 @@ public class SettingsPanel {
         return root;
     }
 
-    public boolean isModified(MetricsAllowableValueRanges metricsAllowableValueRanges) {
-        return metricsAllowableValueRangesPanel.isModified(metricsAllowableValueRanges);
+    public boolean isModified(MetricsAllowableValuesRanges metricsAllowableValuesRanges) {
+        return metricsAllowableValuesRangesPanel.isModified(metricsAllowableValuesRanges);
     }
 
     public boolean isModified(ClassMetricsTreeSettings classMetricsTreeSettings) {
@@ -55,8 +55,8 @@ public class SettingsPanel {
         return projectMetricsTreeSettingsPanel.isModified(projectMetricsTreeSettings);
     }
 
-    public void save(MetricsAllowableValueRanges metricsAllowableValueRanges) {
-        metricsAllowableValueRangesPanel.save(metricsAllowableValueRanges);
+    public void save(MetricsAllowableValuesRanges metricsAllowableValuesRanges) {
+        metricsAllowableValuesRangesPanel.save(metricsAllowableValuesRanges);
     }
 
     public void save(ClassMetricsTreeSettings classMetricsTreeSettings) {

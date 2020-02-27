@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @State(name = "MetricsAllowableValueRanges", storages = {@Storage("metrics-allowed-value-ranges.xml")})
-public final class MetricsAllowableValueRanges implements PersistentStateComponent<MetricsAllowableValueRanges>, ProjectComponent {
+public final class MetricsAllowableValuesRanges implements PersistentStateComponent<MetricsAllowableValuesRanges>, ProjectComponent {
 
     private Map<String, MetricsAllowableValueRangeStub> metrics = new HashMap<>();
 
-    public MetricsAllowableValueRanges() {
+    public MetricsAllowableValuesRanges() {
         loadInitialValues();
     }
 
@@ -107,12 +107,12 @@ public final class MetricsAllowableValueRanges implements PersistentStateCompone
     }
 
     @Override
-    public synchronized MetricsAllowableValueRanges getState() {
+    public synchronized MetricsAllowableValuesRanges getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(MetricsAllowableValueRanges state) {
+    public synchronized void loadState(MetricsAllowableValuesRanges state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
