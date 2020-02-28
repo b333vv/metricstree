@@ -104,7 +104,6 @@ public final class ProjectMetricsTreeSettings implements PersistentStateComponen
         return projectTreeMetrics.stream()
                 .sorted(compareByLevelAndName)
                 .collect(Collectors.toList());
-//        return new ArrayList<>(projectTreeMetrics);
     }
 
     public boolean isNeedToConsiderProjectMetrics() {
