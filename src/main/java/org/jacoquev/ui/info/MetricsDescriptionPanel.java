@@ -29,6 +29,7 @@ public class MetricsDescriptionPanel {
         JLabel currentValueLabel = new JLabel("Calculated metrics value:");
         currentValue = new JLabel();
         metricDescription = new JEditorPane();
+        metricDescription.setContentType("text/html");
         metricDescription.setEditable(false);
 
         JScrollPane scrollableMetricDescriptionPanel = ScrollPaneFactory.createScrollPane(

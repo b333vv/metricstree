@@ -1,49 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>Afferent Coupling</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <h3>Afferent Coupling (Ca)</h3>
-<p>
+<p class="main">
     Afferent Coupling between packages (Ca) measures the total number of external classes coupled to
     classes of a package due to incoming coupling (coupling from classes external classes of the package,
     uses CBO definition of coupling). Each class counts only once. Zero if the package does not
     contain any classes or if external classes do not use the package's classes.
 </p>
-<p>
 <div align="center">
     <img src="img/Ca.jpg" alt="Afferent Coupling (Ce)"/>
 </div>
-In the picture above it can be seen that class A has only 1 incoming dependency (from class X),
-that is why the value for metrics Ca equals 1.
-High values of metric Ca usually suggest high component stability. This is due to the fact that the class
-depends on many other classes. Therefore, it can’t be modified significantly because, in this case,
-the probability of spreading such changes increases.
-Preferred values for the metric Ca are in the range of 0 to 500.
+<p class="main">
+    In the picture above it can be seen that class A has only 1 incoming dependency (from class X),
+    that is why the value for metrics Ca equals 1.
+    High values of metric Ca usually suggest high component stability. This is due to the fact that the class
+    depends on many other classes. Therefore, it can’t be modified significantly because, in this case,
+    the probability of spreading such changes increases.
 </p>
-<br/>
-<p>
+<p class="main">
+    According to
+</p>
+<p class="sources">
+    Software Metrics: A Practical Guide for the Curious Developer. www.codacy.com/ebooks/guide-to-code-quality
+</p>
+<p class="values">
+        preferred values for the metric Ca are in the range of 0 to 500.
+</p>
+<p class="main">
     Included in the set of metrics proposed by Robert C. Martin,
-    See
-    <br />
-    <em>
-        Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
-    </em>
-    <br />
-    <em>
-        Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
-        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
-    </em>
+    see
 </p>
-<br/>
+<p class="sources">
+    Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
+</p>
+<p class="sources">
+    Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
+    Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+</p>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>

@@ -5,7 +5,6 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.jacoquev.model.code.JavaMethod;
 import org.jacoquev.model.metric.Metric;
-import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.util.MetricsService;
 import org.jacoquev.util.MetricsUtils;
 
@@ -13,8 +12,8 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setProject(this.getProject());
-        MetricsService.init(this.getProject());
+        MetricsUtils.setProject(getProject());
+        MetricsService.init( getProject());
         myFixture.configureByFiles("Object.java", "JavaCode.java", "JavaClass.java", "JavaMethod.java",
                 "JavaPackage.java", "JavaProject.java");
     }

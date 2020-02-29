@@ -1,49 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-
-    </style>
     <meta charset="UTF-8">
     <title>Weighted Method Count</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <h3>Weighted Method Count (Weighted Method per Class) (WMC)</h3>
-<p>A weighted sum of methods implemented within a class. It
+<p class="main">
+    A weighted sum of methods implemented within a class. It
     is parameterized by a way to compute the weight of each
-    method. Possible weight metrics are:</p>
+    method. Possible weight metrics are:
+</p>
 <ul>
     <li>McCabe Cyclomatic Complexity</li>
     <li>Lines of Code</li>
     <li>1 (unweighted WMC).</li>
 </ul>
-<p>
-    Included in the set of metrics proposed by Chidamber and Kemerer.
-    See <br />
-    <em>
+<p class="main">
+    Included in the set of metrics proposed by Chidamber and Kemerer,
+    see
+</p>
+<p class="sources">
         S.&nbsp;R. Chidamber and C.&nbsp;F. Kemerer.
         A Metrics Suite for Object Oriented Design.
         In IEEE Transactions on Software Engineering,
         volume 20 (6), pages 476-493, June 1994.
-    </em>
 </p>
-<p>Submitted realisation uses McCabe Cyclomatic Complexity to obtain Weighted Method Count value.</p>
-<br/>
-<p>
+<p class="main">Submitted realisation uses McCabe Cyclomatic Complexity to obtain Weighted Method Count value.</p>
+<p class="values">
     According to
-    <br />
-    <em>
+</p>
+<p class="sources">
         R. Shatnawi, W. Li, J. Swain, and T. Newman.
         Finding software metrics threshold values using ROC curves. J. Soft. Maint. Evol., 22(1):1–16, 2010.
-    </em>
-    <br/>
+</p>
+<p class="values">
     the threshold value of this metric is 24.
 </p>
-<br/>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>

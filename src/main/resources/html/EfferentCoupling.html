@@ -1,48 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>Efferent Coupling</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <h3>Efferent Coupling (Ce)</h3>
-<p>
+<p class="main">
     Efferent Coupling between packages (Ce) measures the total number of external classes coupled to classes
     of a package due to outgoing coupling (coupling to classes external classes of the package,
     uses Ce definition of coupling). Each class counts only once. Zero if the package does not
     contain any classes or if external classes are not used by the package's classes.
 </p>
-<p>
 <div align="center">
     <img src="img/Ce.jpg" alt="Efferent Coupling (Ce)"/>
 </div>
+<p class="main">
     In the picture above it can be seen that class A has outgoing dependencies to 3 other classes,
     that is why metric Ce for this class is 3.
     The high value of the metric Ce > 20 indicates instability of a package, change in any of the numerous
-    external classes can cause the need for changes to the package. Preferred values for the metric
-    Ce are in the range of 0 to 20, higher values cause problems with care and development of code.
+    external classes can cause the need for changes to the package.
 </p>
-<br/>
-<p>
+<p class="main">
+    According to
+</p>
+<p class="sources">
+    Software Metrics: A Practical Guide for the Curious Developer. www.codacy.com/ebooks/guide-to-code-quality
+</p>
+<p class="values">
+preferred values for the metric Ce are in the range of 0 to 20, higher values cause problems with care and development of code.
+</p>
+<p class="main">
     Included in the set of metrics proposed by Robert C. Martin,
-    See
-    <br />
-    <em>
-        Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
-    </em>
-    <br />
-    <em>
-        Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
-        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
-    </em>
+    see
 </p>
-<br/>
+<p class="sources">
+    Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
+</p>
+<p class="sources">
+    Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
+    Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+</p>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>

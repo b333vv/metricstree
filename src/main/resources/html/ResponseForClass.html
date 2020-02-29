@@ -1,45 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-
-    </style>
     <meta charset="UTF-8">
     <title>Response for a Class</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <h3>Response for a Class (RFC)</h3>
-<p>The Response for Class (RFC) metric is the total number of methods that can potentially be
+<p class="main">
+    The Response for Class (RFC) metric is the total number of methods that can potentially be
     executed in response to a message received by an object of a class.
     This number is the sum of the methods of the class, and all distinct methods are invoked directly within the class methods.
     Additionally, inherited methods are counted, but overridden methods are not,
     because only one method of a particular signature will always be available to an object of a given class.</p>
 <p>
-    Included in the set of metrics proposed by Chidamber and Kemerer.
-    See <br />
-    <em>
+    Included in the set of metrics proposed by Chidamber and Kemerer,
+    see
+</p>
+<p class="sources">
         S.&nbsp;R. Chidamber and C.&nbsp;F. Kemerer.
         A Metrics Suite for Object Oriented Design.
         In IEEE Transactions on Software Engineering,
         volume 20 (6), pages 476-493, June 1994.
-    </em>
 </p>
-<br/>
-<p>
+<p class="values">
     According to
-    <br />
-    <em>
+</p>
+<p class="sources">
         R. Shatnawi, W. Li, J. Swain, and T. Newman.
         Finding software metrics threshold values using ROC curves. J. Soft. Maint. Evol., 22(1):1–16, 2010.
-    </em>
-    <br/>
+</p>
+<p class="values">
     the threshold value of this metric is 44.
 </p>
-<br/>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dt><strong>Re-Usability</strong></dt>

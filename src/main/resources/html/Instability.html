@@ -1,31 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>Instability</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
-<body>
 <h3>Instability (I)</h3>
-<p>
+<p class="main">
     Instability between packages (I) measures the ratio between the outgoing and the total number of
     in- and outgoing couplings from classes inside the package from/to classes outside the package
     (coupling to classes external classes of the package, uses I definition of coupling).
     Each class counts only once. Zero if the package does not contain any classes or if external
     classes are not used by the package's classes.
 </p>
-<p>
 <div align="center">
     <img src="img/I.jpg" alt="Instability (I)"/>
 </div>
+<p class="main">
 In the picture above it can be seen that class A has 3 outgoing and 1 incoming dependencies,
 therefore according to the formula value of metric I will equal 0,75.
 On the basis of value of metric I we can distinguish two types of components:
+</p>
 <ul>
     <li>
         The ones having many outgoing dependencies and not many of incoming ones (value I is close to 1),
@@ -36,24 +31,27 @@ On the basis of value of metric I we can distinguish two types of components:
         therefore they are rather more difficult in modifying due to their greater responsibility.
     </li>
 </ul>
-Preferred values for the metric I should fall within the ranges of 0 to 0.3 or 0.7 to 1.
+<p class="main">
+    According to
+</p>
+<p class="sources">
+    Software Metrics: A Practical Guide for the Curious Developer. www.codacy.com/ebooks/guide-to-code-quality
+</p>
+<p class="values">
+preferred values for the metric I should fall within the ranges of 0 to 0.3 or 0.7 to 1.
 Packages should be very stable or unstable, therefore we should avoid packages of intermediate stability.
 </p>
-<br/>
-<p>
+<p class="main">
     Included in the set of metrics proposed by Robert C. Martin,
-    See
-    <br />
-    <em>
-        Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
-    </em>
-    <br />
-    <em>
-        Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
-        Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
-    </em>
+    see
 </p>
-<br/>
+<p class="sources">
+    Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
+</p>
+<p class="sources">
+    Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
+    Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+</p>
 <dl>
     <dt><strong>Highly Related Software Quality Properties</strong></dt>
     <dd>

@@ -1,56 +1,47 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:width="http://www.w3.org/1999/xhtml" xmlns:text-align="http://www.w3.org/1999/xhtml">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>Polymorphism Factor</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <h3>Polymorphism Factor (PF)</h3>
-<p>
+<p class="main">
     The Polymorphism Factor is defined as the quotient between the actual number of different possible polymorphic
     situations, and the maximum number of possible distinct polymorphic situations for given class.
 </p>
-<p>
+<p class="main">
     Included in the MOOD set of metrics proposed by Brito e Abreu F. and Carapuça R.
-    See
-    <br />
-    <em>
-        Brito e Abreu F. and Carapuça R.
-        Object-Oriented Software Engineering: Measuring and controlling the development process,
-        4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994
-    </em>
+    see
+</p>
+<p class="sources">
+    Brito e Abreu F. and Carapuça R.
+    Object-Oriented Software Engineering: Measuring and controlling the development process,
+    4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994
 </p>
 <h3>Software quality correlation</h3>
-<p>
-    Polymorphism means having the ability to take several forms. In OO systems, polymorphism allows the
-    implementation of a given operation to be dependent on the object that "contains" the operation.
-    The POF numerator represents the actual number of possible different polymorphic situations.
-    A given message sent to class Ci can be bound, statistically or dynamically, to a named method implementation
-    which may have as many shapes as the number of times this same method is overridden (in Ci descendants).
+<p class="main">
+    The PF metric represents the actual number of possible different polymorphic situations.
+    A given message sent to class can be bound, statistically or dynamically, to a named method implementation
+    which may have as many shapes as the number of times this same method is overridden (in class descendants).
     Polymorphism arises from inheritance. Binding (usually at run time) a common message call to one of several
     classes (in the same hierarchy) is supposed to reduce complexity and to allow refinement of the class hierarchy
     without side effects. On the other hand, to debug such a hierarchy, by tracing the control flow, this same
     polymorphism would make the job harder. Therefore, polymorphism ought to be bounded within a certain range.
 </p>
-<p>
+<p class="values">
     According to reported studies [1, 2, 3, 4] the minimum and maximum allowed values of this metric are 1.7% and 15.1% respectively.
-    <br/>
-    <br/>
-<em>
+<p class="sources">
     [1]  F. Abreu, M. Goulãoand, R. Esteves, Towardthe Design Quality Evaluation of Object-Oriented Software Systems, Proceedings of the 5th  International Conference on Software Quality,  Austin, Texas, USA, 1995.
-    <br/>
+</p>
+<p class="sources">
     [2]  F. Abreu and W. Melo, Evaluating the Impact of  Object-Oriented Design on Software Quality,  Proceeding of the 3rd International Software Metrics Symposium (METRICS’96), IEEE, Berlin, Germany, pp. 90-99, 1996.
-    <br/>
+</p>
+<p class="sources">
     [3]  F. Abreu, S. Estevesand M. Goulao, TheDesign of Eiffel Programs: Quantitative Evaluation Using the MOOD Metrics, Proceedings of TOOLS'96, Santa Barbara, CA, USA, 1996.
-    <br/>
+<p class="sources">
     [4]  R. Harrison, S. Counsell and R. Nithi, An evaluation of the MOOD set of object-oriented software metrics, IEEE Transaction on Software Engineering, 24(6), 1998, pp. 491-496.
-</em>
 </p>
 </body>
 </html>

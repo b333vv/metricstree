@@ -1,36 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: darkslategray;
-            font-family: Arial, Helvetica, sans-serif, lightgray;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>Coupling Factor</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <h3>Coupling Factor (CF)</h3>
-<p>
+<p class="main">
     Coupling Factor (CF) measures the coupling between classes excluding coupling due to inheritance.
     It is the ratio between the number of actually coupled pairs of classes in a scope (e.g., package)
     and the possible number of coupled pairs of classes.
 </p>
-<p>
+<p class="main">
     Included in the MOOD set of metrics proposed by Brito e Abreu F. and Carapuça R.
-    See
-    <br />
-    <em>
-        Brito e Abreu F. and Carapuça R.
-        Object-Oriented Software Engineering: Measuring and controlling the development process,
-        4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994
-    </em>
+    see
+</p>
+<p class="sources">
+    Brito e Abreu F. and Carapuça R.
+    Object-Oriented Software Engineering: Measuring and controlling the development process,
+    4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994
 </p>
 <h3>Software quality correlation</h3>
-<p>
+<p class="main">
 The client-supplier relation, represented by Cc ⇒ Cs , means that Cc (client class)
-contains at least one non- inheritance reference to a feature (method or attribute) of class Cs (supplier class).
+contains at least one non-inheritance reference to a feature (method or attribute) of class Cs (supplier class).
 The CF numerator represents the actual number of coupling not imputable to inheritance.
 It is desirable that classes communicate with as few other classes as possible, and that they exchange as
 little information as possible. Coupling relations increase complexity, reduce encapsulation and potential reuse,
@@ -38,19 +32,19 @@ and limit understandability and maintainability. Also, coupling in software syst
 software quality, and therefore should be kept to the minimum during the design phase. However, for a given application,
 classes must cooperate to deliver some kind of functionality. Therefore, CF is expected to be lower bounded.
 </p>
-<p>
+<p class="values">
     According to reported studies [1, 2, 3, 4] the minimum and maximum allowed values of this metric are 0% and 24.3% respectively.
-    <br/>
-    <br/>
-    <em>
-        [1]  F. Abreu, M. Goulãoand, R. Esteves, Towardthe Design Quality Evaluation of Object-Oriented Software Systems, Proceedings of the 5th  International Conference on Software Quality,  Austin, Texas, USA, 1995.
-        <br/>
-        [2]  F. Abreu and W. Melo, Evaluating the Impact of  Object-Oriented Design on Software Quality,  Proceeding of the 3rd International Software Metrics Symposium (METRICS’96), IEEE, Berlin, Germany, pp. 90-99, 1996.
-        <br/>
-        [3]  F. Abreu, S. Estevesand M. Goulao, TheDesign of Eiffel Programs: Quantitative Evaluation Using the MOOD Metrics, Proceedings of TOOLS'96, Santa Barbara, CA, USA, 1996.
-        <br/>
-        [4]  R. Harrison, S. Counsell and R. Nithi, An evaluation of the MOOD set of object-oriented software metrics, IEEE Transaction on Software Engineering, 24(6), 1998, pp. 491-496.
-    </em>
+</p>
+<p class="sources">
+    [1]  F. Abreu, M. Goulãoand, R. Esteves, Towardthe Design Quality Evaluation of Object-Oriented Software Systems, Proceedings of the 5th  International Conference on Software Quality,  Austin, Texas, USA, 1995.
+</p>
+<p class="sources">
+    [2]  F. Abreu and W. Melo, Evaluating the Impact of  Object-Oriented Design on Software Quality,  Proceeding of the 3rd International Software Metrics Symposium (METRICS’96), IEEE, Berlin, Germany, pp. 90-99, 1996.
+</p>
+<p class="sources">
+    [3]  F. Abreu, S. Estevesand M. Goulao, TheDesign of Eiffel Programs: Quantitative Evaluation Using the MOOD Metrics, Proceedings of TOOLS'96, Santa Barbara, CA, USA, 1996.
+<p class="sources">
+    [4]  R. Harrison, S. Counsell and R. Nithi, An evaluation of the MOOD set of object-oriented software metrics, IEEE Transaction on Software Engineering, 24(6), 1998, pp. 491-496.
 </p>
 </body>
 </html>
