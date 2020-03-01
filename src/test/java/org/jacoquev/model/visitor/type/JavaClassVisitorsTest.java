@@ -152,4 +152,43 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
+
+    public void testNumberOfMethodsVisitor() {
+        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        NumberOfMethodsVisitor numberOfMethodsVisitor = new NumberOfMethodsVisitor();
+        javaClass.accept(numberOfMethodsVisitor);
+
+        Metric metric = Metric.of("NOM", "Number Of Methods",
+                "/html/NumberOfMethods.html", 8);
+
+        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+    }
+
+    public void testDataAbstractingCouplingVisitor() {
+        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        DataAbstractingCouplingVisitor dataAbstractingCouplingVisitor = new DataAbstractingCouplingVisitor();
+        javaClass.accept(dataAbstractingCouplingVisitor);
+
+        Metric metric = Metric.of("DAC", "Data Abstracting Coupling",
+                "/html/DataAbstractingCoupling.html", 0);
+
+        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+    }
+
+    public void testMessagePassingCouplingVisitor() {
+        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        MessagePassingCouplingVisitor messagePassingCouplingVisitor = new MessagePassingCouplingVisitor();
+        javaClass.accept(messagePassingCouplingVisitor);
+
+        Metric metric = Metric.of("MPC", "Message Passing Coupling",
+                "/html/MessagePassingCoupling.html", 13);
+
+        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+    }
 }

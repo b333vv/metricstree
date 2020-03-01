@@ -47,6 +47,12 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
         //Li-Henry metrics set
         classTreeMetrics.add(new MetricsTreeSettingsStub("SIZE2", "Number Of Attributes And Methods",
                 "Class level", "Li-Henry metrics set", true));
+        classTreeMetrics.add(new MetricsTreeSettingsStub("NOM", "Number Of Methods",
+                "Class level", "Li-Henry metrics set", true));
+        classTreeMetrics.add(new MetricsTreeSettingsStub("MPC", "Message Passing Coupling",
+                "Class level", "Li-Henry metrics set", true));
+        classTreeMetrics.add(new MetricsTreeSettingsStub("DAC", "Data Abstracting Coupling",
+                "Class level", "Li-Henry metrics set", true));
 
         //Methods metrics set
         classTreeMetrics.add(new MetricsTreeSettingsStub("CND", "Condition Nesting Depth",

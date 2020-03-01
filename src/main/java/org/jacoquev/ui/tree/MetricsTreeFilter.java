@@ -13,6 +13,7 @@ public class MetricsTreeFilter {
     private boolean lorenzKiddMetricsSetVisible;
     private boolean robertMartinMetricsSetVisible;
     private boolean moodMetricsSetVisible;
+    private boolean liHenryMetricsSetVisible;
 
     public MetricsTreeFilter() {
         this.projectMetricsVisible = true;
@@ -27,6 +28,7 @@ public class MetricsTreeFilter {
         this.lorenzKiddMetricsSetVisible = true;
         this.robertMartinMetricsSetVisible = true;
         this.moodMetricsSetVisible = true;
+        this.liHenryMetricsSetVisible = true;
     }
 
     public boolean isProjectMetricsVisible() {
@@ -123,5 +125,13 @@ public class MetricsTreeFilter {
 
     public void setMoodMetricsSetVisible(boolean moodMetricsSetVisible) {
         this.moodMetricsSetVisible = moodMetricsSetVisible;
+    }
+
+    public boolean isLiHenryMetricsSetVisible() {
+        return liHenryMetricsSetVisible;
+    }
+
+    public void setLiHenryMetricsSetVisible(boolean liHenryMetricsSetVisible) {
+        this.liHenryMetricsSetVisible = liHenryMetricsSetVisible;
     }
 }

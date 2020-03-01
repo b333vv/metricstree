@@ -82,8 +82,16 @@ public final class MetricsAllowableValuesRangesSettings implements PersistentSta
         //Lorenz-Kidd metrics set
         unControlledMetrics.put("NOAM", new MetricsAllowableValuesRangeStub("NOAM", "Number Of Added Methods", "Class",
                 false, 0.00, 0.00, 0, 10));
+
+        //Li-Henry metrics set
         unControlledMetrics.put("SIZE2", new MetricsAllowableValuesRangeStub("SIZE2", "Number Of Attributes And Methods", "Class",
                 false, 0.00, 0.00, 0, 130));
+        unControlledMetrics.put("NOM", new MetricsAllowableValuesRangeStub("NOM", "Number Of Methods", "Class",
+                false, 0.00, 0.00, 0, 25));
+        unControlledMetrics.put("MPC", new MetricsAllowableValuesRangeStub("MPC", "Message Passing Coupling", "Class",
+                false, 0.00, 0.00, 0, 10));
+        unControlledMetrics.put("DAC", new MetricsAllowableValuesRangeStub("DAC", "Data Abstracting Coupling", "Class",
+                false, 0.00, 0.00, 0, 15));
 
         //Methods metrics set
         unControlledMetrics.put("CND", new MetricsAllowableValuesRangeStub("CND", "Condition Nesting Depth", "Method",

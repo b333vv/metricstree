@@ -109,6 +109,9 @@
         <action id="Metrics.ShowLorenzKiddMetrics"
                 class="org.jacoquev.actions.treefilters.classtree.ShowLorenzKiddMetrics">
         </action>
+        <action id="Metrics.ShowLiHenryMetrics"
+                class="org.jacoquev.actions.treefilters.classtree.ShowLiHenryMetrics">
+        </action>
 
         <action id="Metrics.ProjectTreeShowProjectMetrics"
                 class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
@@ -141,6 +144,9 @@
         <action id="Metrics.ProjectTreeShowLorenzKiddMetrics"
                 class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowLorenzKiddMetrics">
         </action>
+        <action id="Metrics.ProjectTreeShowLiHenryMetrics"
+                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowLiHenryMetrics">
+        </action>
         <action id="Metrics.ProjectTreeShowRobertMartinrMetrics"
                 class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowRobertMartinMetrics">
         </action>
@@ -159,6 +165,7 @@
             <separator/>
             <reference id="Metrics.ShowChidamberKemererMetrics"/>
             <reference id="Metrics.ShowLorenzKiddMetrics"/>
+            <reference id="Metrics.ShowLiHenryMetrics"/>
         </group>
 
         <group id="Metrics.FilterProjectMetricsTreeGroup">
@@ -174,6 +181,7 @@
             <separator/>
             <reference id="Metrics.ProjectTreeShowChidamberKemererMetrics"/>
             <reference id="Metrics.ProjectTreeShowLorenzKiddMetrics"/>
+            <reference id="Metrics.ProjectTreeShowLiHenryMetrics"/>
             <reference id="Metrics.ProjectTreeShowRobertMartinrMetrics"/>
             <reference id="Metrics.ProjectTreeShowMoodMetrics"/>
         </group>

@@ -29,6 +29,9 @@ public class MetricsService {
         visitors.put("RFC", new ResponseForClassVisitor());
         visitors.put("WMC", new WeightedMethodCountVisitor());
         visitors.put("SIZE2", new NumberOfAttributesAndMethodsVisitor());
+        visitors.put("NOM", new NumberOfMethodsVisitor());
+        visitors.put("MPC", new MessagePassingCouplingVisitor());
+        visitors.put("DAC", new DataAbstractingCouplingVisitor());
         visitors.put("LOC", new LinesOfCodeVisitor());
         visitors.put("CND", new ConditionNestingDepthVisitor());
         visitors.put("LND", new LoopNestingDepthVisitor());
