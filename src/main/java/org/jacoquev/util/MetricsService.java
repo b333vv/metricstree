@@ -31,7 +31,7 @@ public class MetricsService {
         visitors.put("SIZE2", new NumberOfAttributesAndMethodsVisitor());
         visitors.put("NOM", new NumberOfMethodsVisitor());
         visitors.put("MPC", new MessagePassingCouplingVisitor());
-        visitors.put("DAC", new DataAbstractingCouplingVisitor());
+        visitors.put("DAC", new DataAbstractionCouplingVisitor());
         visitors.put("LOC", new LinesOfCodeVisitor());
         visitors.put("CND", new ConditionNestingDepthVisitor());
         visitors.put("LND", new LoopNestingDepthVisitor());

@@ -58,7 +58,7 @@ public final class ProjectMetricsTreeSettings implements PersistentStateComponen
                 "Class level", "Li-Henry metrics set", true));
         projectTreeMetrics.add(new MetricsTreeSettingsStub("MPC", "Message Passing Coupling",
                 "Class level", "Li-Henry metrics set", true));
-        projectTreeMetrics.add(new MetricsTreeSettingsStub("DAC", "Data Abstracting Coupling",
+        projectTreeMetrics.add(new MetricsTreeSettingsStub("DAC", "Data Abstraction Coupling",
                 "Class level", "Li-Henry metrics set", true));
 
         //Methods metrics set

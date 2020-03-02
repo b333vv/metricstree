@@ -29,7 +29,7 @@ public class Sets {
     //    Li-Henry metrics set includes:
     //    SIZE2: Number of Attributes and Methods
     //    MPC (Message Passing Coupling) - MPC(C) is defined as the number of send statements defined in class C 
-    //    DAC (Data Abstracting Coupling) - DAC(C) is defined as the number of ADTs defined in a class C
+    //    DAC (Data Abstraction Coupling) - DAC(C) is defined as the number of ADTs defined in a class C
     //    NOM (Number of Methods) - NOM(C) is defined as the number of local methods in a class C
     private static final Set<String> liHenryMetricsSet = Set.of("SIZE2", "NOM", "DAC", "MPC");
     public static boolean inLiHenryMetricsSet(String metricName) {

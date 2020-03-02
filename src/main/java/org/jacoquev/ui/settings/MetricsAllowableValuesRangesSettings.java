@@ -90,7 +90,7 @@ public final class MetricsAllowableValuesRangesSettings implements PersistentSta
                 false, 0.00, 0.00, 0, 25));
         unControlledMetrics.put("MPC", new MetricsAllowableValuesRangeStub("MPC", "Message Passing Coupling", "Class",
                 false, 0.00, 0.00, 0, 10));
-        unControlledMetrics.put("DAC", new MetricsAllowableValuesRangeStub("DAC", "Data Abstracting Coupling", "Class",
+        unControlledMetrics.put("DAC", new MetricsAllowableValuesRangeStub("DAC", "Data Abstraction Coupling", "Class",
                 false, 0.00, 0.00, 0, 15));
 
         //Methods metrics set

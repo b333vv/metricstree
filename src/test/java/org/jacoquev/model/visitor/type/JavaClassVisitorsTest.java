@@ -4,7 +4,6 @@ import com.intellij.psi.PsiClass;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.jacoquev.model.code.JavaClass;
 import org.jacoquev.model.metric.Metric;
-import org.jacoquev.model.metric.value.Value;
 import org.jacoquev.util.MetricsService;
 import org.jacoquev.util.MetricsUtils;
 
@@ -166,15 +165,15 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
-    public void testDataAbstractingCouplingVisitor() {
+    public void testDataAbstractionCouplingVisitor() {
         PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
         JavaClass javaClass = new JavaClass(psiClass);
 
-        DataAbstractingCouplingVisitor dataAbstractingCouplingVisitor = new DataAbstractingCouplingVisitor();
-        javaClass.accept(dataAbstractingCouplingVisitor);
+        DataAbstractionCouplingVisitor dataAbstractionCouplingVisitor = new DataAbstractionCouplingVisitor();
+        javaClass.accept(dataAbstractionCouplingVisitor);
 
-        Metric metric = Metric.of("DAC", "Data Abstracting Coupling",
-                "/html/DataAbstractingCoupling.html", 0);
+        Metric metric = Metric.of("DAC", "Data Abstraction Coupling",
+                "/html/DataAbstractionCoupling.html", 0);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }

@@ -9,7 +9,7 @@ import org.jacoquev.model.metric.Metric;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DataAbstractingCouplingVisitor extends JavaClassVisitor {
+public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         final Set<PsiClass> classes = new HashSet<PsiClass>();
@@ -25,8 +25,8 @@ public class DataAbstractingCouplingVisitor extends JavaClassVisitor {
             }
             classes.add(classInType);
         }
-        metric = Metric.of("DAC", "Data Abstracting Coupling",
-                "/html/DataAbstractingCoupling.html", classes.size());
+        metric = Metric.of("DAC", "Data Abstraction Coupling",
+                "/html/DataAbstractionCoupling.html", classes.size());
         super.visitClass(psiClass);
     }
 }

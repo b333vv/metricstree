@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Message Passing Coupling</title>
+    <title>Data Abstraction Coupling</title>
     <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
-<h3>Message Passing Coupling (MPC)</h3>
+<h3>Data Abstraction Coupling (DAC)</h3>
 <p class="main">
-    Message Passing Coupling MPC(C) is defined as the number of send statements defined in class C.
-    The MPC measures the number of method calls defined in methods of a class to methods in other classes,
-    and therefore the dependency of local methods to methods implemented by other classes.
-    It allows for conclusions on the message passing (method calls) between objects of the involved classes.
-    This allows for conclusions on re-useability, maintenance and testing effort.
+    Data Abstraction Coupling DAC(C) is defined as the number of attributes in a class C that have another
+    class as their type.
+    The DAC measures the coupling complexity caused by Abstract Data Types (ADTs).
+    This metric is concerned with the coupling between classes representing a major aspect of the object
+    oriented design, since the reuse degree, the maintenance and testing effort for a class are decisively
+    influenced by the coupling level between classes.
 </p>
 <p class="main">
     Included in the set of metrics proposed by Li and Henry,
@@ -34,10 +35,10 @@
                 <dd>
                     A part of a system that has a high (outgoing)
                     efferent coupling may be highly inversely related
-                    to understandability, since it uses other parts
-                    of the system which need to be understood as
-                    well.
-                    <p>Understandability decreases with increasing MPC.</p>
+                    to understandability, since it is uses other
+                    parts of the system which need to be understood
+                    as well.
+                    <p>Understandability decreases with increasing DAC.</p>
                 </dd>
                 <dt><strong>Attractiveness:</strong></dt>
                 <dd>
@@ -46,13 +47,13 @@
                     attractiveness, since they are using other parts
                     of the system which need to be understood as
                     well, and represent dependencies.
-                    <p>Attractiveness decreases with increasing MPC.</p>
+                    <p>Attractiveness decreases with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
         <dt><strong>Maintainability</strong></dt>
         <dd>
-            decreases with increasing MPC.
+            decreases with increasing DAC.
             <dl>
                 <dt><strong>Analyzability:</strong></dt>
                 <dd>
@@ -60,7 +61,7 @@
                     coupling may be highly inversely related to
                     analyzability, since they are using other parts
                     of the system which need to be analyzed as well.
-                    <p>Analyzability decreases with increasing MPC.</p>
+                    <p>Analyzability decreases with increasing DAC.</p>
                 </dd>
                 <dt><strong>Changeability:</strong></dt>
                 <dd>
@@ -69,7 +70,7 @@
                     changeability, since they are using other parts
                     of the system which might need to be changed as
                     well.
-                    <p>Changeability decreases with increasing MPC.</p>
+                    <p>Changeability decreases with increasing DAC.</p>
                 </dd>
                 <dt><strong>Stability:</strong></dt>
                 <dd>
@@ -77,7 +78,7 @@
                     may be inversely related to stability, since they
                     are using other parts of the system, which are
                     can affect them.
-                    <p>Stability decreases with increasing MPC.</p>
+                    <p>Stability decreases with increasing DAC.</p>
                 </dd>
                 <dt><strong>Testability:</strong></dt>
                 <dd>
@@ -86,13 +87,13 @@
                     testability, since they are using other parts of
                     the system which increase the number of possible
                     test paths.
-                    <p>Testability decreases with increasing MPC.</p>
+                    <p>Testability decreases with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
         <dt><strong>Portability</strong></dt>
         <dd>
-            decreases with increasing MPC.
+            decreases with increasing DAC.
             <dl>
                 <dt><strong>Adaptability:</strong></dt>
                 <dd>
@@ -101,7 +102,7 @@
                     adaptability, since they are using other parts of
                     the system which might need to be adapted as
                     well.
-                    <p>Adaptability decreases with increasing MPC.</p>
+                    <p>Adaptability decreases with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
@@ -112,8 +113,7 @@
     <dl>
         <dt><strong>Functionality</strong></dt>
         <dd>
-            is both negatively and positively influenced by
-            coupling.
+            is both negatively and positively influenced by coupling.
             <dl>
                 <dt><strong>Interoperability:</strong></dt>
                 <dd>
@@ -121,21 +121,22 @@
                     coupling may be directly related to
                     interoperability, since they are
                     using/interacting with other parts of the system.
-                    <p>Interoperability might increase with increasing MPC.</p>
+                    <p>Interoperability might increase with increasing DAC.</p>
                 </dd>
+
                 <dt><strong>Security:</strong></dt>
                 <dd>
                     Parts that have a high (outgoing) efferent
                     coupling may be inversely related to security,
                     since they can be affected by security problems
                     in other parts of the system.
-                    <p>Security might decrease with increasing MPC.</p>
+                    <p>Security might decrease with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
         <dt><strong>Reliability</strong></dt>
         <dd>
-            might decrease with increasing MPC.
+            might decrease with increasing DAC.
             <dl>
                 <dt><strong>Fault-tolerance:</strong></dt>
                 <dd>
@@ -143,7 +144,7 @@
                     coupling may be inversely related to
                     fault-tolerance, since they can be affected by
                     faults in other parts of the system.
-                    <p>Fault-Tolerance might decrease with increasing MPC.</p>
+                    <p>Fault-Tolerance might decrease with increasing DAC.</p>
                 </dd>
                 <dt><strong>Recoverability:</strong></dt>
                 <dd>
@@ -152,13 +153,13 @@
                     recoverability, since their data is distributed
                     in other parts of the system making their
                     recovery difficult.
-                    <p>Recoverability might decrease with increasing MPC.</p>
+                    <p>Recoverability might decrease with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
         <dt><strong>Re-Usability</strong></dt>
         <dd>
-            might decrease with increasing MPC.
+            might decrease with increasing DAC.
             <dl>
                 <dt><strong>Learnability for Reuse:</strong></dt>
                 <dd>
@@ -166,7 +167,7 @@
                     coupling may be inversely related to
                     learnability, since they are using other parts of
                     the system which need to be understood as well.
-                    <p>Learnability might decrease with increasing MPC.</p>
+                    <p>Learnability might decrease with increasing DAC.</p>
                 </dd>
                 <dt><strong>Operability for Reuse - Programmability:</strong></dt>
                 <dd>
@@ -174,13 +175,13 @@
                     coupling may be inversely related to
                     learnability, since they are using other parts of
                     the system, which represent dependencies.
-                    <p>Programmability might decrease with increasing MPC.</p>
+                    <p>Programmability might decrease with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
         <dt><strong>Efficiency</strong></dt>
         <dd>
-            might decrease with increasing MPC.
+            might decrease with increasing DAC.
             <dl>
                 <dt><strong>Time Behavior:</strong></dt>
                 <dd>
@@ -190,7 +191,7 @@
                     system, thus execution during test or operation
                     does not stay local, but might involve huge parts
                     of the system.
-                    <p>Time behavior might get worse with increasing MPC.</p>
+                    <p>Time behavior might get worse with increasing DAC.</p>
                 </dd>
                 <dt><strong>Resource Utilization:</strong></dt>
                 <dd>
@@ -200,7 +201,7 @@
                     the system, thus execution during test or
                     operation does not stay local, but might involve
                     huge parts of the system.
-                    <p>Resource utilization might get worse with increasing MPC.</p>
+                    <p>Resource utilization might get worse with increasing DAC.</p>
                 </dd>
             </dl>
         </dd>
