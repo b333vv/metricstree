@@ -75,7 +75,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
         mainPanel.add(ScrollPaneFactory.createScrollPane(metricsTree), BorderLayout.CENTER);
         mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
 
-        createTabs();
+        createRightPanels();
 
         super.setContent(createSplitter(mainPanel, rightPanel, SPLIT_PROPORTION_PROPERTY, false, 0.65f));
 
@@ -84,7 +84,7 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
         subscribeToEvents();
     }
 
-    private void createTabs() {
+    private void createRightPanels() {
         metricsDescriptionPanel = new MetricsDescriptionPanel();
         JScrollPane scrollableMetricPanel = ScrollPaneFactory.createScrollPane(
                 metricsDescriptionPanel.getPanel(),
@@ -113,7 +113,8 @@ public class ClassMetricsPanel extends SimpleToolWindowPanel {
         splitter.setProportion(savedProportion);
         splitter.setHonorComponentsMinimumSize(true);
         splitter.addPropertyChangeListener(Splitter.PROP_PROPORTION,
-                evt -> PropertiesComponent.getInstance(project).setValue(proportionProperty, Float.toString(splitter.getProportion())));
+                evt -> PropertiesComponent.getInstance(project).setValue(proportionProperty,
+                        Float.toString(splitter.getProportion())));
 
         return splitter;
     }

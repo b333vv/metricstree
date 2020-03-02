@@ -5,12 +5,15 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 import org.jacoquev.model.metric.Metric;
 import org.jacoquev.model.metric.Sets;
 import org.jacoquev.model.metric.value.Range;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.net.URL;
 
@@ -30,14 +33,23 @@ public class MetricsDescriptionPanel {
         allowableRangeValue = new JLabel();
         JLabel currentValueLabel = new JLabel("Calculated Metrics Value:");
         currentValue = new JLabel();
+        metricLevel = new JLabel();
+        metricSet = new JLabel();
+        JLabel metricLevelLabel = new JLabel("Metrics Level:");
+        JLabel metricSetLabel = new JLabel("Metrics Set:");
+
         metricDescription = new JEditorPane();
         metricDescription.setContentType("text/html");
         metricDescription.setEditable(false);
-        metricLevel = new JLabel();
-        metricSet = new JLabel();
 
-        JLabel metricLevelLabel = new JLabel("Metrics Level:");
-        JLabel metricSetLabel = new JLabel("Metrics Set:");
+        if (UIUtil.isUnderDarcula()) {
+            HTMLEditorKit kit = new HTMLEditorKit();
+            StyleSheet styleSheet = new StyleSheet();
+            styleSheet.addRule("body { background-color: #303030 }");
+            styleSheet.addRule("body { color: #D3D3D3; }");
+            kit.getStyleSheet().addStyleSheet(styleSheet);
+            metricDescription.setEditorKit(kit);
+        }
 
         JScrollPane scrollableMetricDescriptionPanel = ScrollPaneFactory.createScrollPane(
                 metricDescription,

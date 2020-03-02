@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.ui.content.Content;
 import org.jacoquev.ui.log.MetricsLogPanel;
 import org.jacoquev.util.MetricsService;
+import org.jetbrains.annotations.NotNull;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_CLASS_METRICS_TREE = "Class Metrics Tree";
@@ -46,7 +47,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     }
 
     @Override
-    public void createToolWindowContent(Project project, final ToolWindow toolWindow) {
+    public void createToolWindowContent(@NotNull Project project, @NotNull final ToolWindow toolWindow) {
         MetricsService.init(project);
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
