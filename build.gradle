@@ -17,8 +17,8 @@ intellij {
 //    plugins ['java']
 }
 
-group = 'org.jacoquev'
-description = 'jacoquev (JAva COde QUality EValuation) idea plugin'
+group = 'org.b333vv.metric'
+description = 'metrics tree idea plugin'
 
 repositories {
     mavenCentral()
