@@ -65,10 +65,10 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
                 "Method level", "", true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOL", "Number Of Loops",
                 "Method level", "", true));
-        classTreeMetrics.add(new MetricsTreeSettingsStub("FANIN", "Fan-In",
-                "Method level", "", true));
-        classTreeMetrics.add(new MetricsTreeSettingsStub("FANOUT", "Fan-Out",
-                "Method level", "", true));
+//        classTreeMetrics.add(new MetricsTreeSettingsStub("FANIN", "Fan-In",
+//                "Method level", "", true));
+//        classTreeMetrics.add(new MetricsTreeSettingsStub("FANOUT", "Fan-Out",
+//                "Method level", "", true));
     }
 
     public List<MetricsTreeSettingsStub> getClassTreeMetrics() {

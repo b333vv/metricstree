@@ -2,8 +2,10 @@ package org.jacoquev.util;
 
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
@@ -34,11 +36,25 @@ public class CurrentFileController {
     private void update() {
         MetricsUtils.setProject(project);
         VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
-        if (selectedFile != null && selectedFile.getFileType().getName().equals("JAVA")) {
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
-            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            panel.update(psiJavaFile);
+        if (selectedFile == null) {
+            return;
         }
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
+        if (psiFile == null) {
+            return;
+        }
+        if (psiFile instanceof PsiCompiledElement) {
+            return;
+        }
+        final FileType fileType = psiFile.getFileType();
+        if (fileType.isBinary()) {
+            return;
+        }
+        if (!fileType.getName().equals("JAVA")) {
+            return;
+        }
+        PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+        panel.update(psiJavaFile);
     }
 
     private class EditorChangeListener implements FileEditorManagerListener {
