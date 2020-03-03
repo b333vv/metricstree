@@ -4,7 +4,7 @@
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
     <description>
-        jacoquev (JAva COde QUality EValuation) idea plugin
+        MetricsTree IDEA plugin
     </description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -15,62 +15,62 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <toolWindow id="MetricsTree" anchor="bottom" icon="/images/metricsTree.svg"
-                    factoryClass="org.jacoquev.ui.toolWindow.MetricsToolWindowFactory"/>
+                    factoryClass="org.b333vv.metricsTree.ui.toolWindow.MetricsToolWindowFactory"/>
     </extensions>
 
     <project-components>
         <component>
-            <implementation-class>org.jacoquev.ui.settings.MetricsAllowableValuesRangesSettings</implementation-class>
+            <implementation-class>org.b333vv.metricsTree.ui.settings.MetricsAllowableValuesRangesSettings</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jacoquev.ui.settings.ClassMetricsTreeSettings</implementation-class>
+            <implementation-class>org.b333vv.metricsTree.ui.settings.ClassMetricsTreeSettings</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jacoquev.ui.settings.ProjectMetricsTreeSettings</implementation-class>
+            <implementation-class>org.b333vv.metricsTree.ui.settings.ProjectMetricsTreeSettings</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jacoquev.ui.log.MetricsConsole</implementation-class>
+            <implementation-class>org.b333vv.metricsTree.ui.log.MetricsConsole</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jacoquev.ui.toolWindow.ProjectMetricsPanel</implementation-class>
+            <implementation-class>org.b333vv.metricsTree.ui.toolWindow.ProjectMetricsPanel</implementation-class>
         </component>
     </project-components>
 
     <actions>
         <action id="Metrics.FilterClassMetricsTree"
-                class="org.jacoquev.actions.FilterClassMetricsTreeAction"
+                class="org.b333vv.metricsTree.actions.FilterClassMetricsTreeAction"
                 text="Filter Metrics Tree"
                 description="Filter metrics tree"
                 icon="AllIcons.General.Filter">
         </action>
         <action id="Metrics.FilterProjectMetricsTree"
-                class="org.jacoquev.actions.FilterProjectMetricsTreeAction"
+                class="org.b333vv.metricsTree.actions.FilterProjectMetricsTreeAction"
                 text="Filter Metrics Tree"
                 description="Filter metrics tree"
                 icon="AllIcons.General.Filter">
         </action>
         <action id="Metrics.RefreshMetricsTree"
-                class="org.jacoquev.actions.RefreshMetricsTreeAction"
+                class="org.b333vv.metricsTree.actions.RefreshMetricsTreeAction"
                 text="Refresh Metrics Tree"
                 description="Refresh metrics tree"
                 icon="AllIcons.Actions.Refresh">
         </action>
         <action id="Metrics.Configure"
-                class="org.jacoquev.actions.ConfigureProjectAction"
+                class="org.b333vv.metricsTree.actions.ConfigureProjectAction"
                 text="Configure"
                 description="Configure"
                 icon="AllIcons.General.Settings">
         </action>
 
         <action id="Metrics.CalculateProjectMetrics"
-                class="org.jacoquev.actions.CalculateProjectMetricsAction"
+                class="org.b333vv.metricsTree.actions.CalculateProjectMetricsAction"
                 text="Calculate Project Metrics"
                 description="Calculate project metrics"
                 icon="AllIcons.Actions.Execute">
         </action>
 
         <action id="Metrics.Autoscroll"
-                class="org.jacoquev.actions.SetAutoScrollableAction"
+                class="org.b333vv.metricsTree.actions.SetAutoScrollableAction"
                 text="Autoscroll To Source In Editor"
                 description="Autoscroll to source In editor"
                 icon="AllIcons.General.AutoscrollToSource">
@@ -78,79 +78,79 @@
 
 
         <action id="Metrics.ShowProjectMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
         </action>
         <action id="Metrics.ShowPackageMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowPackageMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowPackageMetrics">
         </action>
         <action id="Metrics.ShowClassMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowClassMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowClassMetrics">
         </action>
         <action id="Metrics.ShowMethodMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowMethodMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowMethodMetrics">
         </action>
 
         <action id="Metrics.ShowAllowedValueMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowAllowedValueMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowAllowedValueMetrics">
         </action>
         <action id="Metrics.ShowDisallowedValueMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowDisallowedValueMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowDisallowedValueMetrics">
         </action>
         <action id="Metrics.ShowNotSetValueMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowNotSetValueMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowNotSetValueMetrics">
         </action>
         <action id="Metrics.ShowNotApplicableMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowNotApplicableMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowNotApplicableMetrics">
         </action>
         <action id="Metrics.ShowChidamberKemererMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowChidamberKemererMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowChidamberKemererMetrics">
         </action>
         <action id="Metrics.ShowLorenzKiddMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowLorenzKiddMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowLorenzKiddMetrics">
         </action>
         <action id="Metrics.ShowLiHenryMetrics"
-                class="org.jacoquev.actions.treefilters.classtree.ShowLiHenryMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.classtree.ShowLiHenryMetrics">
         </action>
 
         <action id="Metrics.ProjectTreeShowProjectMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowPackageMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowPackageMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowPackageMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowClassMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowClassMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowClassMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowMethodMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowMethodMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowMethodMetrics">
         </action>
 
         <action id="Metrics.ProjectTreeShowAllowedValueMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowAllowedValueMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowAllowedValueMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowDisallowedValueMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowDisallowedValueMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowDisallowedValueMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowNotSetValueMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowNotSetValueMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowNotSetValueMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowNotApplicableMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowNotApplicableMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowNotApplicableMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowChidamberKemererMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowChidamberKemererMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowChidamberKemererMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowLorenzKiddMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowLorenzKiddMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowLorenzKiddMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowLiHenryMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowLiHenryMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowLiHenryMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowRobertMartinrMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowRobertMartinMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowRobertMartinMetrics">
         </action>
         <action id="Metrics.ProjectTreeShowMoodMetrics"
-                class="org.jacoquev.actions.treefilters.projecttree.ProjectTreeShowMoodMetrics">
+                class="org.b333vv.metricsTree.actions.treefilters.projecttree.ProjectTreeShowMoodMetrics">
         </action>
 
         <group id="Metrics.FilterClassMetricsTreeGroup">
@@ -202,7 +202,7 @@
         </group>
 
         <action id="Metrics.LogConsoleClean"
-                class="org.jacoquev.actions.CleanConsoleAction"
+                class="org.b333vv.metricsTree.actions.CleanConsoleAction"
                 text="Clear All"
                 description="Clear the contents of Log"
                 icon="AllIcons.Actions.GC">
