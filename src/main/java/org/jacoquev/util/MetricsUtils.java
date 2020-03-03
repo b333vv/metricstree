@@ -21,14 +21,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.concurrency.AppExecutorUtil;
-import org.jacoquev.model.visitor.type.JavaClassVisitor;
-import org.jacoquev.ui.ClassMetricsPanel;
+import org.jacoquev.ui.toolWindow.ClassMetricsPanel;
 import org.jacoquev.ui.tree.MetricsTreeFilter;
-import org.jacoquev.ui.ProjectMetricsPanel;
+import org.jacoquev.ui.toolWindow.ProjectMetricsPanel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -38,10 +36,9 @@ public class MetricsUtils {
     private static Project project;
     private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
-//    private static Set<JavaClassVisitor> classVisitors;
     private static ClassMetricsPanel classMetricsPanel;
     private static ProjectMetricsPanel projectMetricsPanel;
-    private static boolean autoscroll = true;
+    private static boolean autoScrollable = true;
 
     private MetricsUtils() {
         // Utility class
@@ -157,15 +154,15 @@ public class MetricsUtils {
     }
 
     public static void calculateProjectMetrics() {
-        projectMetricsPanel.calculate();
+        projectMetricsPanel.calculateMetrics();
     }
 
-    public static boolean isAutoscroll() {
-        return autoscroll;
+    public static boolean isAutoScrollable() {
+        return autoScrollable;
     }
 
-    public static void setAutoscroll(boolean autoscroll) {
-        MetricsUtils.autoscroll = autoscroll;
+    public static void setAutoScrollable(boolean autoScrollable) {
+        MetricsUtils.autoScrollable = autoScrollable;
     }
 
     @Nullable

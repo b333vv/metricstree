@@ -69,7 +69,7 @@ public class ProjectMetricsRunner {
         @Override
         public void run() {
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
+            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
             MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
         }
     };

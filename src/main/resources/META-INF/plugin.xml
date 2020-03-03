@@ -15,7 +15,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <toolWindow id="MetricsTree" anchor="bottom" icon="/images/jacoquev.svg"
-                    factoryClass="org.jacoquev.ui.MetricsToolWindowFactory"/>
+                    factoryClass="org.jacoquev.ui.toolWindow.MetricsToolWindowFactory"/>
 
     </extensions>
 
@@ -33,7 +33,7 @@
             <implementation-class>org.jacoquev.ui.log.MetricsConsole</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jacoquev.ui.ProjectMetricsPanel</implementation-class>
+            <implementation-class>org.jacoquev.ui.toolWindow.ProjectMetricsPanel</implementation-class>
         </component>
     </project-components>
 
@@ -71,7 +71,7 @@
         </action>
 
         <action id="Metrics.Autoscroll"
-                class="org.jacoquev.actions.SetAutoscrollAction"
+                class="org.jacoquev.actions.SetAutoScrollableAction"
                 text="Autoscroll To Source In Editor"
                 description="Autoscroll to source In editor"
                 icon="AllIcons.General.AutoscrollToSource">

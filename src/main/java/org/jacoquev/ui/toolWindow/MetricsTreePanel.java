@@ -1,63 +1,61 @@
 
-package org.jacoquev.ui;
+package org.jacoquev.ui.toolWindow;
 
-import com.intellij.analysis.AnalysisScope;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
-import org.jacoquev.model.code.*;
+import org.jacoquev.model.code.JavaClass;
+import org.jacoquev.model.code.JavaMethod;
+import org.jacoquev.model.code.JavaPackage;
+import org.jacoquev.model.code.JavaProject;
 import org.jacoquev.model.metric.Metric;
-import org.jacoquev.exec.ProjectMetricsRunner;
 import org.jacoquev.ui.info.BottomPanel;
-import org.jacoquev.ui.info.MetricsDescriptionPanel;
 import org.jacoquev.ui.info.ClassOrMethodMetricsTable;
+import org.jacoquev.ui.info.MetricsDescriptionPanel;
 import org.jacoquev.ui.log.MetricsConsole;
 import org.jacoquev.ui.tree.MetricsTree;
-import org.jacoquev.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.jacoquev.ui.tree.builder.MetricTreeBuilder;
 import org.jacoquev.ui.tree.node.*;
-import org.jacoquev.util.EditorOpener;
+import org.jacoquev.util.CurrentFileController;
 import org.jacoquev.util.MetricsUtils;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 
-public class ProjectMetricsPanel extends SimpleToolWindowPanel {
-    private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
-    private static final Logger LOG = Logger.getInstance(ProjectMetricsPanel.class);
-    private final Project project;
-    private final MetricsTree metricsTree;
-    private BottomPanel bottomPanel;
-    private MetricsDescriptionPanel metricsDescriptionPanel;
-    private JBPanel rightPanel;
-    private ClassOrMethodMetricsTable classOrMethodMetricsTable;
-    private ProjectMetricTreeBuilder projectMetricTreeBuilder;
-    private MetricsConsole console;
-    private JScrollPane scrollableTablePanel;
-    private JavaProject javaProject;
+public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
+    protected static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
+    protected static final Logger LOG = Logger.getInstance(MetricsTreePanel.class);
+    protected CurrentFileController scope;
+    protected Project project;
+    protected MetricsTree metricsTree;
+    protected BottomPanel bottomPanel;
+    protected MetricsDescriptionPanel metricsDescriptionPanel;
+    protected JBPanel<?> rightPanel;
+    protected ClassOrMethodMetricsTable classOrMethodMetricsTable;
+    protected MetricTreeBuilder metricTreeBuilder;
+    protected MetricsConsole console;
+    protected JScrollPane scrollableTablePanel;
+    protected PsiJavaFile psiJavaFile;
+    protected JavaProject javaProject;
 
-    public ProjectMetricsPanel(Project project) {
+    public MetricsTreePanel(Project project, String actionId) {
         super(false, true);
 
         this.project = project;
-
-        final ActionManager actionManager = ActionManager.getInstance();
-        ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
-                (DefaultActionGroup) actionManager.getAction("Metrics.ProjectMetricsToolbar"), false);
-        actionToolbar.setOrientation(SwingConstants.VERTICAL);
-        setToolbar(actionToolbar.getComponent());
 
         metricsTree = new MetricsTree(null);
         metricsTree.addTreeSelectionListener(e -> treeSelectionChanged());
@@ -66,18 +64,22 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         mainPanel.add(ScrollPaneFactory.createScrollPane(metricsTree), BorderLayout.CENTER);
         mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
 
-        createTabs();
+        createRightPanels();
 
-        super.setContent(createSplitter(mainPanel, rightPanel, SPLIT_PROPORTION_PROPERTY, false, 0.65f));
+        super.setContent(createSplitter(mainPanel, rightPanel));
 
         console = MetricsUtils.get(project, MetricsConsole.class);
 
-        subscribeToEvents();
+        this.scope = new CurrentFileController(project);
 
-        MetricsUtils.setProjectMetricsPanel(this);
+        ActionManager actionManager = ActionManager.getInstance();
+        ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
+                (DefaultActionGroup) actionManager.getAction(actionId), false);
+        actionToolbar.setOrientation(SwingConstants.VERTICAL);
+        setToolbar(actionToolbar.getComponent());
     }
 
-    private void createTabs() {
+    protected void createRightPanels() {
         metricsDescriptionPanel = new MetricsDescriptionPanel();
         JScrollPane scrollableMetricPanel = ScrollPaneFactory.createScrollPane(
                 metricsDescriptionPanel.getPanel(),
@@ -93,53 +95,37 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
         scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
 
-        rightPanel = new JBPanel(new BorderLayout());
+        rightPanel = new JBPanel<>(new BorderLayout());
         rightPanel.add(scrollableTablePanel);
     }
 
-    protected JComponent createSplitter(JComponent c1, JComponent c2, String proportionProperty, boolean vertical, float defaultSplit) {
-        float savedProportion = PropertiesComponent.getInstance(project).getFloat(proportionProperty, defaultSplit);
+    protected JComponent createSplitter(JComponent c1, JComponent c2) {
+        float savedProportion = PropertiesComponent.getInstance(project)
+                .getFloat(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY, (float) 0.65);
 
-        final Splitter splitter = new Splitter(vertical);
+        final Splitter splitter = new Splitter(false);
         splitter.setFirstComponent(c1);
         splitter.setSecondComponent(c2);
         splitter.setProportion(savedProportion);
         splitter.setHonorComponentsMinimumSize(true);
         splitter.addPropertyChangeListener(Splitter.PROP_PROPORTION,
-                evt -> PropertiesComponent.getInstance(project).setValue(proportionProperty, Float.toString(splitter.getProportion())));
+                evt -> PropertiesComponent.getInstance(project).setValue(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY,
+                        Float.toString(splitter.getProportion())));
 
         return splitter;
     }
 
-    private void subscribeToEvents() {
-    }
-
     @Nullable
     @Override
-    public Object getData(@NonNls String dataId) {
+    public Object getData(@NotNull String dataId) {
         if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
             return MetricsUtils.getSelectedFile(project);
         }
         return null;
     }
 
-    public void calculate() {
-        javaProject = new JavaProject(project.getName());
-        console.info("Evaluating metrics values for project: " + project.getName());
-        AnalysisScope analysisScope = new AnalysisScope(project);
-        analysisScope.setIncludeTestSource(false);
-        ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
-        projectMetricsRunner.execute();
-        projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-    }
-
-    public void buildTreeModel() {
-        DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createProjectMetricTreeModel();
-        showResults(metricsTreeModel);
-    }
-
     public void treeSelectionChanged() {
-        AbstractNode node = metricsTree.getSelectedNode();
+        AbstractNode<?> node = metricsTree.getSelectedNode();
         if (node instanceof MetricNode) {
             Metric metric = ((MetricNode) node).getMetric();
             bottomPanel.setData(metric);
@@ -186,20 +172,11 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         rightPanel.repaint();
     }
 
-    private void openInEditor(PsiElement psiElement) {
-        if (MetricsUtils.isAutoscroll()) {
-            final EditorOpener caretMover = new EditorOpener(project);
-            if (psiElement != null) {
-                Editor editor = caretMover.openInEditor(psiElement);
-                if (editor != null) {
-                    caretMover.moveEditorCaret(psiElement);
-                }
-            }
-        }
-    }
+    protected abstract void openInEditor(PsiElement psiElement);
 
-    public MetricsConsole getConsole() {
-        return console;
+    public void buildTreeModel() {
+        DefaultTreeModel metricsTreeModel = metricTreeBuilder.createMetricTreeModel();
+        showResults(metricsTreeModel);
     }
 
     public void showResults(DefaultTreeModel metricsTreeModel) {
@@ -207,7 +184,11 @@ public class ProjectMetricsPanel extends SimpleToolWindowPanel {
         if (metricsTreeModel == null) {
             classOrMethodMetricsTable.clear();
         } else {
-            classOrMethodMetricsTable.init(javaProject);
+            metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
         }
+    }
+
+    public MetricsConsole getConsole() {
+        return console;
     }
 }

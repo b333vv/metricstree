@@ -16,7 +16,7 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
         super(javaProject);
     }
 
-    public DefaultTreeModel createClassMetricTreeModel() {
+    public DefaultTreeModel createMetricTreeModel() {
         if (getMetricsTreeFilter().isClassMetricsVisible()
             || getMetricsTreeFilter().isMethodMetricsVisible()) {
             JavaPackage javaPackage = javaProject.getPackages().findFirst().get();

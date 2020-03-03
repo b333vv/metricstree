@@ -27,6 +27,8 @@ public abstract class MetricTreeBuilder {
         return javaProject;
     }
 
+    public abstract DefaultTreeModel createMetricTreeModel();
+
     protected void addSubClasses(ClassNode parentClassNode) {
         List<JavaClass> sortedClasses = parentClassNode.getJavaClass().getClasses()
                 .sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList());

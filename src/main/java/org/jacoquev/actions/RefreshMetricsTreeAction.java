@@ -2,6 +2,7 @@ package org.jacoquev.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jacoquev.util.MetricsUtils;
+import org.jetbrains.annotations.NotNull;
 
 public class RefreshMetricsTreeAction extends AbstractAction {
 
@@ -11,7 +12,7 @@ public class RefreshMetricsTreeAction extends AbstractAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         MetricsUtils.refreshMetricsTree();
     }
 }

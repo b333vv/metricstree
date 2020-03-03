@@ -1,4 +1,4 @@
-package org.jacoquev.ui;
+package org.jacoquev.ui.toolWindow;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -15,13 +15,9 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_LOGS = "Log";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
-        CurrentFileController currentFileController = new CurrentFileController(project);
-        ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(currentFileController, project);
+        ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(project);
         Content treeContent = toolWindow.getContentManager().getFactory()
-                .createContent(
-                        classMetricsPanel,
-                        TAB_CLASS_METRICS_TREE,
-                        false);
+                .createContent(classMetricsPanel, TAB_CLASS_METRICS_TREE, false);
         toolWindow.getContentManager().addDataProvider(classMetricsPanel);
         toolWindow.getContentManager().addContent(treeContent);
     }
@@ -30,9 +26,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(
-                        projectMetricsPanel,
-                        TAB_PROJECT_METRICS_TREE,
-                        false);
+                        projectMetricsPanel, TAB_PROJECT_METRICS_TREE, false);
         toolWindow.getContentManager().addDataProvider(projectMetricsPanel);
         toolWindow.getContentManager().addContent(treeContent);
     }
@@ -40,9 +34,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     private static void addLogTab(Project project, ToolWindow toolWindow) {
         Content logContent = toolWindow.getContentManager().getFactory()
                 .createContent(
-                        new MetricsLogPanel(toolWindow, project),
-                        TAB_LOGS,
-                        false);
+                        new MetricsLogPanel(toolWindow, project), TAB_LOGS, false);
         toolWindow.getContentManager().addContent(logContent);
     }
 

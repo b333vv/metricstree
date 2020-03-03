@@ -19,7 +19,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     @Nullable
-    public DefaultTreeModel createProjectMetricTreeModel() {
+    public DefaultTreeModel createMetricTreeModel() {
         if (getMetricsTreeFilter().isProjectMetricsVisible()
                 || getMetricsTreeFilter().isPackageMetricsVisible()
                 || getMetricsTreeFilter().isClassMetricsVisible()

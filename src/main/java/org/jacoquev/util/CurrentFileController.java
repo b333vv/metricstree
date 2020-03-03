@@ -1,4 +1,4 @@
-package org.jacoquev.ui;
+package org.jacoquev.util;
 
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import org.jacoquev.util.MetricsUtils;
+import org.jacoquev.ui.toolWindow.ClassMetricsPanel;
 import org.jetbrains.annotations.NotNull;
 
 public class CurrentFileController {
