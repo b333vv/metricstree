@@ -9,6 +9,8 @@ import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
+import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -20,10 +22,11 @@ import java.util.stream.Collectors;
 public class ClassOrMethodMetricsTable {
     private final Model model;
     private final JBScrollPane panel;
+    private final JBTable table;
 
     public ClassOrMethodMetricsTable() {
         model = new Model();
-        JBTable table = new JBTable(model);
+        table = new JBTable(model);
         table.setShowGrid(false);
         table.setIntercellSpacing(JBUI.emptySize());
         table.getEmptyText().setText("");
@@ -37,6 +40,26 @@ public class ClassOrMethodMetricsTable {
         table.getColumnModel().getColumn(4).setMaxWidth(200);
 
         panel = new JBScrollPane(table);
+    }
+
+    private void hideOrShowValidValuesColumn(boolean controlValidRanges) {
+        if (controlValidRanges) {
+            table.getColumnModel().getColumn(0).setWidth(30);
+            table.getColumnModel().getColumn(0).setMinWidth(30);
+            table.getColumnModel().getColumn(0).setMaxWidth(30);
+
+            table.getColumnModel().getColumn(4).setWidth(200);
+            table.getColumnModel().getColumn(4).setMinWidth(200);
+            table.getColumnModel().getColumn(4).setMaxWidth(200);
+        } else {
+            table.getColumnModel().getColumn(0).setWidth(0);
+            table.getColumnModel().getColumn(0).setMinWidth(0);
+            table.getColumnModel().getColumn(0).setMaxWidth(0);
+
+            table.getColumnModel().getColumn(4).setWidth(0);
+            table.getColumnModel().getColumn(4).setMinWidth(0);
+            table.getColumnModel().getColumn(4).setMaxWidth(0);
+        }
     }
 
     public JBScrollPane getComponent() {
@@ -64,6 +87,7 @@ public class ClassOrMethodMetricsTable {
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);
+        hideOrShowValidValuesColumn(MetricsService.isControlValidRanges());
     }
 
     private static class Model extends AbstractTableModel {
@@ -91,13 +115,13 @@ public class ClassOrMethodMetricsTable {
                 case 0:
                     return "";
                 case 1:
-                    return "Abbr.";
+                    return "Metric";
                 case 2:
                     return "Description";
                 case 3:
                     return "Value";
                 case 4:
-                    return "Allowable";
+                    return "Valid";
             }
             return "";
         }

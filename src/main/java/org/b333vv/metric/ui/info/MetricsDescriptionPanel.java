@@ -9,6 +9,7 @@ import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
+import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -29,7 +30,7 @@ public class MetricsDescriptionPanel {
 
     public MetricsDescriptionPanel() {
         rightMetricPanel = new JPanel(new GridBagLayout());
-        JLabel allowableRangeLabel = new JLabel("Allowable Values Range:");
+        JLabel allowableRangeLabel = new JLabel("Valid Range:");
         allowableRangeValue = new JLabel();
         JLabel currentValueLabel = new JLabel("Calculated Metrics Value:");
         currentValue = new JLabel();
@@ -63,6 +64,7 @@ public class MetricsDescriptionPanel {
                 NORTHWEST, NONE, insets, 0, 0));
         rightMetricPanel.add(currentValue, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
                 NORTHWEST, NONE, insets, 0, 0));
+
 
         rightMetricPanel.add(allowableRangeLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                 NORTHWEST, NONE, insets, 0, 0));
@@ -130,12 +132,16 @@ public class MetricsDescriptionPanel {
             metricDescription.setText("<html>Page not found.</html>");
         }
 
-        if (!metric.hasAllowableValue()) {
-            currentValue.setIcon(AllIcons.General.BalloonError);
-        } else if (metric.getRange() == Range.UNDEFINED) {
-            currentValue.setIcon(AllIcons.General.BalloonWarning);
+        if (MetricsService.isControlValidRanges()) {
+            if (!metric.hasAllowableValue()) {
+                currentValue.setIcon(AllIcons.General.BalloonError);
+            } else if (metric.getRange() == Range.UNDEFINED) {
+                currentValue.setIcon(AllIcons.General.BalloonWarning);
+            } else {
+                currentValue.setIcon(AllIcons.Actions.Commit);
+            }
         } else {
-            currentValue.setIcon(AllIcons.Actions.Commit);
+            allowableRangeValue.setText("");
         }
     }
 

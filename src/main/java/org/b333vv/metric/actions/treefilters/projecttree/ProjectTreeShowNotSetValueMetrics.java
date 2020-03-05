@@ -10,7 +10,7 @@ public class ProjectTreeShowNotSetValueMetrics extends ToggleAction {
 
 
     public ProjectTreeShowNotSetValueMetrics() {
-        super("Show Metrics Whose Allowed Values Are Not Set", "Show or dont show metrics whose allowed values are not set",
+        super("Show Metrics Whose Valid Values Are Not Set", "Show or dont show metrics whose valid values are not set",
                 AllIcons.General.BalloonWarning);
     }
 

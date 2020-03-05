@@ -9,6 +9,7 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.CompositeIcon;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 import org.b333vv.metric.util.MetricsIcons;
+import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
 
@@ -31,23 +32,32 @@ public class MetricNode extends AbstractNode {
     @Override
     public void render(TreeCellRenderer renderer) {
         int gap = JBUIScale.isUsrHiDPI() ? 8 : 4;
-        if (metric.getValue() == Value.UNDEFINED) {
-            renderer.setIconToolTip("This metric was not calculated");
-            renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                    MetricsIcons.NA));
-        } else if (!metric.hasAllowableValue()) {
-            renderer.setIconToolTip("This metric has an unacceptable value");
-            renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                    AllIcons.General.BalloonError));
-        } else {
-            if (metric.getRange() == Range.UNDEFINED) {
-                renderer.setIconToolTip("The desired value range is not set for this metric");
+        if (MetricsService.isControlValidRanges()) {
+            if (metric.getValue() == Value.UNDEFINED) {
+                renderer.setIconToolTip("This metric was not calculated");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                        AllIcons.General.BalloonWarning));
+                        MetricsIcons.NA));
+            } else if (!metric.hasAllowableValue()) {
+                renderer.setIconToolTip("This metric has an unacceptable value");
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
+                        AllIcons.General.BalloonError));
             } else {
-                renderer.setIconToolTip("This metric has an acceptable value");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                        AllIcons.Actions.Commit));
+                if (metric.getRange() == Range.UNDEFINED) {
+                    renderer.setIconToolTip("The desired value range is not set for this metric");
+                    renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
+                            AllIcons.General.BalloonWarning));
+                } else {
+                    renderer.setIconToolTip("This metric has an acceptable value");
+                    renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
+                            AllIcons.Actions.Commit));
+                }
+            }
+        } else {
+            if (metric.getValue() == Value.UNDEFINED) {
+                renderer.setIconToolTip("This metric was not calculated");
+                renderer.setIcon(MetricsIcons.NA);
+            } else {
+                renderer.setIcon(getIcon());
             }
         }
         if (Sets.inMoodMetricsSet(metric.getName())) {

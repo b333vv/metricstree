@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class MetricsConfigurable implements Configurable, Configurable.NoMargin, Configurable.NoScroll {
     private final Project project;
-    private final MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings;
+    private final MetricsValidRangesSettings metricsValidRangesSettings;
     private final ClassMetricsTreeSettings classMetricsTreeSettings;
     private final ProjectMetricsTreeSettings projectMetricsTreeSettings;
 
@@ -17,7 +17,7 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     public MetricsConfigurable(Project project) {
         this.project = project;
-        this.metricsAllowableValuesRangesSettings = project.getComponent(MetricsAllowableValuesRangesSettings.class);
+        this.metricsValidRangesSettings = project.getComponent(MetricsValidRangesSettings.class);
         this.classMetricsTreeSettings = project.getComponent(ClassMetricsTreeSettings.class);
         this.projectMetricsTreeSettings = project.getComponent(ProjectMetricsTreeSettings.class);
     }
@@ -45,7 +45,7 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     @Override
     public boolean isModified() {
-        return panel != null && (panel.isModified(metricsAllowableValuesRangesSettings)
+        return panel != null && (panel.isModified(metricsValidRangesSettings)
                 || panel.isModified(classMetricsTreeSettings)
                 || panel.isModified(projectMetricsTreeSettings));
     }
@@ -53,9 +53,9 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
     @Override
     public void apply() {
         if (panel != null) {
-            panel.save(metricsAllowableValuesRangesSettings);
-            metricsAllowableValuesRangesSettings.clearTemporaryControlledMetrics();
-            metricsAllowableValuesRangesSettings.clearTemporaryUnControlledMetrics();
+            panel.save(metricsValidRangesSettings);
+            metricsValidRangesSettings.clearTemporaryControlledMetrics();
+            metricsValidRangesSettings.clearTemporaryUnControlledMetrics();
             panel.save(classMetricsTreeSettings);
             panel.save(projectMetricsTreeSettings);
         }
@@ -63,8 +63,8 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     @Override
     public void reset() {
-        metricsAllowableValuesRangesSettings.returnAllToUnControlledMetrics();
-        metricsAllowableValuesRangesSettings.returnAllToControlledMetrics();
+        metricsValidRangesSettings.returnAllToUnControlledMetrics();
+        metricsValidRangesSettings.returnAllToControlledMetrics();
     }
 
     @Override

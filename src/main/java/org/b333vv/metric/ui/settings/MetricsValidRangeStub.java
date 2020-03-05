@@ -2,7 +2,7 @@ package org.b333vv.metric.ui.settings;
 
 import java.util.Objects;
 
-public class MetricsAllowableValuesRangeStub {
+public class MetricsValidRangeStub {
     private String name;
     private String description;
     private String level;
@@ -12,8 +12,8 @@ public class MetricsAllowableValuesRangeStub {
     private long minLongValue;
     private long maxLongValue;
 
-    public MetricsAllowableValuesRangeStub(String name, String description, String level, boolean doubleValue,
-                                           double minDoubleValue, double maxDoubleValue, long minLongValue, long maxLongValue) {
+    public MetricsValidRangeStub(String name, String description, String level, boolean doubleValue,
+                                 double minDoubleValue, double maxDoubleValue, long minLongValue, long maxLongValue) {
         this.name = name;
         this.description = description;
         this.level = level;
@@ -24,7 +24,7 @@ public class MetricsAllowableValuesRangeStub {
         this.maxLongValue = maxLongValue;
     }
 
-    public MetricsAllowableValuesRangeStub(){}
+    public MetricsValidRangeStub(){}
 
     public boolean isDoubleValue() {
         return doubleValue;
@@ -93,8 +93,8 @@ public class MetricsAllowableValuesRangeStub {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MetricsAllowableValuesRangeStub)) return false;
-        MetricsAllowableValuesRangeStub that = (MetricsAllowableValuesRangeStub) o;
+        if (!(o instanceof MetricsValidRangeStub)) return false;
+        MetricsValidRangeStub that = (MetricsValidRangeStub) o;
         return isDoubleValue() == that.isDoubleValue() &&
                 Double.compare(that.getMinDoubleValue(), getMinDoubleValue()) == 0 &&
                 Double.compare(that.getMaxDoubleValue(), getMaxDoubleValue()) == 0 &&

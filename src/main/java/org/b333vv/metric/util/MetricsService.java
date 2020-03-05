@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class MetricsService {
-    private static MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings;
+    private static MetricsValidRangesSettings metricsValidRangesSettings;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
@@ -47,14 +47,14 @@ public class MetricsService {
     }
 
     public static void init(Project project) {
-        metricsAllowableValuesRangesSettings = MetricsUtils.get(project, MetricsAllowableValuesRangesSettings.class);
+        metricsValidRangesSettings = MetricsUtils.get(project, MetricsValidRangesSettings.class);
         classMetricsTreeSettings = MetricsUtils.get(project, ClassMetricsTreeSettings.class);
         projectMetricsTreeSettings = MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
     }
 
     public static Range getRangeForMetric(String metricName) {
-        MetricsAllowableValuesRangeStub metricsAllowableValueRangeStub =
-                metricsAllowableValuesRangesSettings.getControlledMetrics().get(metricName);
+        MetricsValidRangeStub metricsAllowableValueRangeStub =
+                metricsValidRangesSettings.getControlledMetrics().get(metricName);
         if (metricsAllowableValueRangeStub == null) {
             return Range.UNDEFINED;
         }
@@ -106,5 +106,9 @@ public class MetricsService {
 
     public static boolean isNeedToConsiderPackageMetrics() {
         return projectMetricsTreeSettings.isNeedToConsiderPackageMetrics();
+    }
+
+    public static boolean isControlValidRanges() {
+        return metricsValidRangesSettings.isControlValidRanges();
     }
 }

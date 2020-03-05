@@ -15,23 +15,23 @@ import java.awt.event.ActionEvent;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class EditAllowableValuesRangeForMetricDialog extends DialogWrapper {
+public class EditValidRangeForMetricDialog extends DialogWrapper {
     private JPanel panel;
     private JLabel minValueLabel;
     private JLabel maxValueLabel;
     private JSpinner minValue;
     private JSpinner maxValue;
-    private MetricsAllowableValuesRangeStub metricsAllowableValueRangeStub = null;
+    private MetricsValidRangeStub metricsAllowableValueRangeStub = null;
     private boolean spinnerIsDouble;
 
 
-    public EditAllowableValuesRangeForMetricDialog(Project project) {
+    public EditValidRangeForMetricDialog(Project project) {
         super(project, false);
-        setTitle("Edit Allowable Values Range For Metric");
+        setTitle("Edit Valid Range For Metric");
 
         panel = new JPanel(new GridBagLayout());
-        minValueLabel = new JLabel("Minimum Allowed Value");
-        maxValueLabel = new JLabel("Maximum Allowed Value");
+        minValueLabel = new JLabel("Minimum Valid Value");
+        maxValueLabel = new JLabel("Maximum Valid Value");
         minValue = new JSpinner();
         maxValue = new JSpinner();
 
@@ -77,11 +77,11 @@ public class EditAllowableValuesRangeForMetricDialog extends DialogWrapper {
         return panel;
     }
 
-    public MetricsAllowableValuesRangeStub getMetricsAllowableValueRangeStub() {
+    public MetricsValidRangeStub getMetricsAllowableValueRangeStub() {
         return metricsAllowableValueRangeStub;
     }
 
-    public void setMetricsAllowableValueRangeStub(MetricsAllowableValuesRangeStub metricsAllowableValueRangeStub) {
+    public void setMetricsAllowableValueRangeStub(MetricsValidRangeStub metricsAllowableValueRangeStub) {
         this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
         Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getDescription());
         panel.setBorder(b);

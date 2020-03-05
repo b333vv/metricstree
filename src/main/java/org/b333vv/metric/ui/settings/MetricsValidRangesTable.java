@@ -16,20 +16,19 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MetricsAllowableValuesRangesTable {
-    private final Function<MetricsAllowableValuesRangeStub,
-            MetricsAllowableValuesRangeStub> onEdit;
-    private final Supplier<MetricsAllowableValuesRangeStub> onAdd;
+public class MetricsValidRangesTable {
+    private final Function<MetricsValidRangeStub, MetricsValidRangeStub> onEdit;
+    private final Supplier<MetricsValidRangeStub> onAdd;
     private final JBTable table;
     private final JPanel panel;
     private final Model model;
     private Project project;
 
-    public MetricsAllowableValuesRangesTable(String emptyLabel,
-                                             Function<MetricsAllowableValuesRangeStub,
-                                                     MetricsAllowableValuesRangeStub> onEdit,
-                                             Supplier<MetricsAllowableValuesRangeStub> onAdd,
-                                             Project project) {
+    public MetricsValidRangesTable(String emptyLabel,
+                                   Function<MetricsValidRangeStub,
+                                   MetricsValidRangeStub> onEdit,
+                                   Supplier<MetricsValidRangeStub> onAdd,
+                                   Project project) {
         this.project = project;
         this.onEdit = onEdit;
         this.onAdd = onAdd;
@@ -73,23 +72,33 @@ public class MetricsAllowableValuesRangesTable {
         panel.add(toolbarDecorator.createPanel(), BorderLayout.CENTER);
     }
 
+    public void enableComponents(Container container, boolean enable) {
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            component.setEnabled(enable);
+            if (component instanceof Container) {
+                enableComponents((Container)component, enable);
+            }
+        }
+    }
+
     public JPanel getComponent() {
         return panel;
     }
 
-    public void set(List<MetricsAllowableValuesRangeStub> data) {
+    public void set(List<MetricsValidRangeStub> data) {
         model.set(data);
     }
 
-    public List<MetricsAllowableValuesRangeStub> get() {
+    public List<MetricsValidRangeStub> get() {
         return new ArrayList<>(model.items());
     }
 
     private void editEntry() {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
-            MetricsAllowableValuesRangeStub value = model.items().get(selectedIndex);
-            MetricsAllowableValuesRangeStub newValue = onEdit.apply(value);
+            MetricsValidRangeStub value = model.items().get(selectedIndex);
+            MetricsValidRangeStub newValue = onEdit.apply(value);
             if (newValue != null) {
                 model.items().set(selectedIndex, newValue);
             }
@@ -97,7 +106,7 @@ public class MetricsAllowableValuesRangesTable {
     }
 
     private void addEntry() {
-        MetricsAllowableValuesRangeStub newValue = onAdd.get();
+        MetricsValidRangeStub newValue = onAdd.get();
         if (newValue != null) {
             model.items().add(newValue);
         }
@@ -106,19 +115,19 @@ public class MetricsAllowableValuesRangesTable {
     private void removeEntry() {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
-            MetricsAllowableValuesRangeStub value = model.items().get(selectedIndex);
-            MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings =
-                    MetricsUtils.get(MetricsAllowableValuesRangesTable.this.project, MetricsAllowableValuesRangesSettings.class);
-            metricsAllowableValuesRangesSettings.addToUnControlledMetrics(value);
+            MetricsValidRangeStub value = model.items().get(selectedIndex);
+            MetricsValidRangesSettings metricsValidRangesSettings =
+                    MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
+            metricsValidRangesSettings.addToUnControlledMetrics(value);
             model.items().remove(value);
         }
     }
 
     private class Model extends AbstractTableModel {
         private final int COLUMN_COUNT = 5;
-        MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings =
-                MetricsUtils.get(MetricsAllowableValuesRangesTable.this.project, MetricsAllowableValuesRangesSettings.class);
-        private List<MetricsAllowableValuesRangeStub> rows = metricsAllowableValuesRangesSettings.getControlledMetricsList();
+        MetricsValidRangesSettings metricsValidRangesSettings =
+                MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
+        private List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
 
         @Override
         public int getRowCount() {
@@ -152,18 +161,18 @@ public class MetricsAllowableValuesRangesTable {
             return "";
         }
 
-        public void set(List<MetricsAllowableValuesRangeStub> rows) {
+        public void set(List<MetricsValidRangeStub> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
-        public List<MetricsAllowableValuesRangeStub> items() {
+        public List<MetricsValidRangeStub> items() {
             return rows;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            MetricsAllowableValuesRangeStub item = rows.get(rowIndex);
+            MetricsValidRangeStub item = rows.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     return item.getName();

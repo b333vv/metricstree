@@ -16,7 +16,7 @@ import java.util.List;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class AddAllowableValuesRangeForMetricDialog extends DialogWrapper {
+public class AddValidRangeForMetricDialog extends DialogWrapper {
     private JPanel panel;
     private ComboBox metricsAllowableValuesRangeStubCombo;
     private JLabel minValueLabel;
@@ -24,31 +24,31 @@ public class AddAllowableValuesRangeForMetricDialog extends DialogWrapper {
     private JLabel comboBoxLabel;
     private JSpinner minValue;
     private JSpinner maxValue;
-    private MetricsAllowableValuesRangeStub metricsAllowableValueRangeStub = null;
+    private MetricsValidRangeStub metricsAllowableValueRangeStub = null;
     private boolean spinnerIsDouble;
 
 
-    public AddAllowableValuesRangeForMetricDialog(Project project) {
+    public AddValidRangeForMetricDialog(Project project) {
         super(project, false);
-        setTitle("Add Allowable Values Range For Metric");
+        setTitle("Add Valid Range For Metric");
 
-        MetricsAllowableValuesRangesSettings metricsAllowableValuesRangesSettings = MetricsUtils.get(project, MetricsAllowableValuesRangesSettings.class);
-        List<MetricsAllowableValuesRangeStub> uncontrolledMetrics = metricsAllowableValuesRangesSettings.getUnControlledMetricsList();
+        MetricsValidRangesSettings metricsValidRangesSettings = MetricsUtils.get(project, MetricsValidRangesSettings.class);
+        List<MetricsValidRangeStub> uncontrolledMetrics = metricsValidRangesSettings.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 
         metricsAllowableValuesRangeStubCombo.addItemListener(arg -> {
-            metricsAllowableValueRangeStub = (MetricsAllowableValuesRangeStub)
+            metricsAllowableValueRangeStub = (MetricsValidRangeStub)
                     metricsAllowableValuesRangeStubCombo.getSelectedItem();
             setMetricsAllowableValueRangeStub(metricsAllowableValueRangeStub);
         });
 
         panel = new JPanel(new GridBagLayout());
-        minValueLabel = new JLabel("Minimum Allowed Value");
-        maxValueLabel = new JLabel("Maximum Allowed Value");
+        minValueLabel = new JLabel("Minimum Valid Value");
+        maxValueLabel = new JLabel("Maximum Valid Value");
         comboBoxLabel = new JLabel("Metric");
         minValue = new JSpinner();
         maxValue = new JSpinner();
-        setMetricsAllowableValueRangeStub((MetricsAllowableValuesRangeStub)
+        setMetricsAllowableValueRangeStub((MetricsValidRangeStub)
                 metricsAllowableValuesRangeStubCombo.getSelectedItem());
 
         JBInsets insets = JBUI.insets(2, 2, 2, 2);
@@ -74,7 +74,7 @@ public class AddAllowableValuesRangeForMetricDialog extends DialogWrapper {
                     metricsAllowableValueRangeStub.setMinDoubleValue((Double) minValue.getModel().getValue());
                     metricsAllowableValueRangeStub.setMaxDoubleValue((Double) maxValue.getModel().getValue());
                     if (metricsAllowableValueRangeStub.getMaxDoubleValue() >= metricsAllowableValueRangeStub.getMinDoubleValue()) {
-                        metricsAllowableValuesRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
+                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
                         super.actionPerformed(e);
                         dispose();
                     }
@@ -82,7 +82,7 @@ public class AddAllowableValuesRangeForMetricDialog extends DialogWrapper {
                     metricsAllowableValueRangeStub.setMinLongValue((Long) minValue.getModel().getValue());
                     metricsAllowableValueRangeStub.setMaxLongValue((Long) maxValue.getModel().getValue());
                     if (metricsAllowableValueRangeStub.getMaxLongValue() >= metricsAllowableValueRangeStub.getMinLongValue()) {
-                        metricsAllowableValuesRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
+                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
                         super.actionPerformed(e);
                         dispose();
                     }
@@ -98,11 +98,11 @@ public class AddAllowableValuesRangeForMetricDialog extends DialogWrapper {
         return panel;
     }
 
-    public MetricsAllowableValuesRangeStub getMetricsAllowableValueRangeStub() {
+    public MetricsValidRangeStub getMetricsAllowableValueRangeStub() {
         return metricsAllowableValueRangeStub;
     }
 
-    public void setMetricsAllowableValueRangeStub(MetricsAllowableValuesRangeStub metricsAllowableValueRangeStub) {
+    public void setMetricsAllowableValueRangeStub(MetricsValidRangeStub metricsAllowableValueRangeStub) {
         this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
         SpinnerNumberModel minModel;
         SpinnerNumberModel maxModel;

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class ProjectTreeShowAllowedValueMetrics extends ToggleAction {
 
     public ProjectTreeShowAllowedValueMetrics() {
-        super("Show Metrics with Allowed Values", "Show or dont show metrics with allowed values",
+        super("Show Metrics With Valid Values", "Show or dont show metrics with valid values",
                 AllIcons.Actions.Commit);
     }
 
