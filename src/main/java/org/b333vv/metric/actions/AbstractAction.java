@@ -3,17 +3,10 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
 
 public abstract class AbstractAction extends AnAction {
     public AbstractAction() {
         super();
-    }
-
-    public AbstractAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
-        super(text, description, icon);
     }
 
     @Override
@@ -35,9 +28,6 @@ public abstract class AbstractAction extends AnAction {
         }
     }
 
-    /**
-     * @see com.intellij.openapi.actionSystem.ActionPlaces
-     */
     protected boolean isVisible(String place) {
         return true;
     }

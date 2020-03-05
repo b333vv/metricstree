@@ -1,9 +1,9 @@
 package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.metric.Metric;
 
 public class DepthOfInheritanceTreeVisitor extends JavaClassVisitor {
     @Override

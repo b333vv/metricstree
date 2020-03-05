@@ -6,9 +6,9 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.model.metric.Metric;
 
 import javax.swing.*;
 import javax.swing.border.Border;

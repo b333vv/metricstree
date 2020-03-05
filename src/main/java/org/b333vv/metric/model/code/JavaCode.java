@@ -19,7 +19,6 @@ public abstract class JavaCode {
     public JavaCode(String name) {
         this.name = name;
         this.children = new HashSet<>();
-//        this.metrics = new ConcurrentHashMap<>();
         this.metrics = new HashMap<>();
     }
 
@@ -49,16 +48,6 @@ public abstract class JavaCode {
         metrics.put(metric.getName(), metric);
     }
 
-    public void addMetrics(Set<Metric> metrics) {
-        for (Metric metric : metrics) {
-            this.addMetric(metric);
-        }
-    }
-
-    protected Set<JavaCode> getChildren() {
-        return children;
-    }
-
     protected JavaCode getParent() {
         return parent;
     }
@@ -68,8 +57,6 @@ public abstract class JavaCode {
         this.children.add(child);
     }
 
-    protected void accept(PsiElementVisitor visitor) {
-
-    }
+    protected abstract void accept(PsiElementVisitor visitor);
 }
 

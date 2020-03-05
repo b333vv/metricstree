@@ -128,35 +128,35 @@ public class ProjectMetricsRunner {
         queue.run(projectMetricsTask);
     }
 
-    class PsiJavaFileVisitor extends PsiElementVisitor {
-            @Override
-            public void visitFile(PsiFile psiFile) {
-                super.visitFile(psiFile);
-                indicator.checkCanceled();
-                if (!psiFile.getFileType().getName().equals("JAVA")) {
-                    return;
-                }
-                if (psiFile instanceof PsiCompiledElement) {
-                    return;
-                }
-                final FileType fileType = psiFile.getFileType();
-                if (fileType.isBinary()) {
-                    return;
-                }
-                final VirtualFile virtualFile = psiFile.getVirtualFile();
-                final ProjectRootManager rootManager = ProjectRootManager.getInstance(psiFile.getProject());
-                final ProjectFileIndex fileIndex = rootManager.getFileIndex();
-                if (fileIndex.isExcluded(virtualFile) || !fileIndex.isInContent(virtualFile)) {
-                    return;
-                }
-                final String fileName = psiFile.getName();
-                indicator.setText("Processing " + fileName + "...");
-                progress++;
-                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-                projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
-                dependenciesBuilder.build(psiJavaFile);
-                indicator.setIndeterminate(false);
-                indicator.setFraction((double) progress / (double) numFiles);
+    private class PsiJavaFileVisitor extends PsiElementVisitor {
+        @Override
+        public void visitFile(PsiFile psiFile) {
+            super.visitFile(psiFile);
+            indicator.checkCanceled();
+            if (!psiFile.getFileType().getName().equals("JAVA")) {
+                return;
             }
+            if (psiFile instanceof PsiCompiledElement) {
+                return;
+            }
+            final FileType fileType = psiFile.getFileType();
+            if (fileType.isBinary()) {
+                return;
+            }
+            final VirtualFile virtualFile = psiFile.getVirtualFile();
+            final ProjectRootManager rootManager = ProjectRootManager.getInstance(psiFile.getProject());
+            final ProjectFileIndex fileIndex = rootManager.getFileIndex();
+            if (fileIndex.isExcluded(virtualFile) || !fileIndex.isInContent(virtualFile)) {
+                return;
+            }
+            final String fileName = psiFile.getName();
+            indicator.setText("Processing " + fileName + "...");
+            progress++;
+            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+            projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
+            dependenciesBuilder.build(psiJavaFile);
+            indicator.setIndeterminate(false);
+            indicator.setFraction((double) progress / (double) numFiles);
         }
+    }
 }

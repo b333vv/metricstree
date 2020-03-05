@@ -5,11 +5,10 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.metric.Metric;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -19,13 +18,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ClassOrMethodMetricsTable {
-    private final JBTable table;
     private final Model model;
     private final JBScrollPane panel;
 
     public ClassOrMethodMetricsTable() {
         model = new Model();
-        table = new JBTable(model);
+        JBTable table = new JBTable(model);
         table.setShowGrid(false);
         table.setIntercellSpacing(JBUI.emptySize());
         table.getEmptyText().setText("");
@@ -33,14 +31,10 @@ public class ClassOrMethodMetricsTable {
         table.setShowVerticalLines(false);
         table.getTableHeader().setReorderingAllowed(true);
 
-        table.getColumnModel().getColumn(0).setHeaderValue("");
-        table.getColumnModel().getColumn(1).setHeaderValue("Metric name");
-        table.getColumnModel().getColumn(2).setHeaderValue("Value");
-        table.getColumnModel().getColumn(3).setHeaderValue("Allowable value range");
-
         table.getColumnModel().getColumn(0).setMaxWidth(30);
-        table.getColumnModel().getColumn(2).setMaxWidth(100);
-        table.getColumnModel().getColumn(3).setMaxWidth(200);
+        table.getColumnModel().getColumn(1).setMaxWidth(50);
+        table.getColumnModel().getColumn(3).setMaxWidth(130);
+        table.getColumnModel().getColumn(4).setMaxWidth(200);
 
         panel = new JBScrollPane(table);
     }
@@ -49,16 +43,22 @@ public class ClassOrMethodMetricsTable {
         return panel;
     }
 
-    public void init(JavaProject javaProject) {
-        set(javaProject);
-    }
-
     public void clear() {
-        model.set(Collections.EMPTY_LIST);
+        model.set(List.of());
     }
 
     public void set(JavaCode javaCode) {
-        Border b = IdeBorderFactory.createTitledBorder(javaCode.getName());
+        String prefix = "";
+        if (javaCode instanceof JavaProject) {
+            prefix = "Project: ";
+        } else if (javaCode instanceof JavaPackage) {
+            prefix = "Package: ";
+        } else if (javaCode instanceof JavaClass) {
+            prefix = "Class: ";
+        } else if (javaCode instanceof JavaMethod) {
+            prefix = "Method: ";
+        }
+        Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
         panel.setBorder(b);
         List<Metric> sortedMetrics = javaCode.getMetrics()
                 .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
@@ -68,8 +68,7 @@ public class ClassOrMethodMetricsTable {
 
     private static class Model extends AbstractTableModel {
 
-        private final int COLUMN_COUNT = 4;
-        private List<Metric> rows = Collections.EMPTY_LIST;
+        private List<Metric> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -78,7 +77,7 @@ public class ClassOrMethodMetricsTable {
 
         @Override
         public int getColumnCount() {
-            return COLUMN_COUNT;
+            return 5;
         }
 
         @Override
@@ -92,11 +91,13 @@ public class ClassOrMethodMetricsTable {
                 case 0:
                     return "";
                 case 1:
-                    return "Name";
+                    return "Abbr.";
                 case 2:
-                    return "Value";
+                    return "Description";
                 case 3:
-                    return "Allowed value range";
+                    return "Value";
+                case 4:
+                    return "Allowable";
             }
             return "";
         }
@@ -121,14 +122,16 @@ public class ClassOrMethodMetricsTable {
                 case 0:
                     return getRowIcon(metric);
                 case 1:
-                    return metric.getDescription();
+                    return metric.getName();
                 case 2:
+                    return metric.getDescription();
+                case 3:
                     if (Sets.inMoodMetricsSet(metric.getName())) {
                         return metric.getValue().percentageFormat();
                     } else {
                         return metric.getFormattedValue();
                     }
-                case 3:
+                case 4:
                     if (Sets.inMoodMetricsSet(metric.getName())) {
                         return metric.getRange().percentageFormat();
                     } else {
@@ -147,5 +150,4 @@ public class ClassOrMethodMetricsTable {
             return AllIcons.Actions.Commit;
         }
     }
-
 }

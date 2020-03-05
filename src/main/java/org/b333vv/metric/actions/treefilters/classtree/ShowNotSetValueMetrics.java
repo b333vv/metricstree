@@ -10,7 +10,8 @@ public class ShowNotSetValueMetrics extends ToggleAction {
 
 
     public ShowNotSetValueMetrics() {
-        super("Show Metrics Whose Allowed Values Are Not Set", "Show or dont show metrics whose allowed values are not set",
+        super("Show Metrics Whose Allowed Values Are Not Set",
+                "Show or dont show metrics whose allowed values are not set",
                 AllIcons.General.BalloonWarning);
     }
 

@@ -6,22 +6,20 @@ import org.b333vv.metric.model.metric.util.CommonUtils;
 import org.b333vv.metric.model.metric.util.MethodUtils;
 
 public class LinesOfCodeVisitor extends JavaMethodVisitor {
+    private int methodNestingDepth = 0;
+    private long elementCount = 0;
     @Override
     public void visitMethod(PsiMethod method) {
-        int methodNestingDepth = 0;
-        long elementCount = 0;
         long linesOfCode = 0;
-        if (!MethodUtils.isAbstract(method)) {
-            super.visitMethod(method);
-            if (methodNestingDepth == 0) {
-                elementCount = 0;
-            }
-            methodNestingDepth++;
-            elementCount = CommonUtils.countLines(method);
-            super.visitMethod(method);
-            methodNestingDepth--;
-        }
+        super.visitMethod(method);
         if (methodNestingDepth == 0) {
+            elementCount = 0;
+        }
+        methodNestingDepth++;
+        elementCount = CommonUtils.countLines(method);
+        super.visitMethod(method);
+        methodNestingDepth--;
+        if (methodNestingDepth == 0 && !MethodUtils.isAbstract(method)) {
             linesOfCode = elementCount;
         }
         metric = Metric.of("LOC", "Lines Of Code",

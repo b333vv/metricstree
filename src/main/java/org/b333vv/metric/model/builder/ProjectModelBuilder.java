@@ -4,13 +4,14 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.util.MetricsService;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ProjectModelBuilder extends ModelBuilder {
@@ -75,12 +76,6 @@ public class ProjectModelBuilder extends ModelBuilder {
     protected void addClassToClassesSet(JavaClass javaClass) {
         javaProject.addClassToClassesSet(javaClass);
     }
-
-    @Override
-    protected void addMethodToMethodsSet(JavaMethod javaMethod) {
-        javaProject.addMethodToMethodsSet(javaMethod);
-    }
-
 
     @Override
     protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {

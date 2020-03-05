@@ -102,9 +102,9 @@ public final class MetricsAllowableValuesRangesSettings implements PersistentSta
                 false, 0.00, 0.00, 0, 50));
         unControlledMetrics.put("NOL", new MetricsAllowableValuesRangeStub("NOL", "Number Of Loops", "Method",
                 false, 0.00, 0.00, 0, 10));
-        unControlledMetrics.put("FANIN", new MetricsAllowableValuesRangeStub("FANIN", "Fan-In", "Method",
+        unControlledMetrics.put("FIN", new MetricsAllowableValuesRangeStub("FIN", "Fan-In", "Method",
                 false, 0.00, 0.00, 0, 5));
-        unControlledMetrics.put("FANOUT", new MetricsAllowableValuesRangeStub("FANOUT", "Fan-Out", "Method",
+        unControlledMetrics.put("FOUT", new MetricsAllowableValuesRangeStub("FOUT", "Fan-Out", "Method",
                 false, 0.00, 0.00, 0, 5));
     }
 

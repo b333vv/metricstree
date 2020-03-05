@@ -17,24 +17,24 @@ public class NumberOfAttributesAndMethodsVisitor extends JavaClassVisitor {
         if (ClassUtils.isConcrete(psiClass)) {
             PsiMethod[] methods = psiClass.getAllMethods();
             PsiField[] fields = psiClass.getAllFields();
-            int numOperations = 0;
+            int operationsNumber = 0;
             for (PsiMethod method : methods) {
                 PsiClass containingClass = method.getContainingClass();
                 if (containingClass != null && containingClass.equals(psiClass) ||
                         !method.hasModifierProperty(PsiModifier.STATIC)) {
-                    numOperations++;
+                    operationsNumber++;
                 }
             }
-            int numAttributes = 0;
+            int attributesNumber = 0;
             for (PsiField field : fields) {
                 PsiClass containingClass = field.getContainingClass();
                 if (containingClass != null && containingClass
                         .equals(psiClass) || !field.hasModifierProperty(PsiModifier.STATIC)) {
-                    numAttributes++;
+                    attributesNumber++;
                 }
             }
             metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
-                    "/html/NumberOfAttributesAndMethods.html", numOperations + numAttributes);
+                    "/html/NumberOfAttributesAndMethods.html", operationsNumber + attributesNumber);
         }
     }
 }

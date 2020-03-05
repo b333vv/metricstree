@@ -6,11 +6,11 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
 import org.b333vv.metric.exec.ProjectMetricsRunner;
-import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.Bag;
+import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -20,9 +20,9 @@ import java.util.Set;
 
 public class MoodMetricsSetCalculator {
     private final AnalysisScope scope;
-    private int numAttributes = 0;
-    private int numPublicAttributes = 0;
-    private int numClasses = 0;
+    private int attributesNumber = 0;
+    private int publicAttributesNumber = 0;
+    private int classesNumber = 0;
     private int totalAttributesVisibility = 0;
     private Bag<String> classesPerPackage = new Bag<>();
     private Bag<String> packageVisibleAttributesPerPackage = new Bag<>();
@@ -33,16 +33,16 @@ public class MoodMetricsSetCalculator {
 
     private int totalCoupling = 0;
 
-    private int numMethods = 0;
-    private int numPublicMethods = 0;
+    private int methodsNumber = 0;
+    private int publicMethodsNumber = 0;
     private int totalMethodsVisibility = 0;
     private Bag<String> packageVisibleMethodsPerPackage = new Bag<>();
 
     private int availableMethods = 0;
     private int inheritedMethods = 0;
 
-    private int numOverridingMethods = 0;
-    private int numOverridePotentials = 0;
+    private int overridingMethodsNumber = 0;
+    private int overridePotentialsNumber = 0;
 
     public MoodMetricsSetCalculator(AnalysisScope scope) {
         this.scope = scope;
@@ -66,8 +66,8 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addPolymorphismFactor(JavaProject javaProject) {
-        double polymorphismFactor = numOverridePotentials == 0 ? 1.0 :
-                (double) numOverridingMethods / (double) numOverridePotentials;
+        double polymorphismFactor = overridePotentialsNumber == 0 ? 1.0 :
+                (double) overridingMethodsNumber / (double) overridePotentialsNumber;
 
         javaProject.addMetric(Metric.of(
                 "PF",
@@ -88,14 +88,14 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addMethodHidingFactor(JavaProject javaProject) {
-        totalMethodsVisibility += numPublicMethods * (numClasses - 1);
+        totalMethodsVisibility += publicMethodsNumber * (classesNumber - 1);
         final Set<String> packages = classesPerPackage.getContents();
         for (String aPackage : packages) {
             final int visibleMethods = packageVisibleMethodsPerPackage.getCountForObject(aPackage);
             final int classes = classesPerPackage.getCountForObject(aPackage);
             totalMethodsVisibility += visibleMethods * (classes - 1);
         }
-        final int denominator = numMethods * (numClasses - 1);
+        final int denominator = methodsNumber * (classesNumber - 1);
         final int numerator = denominator - totalMethodsVisibility;
         double methodHidingFactor = (double) numerator / (double) denominator;
 
@@ -107,7 +107,7 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addCouplingFactor(JavaProject javaProject) {
-        final int denominator = (numClasses * (numClasses - 1)) / 2;
+        final int denominator = (classesNumber * (classesNumber - 1)) / 2;
         final int numerator = totalCoupling;
         double couplingFactor = (double) numerator / (double) denominator;
 
@@ -129,14 +129,14 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addAttributeHidingFactor(JavaProject javaProject) {
-        totalAttributesVisibility += numPublicAttributes * (numClasses - 1);
+        totalAttributesVisibility += publicAttributesNumber * (classesNumber - 1);
         final Set<String> packages = classesPerPackage.getContents();
         for (String aPackage : packages) {
             final int visibleAttributes = packageVisibleAttributesPerPackage.getCountForObject(aPackage);
             final int classes = classesPerPackage.getCountForObject(aPackage);
             totalAttributesVisibility += visibleAttributes * (classes - 1);
         }
-        final int ahfDenominator = numAttributes * (numClasses - 1);
+        final int ahfDenominator = attributesNumber * (classesNumber - 1);
         final int ahfNumerator = ahfDenominator - totalAttributesVisibility;
         double attributeHidingFactor = (double) ahfNumerator / (double) ahfDenominator;
 
@@ -170,10 +170,10 @@ public class MoodMetricsSetCalculator {
             processPolymorphismFactor(aClass);
         }
 
-        private void processPolymorphismFactor(PsiClass aClass) {
+        private void processPolymorphismFactor(@NotNull PsiClass psiClass) {
             int newMethodsCount = 0;
             int overriddenMethodsCount = 0;
-            final PsiMethod[] methods = aClass.getMethods();
+            final PsiMethod[] methods = psiClass.getMethods();
             for (PsiMethod method : methods) {
                 final PsiMethod[] superMethods = method.findSuperMethods();
                 if (superMethods.length == 0) {
@@ -182,12 +182,12 @@ public class MoodMetricsSetCalculator {
                     overriddenMethodsCount++;
                 }
             }
-            numOverridePotentials += newMethodsCount * getSubclassCount(aClass);
-            numOverridingMethods += overriddenMethodsCount;
+            overridePotentialsNumber += newMethodsCount * getSubclassCount(psiClass);
+            overridingMethodsNumber += overriddenMethodsCount;
         }
 
-        private void processMethodInheritanceFactor(PsiClass aClass) {
-            final PsiMethod[] allMethods = aClass.getAllMethods();
+        private void processMethodInheritanceFactor(@NotNull PsiClass psiClass) {
+            final PsiMethod[] allMethods = psiClass.getAllMethods();
             final Set<PsiMethod> nonOverriddenMethods = new HashSet<>();
             for (PsiMethod method : allMethods) {
                 boolean overrideFound = false;
@@ -204,7 +204,7 @@ public class MoodMetricsSetCalculator {
             for (PsiMethod method : nonOverriddenMethods) {
                 final PsiClass containingClass = method.getContainingClass();
                 if (containingClass != null) {
-                    if (containingClass.equals(aClass)) {
+                    if (containingClass.equals(psiClass)) {
                         availableMethods++;
                     } else if (classIsInLibrary(containingClass)) {
 
@@ -229,8 +229,8 @@ public class MoodMetricsSetCalculator {
             return false;
         }
 
-        public boolean classIsInLibrary(@NotNull PsiClass aClass) {
-            PsiFile file = aClass.getContainingFile();
+        public boolean classIsInLibrary(@NotNull PsiClass psiClass) {
+            PsiFile file = psiClass.getContainingFile();
             if (file == null) {
                 return false;
             }
@@ -238,29 +238,29 @@ public class MoodMetricsSetCalculator {
             return !fileName.endsWith(".java");
         }
 
-        private void processCouplingFactor(PsiClass aClass) {
+        private void processCouplingFactor(PsiClass psiClass) {
             final DependenciesBuilder dependenciesBuilder = ProjectMetricsRunner.getDependenciesBuilder();
-            final Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(aClass);
+            final Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             totalCoupling += dependencies.stream()
-                    .filter(c -> !aClass.isInheritor(c, true))
+                    .filter(c -> !psiClass.isInheritor(c, true))
                     .count();
         }
 
-        private void processAttributeAndMethodHidingFactor(PsiClass aClass) {
-            numClasses++;
-            final String packageName = ClassUtils.calculatePackageName(aClass);
+        private void processAttributeAndMethodHidingFactor(PsiClass psiClass) {
+            classesNumber++;
+            final String packageName = ClassUtils.calculatePackageName(psiClass);
             classesPerPackage.add(packageName);
         }
 
-        private void processAttributeInheritanceFactor(PsiClass aClass) {
-            final PsiField[] allFields = aClass.getAllFields();
+        private void processAttributeInheritanceFactor(PsiClass psiClass) {
+            final PsiField[] allFields = psiClass.getAllFields();
             for (PsiField field : allFields) {
                 final PsiClass containingClass = field.getContainingClass();
                 if (containingClass == null) {
                     continue;
                 }
                 final String className = containingClass.getName();
-                if (containingClass.equals(aClass)) {
+                if (containingClass.equals(psiClass)) {
                     availableFields++;
                 } else if ("java.lang.Object".equals(className)) {
 
@@ -272,19 +272,19 @@ public class MoodMetricsSetCalculator {
         }
 
         @Override
-        public void visitMethod(PsiMethod method) {
-            super.visitMethod(method);
-            numMethods++;
-            final PsiClass containingClass = method.getContainingClass();
+        public void visitMethod(PsiMethod psiMethod) {
+            super.visitMethod(psiMethod);
+            methodsNumber++;
+            final PsiClass containingClass = psiMethod.getContainingClass();
 
-            if (method.hasModifierProperty(PsiModifier.PRIVATE) ||
+            if (psiMethod.hasModifierProperty(PsiModifier.PRIVATE) ||
                     containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
-            } else if (method.hasModifierProperty(PsiModifier.PROTECTED) ||
+            } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
                 totalMethodsVisibility += getSubclassCount(containingClass);
-            } else if ((method.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
+            } else if ((psiMethod.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
                     containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
-                numPublicMethods++;
+                publicMethodsNumber++;
             } else {
                 final String packageName = ClassUtils.calculatePackageName(containingClass);
                 packageVisibleMethodsPerPackage.add(packageName);
@@ -292,19 +292,19 @@ public class MoodMetricsSetCalculator {
         }
 
         @Override
-        public void visitField(PsiField field) {
-            super.visitField(field);
-            numAttributes++;
-            final PsiClass containingClass = field.getContainingClass();
+        public void visitField(PsiField psiField) {
+            super.visitField(psiField);
+            attributesNumber++;
+            final PsiClass containingClass = psiField.getContainingClass();
 
-            if (field.hasModifierProperty(PsiModifier.PRIVATE) ||
+            if (psiField.hasModifierProperty(PsiModifier.PRIVATE) ||
                     containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
-            } else if (field.hasModifierProperty(PsiModifier.PROTECTED) ||
+            } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
                 totalAttributesVisibility += getSubclassCount(containingClass);
-            } else if ((field.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
+            } else if ((psiField.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
                     containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
-                numPublicAttributes++;
+                publicAttributesNumber++;
             } else {
                 final String packageName = ClassUtils.calculatePackageName(containingClass);
                 packageVisibleAttributesPerPackage.add(packageName);
@@ -312,20 +312,20 @@ public class MoodMetricsSetCalculator {
         }
     }
 
-    private int getSubclassCount(final PsiClass aClass) {
-        if (subclassesPerClass.containsKey(aClass)) {
-            return subclassesPerClass.get(aClass);
+    private int getSubclassCount(final PsiClass psiClass) {
+        if (subclassesPerClass.containsKey(psiClass)) {
+            return subclassesPerClass.get(psiClass);
         }
-        int numSubclasses = 0;
+        int subclassesNumber = 0;
         final GlobalSearchScope globalScope = GlobalSearchScope.allScope(scope.getProject());
         final Query<PsiClass> query = ClassInheritorsSearch.search(
-                aClass, globalScope, true, true, true);
+                psiClass, globalScope, true, true, true);
         for (final PsiClass inheritor : query) {
             if (!inheritor.isInterface()) {
-                numSubclasses++;
+                subclassesNumber++;
             }
         }
-        subclassesPerClass.put(aClass, numSubclasses);
-        return numSubclasses;
+        subclassesPerClass.put(psiClass, subclassesNumber);
+        return subclassesNumber;
     }
 }

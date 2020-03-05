@@ -59,7 +59,7 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         FanInVisitor fanInVisitor = new FanInVisitor();
         javaMethod.accept(fanInVisitor);
 
-        Metric metric = Metric.of("FANIN", "Fan-In",
+        Metric metric = Metric.of("FIN", "Fan-In",
                 "/html/FanIn.html", 0);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
@@ -73,7 +73,7 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         FanOutVisitor fanOutVisitor = new FanOutVisitor();
         javaMethod.accept(fanOutVisitor);
 
-        Metric metric = Metric.of("FANOUT", "Fan-Out",
+        Metric metric = Metric.of("FOUT", "Fan-Out",
                 "/html/FanOut.html", 5);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
@@ -115,7 +115,7 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         NumberOfLoopsVisitor numberOfLoopsVisitor = new NumberOfLoopsVisitor();
         javaMethod.accept(numberOfLoopsVisitor);
 
-        Metric metric = Metric.of("NOLPS", "Number Of Loops",
+        Metric metric = Metric.of("NOL", "Number Of Loops",
                 "/html/NumberOfLoops.html", 0);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());

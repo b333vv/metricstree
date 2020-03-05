@@ -30,7 +30,6 @@ public abstract class ModelBuilder {
             JavaMethod javaMethod = new JavaMethod(aConstructor);
             javaClass.addMethod(javaMethod);
             getJavaMethodVisitors().forEach(v -> javaMethod.accept(v));
-            addMethodToMethodsSet(javaMethod);
         }
     }
 
@@ -39,7 +38,6 @@ public abstract class ModelBuilder {
             JavaMethod javaMethod = new JavaMethod(aMethod);
             javaClass.addMethod(javaMethod);
             getJavaMethodVisitors().forEach(v -> javaMethod.accept(v));
-            addMethodToMethodsSet(javaMethod);
         }
     }
 
@@ -56,7 +54,6 @@ public abstract class ModelBuilder {
     }
 
     protected void addClassToClassesSet(JavaClass javaClass) {}
-    protected void addMethodToMethodsSet(JavaMethod javaMethod) {}
 
     protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
         return MetricsService.getJavaClassVisitorsForClassMetricsTree();

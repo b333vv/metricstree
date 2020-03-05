@@ -13,7 +13,7 @@ public class FanOutVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric = Metric.of("FANOUT", "Fan-Out",
+        metric = Metric.of("FOUT", "Fan-Out",
                 "/html/FanOut.html", Value.UNDEFINED);
         if (methodNestingDepth == 0) {
             result = 0;
@@ -23,7 +23,7 @@ public class FanOutVisitor extends JavaMethodVisitor {
         super.visitMethod(method);
         methodNestingDepth--;
         if (methodNestingDepth == 0) {
-            metric = Metric.of("FANOUT", "Fan-Out",
+            metric = Metric.of("FOUT", "Fan-Out",
                     "/html/FanOut.html", result);
         }
     }

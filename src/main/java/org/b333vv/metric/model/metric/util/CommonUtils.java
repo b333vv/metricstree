@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 
 public class CommonUtils {
     private CommonUtils() {
-
+//        Util class
     }
     public static long countLines(PsiElement element) {
         if (element instanceof PsiCompiledElement) {

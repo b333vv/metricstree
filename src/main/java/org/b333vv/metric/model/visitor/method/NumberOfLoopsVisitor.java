@@ -12,7 +12,7 @@ public class NumberOfLoopsVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric = Metric.of("NOLPS", "Number Of Loops",
+        metric = Metric.of("NOL", "Number Of Loops",
                 "/html/NumberOfLoops.html", Value.UNDEFINED);
         if (methodNestingDepth == 0) {
             elementCount = 0;
@@ -23,7 +23,7 @@ public class NumberOfLoopsVisitor extends JavaMethodVisitor {
         if (methodNestingDepth == 0 && !MethodUtils.isAbstract(method)) {
             numberOfLoops = elementCount;
         }
-        metric = Metric.of("NOLPS", "Number Of Loops",
+        metric = Metric.of("NOL", "Number Of Loops",
                 "/html/NumberOfLoops.html", numberOfLoops);
     }
 

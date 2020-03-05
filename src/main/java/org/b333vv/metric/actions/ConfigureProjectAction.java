@@ -5,6 +5,8 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import org.b333vv.metric.ui.settings.MetricsConfigurable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class ConfigureProjectAction extends AbstractAction {
 
   @Override
@@ -14,7 +16,7 @@ public class ConfigureProjectAction extends AbstractAction {
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
-    MetricsConfigurable metricsConfigurable = new MetricsConfigurable(e.getProject());
+    MetricsConfigurable metricsConfigurable = new MetricsConfigurable(Objects.requireNonNull(e.getProject()));
     ShowSettingsUtil.getInstance().editConfigurable(e.getProject(), metricsConfigurable);
   }
 }

@@ -1,4 +1,4 @@
-package org.b333vv.metric.model.visitor.util;
+package org.b333vv.metric.model.visitor.method;
 
 import com.intellij.psi.*;
 import com.intellij.psi.tree.IElementType;

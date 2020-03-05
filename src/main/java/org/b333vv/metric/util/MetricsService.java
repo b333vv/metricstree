@@ -37,8 +37,8 @@ public class MetricsService {
         visitors.put("LND", new LoopNestingDepthVisitor());
         visitors.put("CC", new McCabeCyclomaticComplexityVisitor());
         visitors.put("NOL", new NumberOfLoopsVisitor());
-        visitors.put("FANIN", new FanInVisitor());
-        visitors.put("FANOUT", new FanOutVisitor());
+        visitors.put("FIN", new FanInVisitor());
+        visitors.put("FOUT", new FanOutVisitor());
         deferredVisitors.put("CBO", new CouplingBetweenObjectsVisitor());
     }
 

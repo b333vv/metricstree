@@ -2,7 +2,6 @@ package org.b333vv.metric.model.visitor.method;
 
 import com.intellij.psi.PsiMethod;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.visitor.util.MethodComplexityVisitor;
 
 public class McCabeCyclomaticComplexityVisitor extends JavaMethodVisitor {
 

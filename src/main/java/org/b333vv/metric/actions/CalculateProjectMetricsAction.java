@@ -2,6 +2,7 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.b333vv.metric.util.MetricsUtils;
+import org.jetbrains.annotations.NotNull;
 
 public class CalculateProjectMetricsAction extends AbstractAction {
 
@@ -11,7 +12,7 @@ public class CalculateProjectMetricsAction extends AbstractAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         MetricsUtils.calculateProjectMetrics();
     }
 }

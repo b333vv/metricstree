@@ -1,7 +1,5 @@
 package org.b333vv.metric.model.metric.value;
 
-import java.text.NumberFormat;
-
 public class Range {
     public static final Range UNDEFINED = new Range(Value.UNDEFINED, Value.UNDEFINED) {
         @Override
@@ -11,7 +9,12 @@ public class Range {
 
         @Override
         public String toString() {
-            return "[undefined]";
+            return "";
+        }
+
+        @Override
+        public String percentageFormat() {
+            return "";
         }
     };
     private Value from;
@@ -27,8 +30,7 @@ public class Range {
     }
 
     public boolean includes(Value value) {
-        return (value.isGreaterThan(from) || value.equals(from)) &&
-                (value.isLessThan(to) || value.equals(to));
+        return (value.isEqualsOrGreaterThan(from) && value.isEqualsOrLessThan(to));
     }
 
     public Value getFrom() {
@@ -57,12 +59,10 @@ public class Range {
     }
 
     public String percentageFormat() {
-        NumberFormat format = NumberFormat.getPercentInstance();
-        format.setMinimumFractionDigits(2);
         return "[" +
-                format.format(from.getValue()) +
+                from.percentageFormat() +
                 ".." +
-                format.format(to.getValue()) +
+                to.percentageFormat() +
                 "]";
     }
 }

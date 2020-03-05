@@ -11,8 +11,9 @@ import com.intellij.util.Query;
 public class MethodUtils {
     private MethodUtils() {}
 
-    public static boolean hasConcreteSuperMethod(PsiMethod method) {
-        final Query<MethodSignatureBackedByPsiMethod> search = SuperMethodsSearch.search(method, null, true, false);
+    public static boolean hasConcreteSuperMethod(PsiMethod psiMethod) {
+        final Query<MethodSignatureBackedByPsiMethod> search = SuperMethodsSearch.search(psiMethod,
+                null, true, false);
         return !search.forEach(new Processor<MethodSignatureBackedByPsiMethod>() {
 
             @Override
@@ -22,19 +23,19 @@ public class MethodUtils {
         });
     }
 
-    public static boolean isAbstract(PsiMethod method) {
-        if (method.hasModifierProperty(PsiModifier.STATIC) || method.hasModifierProperty(PsiModifier.DEFAULT)) {
+    public static boolean isAbstract(PsiMethod psiMethod) {
+        if (psiMethod.hasModifierProperty(PsiModifier.STATIC) || psiMethod.hasModifierProperty(PsiModifier.DEFAULT)) {
             return false;
         }
-        if (method.hasModifierProperty(PsiModifier.ABSTRACT)) {
+        if (psiMethod.hasModifierProperty(PsiModifier.ABSTRACT)) {
             return true;
         }
-        final PsiClass containingClass = method.getContainingClass();
+        final PsiClass containingClass = psiMethod.getContainingClass();
         return containingClass != null && containingClass.isInterface();
     }
 
-    public static boolean isConcrete(PsiMethod method) {
-        return method != null && !method.isConstructor() && !method.hasModifierProperty(PsiModifier.ABSTRACT) &&
-                !method.hasModifierProperty(PsiModifier.STATIC) && !method.hasModifierProperty(PsiModifier.PRIVATE);
+    public static boolean isConcrete(PsiMethod psiMethod) {
+        return psiMethod != null && !psiMethod.isConstructor() && !psiMethod.hasModifierProperty(PsiModifier.ABSTRACT) &&
+                !psiMethod.hasModifierProperty(PsiModifier.STATIC) && !psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
     }
 }

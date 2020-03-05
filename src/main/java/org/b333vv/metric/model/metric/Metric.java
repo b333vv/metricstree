@@ -9,7 +9,7 @@ public class Metric {
     private String name;
     private String description;
     private Value value;
-    private Range range = Range.UNDEFINED;
+    private Range range;
     private String descriptionUrl;
 
     protected Metric(String name, String description, String descriptionUrl, Value value) {
@@ -20,49 +20,8 @@ public class Metric {
         this.range = MetricsService.getRangeForMetric(name);
     }
 
-    protected Metric(String name, String description, Value value) {
-        this.name = name;
-        this.description = description;
-        this.value = value;
-        this.range = MetricsService.getRangeForMetric(name);
-    }
-
-    protected Metric(String name, String description, Value from, Value to) {
-        this.name = name;
-        this.description = description;
-        this.range = Range.of(from, to);
-    }
-
-    public static Metric of() {
-        return new Metric("Metric name", "Metric description", Value.UNDEFINED);
-    }
-
-    public static Metric of(String name, String description, long from, long to) {
-        return new Metric(name, description, Value.of(from), Value.of(to));
-    }
-
-    public static Metric of(String name, String description, double from, double to) {
-        return new Metric(name, description, Value.of(from), Value.of(to));
-    }
-
-    public static Metric of(String name, String description, Value from, Value to) {
-        return new Metric(name, description, from, to);
-    }
-
-    public static Metric of(String name, String description, Value value) {
-        return new Metric(name, description, value);
-    }
-
     public static Metric of(String name, String description, String descriptionUrl, Value value) {
         return new Metric(name, description, descriptionUrl, value);
-    }
-
-    public static Metric of(String name, String description, long value) {
-        return new Metric(name, description, Value.of(value));
-    }
-
-    public static Metric of(String name, String description, double value) {
-        return new Metric(name, description, Value.of(value));
     }
 
     public static Metric of(String name, String description, String descriptionUrl, long value) {

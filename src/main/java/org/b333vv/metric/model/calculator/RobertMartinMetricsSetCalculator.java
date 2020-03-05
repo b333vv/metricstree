@@ -3,22 +3,22 @@ package org.b333vv.metric.model.calculator;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.psi.*;
 import org.b333vv.metric.exec.ProjectMetricsRunner;
-import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.BucketedCount;
+import org.b333vv.metric.model.metric.util.ClassUtils;
 
 import java.util.Set;
 
 public class RobertMartinMetricsSetCalculator {
     private final AnalysisScope scope;
 
-    private BucketedCount<PsiPackage> numExternalDependenciesPerPackage = new BucketedCount<>();
-    private BucketedCount<PsiPackage> numExternalDependentsPerPackage = new BucketedCount<>();
+    private BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
+    private BucketedCount<PsiPackage> externalDependentsPerPackageNumber = new BucketedCount<>();
 
-    private BucketedCount<PsiPackage> numAbstractClassesPerPackage = new BucketedCount<>();
-    private BucketedCount<PsiPackage> numClassesPerPackage = new BucketedCount<>();
+    private BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
+    private BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
     public RobertMartinMetricsSetCalculator(AnalysisScope scope) {
         this.scope = scope;
@@ -30,8 +30,8 @@ public class RobertMartinMetricsSetCalculator {
 
         javaProject.getAllPackages()
                 .forEach(p -> {
-                    int afferentCoupling = numExternalDependentsPerPackage.getBucketValue(p.getPsiPackage());
-                    int efferentCoupling = numExternalDependenciesPerPackage.getBucketValue(p.getPsiPackage());
+                    int afferentCoupling = externalDependentsPerPackageNumber.getBucketValue(p.getPsiPackage());
+                    int efferentCoupling = externalDependenciesPerPackageNumber.getBucketValue(p.getPsiPackage());
                     double instability = (afferentCoupling + efferentCoupling) == 0 ? 1.0 :
                             (double) efferentCoupling / ((double) afferentCoupling + (double) efferentCoupling);
                     p.addMetric(Metric.of(
@@ -50,10 +50,10 @@ public class RobertMartinMetricsSetCalculator {
                             "/html/Instability.html",
                             instability));
 
-                    int numClasses = numClassesPerPackage.getBucketValue(p.getPsiPackage());
-                    int numAbstractClasses = numAbstractClassesPerPackage.getBucketValue(p.getPsiPackage());
-                    double abstractness = numClasses == 0 ? 1.0 :
-                            (double) numAbstractClasses / (double) numClasses;
+                    int classesNumber = classesPerPackageNumber.getBucketValue(p.getPsiPackage());
+                    int abstractClassesNumber = abstractClassesPerPackageNumber.getBucketValue(p.getPsiPackage());
+                    double abstractness = classesNumber == 0 ? 1.0 :
+                            (double) abstractClassesNumber / (double) classesNumber;
                     p.addMetric(Metric.of(
                             "A",
                             "Abstractness",
@@ -89,18 +89,18 @@ public class RobertMartinMetricsSetCalculator {
 
             DependenciesBuilder dependenciesBuilder = ProjectMetricsRunner.getDependenciesBuilder();
 
-            numExternalDependenciesPerPackage.createBucket(psiPackage);
+            externalDependenciesPerPackageNumber.createBucket(psiPackage);
             Set<PsiPackage> packageDependencies = dependenciesBuilder.getPackagesDependencies(psiClass);
-            numExternalDependenciesPerPackage.incrementBucketValue(psiPackage, packageDependencies.size());
+            externalDependenciesPerPackageNumber.incrementBucketValue(psiPackage, packageDependencies.size());
 
-            numExternalDependentsPerPackage.createBucket(psiPackage);
+            externalDependentsPerPackageNumber.createBucket(psiPackage);
             Set<PsiPackage> packageDependents = dependenciesBuilder.getPackagesDependents(psiClass);
-            numExternalDependentsPerPackage.incrementBucketValue(psiPackage, packageDependents.size());
+            externalDependentsPerPackageNumber.incrementBucketValue(psiPackage, packageDependents.size());
 
             if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
-                numAbstractClassesPerPackage.incrementBucketValue(psiPackage);
+                abstractClassesPerPackageNumber.incrementBucketValue(psiPackage);
             }
-            numClassesPerPackage.incrementBucketValue(psiPackage);
+            classesPerPackageNumber.incrementBucketValue(psiPackage);
         }
     }
 }

@@ -2,11 +2,12 @@ package org.b333vv.metric.ui.info;
 
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.SideBorder;
+import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.metric.Sets;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -17,7 +18,6 @@ public class BottomPanel {
     private JTextPane metricDescription;
 
     public BottomPanel() {
-
         panel = new JPanel(new BorderLayout());
         panel.setBorder(IdeBorderFactory.createBorder(SideBorder.LEFT));
         clear();
@@ -25,77 +25,10 @@ public class BottomPanel {
     }
 
     public void clear() {
-        nothingToDisplay(false);
-    }
-
-    public void setData(@NotNull Metric metric) {
-        String description = metric.getDescription();
-        if (description == null) {
-            nothingToDisplay(true);
-            return;
-        }
-        updateDescription(description);
-    }
-
-    public void setData(@NotNull JavaProject javaProject) {
-        String description = javaProject.getName();
-        if (description == null) {
-            nothingToDisplay(true);
-            return;
-        }
-        updateDescription(description);
-    }
-
-    public void setData(@NotNull JavaPackage javaPackage) {
-        String description = javaPackage.getName();
-        if (description == null) {
-            nothingToDisplay(true);
-            return;
-        }
-        updateDescription(description);
-    }
-
-    public void setData(@NotNull JavaClass javaClass) {
-        String description = javaClass.getName();
-        if (description == null) {
-            nothingToDisplay(true);
-            return;
-        }
-        updateDescription(description);
-    }
-
-    public void setData(@NotNull JavaMethod javaMethod) {
-        String description = javaMethod.getName();
-        if (description == null) {
-            nothingToDisplay(true);
-            return;
-        }
-        updateDescription(description);
-    }
-
-    private void nothingToDisplay(boolean error) {
         metricDescription = null;
         panel.removeAll();
-
-        String txt;
-        if (error) {
-            txt = "Couldn't find a description";
-        } else {
-            txt = "Select a node to see its description";
-        }
-
-        JComponent titleComp = new JLabel(txt, SwingConstants.LEFT);
+        JComponent titleComp = new JLabel("", SwingConstants.LEFT);
         panel.add(titleComp, BorderLayout.CENTER);
-        panel.revalidate();
-    }
-
-    private void updateDescription(String text) {
-
-        panel.removeAll();
-        metricDescription = new JTextPane();
-        metricDescription.setText(text);
-        panel.add(metricDescription, BorderLayout.CENTER);
-
         panel.revalidate();
     }
 
@@ -107,4 +40,38 @@ public class BottomPanel {
         return panel;
     }
 
+    public void setData(@NotNull Metric metric) {
+        updateDescription("Metric: "
+                + metric.getDescription()
+                + " [" + metric.getName()
+                + " = "
+                + (Sets.inMoodMetricsSet(metric.getName())
+                        ? metric.getValue().percentageFormat()
+                        : metric.getFormattedValue())
+                + "]");
+    }
+
+    public void setData(@NotNull JavaProject javaProject) {
+        updateDescription("Project: " + javaProject.getName());
+    }
+
+    public void setData(@NotNull JavaPackage javaPackage) {
+        updateDescription("Package: " + javaPackage.getName());
+    }
+
+    public void setData(@NotNull JavaClass javaClass) {
+        updateDescription("Class: " + javaClass.getName());
+    }
+
+    public void setData(@NotNull JavaMethod javaMethod) {
+        updateDescription("Method: " + javaMethod.getName());
+    }
+
+    private void updateDescription(String text) {
+        panel.removeAll();
+        metricDescription = new JTextPane();
+        metricDescription.setText(text);
+        panel.add(metricDescription, BorderLayout.CENTER);
+        panel.revalidate();
+    }
 }

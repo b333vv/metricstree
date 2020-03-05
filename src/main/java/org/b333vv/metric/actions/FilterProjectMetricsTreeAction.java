@@ -6,6 +6,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 
 public class FilterProjectMetricsTreeAction extends AbstractAction {
 
@@ -28,7 +29,7 @@ public class FilterProjectMetricsTreeAction extends AbstractAction {
                 ActionManager.getInstance().createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, actionGroup);
 
         ToolWindow toolWindow =
-                ToolWindowManager.getInstance(e.getProject())
+                ToolWindowManager.getInstance(Objects.requireNonNull(e.getProject()))
                         .getToolWindow("MetricsTree");
         actionPopupMenu.getComponent().show(
                 toolWindow.getComponent().getComponent(0),

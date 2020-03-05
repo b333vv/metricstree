@@ -36,10 +36,6 @@ public class JavaMethod extends JavaCode {
         return psiMethod;
     }
 
-    public JavaClass getParentType() {
-        return (JavaClass) getParent();
-    }
-
     @Override
     public String toString() {
         return "Method(" + this.getName() + ")";

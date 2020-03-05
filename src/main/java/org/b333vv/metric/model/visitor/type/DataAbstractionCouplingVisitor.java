@@ -12,21 +12,19 @@ import java.util.Set;
 public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        final Set<PsiClass> classes = new HashSet<PsiClass>();
-        final PsiField[] fields = psiClass.getFields();
-        for (final PsiField field : fields) {
-            if (!field.isPhysical()) {
-                continue;
+        final Set<PsiClass> psiClasses = new HashSet<>();
+        final PsiField[] psiClassFields = psiClass.getFields();
+        for (final PsiField psiField : psiClassFields) {
+            if (psiField.isPhysical()) {
+                final PsiType psiType = psiField.getType().getDeepComponentType();
+                final PsiClass resolvedClassInType = PsiUtil.resolveClassInType(psiType);
+                if (resolvedClassInType != null) {
+                    psiClasses.add(resolvedClassInType);
+                }
             }
-            final PsiType type = field.getType().getDeepComponentType();
-            final PsiClass classInType = PsiUtil.resolveClassInType(type);
-            if (classInType == null) {
-                continue;
-            }
-            classes.add(classInType);
         }
         metric = Metric.of("DAC", "Data Abstraction Coupling",
-                "/html/DataAbstractionCoupling.html", classes.size());
+                "/html/DataAbstractionCoupling.html", psiClasses.size());
         super.visitClass(psiClass);
     }
 }

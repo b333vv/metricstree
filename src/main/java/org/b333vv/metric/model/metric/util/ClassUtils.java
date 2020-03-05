@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ClassUtils {
-    private ClassUtils(){
+    private ClassUtils() {
 //        Util class
     }
 
@@ -49,21 +49,12 @@ public class ClassUtils {
         return javaFile.getPackageName();
     }
 
-    public static PsiPackage[] calculatePackagesRecursive(PsiElement element) {
-        PsiPackage aPackage = findPackage(element);
-        final List<PsiPackage> out = new ArrayList<>();
-        while (aPackage != null) {
-            out.add(aPackage);
-            aPackage = aPackage.getParentPackage();
-        }
-        return out.toArray(new PsiPackage[out.size()]);
-    }
-
     @Nullable
     public static List<PsiPackage> getPackagesRecursive(PsiFile psiFile) {
         final PsiDirectory directory = psiFile.getContainingDirectory();
         final List<PsiPackage> packageList = new ArrayList<>();
         PsiPackage psiPackage = JavaDirectoryService.getInstance().getPackage(directory);
+        assert psiPackage != null;
         while (psiPackage.getParentPackage() != null) {
             packageList.add(psiPackage);
             psiPackage = psiPackage.getParentPackage();

@@ -1,9 +1,9 @@
 package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.*;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.metric.Metric;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -100,7 +100,6 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
             fieldsUsed.add(field);
         }
 
-        @SuppressWarnings({"ReturnOfCollectionOrArrayField"})
         public Set<PsiField> getFieldsUsed() {
             return fieldsUsed;
         }
@@ -123,7 +122,6 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
             }
         }
 
-        @SuppressWarnings({"ReturnOfCollectionOrArrayField"})
         public Set<PsiMethod> getMethodsUsed() {
             return methodsUsed;
         }
@@ -135,11 +133,10 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
         final Set<Set<PsiMethod>> components = new HashSet<>();
         while (applicableMethods.size() > 0) {
             final Set<PsiMethod> component = new HashSet<>();
-            final Set<PsiField> fieldsUsed = new HashSet<>();
             final PsiMethod testMethod = applicableMethods.iterator().next();
             applicableMethods.remove(testMethod);
             component.add(testMethod);
-            fieldsUsed.addAll(fieldsPerMethod.get(testMethod));
+            final Set<PsiField> fieldsUsed = new HashSet<>(fieldsPerMethod.get(testMethod));
             while (true) {
                 final Set<PsiMethod> methodsToAdd = new HashSet<>();
                 for (PsiMethod method : applicableMethods) {

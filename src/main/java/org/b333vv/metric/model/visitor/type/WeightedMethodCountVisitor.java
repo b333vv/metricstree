@@ -2,10 +2,10 @@ package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.visitor.util.MethodComplexityVisitor;
+import org.b333vv.metric.model.visitor.method.MethodComplexityVisitor;
 
 import java.util.Arrays;
 

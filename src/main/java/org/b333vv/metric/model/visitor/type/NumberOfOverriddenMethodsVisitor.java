@@ -11,7 +11,7 @@ public class NumberOfOverriddenMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        long numberOfOverriddenMethods = 0;
+        long overriddenMethodsNumber = 0;
         metric = Metric.of("NOOM", "Number Of Overridden Methods",
                 "/html/NumberOfOverriddenMethods.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
@@ -21,11 +21,11 @@ public class NumberOfOverriddenMethodsVisitor extends JavaClassVisitor {
                     continue;
                 }
                 if (MethodUtils.hasConcreteSuperMethod(method)) {
-                    numberOfOverriddenMethods++;
+                    overriddenMethodsNumber++;
                 }
             }
             metric = Metric.of("NOOM", "Number Of Overridden Methods",
-                    "/html/NumberOfOverriddenMethods.html", numberOfOverriddenMethods);
+                    "/html/NumberOfOverriddenMethods.html", overriddenMethodsNumber);
         }
     }
 }
