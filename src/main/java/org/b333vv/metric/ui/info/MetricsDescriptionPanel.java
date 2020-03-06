@@ -21,12 +21,12 @@ import java.net.URL;
 import static java.awt.GridBagConstraints.*;
 
 public class MetricsDescriptionPanel {
-    private JEditorPane metricDescription;
-    private JPanel rightMetricPanel;
-    private JLabel allowableRangeValue;
-    private JLabel currentValue;
-    private JLabel metricLevel;
-    private JLabel metricSet;
+    private final JEditorPane metricDescription;
+    private final JPanel rightMetricPanel;
+    private final JLabel allowableRangeValue;
+    private final JLabel currentValue;
+    private final JLabel metricLevel;
+    private final JLabel metricSet;
 
     public MetricsDescriptionPanel() {
         rightMetricPanel = new JPanel(new GridBagLayout());
@@ -43,14 +43,14 @@ public class MetricsDescriptionPanel {
         metricDescription.setContentType("text/html");
         metricDescription.setEditable(false);
 
-        if (UIUtil.isUnderDarcula()) {
-            HTMLEditorKit kit = new HTMLEditorKit();
-            StyleSheet styleSheet = new StyleSheet();
-            styleSheet.addRule("body { background-color: #303030 }");
-            styleSheet.addRule("body { color: #D3D3D3; }");
-            kit.getStyleSheet().addStyleSheet(styleSheet);
-            metricDescription.setEditorKit(kit);
-        }
+//        if (UIUtil.isUnderDarcula()) {
+//            HTMLEditorKit kit = new HTMLEditorKit();
+//            StyleSheet styleSheet = new StyleSheet();
+//            styleSheet.addRule("body { background-color: #303030 }");
+//            styleSheet.addRule("body { color: #D3D3D3; }");
+//            kit.getStyleSheet().addStyleSheet(styleSheet);
+//            metricDescription.setEditorKit(kit);
+//        }
 
         JScrollPane scrollableMetricDescriptionPanel = ScrollPaneFactory.createScrollPane(
                 metricDescription,

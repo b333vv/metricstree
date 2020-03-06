@@ -49,7 +49,7 @@ public class ClassUtils {
         return javaFile.getPackageName();
     }
 
-    @Nullable
+    @NotNull
     public static List<PsiPackage> getPackagesRecursive(PsiFile psiFile) {
         final PsiDirectory directory = psiFile.getContainingDirectory();
         final List<PsiPackage> packageList = new ArrayList<>();

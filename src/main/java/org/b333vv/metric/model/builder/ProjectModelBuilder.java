@@ -90,7 +90,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     public void calculateMetrics() {
         javaProject.getAllClasses().forEach(c ->
             MetricsService.getDeferredJavaClassVisitorsForProjectMetricsTree()
-                    .forEach(v -> c.accept(v)));
+                    .forEach(c::accept));
 
     }
 }

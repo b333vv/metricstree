@@ -4,8 +4,6 @@ import com.intellij.icons.AllIcons;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
-import javax.swing.*;
-
 public class ProjectNode extends AbstractNode {
 
     private final transient JavaProject javaProject;
@@ -18,13 +16,9 @@ public class ProjectNode extends AbstractNode {
         return javaProject;
     }
 
-    public Icon getIcon() {
-        return AllIcons.General.ProjectStructure;
-    }
-
     @Override
     public void render(TreeCellRenderer renderer) {
-        renderer.setIcon(getIcon());
+        renderer.setIcon(AllIcons.General.ProjectStructure);
         renderer.append(javaProject.getName());
     }
 }

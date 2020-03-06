@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class MethodNode extends AbstractNode {
 
-    private final JavaMethod javaMethod;
+    private final transient JavaMethod javaMethod;
 
     public MethodNode(JavaMethod javaMethod) {
         this.javaMethod = javaMethod;

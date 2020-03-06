@@ -34,7 +34,7 @@ public class NumberOfAttributesAndMethodsVisitor extends JavaClassVisitor {
                 }
             }
             metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
-                    "/html/NumberOfAttributesAndMethods.html", operationsNumber + attributesNumber);
+                    "/html/NumberOfAttributesAndMethods.html", (long) operationsNumber + attributesNumber);
         }
     }
 }

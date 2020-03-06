@@ -1,18 +1,14 @@
 package org.b333vv.metric.ui.settings;
 
-import com.intellij.openapi.project.Project;
-
 import javax.swing.*;
 import java.util.List;
 
 public class ClassMetricsTreeSettingsPanel implements ConfigurationPanel<ClassMetricsTreeSettings> {
     private static final String EMPTY_LABEL = "No metrics configured";
-    private final Project project;
     private JPanel panel;
     private MetricsTreeSettingsTable metricsTreeSettingsTable;
 
-    public ClassMetricsTreeSettingsPanel(Project project, ClassMetricsTreeSettings classMetricsTreeSettings) {
-        this.project = project;
+    public ClassMetricsTreeSettingsPanel(ClassMetricsTreeSettings classMetricsTreeSettings) {
         createUIComponents(classMetricsTreeSettings);
     }
 
@@ -37,7 +33,7 @@ public class ClassMetricsTreeSettingsPanel implements ConfigurationPanel<ClassMe
     }
 
     private void createUIComponents(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        metricsTreeSettingsTable = new MetricsTreeSettingsTable(EMPTY_LABEL, project, classMetricsTreeSettings.getMetricsList());
+        metricsTreeSettingsTable = new MetricsTreeSettingsTable(EMPTY_LABEL, classMetricsTreeSettings.getMetricsList());
         panel = metricsTreeSettingsTable.getComponent();
     }
 }

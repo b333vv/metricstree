@@ -4,24 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CompositeIcon implements Icon {
-    public static final float TOP = 0.0f;
-    public static final float LEFT = 0.0f;
     public static final float CENTER = 0.5f;
-    public static final float BOTTOM = 1.0f;
-    public static final float RIGHT = 1.0f;
     private final Axis axis;
     private final int gap;
     private Icon[] icons;
-    private float alignmentX = CENTER;
-    private float alignmentY = CENTER;
-
-    public CompositeIcon(Icon... icons) {
-        this(Axis.X_AXIS, icons);
-    }
-
-    public CompositeIcon(Axis axis, Icon... icons) {
-        this(axis, 0, icons);
-    }
+    private final float alignmentX;
+    private final float alignmentY;
 
     public CompositeIcon(Axis axis, int gap, Icon... icons) {
         this(axis, gap, CENTER, CENTER, icons);
@@ -34,12 +22,12 @@ public class CompositeIcon implements Icon {
         if (alignmentX > 1.0f) {
             this.alignmentX = 1.0f;
         } else {
-            this.alignmentX = alignmentX < 0.0f ? 0.0f : alignmentX;
+            this.alignmentX = Math.max(alignmentX, 0.0f);
         }
         if (alignmentY > 1.0f) {
             this.alignmentY = 1.0f;
         } else {
-            this.alignmentY = alignmentY < 0.0f ? 0.0f : alignmentY;
+            this.alignmentY = Math.max(alignmentY, 0.0f);
         }
         for (int i = 0; i < icons.length; i++) {
             if (icons[i] == null) {
@@ -47,33 +35,12 @@ public class CompositeIcon implements Icon {
                 throw new IllegalArgumentException(message);
             }
         }
-
         this.icons = icons;
     }
 
     private static int getOffset(int maxValue, int iconValue, float alignment) {
         float offset = (maxValue - iconValue) * alignment;
         return Math.round(offset);
-    }
-
-    public Axis getAxis() {
-        return axis;
-    }
-
-    public int getGap() {
-        return gap;
-    }
-
-    public float getAlignmentX() {
-        return alignmentX;
-    }
-
-    public float getAlignmentY() {
-        return alignmentY;
-    }
-
-    public int getIconCount() {
-        return icons.length;
     }
 
     public Icon getIcon(int index) {

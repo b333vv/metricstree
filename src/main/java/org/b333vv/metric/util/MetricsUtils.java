@@ -10,20 +10,16 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.DumbServiceImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.concurrency.AppExecutorUtil;
-import org.b333vv.metric.ui.toolWindow.ProjectMetricsPanel;
+import org.b333vv.metric.ui.tool.ClassMetricsPanel;
+import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
-import org.b333vv.metric.ui.toolWindow.ClassMetricsPanel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,8 +30,8 @@ public class MetricsUtils {
 
     private static final Logger LOG = Logger.getInstance(MetricsUtils.class);
     private static Project project;
-    private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
-    private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
+    private static final MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
+    private static final MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
     private static ClassMetricsPanel classMetricsPanel;
     private static ProjectMetricsPanel projectMetricsPanel;
     private static boolean autoScrollable = true;
@@ -50,7 +46,6 @@ public class MetricsUtils {
             LOG.error("Could not find class in container: " + clazz.getName());
             throw new IllegalArgumentException("Class not found: " + clazz.getName());
         }
-
         return t;
     }
 
@@ -64,28 +59,11 @@ public class MetricsUtils {
             return null;
         }
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
-
         Editor editor = editorManager.getSelectedTextEditor();
         if (editor != null) {
             Document doc = editor.getDocument();
             FileDocumentManager docManager = FileDocumentManager.getInstance();
             return docManager.getFile(doc);
-        }
-
-        return null;
-    }
-
-    @Nullable
-    public static SourceFolder getSourceFolder(@CheckForNull VirtualFile source, Module module) {
-        if (source == null) {
-            return null;
-        }
-        for (ContentEntry entry : ModuleRootManager.getInstance(module).getContentEntries()) {
-            for (SourceFolder folder : entry.getSourceFolders()) {
-                if (source.equals(folder.getFile())) {
-                    return folder;
-                }
-            }
         }
         return null;
     }
@@ -195,22 +173,17 @@ public class MetricsUtils {
     }
 
     @Nullable
-    public static Editor getEditorIfSelected(Project project,
-                                             PsiElement psiElement) {
+    public static Editor getEditorIfSelected(Project project, PsiElement psiElement) {
         final VirtualFile elementFile = getVirtualFile(psiElement);
         if (elementFile == null) {
             return null;
         }
-
         final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         final FileEditor fileEditor = fileEditorManager.getSelectedEditor(elementFile);
-
         Editor editor = null;
-
-        if (fileEditor != null && fileEditor instanceof TextEditor) {
+        if (fileEditor instanceof TextEditor) {
             editor = ((TextEditor) fileEditor).getEditor();
         }
-
         return editor;
     }
 }

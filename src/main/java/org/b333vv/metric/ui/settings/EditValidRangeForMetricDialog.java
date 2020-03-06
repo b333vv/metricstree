@@ -16,11 +16,9 @@ import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
 public class EditValidRangeForMetricDialog extends DialogWrapper {
-    private JPanel panel;
-    private JLabel minValueLabel;
-    private JLabel maxValueLabel;
-    private JSpinner minValue;
-    private JSpinner maxValue;
+    private final JPanel panel;
+    private final JSpinner minValue;
+    private final JSpinner maxValue;
     private MetricsValidRangeStub metricsAllowableValueRangeStub = null;
     private boolean spinnerIsDouble;
 
@@ -30,8 +28,8 @@ public class EditValidRangeForMetricDialog extends DialogWrapper {
         setTitle("Edit Valid Range For Metric");
 
         panel = new JPanel(new GridBagLayout());
-        minValueLabel = new JLabel("Minimum Valid Value");
-        maxValueLabel = new JLabel("Maximum Valid Value");
+        JLabel minValueLabel = new JLabel("Minimum Valid Value");
+        JLabel maxValueLabel = new JLabel("Maximum Valid Value");
         minValue = new JSpinner();
         maxValue = new JSpinner();
 
@@ -67,7 +65,6 @@ public class EditValidRangeForMetricDialog extends DialogWrapper {
                 }
             }
         };
-
         init();
     }
 

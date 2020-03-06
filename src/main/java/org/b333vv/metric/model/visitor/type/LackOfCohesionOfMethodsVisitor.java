@@ -131,7 +131,7 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
                                                    Map<PsiMethod, Set<PsiField>> fieldsPerMethod,
                                                    Map<PsiMethod, Set<PsiMethod>> linkedMethods) {
         final Set<Set<PsiMethod>> components = new HashSet<>();
-        while (applicableMethods.size() > 0) {
+        while (!applicableMethods.isEmpty()) {
             final Set<PsiMethod> component = new HashSet<>();
             final PsiMethod testMethod = applicableMethods.iterator().next();
             applicableMethods.remove(testMethod);
@@ -146,7 +146,7 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
                         fieldsUsed.addAll(fieldsPerMethod.get(method));
                     }
                 }
-                if (methodsToAdd.size() == 0) {
+                if (methodsToAdd.isEmpty()) {
                     break;
                 }
                 applicableMethods.removeAll(methodsToAdd);

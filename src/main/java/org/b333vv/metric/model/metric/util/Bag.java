@@ -20,7 +20,4 @@ public class Bag<T> {
         return Objects.requireNonNullElse(contents.get(obj), 0);
     }
 
-    public void clear() {
-        contents.clear();
-    }
 }

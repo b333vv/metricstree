@@ -1,4 +1,4 @@
-package org.b333vv.metric.ui.toolWindow;
+package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -34,7 +34,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     private static void addLogTab(Project project, ToolWindow toolWindow) {
         Content logContent = toolWindow.getContentManager().getFactory()
                 .createContent(
-                        new MetricsLogPanel(toolWindow, project), TAB_LOGS, false);
+                        new MetricsLogPanel(project), TAB_LOGS, false);
         toolWindow.getContentManager().addContent(logContent);
     }
 

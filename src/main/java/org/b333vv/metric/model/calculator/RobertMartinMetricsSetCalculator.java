@@ -14,11 +14,11 @@ import java.util.Set;
 public class RobertMartinMetricsSetCalculator {
     private final AnalysisScope scope;
 
-    private BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
-    private BucketedCount<PsiPackage> externalDependentsPerPackageNumber = new BucketedCount<>();
+    private final BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
+    private final BucketedCount<PsiPackage> externalDependentsPerPackageNumber = new BucketedCount<>();
 
-    private BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
-    private BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
+    private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
+    private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
     public RobertMartinMetricsSetCalculator(AnalysisScope scope) {
         this.scope = scope;

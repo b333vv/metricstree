@@ -24,10 +24,8 @@ public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
         methodNestingCount++;
         super.visitMethod(method);
         methodNestingCount--;
-        if (methodNestingCount == 0) {
-            if (!MethodUtils.isAbstract(method)) {
-                conditionNestingDepth = maximumDepth;
-            }
+        if (methodNestingCount == 0 && !MethodUtils.isAbstract(method)) {
+            conditionNestingDepth = maximumDepth;
         }
         metric = Metric.of("CND", "Condition Nesting Depth",
                 "/html/ConditionNestingDepth.html", conditionNestingDepth);

@@ -15,7 +15,13 @@ import java.util.stream.Collectors;
 @State(name = "ClassMetricsTreeSettings", storages = {@Storage("class-metrics-tree.xml")})
 public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings>, ProjectComponent {
 
-    private List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
+    private static final String CLASS_LEVEL = "Class level";
+    private static final String METHOD_LEVEL = "Method level";
+    private static final String CHIDAMBER_KEMERER_METRICS_SET = "Chidamber-Kemerer metrics set";
+    private static final String LORENZ_KIDD_METRICS_SET = "Lorenz-Kidd metrics set";
+    private static final String LI_HENRY_METRICS_SET = "Li-Henry metrics set";
+
+    private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
 
     public ClassMetricsTreeSettings() {
         loadInitialValues();
@@ -24,55 +30,51 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
     private void loadInitialValues() {
         //Chidamber-Kemerer metrics set
         classTreeMetrics.add(new MetricsTreeSettingsStub("WMC", "Weighted Methods Per Class",
-                "Class level", "Chidamber-Kemerer metrics set", true));
+                CLASS_LEVEL, CHIDAMBER_KEMERER_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("DIT", "Depth Of Inheritance Tree",
-                "Class level", "Chidamber-Kemerer metrics set", true));
+                CLASS_LEVEL, CHIDAMBER_KEMERER_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOC", "Number Of Children",
-                "Class level", "Chidamber-Kemerer metrics set", true));
+                CLASS_LEVEL, CHIDAMBER_KEMERER_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("RFC", "Response For A Class",
-                "Class level", "Chidamber-Kemerer metrics set", true));
+                CLASS_LEVEL, CHIDAMBER_KEMERER_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("LCOM", "Lack Of Cohesion In Methods",
-                "Class level", "Chidamber-Kemerer metrics set", true));
+                CLASS_LEVEL, CHIDAMBER_KEMERER_METRICS_SET, true));
 
         //Lorenz-Kidd metrics set
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOA", "Number Of Attributes",
-                "Class level", "Lorenz-Kidd metrics set", true));
+                CLASS_LEVEL, LORENZ_KIDD_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOO", "Number Of Operations",
-                "Class level", "Lorenz-Kidd metrics set", true));
+                CLASS_LEVEL, LORENZ_KIDD_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOAM", "Number Of Added Methods",
-                "Class level", "Lorenz-Kidd metrics set", true));
+                CLASS_LEVEL, LORENZ_KIDD_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOOM", "Number of Overridden Methods",
-                "Class level", "Lorenz-Kidd metrics set", true));
+                CLASS_LEVEL, LORENZ_KIDD_METRICS_SET, true));
 
         //Li-Henry metrics set
         classTreeMetrics.add(new MetricsTreeSettingsStub("SIZE2", "Number Of Attributes And Methods",
-                "Class level", "Li-Henry metrics set", true));
+                CLASS_LEVEL, LI_HENRY_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOM", "Number Of Methods",
-                "Class level", "Li-Henry metrics set", true));
+                CLASS_LEVEL, LI_HENRY_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("MPC", "Message Passing Coupling",
-                "Class level", "Li-Henry metrics set", true));
+                CLASS_LEVEL, LI_HENRY_METRICS_SET, true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("DAC", "Data Abstraction Coupling",
-                "Class level", "Li-Henry metrics set", true));
+                CLASS_LEVEL, LI_HENRY_METRICS_SET, true));
 
         //Methods metrics set
         classTreeMetrics.add(new MetricsTreeSettingsStub("CND", "Condition Nesting Depth",
-                "Method level", "", true));
+                METHOD_LEVEL, "", true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("LOC", "Lines Of Code",
-                "Method level", "", true));
+                METHOD_LEVEL, "", true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("LND", "Loop Nesting Depth",
-                "Method level", "", true));
+                METHOD_LEVEL, "", true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("CC", "McCabe Cyclomatic Complexity",
-                "Method level", "", true));
+                METHOD_LEVEL, "", true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOL", "Number Of Loops",
-                "Method level", "", true));
+                METHOD_LEVEL, "", true));
 //        classTreeMetrics.add(new MetricsTreeSettingsStub("FIN", "Fan-In",
-//                "Method level", "", true));
+//                METHOD_LEVEL, "", true));
 //        classTreeMetrics.add(new MetricsTreeSettingsStub("FOUT", "Fan-Out",
-//                "Method level", "", true));
-    }
-
-    public List<MetricsTreeSettingsStub> getClassTreeMetrics() {
-        return new ArrayList<>(classTreeMetrics);
+//                METHOD_LEVEL, "", true));
     }
 
     public void setClassTreeMetrics(List<MetricsTreeSettingsStub> metrics) {

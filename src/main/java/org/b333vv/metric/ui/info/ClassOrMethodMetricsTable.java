@@ -10,12 +10,11 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,7 +83,7 @@ public class ClassOrMethodMetricsTable {
         Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
         panel.setBorder(b);
         List<Metric> sortedMetrics = javaCode.getMetrics()
-                .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
+                .sorted(Comparator.comparing(Metric::getName))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);
         hideOrShowValidValuesColumn(MetricsService.isControlValidRanges());
@@ -92,7 +91,7 @@ public class ClassOrMethodMetricsTable {
 
     private static class Model extends AbstractTableModel {
 
-        private List<Metric> rows = List.of();
+        private transient List<Metric> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -112,8 +111,6 @@ public class ClassOrMethodMetricsTable {
         @Override
         public String getColumnName(int column) {
             switch (column) {
-                case 0:
-                    return "";
                 case 1:
                     return "Metric";
                 case 2:
@@ -122,8 +119,9 @@ public class ClassOrMethodMetricsTable {
                     return "Value";
                 case 4:
                     return "Valid";
+                default:
+                    return "";
             }
-            return "";
         }
 
         @Override
@@ -161,8 +159,9 @@ public class ClassOrMethodMetricsTable {
                     } else {
                         return metric.getRange();
                     }
+                default:
+                    return metric;
             }
-            return metric;
         }
 
         private Icon getRowIcon(Metric metric) {

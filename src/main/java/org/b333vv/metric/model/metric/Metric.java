@@ -6,11 +6,11 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.MetricsService;
 
 public class Metric {
-    private String name;
-    private String description;
-    private Value value;
-    private Range range;
-    private String descriptionUrl;
+    private final String name;
+    private final String description;
+    private final Value value;
+    private final Range range;
+    private final String descriptionUrl;
 
     protected Metric(String name, String description, String descriptionUrl, Value value) {
         this.name = name;

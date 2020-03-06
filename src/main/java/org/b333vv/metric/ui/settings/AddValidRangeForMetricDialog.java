@@ -12,18 +12,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Objects;
 
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
 public class AddValidRangeForMetricDialog extends DialogWrapper {
-    private JPanel panel;
-    private ComboBox metricsAllowableValuesRangeStubCombo;
-    private JLabel minValueLabel;
-    private JLabel maxValueLabel;
-    private JLabel comboBoxLabel;
-    private JSpinner minValue;
-    private JSpinner maxValue;
+    private final JPanel panel;
+    private final ComboBox metricsAllowableValuesRangeStubCombo;
+    private final JSpinner minValue;
+    private final JSpinner maxValue;
     private MetricsValidRangeStub metricsAllowableValueRangeStub = null;
     private boolean spinnerIsDouble;
 
@@ -39,17 +37,17 @@ public class AddValidRangeForMetricDialog extends DialogWrapper {
         metricsAllowableValuesRangeStubCombo.addItemListener(arg -> {
             metricsAllowableValueRangeStub = (MetricsValidRangeStub)
                     metricsAllowableValuesRangeStubCombo.getSelectedItem();
-            setMetricsAllowableValueRangeStub(metricsAllowableValueRangeStub);
+            setMetricsAllowableValueRangeStub(Objects.requireNonNull(metricsAllowableValueRangeStub));
         });
 
         panel = new JPanel(new GridBagLayout());
-        minValueLabel = new JLabel("Minimum Valid Value");
-        maxValueLabel = new JLabel("Maximum Valid Value");
-        comboBoxLabel = new JLabel("Metric");
+        JLabel minValueLabel = new JLabel("Minimum Valid Value");
+        JLabel maxValueLabel = new JLabel("Maximum Valid Value");
+        JLabel comboBoxLabel = new JLabel("Metric");
         minValue = new JSpinner();
         maxValue = new JSpinner();
         setMetricsAllowableValueRangeStub((MetricsValidRangeStub)
-                metricsAllowableValuesRangeStubCombo.getSelectedItem());
+                Objects.requireNonNull(metricsAllowableValuesRangeStubCombo.getSelectedItem()));
 
         JBInsets insets = JBUI.insets(2, 2, 2, 2);
 

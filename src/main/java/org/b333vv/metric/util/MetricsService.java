@@ -16,8 +16,8 @@ public class MetricsService {
     private static MetricsValidRangesSettings metricsValidRangesSettings;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
-    private static Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
-    private static Map<String, JavaRecursiveElementVisitor> deferredVisitors = new HashMap<>();
+    private static final Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
+    private static final Map<String, JavaRecursiveElementVisitor> deferredVisitors = new HashMap<>();
     static {
         visitors.put("NOAM", new NumberOfAddedMethodsVisitor());
         visitors.put("LCOM", new LackOfCohesionOfMethodsVisitor());

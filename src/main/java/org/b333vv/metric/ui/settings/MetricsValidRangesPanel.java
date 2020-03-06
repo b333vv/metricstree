@@ -3,7 +3,6 @@ package org.b333vv.metric.ui.settings;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import java.awt.*;

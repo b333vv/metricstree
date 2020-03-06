@@ -22,7 +22,7 @@ public class MetricsValidRangesTable {
     private final JBTable table;
     private final JPanel panel;
     private final Model model;
-    private Project project;
+    private final Project project;
 
     public MetricsValidRangesTable(String emptyLabel,
                                    Function<MetricsValidRangeStub,
@@ -124,10 +124,10 @@ public class MetricsValidRangesTable {
     }
 
     private class Model extends AbstractTableModel {
-        private final int COLUMN_COUNT = 5;
-        MetricsValidRangesSettings metricsValidRangesSettings =
+        private static final int COLUMN_COUNT = 5;
+        final transient MetricsValidRangesSettings metricsValidRangesSettings =
                 MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
-        private List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
+        private transient List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
 
         @Override
         public int getRowCount() {
@@ -157,8 +157,9 @@ public class MetricsValidRangesTable {
                     return "Min value";
                 case 4:
                     return "Max value";
+                default:
+                    return "";
             }
-            return "";
         }
 
         public void set(List<MetricsValidRangeStub> rows) {
@@ -184,8 +185,9 @@ public class MetricsValidRangesTable {
                     return item.isDoubleValue() ? item.getMinDoubleValue() : item.getMinLongValue();
                 case 4:
                     return item.isDoubleValue() ? item.getMaxDoubleValue() : item.getMaxLongValue();
+                default:
+                    return item;
             }
-            return item;
         }
     }
 }

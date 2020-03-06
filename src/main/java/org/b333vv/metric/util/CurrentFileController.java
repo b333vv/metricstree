@@ -9,7 +9,7 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import org.b333vv.metric.ui.toolWindow.ClassMetricsPanel;
+import org.b333vv.metric.ui.tool.ClassMetricsPanel;
 import org.jetbrains.annotations.NotNull;
 
 public class CurrentFileController {

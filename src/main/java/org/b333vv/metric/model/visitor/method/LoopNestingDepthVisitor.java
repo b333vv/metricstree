@@ -22,10 +22,8 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
         methodNestingCount++;
         super.visitMethod(method);
         methodNestingCount--;
-        if (methodNestingCount == 0) {
-            if (!MethodUtils.isAbstract(method)) {
-                loopNestingDepth = maximumDepth;
-            }
+        if (methodNestingCount == 0 && !MethodUtils.isAbstract(method)) {
+            loopNestingDepth = maximumDepth;
         }
         metric = Metric.of("LND", "Loop Nesting Depth",
                 "/html/LoopNestingDepth.html", loopNestingDepth);

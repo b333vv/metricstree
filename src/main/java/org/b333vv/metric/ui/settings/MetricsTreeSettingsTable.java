@@ -1,6 +1,5 @@
 package org.b333vv.metric.ui.settings;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -14,19 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MetricsTreeSettingsTable {
-    private final JBTable table;
     private final JPanel panel;
     private final Model model;
-    private Project project;
 
     public MetricsTreeSettingsTable(String emptyLabel,
-                                    Project project,
                                     List<MetricsTreeSettingsStub> rows) {
-        this.project = project;
         model = new Model();
         model.setRows(rows);
 
-        table = new JBTable(model);
+        JBTable table = new JBTable(model);
         table.setShowGrid(false);
         table.setIntercellSpacing(JBUI.emptySize());
         table.getEmptyText().setText(emptyLabel);
@@ -35,12 +30,6 @@ public class MetricsTreeSettingsTable {
 
 
         table.getTableHeader().setReorderingAllowed(true);
-
-        table.getColumnModel().getColumn(0).setHeaderValue("");
-        table.getColumnModel().getColumn(1).setHeaderValue("Metric");
-        table.getColumnModel().getColumn(2).setHeaderValue("Metrics Description");
-        table.getColumnModel().getColumn(3).setHeaderValue("Metrics Level");
-        table.getColumnModel().getColumn(4).setHeaderValue("Metrics Set");
 
         table.getColumnModel().getColumn(0).setMaxWidth(30);
         table.getColumnModel().getColumn(1).setMaxWidth(50);
@@ -69,9 +58,9 @@ public class MetricsTreeSettingsTable {
         return new ArrayList<>(model.items());
     }
 
-    private class Model extends AbstractTableModel {
-        private final int COLUMN_COUNT = 5;
-        private List<MetricsTreeSettingsStub> rows;
+    private static class Model extends AbstractTableModel {
+        private static final int COLUMN_COUNT = 5;
+        private transient List<MetricsTreeSettingsStub> rows;
 
         public void setRows(List<MetricsTreeSettingsStub> rows) {
             this.rows = rows;
@@ -101,8 +90,6 @@ public class MetricsTreeSettingsTable {
         @Override
         public String getColumnName(int column) {
             switch (column) {
-                case 0:
-                    return "";
                 case 1:
                     return "Metric";
                 case 2:
@@ -111,8 +98,9 @@ public class MetricsTreeSettingsTable {
                     return "Metrics Level";
                 case 4:
                     return "Metrics Set";
+                default:
+                    return "";
             }
-            return "";
         }
 
         public void set(List<MetricsTreeSettingsStub> rows) {
@@ -138,16 +126,14 @@ public class MetricsTreeSettingsTable {
                     return item.getLevel();
                 case 4:
                     return item.getSet();
+                default:
+                    return item;
             }
-            return item;
         }
 
         @Override
         public Class<?> getColumnClass(int column) {
-            if (column == 0) {
-                return Boolean.class;
-            }
-            return String.class;
+            return column == 0 ? Boolean.class : String.class;
         }
     }
 }

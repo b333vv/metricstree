@@ -15,10 +15,15 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
 
     private boolean controlValidRanges;
 
-    private Map<String, MetricsValidRangeStub> controlledMetrics = new HashMap<>();
-    private Map<String, MetricsValidRangeStub> unControlledMetrics = new HashMap<>();
-    private Map<String, MetricsValidRangeStub> temporaryControlledMetrics = new HashMap<>();
-    private Map<String, MetricsValidRangeStub> temporaryUnControlledMetrics = new HashMap<>();
+    private static final String PROJECT_LEVEL = "Project";
+    private static final String PACKAGE_LEVEL = "Package";
+    private static final String CLASS_LEVEL = "Class";
+    private static final String METHOD_LEVEL = "Method";
+
+    private final Map<String, MetricsValidRangeStub> controlledMetrics = new HashMap<>();
+    private final Map<String, MetricsValidRangeStub> unControlledMetrics = new HashMap<>();
+    private final Map<String, MetricsValidRangeStub> temporaryControlledMetrics = new HashMap<>();
+    private final Map<String, MetricsValidRangeStub> temporaryUnControlledMetrics = new HashMap<>();
 
     public MetricsValidRangesSettings() {
         loadInitialValues();
@@ -29,87 +34,87 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
         controlValidRanges = true;
 
         //Chidamber-Kemerer metrics set
-        controlledMetrics.put("WMC", new MetricsValidRangeStub("WMC", "Weighted Methods Per Class", "Class",
+        controlledMetrics.put("WMC", new MetricsValidRangeStub("WMC", "Weighted Methods Per Class", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 24));
-        controlledMetrics.put("DIT", new MetricsValidRangeStub("DIT", "Depth Of Inheritance Tree", "Class",
+        controlledMetrics.put("DIT", new MetricsValidRangeStub("DIT", "Depth Of Inheritance Tree", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 5));
-        controlledMetrics.put("CBO", new MetricsValidRangeStub("CBO", "Coupling Between Object", "Class",
+        controlledMetrics.put("CBO", new MetricsValidRangeStub("CBO", "Coupling Between Object", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 13));
-        controlledMetrics.put("RFC", new MetricsValidRangeStub("RFC", "Response For A Class", "Class",
+        controlledMetrics.put("RFC", new MetricsValidRangeStub("RFC", "Response For A Class", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 44));
 
 
         //Lorenz-Kidd metrics set
-        controlledMetrics.put("NOA", new MetricsValidRangeStub("NOA", "Number Of Attributes", "Class",
+        controlledMetrics.put("NOA", new MetricsValidRangeStub("NOA", "Number Of Attributes", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 40));
-        controlledMetrics.put("NOO", new MetricsValidRangeStub("NOO", "Number Of Operations", "Class",
+        controlledMetrics.put("NOO", new MetricsValidRangeStub("NOO", "Number Of Operations", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 20));
-        controlledMetrics.put("NOOM", new MetricsValidRangeStub("NOOM", "Number of Overridden Methods", "Class",
+        controlledMetrics.put("NOOM", new MetricsValidRangeStub("NOOM", "Number of Overridden Methods", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 3));
 
         //Robert C. Martin metrics set
-        controlledMetrics.put("Ce", new MetricsValidRangeStub("Ce", "Efferent Coupling", "Package",
+        controlledMetrics.put("Ce", new MetricsValidRangeStub("Ce", "Efferent Coupling", PACKAGE_LEVEL,
                 false, 0.00, 0.00, 0, 20));
-        controlledMetrics.put("Ca", new MetricsValidRangeStub("Ca", "Afferent Coupling", "Package",
+        controlledMetrics.put("Ca", new MetricsValidRangeStub("Ca", "Afferent Coupling", PACKAGE_LEVEL,
                 false, 0.00, 0.00, 0, 500));
-        controlledMetrics.put("I", new MetricsValidRangeStub("I", "Instability", "Package",
+        controlledMetrics.put("I", new MetricsValidRangeStub("I", "Instability", PACKAGE_LEVEL,
                 true, 0.00, 1.00, 0, 0));
-        controlledMetrics.put("A", new MetricsValidRangeStub("A", "Abstractness", "Package",
+        controlledMetrics.put("A", new MetricsValidRangeStub("A", "Abstractness", PACKAGE_LEVEL,
                 true, 0.00, 1.00, 0, 0));
-        controlledMetrics.put("D", new MetricsValidRangeStub("D", "Normalized Distance From Main Sequence", "Package",
+        controlledMetrics.put("D", new MetricsValidRangeStub("D", "Normalized Distance From Main Sequence", PACKAGE_LEVEL,
                 true, 0.00, 0.70, 0, 0));
 
         //MOOD metrics set
-        controlledMetrics.put("MHF", new MetricsValidRangeStub("MHF", "Method Hiding Factor", "Project",
+        controlledMetrics.put("MHF", new MetricsValidRangeStub("MHF", "Method Hiding Factor", PROJECT_LEVEL,
                 true, 0.095, 0.369, 0, 0));
-        controlledMetrics.put("AHF", new MetricsValidRangeStub("AHF", "Attribute Hiding Factor", "Project",
+        controlledMetrics.put("AHF", new MetricsValidRangeStub("AHF", "Attribute Hiding Factor", PROJECT_LEVEL,
                 true, 0.677, 1.0, 0, 0));
-        controlledMetrics.put("MIF", new MetricsValidRangeStub("MIF", "Method Inheritance Factor", "Project",
+        controlledMetrics.put("MIF", new MetricsValidRangeStub("MIF", "Method Inheritance Factor", PROJECT_LEVEL,
                 true, 0.609, 0.844, 0, 0));
-        controlledMetrics.put("AIF", new MetricsValidRangeStub("AIF", "Attribute Inheritance Factor", "Project",
+        controlledMetrics.put("AIF", new MetricsValidRangeStub("AIF", "Attribute Inheritance Factor", PROJECT_LEVEL,
                 true, 0.374, 0.757, 0, 0));
-        controlledMetrics.put("CF", new MetricsValidRangeStub("CF", "Coupling Factor", "Project",
+        controlledMetrics.put("CF", new MetricsValidRangeStub("CF", "Coupling Factor", PROJECT_LEVEL,
                 true, 0.00, 0.243, 0, 0));
-        controlledMetrics.put("PF", new MetricsValidRangeStub("PF", "Polymorphism Factor", "Project",
+        controlledMetrics.put("PF", new MetricsValidRangeStub("PF", "Polymorphism Factor", PROJECT_LEVEL,
                 true, 0.017, 0.151, 0, 0));
 
         //Methods metrics set
-        controlledMetrics.put("LOC", new MetricsValidRangeStub("LOC", "Lines Of Code", "Method",
+        controlledMetrics.put("LOC", new MetricsValidRangeStub("LOC", "Lines Of Code", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 500));
 
 
         //Chidamber-Kemerer metrics set
-        unControlledMetrics.put("NOC", new MetricsValidRangeStub("NOC", "Number Of Children", "Class",
+        unControlledMetrics.put("NOC", new MetricsValidRangeStub("NOC", "Number Of Children", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 100));
-        unControlledMetrics.put("LCOM", new MetricsValidRangeStub("LCOM", "Lack Of Cohesion In Methods", "Class",
+        unControlledMetrics.put("LCOM", new MetricsValidRangeStub("LCOM", "Lack Of Cohesion In Methods", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 500));
 
         //Lorenz-Kidd metrics set
-        unControlledMetrics.put("NOAM", new MetricsValidRangeStub("NOAM", "Number Of Added Methods", "Class",
+        unControlledMetrics.put("NOAM", new MetricsValidRangeStub("NOAM", "Number Of Added Methods", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 10));
 
         //Li-Henry metrics set
-        unControlledMetrics.put("SIZE2", new MetricsValidRangeStub("SIZE2", "Number Of Attributes And Methods", "Class",
+        unControlledMetrics.put("SIZE2", new MetricsValidRangeStub("SIZE2", "Number Of Attributes And Methods", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 130));
-        unControlledMetrics.put("NOM", new MetricsValidRangeStub("NOM", "Number Of Methods", "Class",
+        unControlledMetrics.put("NOM", new MetricsValidRangeStub("NOM", "Number Of Methods", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 25));
-        unControlledMetrics.put("MPC", new MetricsValidRangeStub("MPC", "Message Passing Coupling", "Class",
+        unControlledMetrics.put("MPC", new MetricsValidRangeStub("MPC", "Message Passing Coupling", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 10));
-        unControlledMetrics.put("DAC", new MetricsValidRangeStub("DAC", "Data Abstraction Coupling", "Class",
+        unControlledMetrics.put("DAC", new MetricsValidRangeStub("DAC", "Data Abstraction Coupling", CLASS_LEVEL,
                 false, 0.00, 0.00, 0, 15));
 
         //Methods metrics set
-        unControlledMetrics.put("CND", new MetricsValidRangeStub("CND", "Condition Nesting Depth", "Method",
+        unControlledMetrics.put("CND", new MetricsValidRangeStub("CND", "Condition Nesting Depth", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 50));
-        unControlledMetrics.put("LND", new MetricsValidRangeStub("LND", "Loop Nesting Depth", "Method",
+        unControlledMetrics.put("LND", new MetricsValidRangeStub("LND", "Loop Nesting Depth", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 4));
-        unControlledMetrics.put("CC", new MetricsValidRangeStub("CC", "McCabe Cyclomatic Complexity", "Method",
+        unControlledMetrics.put("CC", new MetricsValidRangeStub("CC", "McCabe Cyclomatic Complexity", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 50));
-        unControlledMetrics.put("NOL", new MetricsValidRangeStub("NOL", "Number Of Loops", "Method",
+        unControlledMetrics.put("NOL", new MetricsValidRangeStub("NOL", "Number Of Loops", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 10));
-        unControlledMetrics.put("FIN", new MetricsValidRangeStub("FIN", "Fan-In", "Method",
+        unControlledMetrics.put("FIN", new MetricsValidRangeStub("FIN", "Fan-In", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 5));
-        unControlledMetrics.put("FOUT", new MetricsValidRangeStub("FOUT", "Fan-Out", "Method",
+        unControlledMetrics.put("FOUT", new MetricsValidRangeStub("FOUT", "Fan-Out", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 5));
     }
 

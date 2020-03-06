@@ -25,7 +25,7 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
     @Nls
     @Override
     public String getDisplayName() {
-        return "Jacoquev";
+        return "MetricsTree";
     }
 
     @Nullable

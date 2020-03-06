@@ -7,10 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 
-/**
- * Can't unit test this because the parent uses a service, depending on a pico container with a method
- * that doesn't exist in the pico container used by SonarLint (different versions), causing NoSuchMethodError.
- */
 public class TreeCellRenderer extends ColoredTreeCellRenderer {
   private String iconToolTip = null;
 

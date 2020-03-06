@@ -10,6 +10,7 @@ public class ClassMetricNode extends MetricNode {
         super(metric);
     }
 
+    @Override
     protected Icon getIcon() {
         return MetricsIcons.CLASS_METRIC;
     }

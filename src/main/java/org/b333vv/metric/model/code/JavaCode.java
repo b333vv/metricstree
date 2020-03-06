@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public abstract class JavaCode {
-    private Map<String, Metric> metrics;
-    protected Set<JavaCode> children;
-    private String name;
+    private final Map<String, Metric> metrics;
+    protected final Set<JavaCode> children;
+    private final String name;
     private JavaCode parent = null;
 
     public JavaCode(String name) {
@@ -57,6 +57,6 @@ public abstract class JavaCode {
         this.children.add(child);
     }
 
-    protected abstract void accept(PsiElementVisitor visitor);
+    protected void accept(PsiElementVisitor visitor) {}
 }
 

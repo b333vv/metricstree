@@ -1,13 +1,12 @@
-
-package org.b333vv.metric.ui.toolWindow;
+package org.b333vv.metric.ui.tool;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import org.b333vv.metric.exec.ProjectMetricsRunner;
-import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 

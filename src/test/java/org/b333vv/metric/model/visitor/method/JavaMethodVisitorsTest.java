@@ -14,8 +14,7 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         super.setUp();
         MetricsUtils.setProject(getProject());
         MetricsService.init( getProject());
-        myFixture.configureByFiles("Object.java", "JavaCode.java", "JavaClass.java", "JavaMethod.java",
-                "JavaPackage.java", "JavaProject.java");
+        myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
     }
 
     @Override
@@ -24,99 +23,99 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
     }
 
     public void testLinesOfCodeVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         LinesOfCodeVisitor linesOfCodeVisitor = new LinesOfCodeVisitor();
         javaMethod.accept(linesOfCodeVisitor);
 
         Metric metric = Metric.of("LOC", "Lines Of Code",
-                "/html/LinesOfCode.html", 8);
+                "/html/LinesOfCode.html", 50);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
 
     public void testConditionNestingDepthVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         ConditionNestingDepthVisitor conditionNestingDepthVisitor = new ConditionNestingDepthVisitor();
         javaMethod.accept(conditionNestingDepthVisitor);
 
         Metric metric = Metric.of("CND", "Condition Nesting Depth",
-                "/html/ConditionNestingDepth.html", 1);
+                "/html/ConditionNestingDepth.html", 4);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
 
     public void testFanInVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         FanInVisitor fanInVisitor = new FanInVisitor();
         javaMethod.accept(fanInVisitor);
 
         Metric metric = Metric.of("FIN", "Fan-In",
-                "/html/FanIn.html", 0);
+                "/html/FanIn.html", 8);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
 
     public void testFanOutVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         FanOutVisitor fanOutVisitor = new FanOutVisitor();
         javaMethod.accept(fanOutVisitor);
 
         Metric metric = Metric.of("FOUT", "Fan-Out",
-                "/html/FanOut.html", 5);
+                "/html/FanOut.html", 3);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
 
     public void testLoopNestingDepthVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         LoopNestingDepthVisitor loopNestingDepthVisitor = new LoopNestingDepthVisitor();
         javaMethod.accept(loopNestingDepthVisitor);
 
         Metric metric = Metric.of("LND", "Loop Nesting Depth",
-                "/html/LoopNestingDepth.html", 0);
+                "/html/LoopNestingDepth.html", 1);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
 
     public void testMcCabeCyclomaticComplexityVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         McCabeCyclomaticComplexityVisitor mcCabeCyclomaticComplexityVisitor = new McCabeCyclomaticComplexityVisitor();
         javaMethod.accept(mcCabeCyclomaticComplexityVisitor);
 
         Metric metric = Metric.of("CC", "McCabe Cyclomatic Complexity",
-                "/html/McCabeCyclomaticComplexity.html", 5);
+                "/html/McCabeCyclomaticComplexity.html", 22);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
 
     public void testNumberOfLoopsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
-        PsiMethod psiMethod = psiClass.findMethodsByName("equals", false)[0];
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
         JavaMethod javaMethod = new JavaMethod(psiMethod);
 
         NumberOfLoopsVisitor numberOfLoopsVisitor = new NumberOfLoopsVisitor();
         javaMethod.accept(numberOfLoopsVisitor);
 
         Metric metric = Metric.of("NOL", "Number Of Loops",
-                "/html/NumberOfLoops.html", 0);
+                "/html/NumberOfLoops.html", 1);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }

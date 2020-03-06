@@ -1,14 +1,12 @@
-
-package org.b333vv.metric.ui.toolWindow;
+package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
-import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
-import org.b333vv.metric.util.MetricsUtils;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.CurrentFileController;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
@@ -43,7 +41,4 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         buildTreeModel();
         console.info("Built metrics tree for " + psiJavaFile.getName());
     }
-
-    @Override
-    protected void openInEditor(PsiElement psiElement) {}
 }

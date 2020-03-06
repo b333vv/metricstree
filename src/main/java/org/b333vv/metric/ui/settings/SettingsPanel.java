@@ -27,8 +27,8 @@ public class SettingsPanel {
                 MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
 
         metricsValidRangesPanel = new MetricsValidRangesPanel(project, metricsValidRangesSettings);
-        classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(project, classMetricsTreeSettings);
-        projectMetricsTreeSettingsPanel = new ProjectMetricsTreeSettingsPanel(project, projectMetricsTreeSettings);
+        classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(classMetricsTreeSettings);
+        projectMetricsTreeSettingsPanel = new ProjectMetricsTreeSettingsPanel(projectMetricsTreeSettings);
 
         tabs.insertTab("Metrics Valid Values", null, metricsValidRangesPanel.getComponent(),
                 "Configure valid values ", 0);

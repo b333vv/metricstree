@@ -10,6 +10,7 @@ public class PackageMetricNode extends MetricNode {
         super(metric);
     }
 
+    @Override
     protected Icon getIcon() {
         return MetricsIcons.PACKAGE_METRIC;
     }

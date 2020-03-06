@@ -15,7 +15,7 @@ import javax.swing.*;
 
 public class MetricNode extends AbstractNode {
 
-    protected final Metric metric;
+    protected transient final Metric metric;
 
     public MetricNode(Metric metric) {
         this.metric = metric;
@@ -61,9 +61,9 @@ public class MetricNode extends AbstractNode {
             }
         }
         if (Sets.inMoodMetricsSet(metric.getName())) {
-            renderer.append(metric.getDescription() + " = " + metric.getValue().percentageFormat());
+            renderer.append(metric.getDescription() + ": " + metric.getValue().percentageFormat());
         } else {
-            renderer.append(metric.getDescription() + " = " + metric.getFormattedValue());
+            renderer.append(metric.getDescription() + ": " + metric.getFormattedValue());
         }
     }
 }

@@ -1,7 +1,5 @@
 package org.b333vv.metric.model.code;
 
-import com.intellij.psi.PsiElementVisitor;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,8 +7,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class JavaProject extends JavaCode {
-    private Map<String, JavaPackage> packagesMap;
-    private Set<JavaClass> classes;
+    private final Map<String, JavaPackage> packagesMap;
+    private final Set<JavaClass> classes;
 
 
     public JavaProject(String name) {
@@ -38,22 +36,11 @@ public class JavaProject extends JavaCode {
         return "Project(" + this.getName() + ")";
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
     public Map<String, JavaPackage> getPackagesMap() {
         return packagesMap;
     }
     public Stream<JavaPackage> getAllPackages() { return packagesMap.values().stream(); }
     public Stream<JavaClass> getAllClasses() { return classes.stream(); }
 
-    @Override
-    protected void accept(PsiElementVisitor visitor) {}
+
 }

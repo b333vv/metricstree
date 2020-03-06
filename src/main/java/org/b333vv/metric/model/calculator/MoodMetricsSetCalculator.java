@@ -13,10 +13,7 @@ import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MoodMetricsSetCalculator {
     private final AnalysisScope scope;
@@ -24,9 +21,9 @@ public class MoodMetricsSetCalculator {
     private int publicAttributesNumber = 0;
     private int classesNumber = 0;
     private int totalAttributesVisibility = 0;
-    private Bag<String> classesPerPackage = new Bag<>();
-    private Bag<String> packageVisibleAttributesPerPackage = new Bag<>();
-    private Map<PsiClass, Integer> subclassesPerClass = new HashMap<>();
+    private final Bag<String> classesPerPackage = new Bag<>();
+    private final Bag<String> packageVisibleAttributesPerPackage = new Bag<>();
+    private final Map<PsiClass, Integer> subclassesPerClass = new HashMap<>();
 
     private int availableFields = 0;
     private int inheritedFields = 0;
@@ -36,7 +33,7 @@ public class MoodMetricsSetCalculator {
     private int methodsNumber = 0;
     private int publicMethodsNumber = 0;
     private int totalMethodsVisibility = 0;
-    private Bag<String> packageVisibleMethodsPerPackage = new Bag<>();
+    private final Bag<String> packageVisibleMethodsPerPackage = new Bag<>();
 
     private int availableMethods = 0;
     private int inheritedMethods = 0;
@@ -149,24 +146,13 @@ public class MoodMetricsSetCalculator {
 
 
     private class Visitor extends JavaRecursiveElementVisitor {
-
-        @Override
-        public void visitFile(PsiFile psiFile) {
-            super.visitFile(psiFile);
-        }
-
         @Override
         public void visitClass(PsiClass aClass) {
             super.visitClass(aClass);
-
             processAttributeInheritanceFactor(aClass);
-
             processAttributeAndMethodHidingFactor(aClass);
-
             processCouplingFactor(aClass);
-
             processMethodInheritanceFactor(aClass);
-
             processPolymorphismFactor(aClass);
         }
 
@@ -203,15 +189,14 @@ public class MoodMetricsSetCalculator {
             }
             for (PsiMethod method : nonOverriddenMethods) {
                 final PsiClass containingClass = method.getContainingClass();
-                if (containingClass != null) {
-                    if (containingClass.equals(psiClass)) {
-                        availableMethods++;
-                    } else if (classIsInLibrary(containingClass)) {
-
-                    } else if (!method.hasModifierProperty(PsiModifier.PRIVATE)) {
-                        availableMethods++;
-                        inheritedMethods++;
-                    }
+                if (containingClass == null) {
+                    continue;
+                }
+                if (containingClass.equals(psiClass)) {
+                    availableMethods++;
+                } else if (!classIsInLibrary(containingClass) && !method.hasModifierProperty(PsiModifier.PRIVATE)) {
+                    availableMethods++;
+                    inheritedMethods++;
                 }
             }
         }
@@ -262,9 +247,7 @@ public class MoodMetricsSetCalculator {
                 final String className = containingClass.getName();
                 if (containingClass.equals(psiClass)) {
                     availableFields++;
-                } else if ("java.lang.Object".equals(className)) {
-
-                } else if (!field.hasModifierProperty(PsiModifier.PRIVATE)) {
+                } else if (!"java.lang.Object".equals(className) && !field.hasModifierProperty(PsiModifier.PRIVATE)) {
                     availableFields++;
                     inheritedFields++;
                 }
@@ -278,7 +261,7 @@ public class MoodMetricsSetCalculator {
             final PsiClass containingClass = psiMethod.getContainingClass();
 
             if (psiMethod.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
+                    Objects.requireNonNull(containingClass).hasModifierProperty(PsiModifier.PRIVATE)) {
             } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
                 totalMethodsVisibility += getSubclassCount(containingClass);
@@ -298,7 +281,7 @@ public class MoodMetricsSetCalculator {
             final PsiClass containingClass = psiField.getContainingClass();
 
             if (psiField.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
+                    Objects.requireNonNull(containingClass).hasModifierProperty(PsiModifier.PRIVATE)) {
             } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
                 totalAttributesVisibility += getSubclassCount(containingClass);
@@ -310,22 +293,22 @@ public class MoodMetricsSetCalculator {
                 packageVisibleAttributesPerPackage.add(packageName);
             }
         }
-    }
 
-    private int getSubclassCount(final PsiClass psiClass) {
-        if (subclassesPerClass.containsKey(psiClass)) {
-            return subclassesPerClass.get(psiClass);
-        }
-        int subclassesNumber = 0;
-        final GlobalSearchScope globalScope = GlobalSearchScope.allScope(scope.getProject());
-        final Query<PsiClass> query = ClassInheritorsSearch.search(
-                psiClass, globalScope, true, true, true);
-        for (final PsiClass inheritor : query) {
-            if (!inheritor.isInterface()) {
-                subclassesNumber++;
+        private int getSubclassCount(final PsiClass psiClass) {
+            if (subclassesPerClass.containsKey(psiClass)) {
+                return subclassesPerClass.get(psiClass);
             }
+            int subclassesNumber = 0;
+            final GlobalSearchScope globalScope = GlobalSearchScope.allScope(scope.getProject());
+            final Query<PsiClass> query = ClassInheritorsSearch.search(
+                    psiClass, globalScope, true, true, true);
+            for (final PsiClass inheritor : query) {
+                if (!inheritor.isInterface()) {
+                    subclassesNumber++;
+                }
+            }
+            subclassesPerClass.put(psiClass, subclassesNumber);
+            return subclassesNumber;
         }
-        subclassesPerClass.put(psiClass, subclassesNumber);
-        return subclassesNumber;
     }
 }

@@ -5,6 +5,10 @@ import org.jscience.mathematics.number.Rational;
 import org.jscience.mathematics.number.Real;
 
 class Converter {
+    private Converter(){
+//        Only static
+    }
+
     public static Rational toRational(LargeInteger i) {
         return Rational.valueOf(i, LargeInteger.ONE);
     }

@@ -9,9 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class MetricsBackgroundableTask extends Task.Backgroundable {
 
-    private Runnable task;
-    private Runnable onSuccess;
-    private Runnable onCancel;
+    private final Runnable task;
+    private final Runnable onSuccess;
+    private final Runnable onCancel;
     private Runnable onFinished;
 
     public MetricsBackgroundableTask(@Nullable Project project,

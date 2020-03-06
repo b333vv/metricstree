@@ -1,6 +1,7 @@
 package org.b333vv.metric.ui.tree.builder;
 
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -12,12 +13,13 @@ import org.b333vv.metric.ui.tree.node.*;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class MetricTreeBuilder {
     protected DefaultTreeModel model;
-    protected JavaProject javaProject;
+    protected final JavaProject javaProject;
 
     public MetricTreeBuilder(JavaProject javaProject) {
         this.javaProject = javaProject;
@@ -31,7 +33,7 @@ public abstract class MetricTreeBuilder {
 
     protected void addSubClasses(ClassNode parentClassNode) {
         List<JavaClass> sortedClasses = parentClassNode.getJavaClass().getClasses()
-                .sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList());
+                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
         for (JavaClass javaClass : sortedClasses) {
             ClassNode classNode = new ClassNode(javaClass);
             parentClassNode.add(classNode);
@@ -43,7 +45,7 @@ public abstract class MetricTreeBuilder {
     protected void addTypeMetricsAndMethodNodes(ClassNode classNode) {
         if (getMetricsTreeFilter().isMethodMetricsVisible()) {
             List<JavaMethod> sortedMethods = classNode.getJavaClass().getMethods()
-                    .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
             for (JavaMethod javaMethod : sortedMethods) {
                 MethodNode methodNode = new MethodNode(javaMethod);
                 classNode.add(methodNode);
@@ -54,7 +56,7 @@ public abstract class MetricTreeBuilder {
         }
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
             List<Metric> sortedMetrics = classNode.getJavaClass().getMetrics()
-                    .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(Metric::getName)).collect(Collectors.toList());
             for (Metric metric : sortedMetrics) {
                 if (mustBeShown(metric) && checkClassMetricsSets(metric.getName())) {
                     MetricNode metricNode = new ClassMetricNode(metric);
@@ -66,7 +68,7 @@ public abstract class MetricTreeBuilder {
 
     protected void addMethodMetricsNodes(MethodNode methodNode) {
         List<Metric> sortedMetrics = methodNode.getJavaMethod().getMetrics()
-                .sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).collect(Collectors.toList());
+                .sorted(Comparator.comparing(Metric::getName)).collect(Collectors.toList());
         for (Metric metric : sortedMetrics) {
             if (mustBeShown(metric)) {
                 MetricNode metricNode = new MethodMetricNode(metric);

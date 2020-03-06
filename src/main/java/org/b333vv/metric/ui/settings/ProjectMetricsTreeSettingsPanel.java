@@ -1,6 +1,5 @@
 package org.b333vv.metric.ui.settings;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 
@@ -12,14 +11,12 @@ import static java.awt.GridBagConstraints.*;
 
 public class ProjectMetricsTreeSettingsPanel implements ConfigurationPanel<ProjectMetricsTreeSettings> {
     private static final String EMPTY_LABEL = "No metrics configured";
-    private final Project project;
     private JPanel panel;
     private MetricsTreeSettingsTable metricsTreeSettingsTable;
     private JCheckBox needToConsiderProjectMetrics;
     private JCheckBox needToConsiderPackageMetrics;
 
-    public ProjectMetricsTreeSettingsPanel(Project project, ProjectMetricsTreeSettings projectMetricsTreeSettings) {
-        this.project = project;
+    public ProjectMetricsTreeSettingsPanel(ProjectMetricsTreeSettings projectMetricsTreeSettings) {
         createUIComponents(projectMetricsTreeSettings);
     }
 
@@ -57,7 +54,7 @@ public class ProjectMetricsTreeSettingsPanel implements ConfigurationPanel<Proje
                 new JCheckBox("Package level metrics (Robert C. Martin metrics set: Ce, Ca, I, A, D) should be calculated",
                         projectMetricsTreeSettings.isNeedToConsiderPackageMetrics());
 
-        metricsTreeSettingsTable = new MetricsTreeSettingsTable(EMPTY_LABEL, project, projectMetricsTreeSettings.getMetricsList());
+        metricsTreeSettingsTable = new MetricsTreeSettingsTable(EMPTY_LABEL, projectMetricsTreeSettings.getMetricsList());
 
         panel = new JPanel(new GridBagLayout());
 

@@ -33,22 +33,6 @@ public class Range {
         return (value.isEqualsOrGreaterThan(from) && value.isEqualsOrLessThan(to));
     }
 
-    public Value getFrom() {
-        return from;
-    }
-
-    public void setFrom(Value from) {
-        this.from = from;
-    }
-
-    public Value getTo() {
-        return to;
-    }
-
-    public void setTo(Value to) {
-        this.to = to;
-    }
-
     @Override
     public String toString() {
         return "[" +

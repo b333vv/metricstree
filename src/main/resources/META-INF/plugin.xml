@@ -1,11 +1,44 @@
-<idea-plugin>
-    <id>org.b333vv.metric</id>
+<idea-plugin url="https://github.com/b333vv/metricstree">
+    <id>org.b333vv.metricstree</id>
     <name>MetricsTree</name>
-    <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
-
     <description>
-        MetricsTree IDEA plugin
+        <![CDATA[
+        <html>
+            <p>
+               MetricsTree is an IDE extension that helps you evaluate quantitative properties of java code.
+               It supports the most common metric sets on project, package, class and method levels.
+            </p>
+            <h3>Core metrics sets</h3
+            <ul>
+                <li>
+                   Project level: MOOD metrics set
+                </li>
+                <li>
+                   Package level: Robert C. Martin metrics set
+                </li>
+                <li>
+                   Class level: Chidamber-Kemerer, Lorenz-Kidd, and Li-Henry metrics sets
+                </li>
+            </ul>
+            <h3>Features</h3>
+            <ul>
+                <li>
+                    Represents metrics calculation results as a tree view
+                </li>
+                <li>
+                    Builds trees with metrics for class open in the editor or for the entire project
+                </li>
+                <li>
+                    Supports controlling calculated metrics values
+                </li>
+            </ul>
+        </html>
+      ]]>
     </description>
+
+    <version>2020.1.0</version>
+
+    <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
@@ -13,9 +46,8 @@
     <idea-version since-build="193.6015"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <toolWindow id="MetricsTree" anchor="bottom" icon="/images/metricsTree_dark.svg"
-                    factoryClass="org.b333vv.metric.ui.toolWindow.MetricsToolWindowFactory"/>
+                    factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
     </extensions>
 
     <project-components>
@@ -32,7 +64,7 @@
             <implementation-class>org.b333vv.metric.ui.log.MetricsConsole</implementation-class>
         </component>
         <component>
-            <implementation-class>org.b333vv.metric.ui.toolWindow.ProjectMetricsPanel</implementation-class>
+            <implementation-class>org.b333vv.metric.ui.tool.ProjectMetricsPanel</implementation-class>
         </component>
     </project-components>
 

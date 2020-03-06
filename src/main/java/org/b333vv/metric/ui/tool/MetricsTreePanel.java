@@ -1,5 +1,4 @@
-
-package org.b333vv.metric.ui.toolWindow;
+package org.b333vv.metric.ui.tool;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -39,18 +38,18 @@ import java.awt.*;
 public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     protected static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
     protected static final Logger LOG = Logger.getInstance(MetricsTreePanel.class);
-    protected CurrentFileController scope;
-    protected Project project;
-    protected MetricsTree metricsTree;
-    protected BottomPanel bottomPanel;
-    protected MetricsDescriptionPanel metricsDescriptionPanel;
+    protected transient CurrentFileController scope;
+    protected transient final Project project;
+    protected final MetricsTree metricsTree;
+    protected transient final BottomPanel bottomPanel;
+    protected transient MetricsDescriptionPanel metricsDescriptionPanel;
     protected JBPanel<?> rightPanel;
-    protected ClassOrMethodMetricsTable classOrMethodMetricsTable;
-    protected MetricTreeBuilder metricTreeBuilder;
-    protected MetricsConsole console;
+    protected transient ClassOrMethodMetricsTable classOrMethodMetricsTable;
+    protected transient MetricTreeBuilder metricTreeBuilder;
+    protected transient final MetricsConsole console;
     protected JScrollPane scrollableTablePanel;
-    protected PsiJavaFile psiJavaFile;
-    protected JavaProject javaProject;
+    protected transient PsiJavaFile psiJavaFile;
+    protected transient JavaProject javaProject;
 
     public MetricsTreePanel(Project project, String actionId) {
         super(false, true);
@@ -125,7 +124,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     }
 
     public void treeSelectionChanged() {
-        AbstractNode<?> node = metricsTree.getSelectedNode();
+        AbstractNode node = metricsTree.getSelectedNode();
         if (node instanceof MetricNode) {
             Metric metric = ((MetricNode) node).getMetric();
             bottomPanel.setData(metric);
@@ -136,9 +135,9 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof ProjectNode) {
-            JavaProject javaProject = ((ProjectNode) node).getJavaProject();
-            bottomPanel.setData(javaProject);
-            classOrMethodMetricsTable.set(javaProject);
+            JavaProject jProject = ((ProjectNode) node).getJavaProject();
+            bottomPanel.setData(jProject);
+            classOrMethodMetricsTable.set(jProject);
             rightPanelRepaint();
         } else if (node instanceof PackageNode) {
             JavaPackage javaPackage = ((PackageNode) node).getJavaPackage();
@@ -172,7 +171,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         rightPanel.repaint();
     }
 
-    protected abstract void openInEditor(PsiElement psiElement);
+    protected void openInEditor(PsiElement psiElement) {}
 
     public void buildTreeModel() {
         DefaultTreeModel metricsTreeModel = metricTreeBuilder.createMetricTreeModel();

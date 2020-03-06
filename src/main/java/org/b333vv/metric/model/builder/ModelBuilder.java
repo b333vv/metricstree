@@ -16,7 +16,7 @@ public abstract class ModelBuilder {
     protected void createJavaClass(JavaPackage javaPackage, PsiJavaFile psiJavaFile) {
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
-            getJavaClassVisitors().forEach(v -> javaClass.accept(v));
+            getJavaClassVisitors().forEach(javaClass::accept);
             javaPackage.addClass(javaClass);
             buildConstructors(javaClass);
             buildMethods(javaClass);
@@ -29,7 +29,7 @@ public abstract class ModelBuilder {
         for (PsiMethod aConstructor : javaClass.getPsiClass().getConstructors()) {
             JavaMethod javaMethod = new JavaMethod(aConstructor);
             javaClass.addMethod(javaMethod);
-            getJavaMethodVisitors().forEach(v -> javaMethod.accept(v));
+            getJavaMethodVisitors().forEach(javaMethod::accept);
         }
     }
 
@@ -37,7 +37,7 @@ public abstract class ModelBuilder {
         for (PsiMethod aMethod : javaClass.getPsiClass().getMethods()) {
             JavaMethod javaMethod = new JavaMethod(aMethod);
             javaClass.addMethod(javaMethod);
-            getJavaMethodVisitors().forEach(v -> javaMethod.accept(v));
+            getJavaMethodVisitors().forEach(javaMethod::accept);
         }
     }
 
@@ -45,7 +45,7 @@ public abstract class ModelBuilder {
         for (PsiClass psiClass : aClass.getInnerClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
             parentClass.addClass(javaClass);
-            getJavaClassVisitors().forEach(v -> javaClass.accept(v));
+            getJavaClassVisitors().forEach(javaClass::accept);
             buildConstructors(javaClass);
             buildMethods(javaClass);
             addClassToClassesSet(javaClass);

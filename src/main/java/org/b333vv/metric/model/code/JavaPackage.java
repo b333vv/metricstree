@@ -1,6 +1,5 @@
 package org.b333vv.metric.model.code;
 
-import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiPackage;
 
 import java.util.stream.Stream;
@@ -41,7 +40,4 @@ public class JavaPackage extends JavaCode {
     public String toString() {
         return "Package(" + this.getName() + ")";
     }
-
-    @Override
-    protected void accept(PsiElementVisitor visitor) {}
 }

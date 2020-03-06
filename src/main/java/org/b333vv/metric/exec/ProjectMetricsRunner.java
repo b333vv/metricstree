@@ -14,10 +14,10 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
+import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.builder.ProjectModelBuilder;
 import org.b333vv.metric.model.calculator.MoodMetricsSetCalculator;
 import org.b333vv.metric.model.calculator.RobertMartinMetricsSetCalculator;
-import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsService;
@@ -28,59 +28,52 @@ import javax.swing.tree.DefaultTreeModel;
 public class ProjectMetricsRunner {
 
     private final Project project;
-    private final AnalysisScope scope;
-    private static DependenciesBuilder dependenciesBuilder;
-    private JavaProject javaProject;
+    private final JavaProject javaProject;
     private ProjectModelBuilder projectModelBuilder;
     private ProgressIndicator indicator;
-    private int numFiles;
+    private int filesCount;
     private int progress = 0;
-    private BackgroundTaskQueue queue;
 
-    private Runnable calculate = new Runnable() {
-        @Override
-        public void run() {
-            projectModelBuilder = new ProjectModelBuilder(javaProject);
-            indicator = ProgressManager.getInstance().getProgressIndicator();
-            indicator.setText("Initializing");
-            numFiles = scope.getFileCount();
-            scope.accept(new PsiJavaFileVisitor());
-            indicator.setText("Calculating metrics");
-        }
-    };
+    private static DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
 
-    private Runnable martinMetricSetCalculating = new Runnable() {
-        @Override
-        public void run() {
-            ReadAction.run(() -> projectModelBuilder.calculateMetrics());
-            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope);
-            ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
-        }
-    };
-
-    private Runnable moodMetricSetCalculating = new Runnable() {
-        @Override
-        public void run() {
-            MoodMetricsSetCalculator moodMetricsSetCalculator = new MoodMetricsSetCalculator(scope);
-            ReadAction.run(() -> moodMetricsSetCalculator.calculate(javaProject));
-        }
-    };
-
-    private Runnable buildTree = new Runnable() {
-        @Override
-        public void run() {
-            ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-            MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
-        }
-    };
+    private final Runnable calculate;
+    private final Runnable martinMetricSetCalculating;
+    private final Runnable moodMetricSetCalculating;
+    private final Runnable buildTree;
+    private final BackgroundTaskQueue queue;
 
     public ProjectMetricsRunner(Project project, AnalysisScope scope, JavaProject javaProject ) {
         this.project = project;
-        this.scope = scope;
         this.javaProject = javaProject;
-        dependenciesBuilder = new DependenciesBuilder();
+
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
+
+        calculate = () -> {
+            projectModelBuilder = new ProjectModelBuilder(javaProject);
+            indicator = ProgressManager.getInstance().getProgressIndicator();
+            indicator.setText("Initializing");
+            filesCount = scope.getFileCount();
+            scope.accept(new PsiJavaFileVisitor());
+            indicator.setText("Calculating metrics");
+        };
+
+        martinMetricSetCalculating = () -> {
+            ReadAction.run(() -> projectModelBuilder.calculateMetrics());
+            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator =
+                    new RobertMartinMetricsSetCalculator(scope);
+            ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
+        };
+
+        moodMetricSetCalculating = () -> {
+            MoodMetricsSetCalculator moodMetricsSetCalculator = new MoodMetricsSetCalculator(scope);
+            ReadAction.run(() -> moodMetricsSetCalculator.calculate(javaProject));
+        };
+
+        buildTree = () -> {
+            ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
+            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
+            MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
+        };
     }
 
     public static DependenciesBuilder getDependenciesBuilder() {
@@ -90,7 +83,7 @@ public class ProjectMetricsRunner {
     public final void execute() {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
                 "Calculating Metrics...", true, calculate, null,
-                () -> queue.clear(), null);
+                queue::clear, null);
 
         if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
             classMetricsTask.setOnFinished(buildTree);
@@ -101,7 +94,7 @@ public class ProjectMetricsRunner {
             MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                     "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                     true, martinMetricSetCalculating, null,
-                    () -> queue.clear(), buildTree);
+                    queue::clear, buildTree);
             queue.run(classMetricsTask);
             queue.run(packageMetricsTask);
             return;
@@ -110,7 +103,7 @@ public class ProjectMetricsRunner {
             MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
                     "Project Level Metrics: MOOD Metrics Set Calculating...",
                     true, moodMetricSetCalculating, null,
-                    () -> queue.clear(), buildTree);
+                    queue::clear, buildTree);
             queue.run(classMetricsTask);
             queue.run(projectMetricsTask);
             return;
@@ -119,12 +112,12 @@ public class ProjectMetricsRunner {
         MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                 "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                 true, martinMetricSetCalculating, null,
-                () -> queue.clear(), null);
+                queue::clear, null);
         queue.run(packageMetricsTask);
         MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
                 "Project Level Metrics: MOOD Metrics Set Calculating...",
                 true, moodMetricSetCalculating, null,
-                () -> queue.clear(), buildTree);
+                queue::clear, buildTree);
         queue.run(projectMetricsTask);
     }
 
@@ -156,7 +149,7 @@ public class ProjectMetricsRunner {
             projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
             dependenciesBuilder.build(psiJavaFile);
             indicator.setIndeterminate(false);
-            indicator.setFraction((double) progress / (double) numFiles);
+            indicator.setFraction((double) progress / (double) filesCount);
         }
     }
 }

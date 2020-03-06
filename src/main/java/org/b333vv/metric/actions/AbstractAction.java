@@ -12,25 +12,11 @@ public abstract class AbstractAction extends AnAction {
     @Override
     public void update(AnActionEvent e) {
         Project p = e.getProject();
-
-        if (isVisible(e.getPlace())) {
-            e.getPresentation().setVisible(true);
-        } else {
-            e.getPresentation().setVisible(false);
-            e.getPresentation().setEnabled(false);
-            return;
-        }
-
-        if (p == null || !p.isInitialized() || p.isDisposed()) {
-            e.getPresentation().setEnabled(false);
-        } else {
-            e.getPresentation().setEnabled(isEnabled(e));
-        }
+        e.getPresentation().setVisible(true);
+        e.getPresentation().setEnabled(check(p));
     }
 
-    protected boolean isVisible(String place) {
-        return true;
+    private boolean check(Project p) {
+        return !(p == null || !p.isInitialized() || p.isDisposed());
     }
-
-    protected abstract boolean isEnabled(AnActionEvent e);
 }

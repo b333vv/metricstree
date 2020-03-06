@@ -11,11 +11,6 @@ import java.util.Objects;
 public class FilterProjectMetricsTreeAction extends AbstractAction {
 
     @Override
-    protected boolean isEnabled(AnActionEvent e) {
-        return true;
-    }
-
-    @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         showPopup(e);
     }

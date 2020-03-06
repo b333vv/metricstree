@@ -1,5 +1,6 @@
 package org.b333vv.metric.model.metric.value;
 
+import org.jetbrains.annotations.NotNull;
 import org.jscience.mathematics.number.LargeInteger;
 import org.jscience.mathematics.number.Number;
 import org.jscience.mathematics.number.Rational;
@@ -37,8 +38,7 @@ public class Value implements Comparable<Value> {
         return new Value(LargeInteger.valueOf(value));
     }
 
-    public static Value of(Number n) {
-        assert (n != null);
+    public static Value of(@NotNull Number n) {
         return new Value(n);
     }
 
@@ -46,11 +46,11 @@ public class Value implements Comparable<Value> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Value value = (Value) o;
-        if (this.value instanceof Real && value.value instanceof Real) {
-            return ((Real) this.value).approximates((Real) value.value);
+        Value v = (Value) o;
+        if (this.value instanceof Real && v.value instanceof Real) {
+            return ((Real) this.value).approximates((Real) v.value);
         } else {
-            return Objects.equals(this.value, value.value);
+            return Objects.equals(this.value, v.value);
         }
     }
 
@@ -69,8 +69,7 @@ public class Value implements Comparable<Value> {
     }
 
     @Override
-    public int compareTo(Value that) {
-        assert (that != null);
+    public int compareTo(@NotNull Value that) {
         Number other = that.value;
         if (value instanceof LargeInteger) {
             if (other instanceof LargeInteger) {
@@ -83,7 +82,7 @@ public class Value implements Comparable<Value> {
 
         } else if (value instanceof Rational) {
             if (other instanceof LargeInteger) {
-                return 0 - that.compareTo(this);
+                return 0-that.compareTo(this);
             } else if (other instanceof Rational) {
                 return value.compareTo(other);
             } else if (other instanceof Real) {
@@ -92,9 +91,9 @@ public class Value implements Comparable<Value> {
 
         } else if (value instanceof Real) {
             if (other instanceof LargeInteger) {
-                return 0 - that.compareTo(this);
+                return 0-that.compareTo(this);
             } else if (other instanceof Rational) {
-                return 0 - that.compareTo(this);
+                return 0-that.compareTo(this);
             } else if (other instanceof Real) {
                 return compareReals((Real) this.value, (Real) other);
             }

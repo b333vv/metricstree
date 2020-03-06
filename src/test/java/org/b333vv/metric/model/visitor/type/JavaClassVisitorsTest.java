@@ -13,8 +13,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         super.setUp();
         MetricsUtils.setProject(this.getProject());
         MetricsService.init(this.getProject());
-        myFixture.configureByFiles("Object.java", "JavaCode.java", "JavaClass.java", "JavaMethod.java",
-                "JavaPackage.java", "JavaProject.java");
+        myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
     }
 
     @Override
@@ -23,7 +22,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testDepthOfInheritanceTreeVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
+        PsiClass psiClass = myFixture.findClass("java.util.AbstractMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         DepthOfInheritanceTreeVisitor depthOfInheritanceTreeVisitor = new DepthOfInheritanceTreeVisitor();
@@ -36,98 +35,98 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testNumberOfChildrenVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaCode");
+        PsiClass psiClass = myFixture.findClass("java.util.AbstractMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfChildrenVisitor numberOfChildrenVisitor = new NumberOfChildrenVisitor();
         javaClass.accept(numberOfChildrenVisitor);
 
         Metric metric = Metric.of("NOC", "Number Of Children",
-                "/html/NumberOfChildren.html", 4);
+                "/html/NumberOfChildren.html", 1);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testResponseForClassVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         ResponseForClassVisitor responseForClassVisitor = new ResponseForClassVisitor();
         javaClass.accept(responseForClassVisitor);
 
         Metric metric = Metric.of("RFC", "Response For Class",
-                "/html/ResponseForClass.html", 9);
+                "/html/ResponseForClass.html", 59);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testLackOfCohesionOfMethodsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         LackOfCohesionOfMethodsVisitor lackOfCohesionOfMethodsVisitor = new LackOfCohesionOfMethodsVisitor();
         javaClass.accept(lackOfCohesionOfMethodsVisitor);
 
         Metric metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
-                "/html/LackOfCohesionOfMethods.html", 4);
+                "/html/LackOfCohesionOfMethods.html", 5);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testWeightedMethodCountVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         WeightedMethodCountVisitor weightedMethodCountVisitor = new WeightedMethodCountVisitor();
         javaClass.accept(weightedMethodCountVisitor);
 
         Metric metric = Metric.of("WMC", "Weighted Method Count",
-                "/html/WeightedMethodCount.html", 11);
+                "/html/WeightedMethodCount.html", 263);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testNumberOfAddedMethodsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfAddedMethodsVisitor numberOfAddedMethodsVisitor = new NumberOfAddedMethodsVisitor();
         javaClass.accept(numberOfAddedMethodsVisitor);
 
         Metric metric = Metric.of("NOAM", "Number Of Added Methods",
-                "/html/NumberOfAddedMethods.html", 7);
+                "/html/NumberOfAddedMethods.html", 47);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testNumberOfAttributesVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfAttributesVisitor numberOfAttributesVisitor = new NumberOfAttributesVisitor();
         javaClass.accept(numberOfAttributesVisitor);
 
         Metric metric = Metric.of("NOA", "Number Of Attributes",
-                "/html/NumberOfAttributes.html", 1);
+                "/html/NumberOfAttributes.html", 13);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testNumberOfOperationsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfOperationsVisitor numberOfOperationsVisitor = new NumberOfOperationsVisitor();
         javaClass.accept(numberOfOperationsVisitor);
 
         Metric metric = Metric.of("NOO", "Number Of Operations",
-                "/html/NumberOfOperations.html", 8);
+                "/html/NumberOfOperations.html", 51);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testNumberOfOverriddenMethodsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfOverriddenMethodsVisitor numberOfOverriddenMethodsVisitor = new NumberOfOverriddenMethodsVisitor();
@@ -140,33 +139,33 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testNumberOfAttributesAndMethodsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfAttributesAndMethodsVisitor numberOfAttributesAndMethodsVisitor = new NumberOfAttributesAndMethodsVisitor();
         javaClass.accept(numberOfAttributesAndMethodsVisitor);
 
         Metric metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
-                "/html/NumberOfAttributesAndMethods.html", 9);
+                "/html/NumberOfAttributesAndMethods.html", 64);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testNumberOfMethodsVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         NumberOfMethodsVisitor numberOfMethodsVisitor = new NumberOfMethodsVisitor();
         javaClass.accept(numberOfMethodsVisitor);
 
         Metric metric = Metric.of("NOM", "Number Of Methods",
-                "/html/NumberOfMethods.html", 8);
+                "/html/NumberOfMethods.html", 51);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
 
     public void testDataAbstractionCouplingVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         DataAbstractionCouplingVisitor dataAbstractionCouplingVisitor = new DataAbstractionCouplingVisitor();
@@ -179,14 +178,14 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testMessagePassingCouplingVisitor() {
-        PsiClass psiClass = myFixture.findClass("org.jacoquev.model.code.JavaClass");
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
         JavaClass javaClass = new JavaClass(psiClass);
 
         MessagePassingCouplingVisitor messagePassingCouplingVisitor = new MessagePassingCouplingVisitor();
         javaClass.accept(messagePassingCouplingVisitor);
 
         Metric metric = Metric.of("MPC", "Message Passing Coupling",
-                "/html/MessagePassingCoupling.html", 13);
+                "/html/MessagePassingCoupling.html", 51);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }
