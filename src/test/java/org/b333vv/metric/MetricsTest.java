@@ -34,10 +34,8 @@ public abstract class MetricsTest {
   public final void setUp() {
     ApplicationManager.setApplication(app, mock(Disposable.class));
     when(app.isUnitTestMode()).thenReturn(true);
-//    when(app.getMessageBus()).thenReturn(new MessageBusImpl.RootBus(this));
     when(app.isHeadlessEnvironment()).thenReturn(true);
     when(app.acquireReadActionLock()).thenReturn(mock(AccessToken.class));
-//    when(app.getMessageBus()).thenReturn(new MessageBusImpl.RootBus(this));
     Answer<Void> runArg = invocation -> {
       ((ThrowableComputable) invocation.getArgument(0)).compute();
       return null;
@@ -56,7 +54,6 @@ public abstract class MetricsTest {
 
   private Project createProject() {
     Project project = mock(Project.class);
-//    when(project.getMessageBus()).thenReturn(new MessageBusImpl.RootBus(this));
     when(project.isDisposed()).thenReturn(false);
 
     return project;
