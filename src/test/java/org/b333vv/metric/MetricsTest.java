@@ -76,36 +76,11 @@ public abstract class MetricsTest {
     return m;
   }
 
-  protected Project getProject() {
-    return project;
-  }
-
-  protected <T> T register(Class<T> clazz) {
-    T t = mock(clazz);
-    register(clazz, t);
-    return t;
-  }
-
-  protected <T> T register(ComponentManager comp, Class<T> clazz) {
-    T t = mock(clazz);
-    register(comp, clazz, t);
-    return t;
-  }
-
   protected void register(Class<?> clazz, Object instance) {
     register(project, clazz, instance);
   }
 
   protected void register(ComponentManager comp, Class<?> clazz, Object instance) {
     doReturn(instance).when(comp).getComponent(clazz);
-  }
-
-  protected <T> void registerEP(final ExtensionPointName<T> extensionPointName, final Class<T> clazz) {
-    ExtensionsArea area = Extensions.getRootArea();
-    final String name = extensionPointName.getName();
-    if (!area.hasExtensionPoint(name)) {
-      ExtensionPoint.Kind kind = clazz.isInterface() || (clazz.getModifiers() & Modifier.ABSTRACT) != 0 ? ExtensionPoint.Kind.INTERFACE : ExtensionPoint.Kind.BEAN_CLASS;
-      area.registerExtensionPoint(name, clazz.getName(), kind);
-    }
   }
 }
