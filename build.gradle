@@ -17,7 +17,7 @@ intellij {
 //    plugins ['java']
 }
 
-group = 'org.b333vv.metric'
+group = 'org.b333vv.metricstree'
 description = 'metrics tree idea plugin'
 
 repositories {

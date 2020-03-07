@@ -40,8 +40,8 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     protected static final Logger LOG = Logger.getInstance(MetricsTreePanel.class);
     protected transient CurrentFileController scope;
     protected transient final Project project;
-    protected final MetricsTree metricsTree;
-    protected transient final BottomPanel bottomPanel;
+    protected MetricsTree metricsTree;
+    protected transient BottomPanel bottomPanel;
     protected transient MetricsDescriptionPanel metricsDescriptionPanel;
     protected JBPanel<?> rightPanel;
     protected transient ClassOrMethodMetricsTable classOrMethodMetricsTable;
@@ -50,22 +50,14 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     protected JScrollPane scrollableTablePanel;
     protected transient PsiJavaFile psiJavaFile;
     protected transient JavaProject javaProject;
+    protected transient JPanel mainPanel;
 
     public MetricsTreePanel(Project project, String actionId) {
         super(false, true);
 
         this.project = project;
 
-        metricsTree = new MetricsTree(null);
-        metricsTree.addTreeSelectionListener(e -> treeSelectionChanged());
-        bottomPanel = new BottomPanel();
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(ScrollPaneFactory.createScrollPane(metricsTree), BorderLayout.CENTER);
-        mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
-
-        createRightPanels();
-
-        super.setContent(createSplitter(mainPanel, rightPanel));
+        createUIComponents();
 
         console = MetricsUtils.get(project, MetricsConsole.class);
 
@@ -76,6 +68,17 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
                 (DefaultActionGroup) actionManager.getAction(actionId), false);
         actionToolbar.setOrientation(SwingConstants.VERTICAL);
         setToolbar(actionToolbar.getComponent());
+    }
+
+    public void createUIComponents() {
+        metricsTree = new MetricsTree(null);
+        metricsTree.addTreeSelectionListener(e -> treeSelectionChanged());
+        bottomPanel = new BottomPanel();
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(ScrollPaneFactory.createScrollPane(metricsTree), BorderLayout.CENTER);
+        mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
+        createRightPanels();
+        super.setContent(createSplitter(mainPanel, rightPanel));
     }
 
     protected void createRightPanels() {
@@ -110,7 +113,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         splitter.addPropertyChangeListener(Splitter.PROP_PROPORTION,
                 evt -> PropertiesComponent.getInstance(project).setValue(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY,
                         Float.toString(splitter.getProportion())));
-
         return splitter;
     }
 
@@ -189,5 +191,12 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
 
     public MetricsConsole getConsole() {
         return console;
+    }
+
+    public void clear() {
+        rightPanel.removeAll();
+        mainPanel.removeAll();
+        updateUI();
+        createUIComponents();
     }
 }

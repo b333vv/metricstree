@@ -18,6 +18,7 @@ public class MetricsService {
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static final Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
     private static final Map<String, JavaRecursiveElementVisitor> deferredVisitors = new HashMap<>();
+    private static boolean showClassMetricsTree;
     static {
         visitors.put("NOAM", new NumberOfAddedMethodsVisitor());
         visitors.put("LCOM", new LackOfCohesionOfMethodsVisitor());
@@ -49,6 +50,7 @@ public class MetricsService {
     public static void init(Project project) {
         metricsValidRangesSettings = MetricsUtils.get(project, MetricsValidRangesSettings.class);
         classMetricsTreeSettings = MetricsUtils.get(project, ClassMetricsTreeSettings.class);
+        showClassMetricsTree = classMetricsTreeSettings.isShowClassMetricsTree();
         projectMetricsTreeSettings = MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
     }
 
@@ -110,5 +112,18 @@ public class MetricsService {
 
     public static boolean isControlValidRanges() {
         return metricsValidRangesSettings.isControlValidRanges();
+    }
+
+    public static boolean isShowClassMetricsTree() { return showClassMetricsTree; }
+
+    public static void setShowClassMetricsTree(boolean showClassMetricsTree) {
+        MetricsService.showClassMetricsTree = showClassMetricsTree;
+        classMetricsTreeSettings.setShowClassMetricsTree(showClassMetricsTree);
+        if (!showClassMetricsTree) {
+            MetricsUtils.getClassMetricsPanel().clear();
+        } else {
+            MetricsUtils.getClassMetricsPanel().createUIComponents();
+            MetricsUtils.getClassMetricsPanel().refresh();
+        }
     }
 }

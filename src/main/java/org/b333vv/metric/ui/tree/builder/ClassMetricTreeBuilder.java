@@ -30,9 +30,4 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
             return null;
         }
     }
-
-    @Override
-    protected MetricsTreeFilter getMetricsTreeFilter() {
-        return MetricsUtils.getClassMetricsTreeFilter();
-    }
 }

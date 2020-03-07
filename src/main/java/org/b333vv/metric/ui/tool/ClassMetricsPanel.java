@@ -6,6 +6,7 @@ import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.CurrentFileController;
+import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,12 +25,14 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     public void update(@NotNull PsiJavaFile file) {
-        psiJavaFile = file;
-        MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
+            psiJavaFile = file;
+        if (MetricsService.isShowClassMetricsTree()) {
+            MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
+        }
     }
 
     public void refresh() {
-        if (psiJavaFile != null) {
+        if (psiJavaFile != null && MetricsService.isShowClassMetricsTree()) {
             MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(psiJavaFile));
         }
     }

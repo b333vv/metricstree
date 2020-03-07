@@ -23,6 +23,8 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
 
     private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
 
+    private boolean showClassMetricsTree;
+
     public ClassMetricsTreeSettings() {
         loadInitialValues();
     }
@@ -75,6 +77,8 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
 //                METHOD_LEVEL, "", true));
 //        classTreeMetrics.add(new MetricsTreeSettingsStub("FOUT", "Fan-Out",
 //                METHOD_LEVEL, "", true));
+
+        showClassMetricsTree = true;
     }
 
     public void setClassTreeMetrics(List<MetricsTreeSettingsStub> metrics) {
@@ -107,4 +111,15 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
                 .collect(Collectors.toList());
     }
 
+    public List<MetricsTreeSettingsStub> getClassTreeMetrics() {
+        return classTreeMetrics;
+    }
+
+    public void setShowClassMetricsTree(boolean showClassMetricsTree) {
+        this.showClassMetricsTree = showClassMetricsTree;
+    }
+
+    public boolean isShowClassMetricsTree() {
+        return showClassMetricsTree;
+    }
 }

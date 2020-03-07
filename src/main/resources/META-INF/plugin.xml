@@ -103,11 +103,17 @@
 
         <action id="Metrics.Autoscroll"
                 class="org.b333vv.metric.actions.SetAutoScrollableAction"
-                text="Autoscroll To Source In Editor"
-                description="Autoscroll to source In editor"
+                text="Auto Scroll To Source In Editor"
+                description="Auto scroll to source in editor"
                 icon="AllIcons.General.AutoscrollToSource">
         </action>
 
+        <action id="Metrics.ShowClassMetricsTree"
+                class="org.b333vv.metric.actions.SetShowClassMetricsTreeAction"
+                text="Show Class Metrics Tree"
+                description="Show class metrics tree"
+                icon="AllIcons.Actions.Show">
+        </action>
 
         <action id="Metrics.ShowProjectMetrics"
                 class="org.b333vv.metric.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
@@ -222,6 +228,8 @@
             <reference id="Metrics.RefreshMetricsTree"/>
             <separator/>
             <reference id="Metrics.Configure"/>
+            <separator/>
+            <reference id="Metrics.ShowClassMetricsTree"/>
         </group>
 
         <group id="Metrics.ProjectMetricsToolbar">
