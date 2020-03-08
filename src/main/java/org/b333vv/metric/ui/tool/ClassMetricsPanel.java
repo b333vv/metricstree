@@ -53,6 +53,10 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         }
     }
 
+    public void update() {
+        scope.update();
+    }
+
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
         JavaProject javaProject = classModelBuilder.buildJavaProject(psiJavaFile);

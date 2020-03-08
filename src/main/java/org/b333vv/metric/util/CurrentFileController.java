@@ -49,24 +49,29 @@ public class CurrentFileController {
                 .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorChangeListener);
     }
 
-    private void update() {
+    public void update() {
         MetricsUtils.setProject(project);
         VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
         if (selectedFile == null) {
+            panel.clear();
             return;
         }
         PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
         if (psiFile == null) {
+            panel.clear();
             return;
         }
         if (psiFile instanceof PsiCompiledElement) {
+            panel.clear();
             return;
         }
         final FileType fileType = psiFile.getFileType();
         if (fileType.isBinary()) {
+            panel.clear();
             return;
         }
         if (!fileType.getName().equals("JAVA")) {
+            panel.clear();
             return;
         }
         PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;

@@ -139,7 +139,7 @@ public class MetricsService {
             MetricsUtils.getClassMetricsPanel().clear();
         } else {
             MetricsUtils.getClassMetricsPanel().createUIComponents();
-            MetricsUtils.getClassMetricsPanel().refresh();
+            MetricsUtils.getClassMetricsPanel().update();
         }
     }
 }
