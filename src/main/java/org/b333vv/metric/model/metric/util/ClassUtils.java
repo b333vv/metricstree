@@ -17,6 +17,7 @@
 package org.b333vv.metric.model.metric.util;
 
 import com.intellij.psi.*;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,7 +71,9 @@ public class ClassUtils {
         final PsiDirectory directory = psiFile.getContainingDirectory();
         final List<PsiPackage> packageList = new ArrayList<>();
         PsiPackage psiPackage = JavaDirectoryService.getInstance().getPackage(directory);
-        assert psiPackage != null;
+        if (psiPackage == null) {
+            return List.of();
+        }
         while (psiPackage.getParentPackage() != null) {
             packageList.add(psiPackage);
             psiPackage = psiPackage.getParentPackage();

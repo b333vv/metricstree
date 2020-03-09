@@ -48,12 +48,6 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     public void refresh() {
-        if (psiJavaFile != null && MetricsService.isShowClassMetricsTree()) {
-            MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(psiJavaFile));
-        }
-    }
-
-    public void update() {
         scope.update();
     }
 

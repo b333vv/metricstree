@@ -38,7 +38,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
         ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
-        projectMetricsRunner.execute();
+        MetricsUtils.getDumbService().runWhenSmart(() -> projectMetricsRunner.execute());
         metricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
     }
 

@@ -24,12 +24,13 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.util.MetricsService;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
 
 public abstract class ModelBuilder {
 
-    protected void createJavaClass(JavaPackage javaPackage, PsiJavaFile psiJavaFile) {
+    protected void createJavaClass(@NotNull JavaPackage javaPackage, @NotNull PsiJavaFile psiJavaFile) {
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
             getJavaClassVisitors().forEach(javaClass::accept);

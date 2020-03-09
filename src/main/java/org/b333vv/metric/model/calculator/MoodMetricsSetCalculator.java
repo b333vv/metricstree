@@ -160,7 +160,6 @@ public class MoodMetricsSetCalculator {
                 attributeHidingFactor));
     }
 
-
     private class Visitor extends JavaRecursiveElementVisitor {
         @Override
         public void visitClass(PsiClass aClass) {
