@@ -17,6 +17,8 @@
 package org.b333vv.metric.model.calculator;
 
 import com.intellij.analysis.AnalysisScope;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
@@ -33,6 +35,9 @@ import java.util.*;
 
 public class MoodMetricsSetCalculator {
     private final AnalysisScope scope;
+    private ProgressIndicator indicator;
+    private int filesCount;
+    private int progress = 0;
     private int attributesNumber = 0;
     private int publicAttributesNumber = 0;
     private int classesNumber = 0;
@@ -62,8 +67,13 @@ public class MoodMetricsSetCalculator {
     }
 
     public void calculate(JavaProject javaProject) {
+        indicator = ProgressManager.getInstance().getProgressIndicator();
+        indicator.setText("Initializing");
+        filesCount = scope.getFileCount();
 
         scope.accept(new Visitor());
+
+        indicator.setText("Calculating metrics");
 
         addAttributeHidingFactor(javaProject);
 
@@ -164,11 +174,19 @@ public class MoodMetricsSetCalculator {
         @Override
         public void visitClass(PsiClass aClass) {
             super.visitClass(aClass);
+
+            indicator.checkCanceled();
+
             processAttributeInheritanceFactor(aClass);
             processAttributeAndMethodHidingFactor(aClass);
             processCouplingFactor(aClass);
             processMethodInheritanceFactor(aClass);
             processPolymorphismFactor(aClass);
+
+            indicator.setText("Calculating metrics on project level: processing class " + aClass.getName() + "...");
+            progress++;
+            indicator.setIndeterminate(false);
+            indicator.setFraction((double) progress / (double) filesCount);
         }
 
         private void processPolymorphismFactor(@NotNull PsiClass psiClass) {

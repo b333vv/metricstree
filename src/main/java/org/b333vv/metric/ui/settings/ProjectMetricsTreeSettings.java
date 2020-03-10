@@ -94,10 +94,6 @@ public final class ProjectMetricsTreeSettings implements PersistentStateComponen
                 METHOD_LEVEL, "", true));
         projectTreeMetrics.add(new MetricsTreeSettingsStub("NOL", "Number Of Loops",
                 METHOD_LEVEL, "", true));
-        projectTreeMetrics.add(new MetricsTreeSettingsStub("FIN", "Fan-In",
-                METHOD_LEVEL, "", true));
-        projectTreeMetrics.add(new MetricsTreeSettingsStub("FOUT", "Fan-Out",
-                METHOD_LEVEL, "", true));
     }
 
     public List<MetricsTreeSettingsStub> getProjectTreeMetrics() {

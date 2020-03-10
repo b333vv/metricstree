@@ -30,6 +30,7 @@ import java.util.Set;
 public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
+        super.visitClass(psiClass);
         metric = Metric.of("DAC", "Data Abstraction Coupling",
                 "/html/DataAbstractionCoupling.html", Value.UNDEFINED);
         final Set<PsiClass> psiClasses = new HashSet<>();
@@ -47,6 +48,5 @@ public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
             metric = Metric.of("DAC", "Data Abstraction Coupling",
                     "/html/DataAbstractionCoupling.html", psiClasses.size());
         }
-        super.visitClass(psiClass);
     }
 }

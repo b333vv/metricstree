@@ -128,10 +128,6 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
                 false, 0.00, 0.00, 0, 50));
         unControlledMetrics.put("NOL", new MetricsValidRangeStub("NOL", "Number Of Loops", METHOD_LEVEL,
                 false, 0.00, 0.00, 0, 10));
-        unControlledMetrics.put("FIN", new MetricsValidRangeStub("FIN", "Fan-In", METHOD_LEVEL,
-                false, 0.00, 0.00, 0, 5));
-        unControlledMetrics.put("FOUT", new MetricsValidRangeStub("FOUT", "Fan-Out", METHOD_LEVEL,
-                false, 0.00, 0.00, 0, 5));
     }
 
     public boolean isControlValidRanges() {

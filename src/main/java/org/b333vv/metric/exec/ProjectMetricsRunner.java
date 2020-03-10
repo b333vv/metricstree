@@ -17,15 +17,12 @@
 package org.b333vv.metric.exec;
 
 import com.intellij.analysis.AnalysisScope;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -59,6 +56,8 @@ public class ProjectMetricsRunner {
     private final Runnable martinMetricSetCalculating;
     private final Runnable moodMetricSetCalculating;
     private final Runnable buildTree;
+    private final Runnable cancel;
+    private final Runnable finished;
     private final BackgroundTaskQueue queue;
 
     public ProjectMetricsRunner(Project project, AnalysisScope scope, JavaProject javaProject ) {
@@ -92,6 +91,17 @@ public class ProjectMetricsRunner {
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
             MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
+            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
+        };
+
+        cancel = () -> {
+            queue.clear();
+            MetricsUtils.getProjectMetricsPanel().cancelMetricsCalculate();
+            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
+        };
+
+        finished = () -> {
+            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
         };
     }
 
@@ -102,18 +112,18 @@ public class ProjectMetricsRunner {
     public final void execute() {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
                 "Calculating Metrics...", true, calculate, null,
-                queue::clear, null);
+                cancel, null);
 
         if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
-            classMetricsTask.setOnFinished(buildTree);
+            classMetricsTask.setOnSuccess(buildTree);
             queue.run(classMetricsTask);
             return;
         }
         if (!MetricsService.isNeedToConsiderProjectMetrics()) {
             MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                     "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
-                    true, martinMetricSetCalculating, null,
-                    queue::clear, buildTree);
+                    true, martinMetricSetCalculating, buildTree,
+                    cancel, null);
             queue.run(classMetricsTask);
             queue.run(packageMetricsTask);
             return;
@@ -121,8 +131,8 @@ public class ProjectMetricsRunner {
         if (!MetricsService.isNeedToConsiderPackageMetrics()) {
             MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
                     "Project Level Metrics: MOOD Metrics Set Calculating...",
-                    true, moodMetricSetCalculating, null,
-                    queue::clear, buildTree);
+                    true, moodMetricSetCalculating, buildTree,
+                    cancel, null);
             queue.run(classMetricsTask);
             queue.run(projectMetricsTask);
             return;
@@ -131,12 +141,12 @@ public class ProjectMetricsRunner {
         MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                 "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                 true, martinMetricSetCalculating, null,
-                queue::clear, null);
+                cancel, null);
         queue.run(packageMetricsTask);
         MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
                 "Project Level Metrics: MOOD Metrics Set Calculating...",
-                true, moodMetricSetCalculating, null,
-                queue::clear, buildTree);
+                true, moodMetricSetCalculating, buildTree,
+                cancel, null);
         queue.run(projectMetricsTask);
     }
 
@@ -162,7 +172,7 @@ public class ProjectMetricsRunner {
                 return;
             }
             final String fileName = psiFile.getName();
-            indicator.setText("Processing " + fileName + "...");
+            indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
             projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);

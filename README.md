@@ -1,4 +1,4 @@
-# MetricsTree IntelliJ IDEA plugin [![GitHub issues](https://img.shields.io/github/issues/b333vv/metricstree)](https://github.com/b333vv/metricstree/issues)
+# MetricsTree IntelliJ IDEA plugin 
 
 MetricsTree is an IDE extension that helps you evaluate quantitative properties of java code. 
 MetricsTree calculates metrics on project, package, class and method levels. 
@@ -37,8 +37,6 @@ It supports the most common metric sets.
         - NOM: Number of Methods
 4. Method level:
     - CND: Condition Nesting Depth
-    - FANIN: Fan-In
-    - FANOUT: Fan-Out
     - LOC: Lines Of Code
     - LND: Loop Nesting Depth
     - CC: McCabe Cyclomatic Complexity

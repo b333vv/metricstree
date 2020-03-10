@@ -89,10 +89,6 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
                 METHOD_LEVEL, "", true));
         classTreeMetrics.add(new MetricsTreeSettingsStub("NOL", "Number Of Loops",
                 METHOD_LEVEL, "", true));
-//        classTreeMetrics.add(new MetricsTreeSettingsStub("FIN", "Fan-In",
-//                METHOD_LEVEL, "", true));
-//        classTreeMetrics.add(new MetricsTreeSettingsStub("FOUT", "Fan-Out",
-//                METHOD_LEVEL, "", true));
 
         showClassMetricsTree = true;
     }

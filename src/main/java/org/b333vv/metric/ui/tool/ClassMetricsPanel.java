@@ -52,10 +52,10 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
+        console.info("Built metrics tree for " + psiJavaFile.getName());
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
         JavaProject javaProject = classModelBuilder.buildJavaProject(psiJavaFile);
         metricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
         buildTreeModel();
-        console.info("Built metrics tree for " + psiJavaFile.getName());
     }
 }

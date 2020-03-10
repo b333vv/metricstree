@@ -17,6 +17,7 @@
 package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import org.b333vv.metric.exec.ProjectMetricsRunner;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,6 +25,13 @@ public class CalculateProjectMetricsAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        MetricsUtils.calculateProjectMetrics();
+        if (!MetricsUtils.getProjectMetricsPanel().isMetricsCalculationPerformed()) {
+            MetricsUtils.calculateProjectMetrics();
+        }
+    }
+
+    @Override
+    public void update (AnActionEvent e) {
+        e.getPresentation().setEnabled(!MetricsUtils.getProjectMetricsPanel().isMetricsCalculationPerformed());
     }
 }

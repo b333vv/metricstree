@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class MetricsBackgroundableTask extends Task.Backgroundable {
 
     private final Runnable task;
-    private final Runnable onSuccess;
+    private Runnable onSuccess;
     private final Runnable onCancel;
     private Runnable onFinished;
 
@@ -72,5 +72,9 @@ public class MetricsBackgroundableTask extends Task.Backgroundable {
 
     public void setOnFinished(Runnable onFinished) {
         this.onFinished = onFinished;
+    }
+
+    public void setOnSuccess(Runnable onSuccess) {
+        this.onSuccess = onSuccess;
     }
 }

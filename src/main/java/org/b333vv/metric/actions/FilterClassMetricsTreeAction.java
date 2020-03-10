@@ -19,6 +19,7 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.MouseEvent;
@@ -29,6 +30,11 @@ public class FilterClassMetricsTreeAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         showPopup(e);
+    }
+
+    @Override
+    public void update (AnActionEvent e) {
+        e.getPresentation().setEnabled(MetricsUtils.getClassMetricsPanel().isMetricsTreeExists());
     }
 
     private void showPopup(@NotNull AnActionEvent e) {

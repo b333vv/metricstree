@@ -27,19 +27,37 @@ import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 
 public class ProjectMetricsPanel extends MetricsTreePanel {
+    private boolean metricsCalculationPerformed;
     public ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar");
         MetricsUtils.setProjectMetricsPanel(this);
     }
 
+    public boolean isMetricsCalculationPerformed() {
+        return metricsCalculationPerformed;
+    }
+
+    public void setMetricsCalculationPerformed(boolean metricsCalculationPerformed) {
+        this.metricsCalculationPerformed = metricsCalculationPerformed;
+    }
+
     public void calculateMetrics() {
+        clear();
+        metricsCalculationPerformed = true;
         javaProject = new JavaProject(project.getName());
-        console.info("Built metrics tree for project " + project.getName());
+        console.info("Building metrics tree for project " + project.getName());
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
+        console.info(analysisScope.getFileCount() + " java files will be processed");
         ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
         MetricsUtils.getDumbService().runWhenSmart(() -> projectMetricsRunner.execute());
         metricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
+    }
+
+    public void cancelMetricsCalculate() {
+        clear();
+        metricsCalculationPerformed = false;
+        console.info("Building metrics tree for project " + project.getName() + " canceled");
     }
 
     @Override

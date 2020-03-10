@@ -24,6 +24,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.BucketedCount;
 import org.b333vv.metric.model.metric.util.ClassUtils;
+import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.Set;
 

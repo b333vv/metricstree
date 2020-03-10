@@ -67,18 +67,14 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     protected transient PsiJavaFile psiJavaFile;
     protected transient JavaProject javaProject;
     protected transient JPanel mainPanel;
+    private boolean metricsTreeExists = false;
 
     public MetricsTreePanel(Project project, String actionId) {
         super(false, true);
-
         this.project = project;
-
         createUIComponents();
-
         console = MetricsUtils.get(project, MetricsConsole.class);
-
         this.scope = new CurrentFileController(project);
-
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction(actionId), false);
@@ -200,8 +196,10 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         metricsTree.setModel(metricsTreeModel);
         if (metricsTreeModel == null) {
             classOrMethodMetricsTable.clear();
+            metricsTreeExists = false;
         } else {
             metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
+            metricsTreeExists = true;
         }
     }
 
@@ -210,9 +208,14 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     }
 
     public void clear() {
+        metricsTreeExists = false;
         rightPanel.removeAll();
         mainPanel.removeAll();
         updateUI();
         createUIComponents();
+    }
+
+    public boolean isMetricsTreeExists() {
+        return metricsTreeExists;
     }
 }
