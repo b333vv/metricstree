@@ -38,14 +38,9 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
-        if (getMetricsTreeFilter().isProjectMetricsVisible()
-                || getMetricsTreeFilter().isPackageMetricsVisible()
-                || getMetricsTreeFilter().isClassMetricsVisible()
-                || getMetricsTreeFilter().isMethodMetricsVisible()) {
             ProjectNode projectNode = new ProjectNode(javaProject);
             model = new DefaultTreeModel(projectNode);
             model.setRoot(projectNode);
-
             if (getMetricsTreeFilter().isProjectMetricsVisible()
                     && getMetricsTreeFilter().isMoodMetricsSetVisible()) {
                 javaProject.getMetrics()
@@ -55,7 +50,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                             projectNode.add(metricNode);
                         });
             }
-
             if (getMetricsTreeFilter().isPackageMetricsVisible()
                     || getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
@@ -67,9 +61,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                 });
             }
             return model;
-        } else {
-            return null;
-        }
     }
 
     private void addPackages(PackageNode parentNode) {

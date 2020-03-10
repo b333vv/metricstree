@@ -43,12 +43,11 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     public void calculateMetrics() {
         clear();
-        metricsCalculationPerformed = true;
         javaProject = new JavaProject(project.getName());
-        console.info("Building metrics tree for project " + project.getName());
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
-        console.info(analysisScope.getFileCount() + " java files will be processed");
+        console.info("Building metrics tree for project " + project.getName()
+                + ". " + analysisScope.getFileCount() + " java files will be processed");
         ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
         MetricsUtils.getDumbService().runWhenSmart(() -> projectMetricsRunner.execute());
         metricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
@@ -56,7 +55,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     public void cancelMetricsCalculate() {
         clear();
-        metricsCalculationPerformed = false;
         console.info("Building metrics tree for project " + project.getName() + " canceled");
     }
 

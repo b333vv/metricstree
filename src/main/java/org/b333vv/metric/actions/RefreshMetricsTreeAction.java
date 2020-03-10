@@ -23,6 +23,11 @@ import org.jetbrains.annotations.NotNull;
 public class RefreshMetricsTreeAction extends AbstractAction {
 
     @Override
+    public void update (AnActionEvent e) {
+        e.getPresentation().setEnabled(MetricsUtils.getClassMetricsPanel().isMetricsTreeExists());
+    }
+
+    @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         MetricsUtils.refreshMetricsTree();
     }

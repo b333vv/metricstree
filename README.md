@@ -36,11 +36,11 @@ It supports the most common metric sets.
         - DAC: Data Abstraction Coupling
         - NOM: Number of Methods
 4. Method level:
-    - CND: Condition Nesting Depth
     - LOC: Lines Of Code
-    - LND: Loop Nesting Depth
     - CC: McCabe Cyclomatic Complexity
-    - NOLPS: Number Of Loops
+    - Loop Nesting Depth
+    - Condition Nesting Depth
+    - Number Of Loops
 # Featutes   
  - Represents metrics calculation results as a tree view
  - Builds trees with metrics for class open in the editor or for the entire project

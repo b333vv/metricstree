@@ -57,7 +57,6 @@ public class ProjectMetricsRunner {
     private final Runnable moodMetricSetCalculating;
     private final Runnable buildTree;
     private final Runnable cancel;
-    private final Runnable finished;
     private final BackgroundTaskQueue queue;
 
     public ProjectMetricsRunner(Project project, AnalysisScope scope, JavaProject javaProject ) {
@@ -67,6 +66,7 @@ public class ProjectMetricsRunner {
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
         calculate = () -> {
+            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(true);
             projectModelBuilder = new ProjectModelBuilder(javaProject);
             indicator = ProgressManager.getInstance().getProgressIndicator();
             indicator.setText("Initializing");
@@ -97,10 +97,6 @@ public class ProjectMetricsRunner {
         cancel = () -> {
             queue.clear();
             MetricsUtils.getProjectMetricsPanel().cancelMetricsCalculate();
-            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
-        };
-
-        finished = () -> {
             MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
         };
     }

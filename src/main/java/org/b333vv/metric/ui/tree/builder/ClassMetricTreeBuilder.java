@@ -30,8 +30,6 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     public DefaultTreeModel createMetricTreeModel() {
-        if (getMetricsTreeFilter().isClassMetricsVisible()
-            || getMetricsTreeFilter().isMethodMetricsVisible()) {
             if (!javaProject.getPackages().findFirst().isPresent()) {
                 return null;
             }
@@ -46,8 +44,5 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
             addSubClasses(rootClassNode);
             addTypeMetricsAndMethodNodes(rootClassNode);
             return model;
-        } else {
-            return null;
-        }
     }
 }
