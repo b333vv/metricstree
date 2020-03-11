@@ -45,7 +45,7 @@ It supports the most common metric sets.
  - Represents metrics calculation results as a tree view
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
-  ![Image of MetricsTree](metrics-tree-example.png)      
+  ![Image of MetricsTree](metricstree-light-sample.png)      
 1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
 2. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
 3. Martin, R. C. Agile Software Development: Principles, Patterns, and Practices. Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002.
