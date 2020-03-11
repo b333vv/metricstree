@@ -34,7 +34,7 @@ public class FilterClassMetricsTreeAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricsUtils.getClassMetricsPanel().isMetricsTreeExists());
+        e.getPresentation().setEnabled(MetricsUtils.isClassMetricsTreeExists());
     }
 
     private void showPopup(@NotNull AnActionEvent e) {

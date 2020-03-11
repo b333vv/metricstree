@@ -25,13 +25,11 @@ public class CalculateProjectMetricsAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        if (!MetricsUtils.getProjectMetricsPanel().isMetricsCalculationPerformed()) {
-            MetricsUtils.calculateProjectMetrics();
-        }
+        MetricsUtils.calculateProjectMetrics();
     }
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(!MetricsUtils.getProjectMetricsPanel().isMetricsCalculationPerformed());
+        e.getPresentation().setEnabled(!MetricsUtils.isMetricsCalculationPerformed());
     }
 }

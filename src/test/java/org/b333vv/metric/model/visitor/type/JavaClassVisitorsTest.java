@@ -172,7 +172,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         javaClass.accept(dataAbstractionCouplingVisitor);
 
         Metric metric = Metric.of("DAC", "Data Abstraction Coupling",
-                "/html/DataAbstractionCoupling.html", 0);
+                "/html/DataAbstractionCoupling.html", 1);
 
         assertEquals(metric, javaClass.getMetrics().findFirst().get());
     }

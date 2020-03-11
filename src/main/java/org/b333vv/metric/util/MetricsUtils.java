@@ -132,6 +132,17 @@ public class MetricsUtils {
         MetricsUtils.autoScrollable = autoScrollable;
     }
 
+    public static boolean isClassMetricsTreeExists() {
+        return classMetricsPanel != null && classMetricsPanel.isMetricsTreeExists();
+    }
+
+    public static boolean isProjectMetricsTreeExists() {
+        return projectMetricsPanel != null && projectMetricsPanel.isMetricsTreeExists();
+    }
+
+    public static boolean isMetricsCalculationPerformed() {
+        return projectMetricsPanel != null && projectMetricsPanel.isMetricsCalculationPerformed();
+    }
 
 
     @Nullable

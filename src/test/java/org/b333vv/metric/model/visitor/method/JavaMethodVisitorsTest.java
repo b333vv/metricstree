@@ -13,7 +13,7 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
     protected void setUp() throws Exception {
         super.setUp();
         MetricsUtils.setProject(getProject());
-        MetricsService.init( getProject());
+        MetricsService.init(getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
     }
 
@@ -46,34 +46,6 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
         Metric metric = Metric.of("CND", "Condition Nesting Depth",
                 "/html/ConditionNestingDepth.html", 4);
-
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
-    }
-
-    public void testFanInVisitor() {
-        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod);
-
-        FanInVisitor fanInVisitor = new FanInVisitor();
-        javaMethod.accept(fanInVisitor);
-
-        Metric metric = Metric.of("FIN", "Fan-In",
-                "/html/FanIn.html", 8);
-
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
-    }
-
-    public void testFanOutVisitor() {
-        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod);
-
-        FanOutVisitor fanOutVisitor = new FanOutVisitor();
-        javaMethod.accept(fanOutVisitor);
-
-        Metric metric = Metric.of("FOUT", "Fan-Out",
-                "/html/FanOut.html", 3);
 
         assertEquals(metric, javaMethod.getMetrics().findFirst().get());
     }
