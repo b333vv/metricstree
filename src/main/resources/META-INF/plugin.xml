@@ -62,7 +62,7 @@
     <idea-version since-build="193.6015"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MetricsTree" anchor="bottom" icon="/images/metricsTree_dark.svg"
+        <toolWindow id="MetricsTree" anchor="bottom" icon="/images/metricsTree.svg"
                     factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
     </extensions>
 
@@ -232,11 +232,11 @@
             <reference id="Metrics.ProjectTreeShowNotSetValueMetrics"/>
             <reference id="Metrics.ProjectTreeShowNotApplicableMetrics"/>
             <separator/>
+            <reference id="Metrics.ProjectTreeShowMoodMetrics"/>
+            <reference id="Metrics.ProjectTreeShowRobertMartinrMetrics"/>
             <reference id="Metrics.ProjectTreeShowChidamberKemererMetrics"/>
             <reference id="Metrics.ProjectTreeShowLorenzKiddMetrics"/>
             <reference id="Metrics.ProjectTreeShowLiHenryMetrics"/>
-            <reference id="Metrics.ProjectTreeShowRobertMartinrMetrics"/>
-            <reference id="Metrics.ProjectTreeShowMoodMetrics"/>
         </group>
 
         <group id="Metrics.ClassMetricsToolbar">

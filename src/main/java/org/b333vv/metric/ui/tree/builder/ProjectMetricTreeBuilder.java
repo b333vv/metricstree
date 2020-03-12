@@ -44,6 +44,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
             if (getMetricsTreeFilter().isProjectMetricsVisible()
                     && getMetricsTreeFilter().isMoodMetricsSetVisible()) {
                 javaProject.getMetrics()
+                        .filter(this::mustBeShown)
                         .sorted(Comparator.comparing(Metric::getName))
                         .forEach(m -> {
                             MetricNode metricNode = new ProjectMetricNode(m);
@@ -69,9 +70,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
         for (JavaPackage javaPackage : sortedPackages) {
             PackageNode packageNode = new PackageNode(javaPackage);
             parentNode.add(packageNode);
-
             addPackages(packageNode);
-
             if (getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
                 packageNode.getJavaPackage().getClasses()
@@ -83,12 +82,11 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                             addTypeMetricsAndMethodNodes(childClassNode);
                         });
             }
-
             if (getMetricsTreeFilter().isPackageMetricsVisible()
                     && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()) {
                 javaPackage.getMetrics()
-                        .sorted(Comparator.comparing(Metric::getName))
                         .filter(this::mustBeShown)
+                        .sorted(Comparator.comparing(Metric::getName))
                         .forEach(m -> {
                             MetricNode metricNode = new PackageMetricNode(m);
                             packageNode.add(metricNode);

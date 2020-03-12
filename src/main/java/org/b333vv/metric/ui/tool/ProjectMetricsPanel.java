@@ -47,7 +47,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
         console.info("Building metrics tree for project " + project.getName()
-                + ". " + analysisScope.getFileCount() + " java files will be processed");
+                + ": processing " + analysisScope.getFileCount() + " java files");
         ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
         MetricsUtils.getDumbService().runWhenSmart(() -> projectMetricsRunner.execute());
         metricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
