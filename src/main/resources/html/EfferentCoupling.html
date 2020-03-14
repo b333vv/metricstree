@@ -26,17 +26,18 @@
 <p class="main">
     Efferent Coupling between packages (Ce) measures the total number of external classes coupled to classes
     of a package due to outgoing coupling (coupling to classes external classes of the package,
-    uses Ce definition of coupling). Each class counts only once. Zero if the package does not
+    uses CBO definition of coupling). Each class counts only once. Zero if the package does not
     contain any classes or if external classes are not used by the package's classes.
 </p>
 <p class="img">
-    <img src="img/Ce.jpg" alt="Efferent Coupling (Ce)"/>
+    <img src="img/CaCe.png" alt="Efferent Coupling (Ce)"/>
 </p>
 <p class="main">
-    In the picture above it can be seen that class A has outgoing dependencies to 3 other classes,
-    that is why metric Ce for this class is 3.
-    The high value of the metric Ce > 20 indicates instability of a package, change in any of the numerous
-    external classes can cause the need for changes to the package.
+    To calculate the value of Ce, we must count the amount of classes dependent on other packages inside
+    the analyzed package. For example, Package_2 has two classes C and D (see figure above). First, define the
+    sets of classes that depend on classes C and D. In this case, the sets are {A, B} and {B} respectively.
+    Considering Package_2, the value of Ce is equal to 2. It means there are two classes inside Package_2,
+    having external dependencies.
 </p>
 <p class="main">
     According to

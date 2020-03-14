@@ -29,6 +29,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.model.metric.util.ClassUtils;
+import org.b333vv.metric.model.metric.value.Value;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -41,7 +42,7 @@ public class MoodMetricsSetCalculator {
     private int attributesNumber = 0;
     private int publicAttributesNumber = 0;
     private int classesNumber = 0;
-    private int totalAttributesVisibility = 0;
+    private Value totalAttributesVisibility = Value.of(0.0);
     private final Bag<String> classesPerPackage = new Bag<>();
     private final Bag<String> packageVisibleAttributesPerPackage = new Bag<>();
     private final Map<PsiClass, Integer> subclassesPerClass = new HashMap<>();
@@ -53,7 +54,7 @@ public class MoodMetricsSetCalculator {
 
     private int methodsNumber = 0;
     private int publicMethodsNumber = 0;
-    private int totalMethodsVisibility = 0;
+    private Value totalMethodsVisibility = Value.of(0.0);
     private final Bag<String> packageVisibleMethodsPerPackage = new Bag<>();
 
     private int availableMethods = 0;
@@ -89,8 +90,8 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addPolymorphismFactor(JavaProject javaProject) {
-        double polymorphismFactor = overridePotentialsNumber == 0 ? 1.0 :
-                (double) overridingMethodsNumber / (double) overridePotentialsNumber;
+        Value polymorphismFactor = overridePotentialsNumber == 0 ? Value.of(1.0) :
+                Value.of((double) overridingMethodsNumber).divide(Value.of((double) overridePotentialsNumber));
 
         javaProject.addMetric(Metric.of(
                 "PF",
@@ -100,8 +101,7 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addMethodInheritanceFactor(JavaProject javaProject) {
-
-        double methodInheritanceFactor = (double) inheritedMethods / (double) availableMethods;
+        Value methodInheritanceFactor = Value.of((double) inheritedMethods).divide(Value.of((double) availableMethods));
 
         javaProject.addMetric(Metric.of(
                 "MIF",
@@ -111,16 +111,21 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addMethodHidingFactor(JavaProject javaProject) {
-        totalMethodsVisibility += publicMethodsNumber * (classesNumber - 1);
+        totalMethodsVisibility = totalMethodsVisibility
+                .plus((Value.of(publicMethodsNumber)
+                        .times(Value.of(classesNumber - 1))));
         final Set<String> packages = classesPerPackage.getContents();
         for (String aPackage : packages) {
             final int visibleMethods = packageVisibleMethodsPerPackage.getCountForObject(aPackage);
             final int classes = classesPerPackage.getCountForObject(aPackage);
-            totalMethodsVisibility += visibleMethods * (classes - 1);
+            totalMethodsVisibility = totalMethodsVisibility
+                    .plus((Value.of(visibleMethods)
+                            .times(Value.of(classes - 1))));
         }
-        final int denominator = methodsNumber * (classesNumber - 1);
-        final int numerator = denominator - totalMethodsVisibility;
-        double methodHidingFactor = (double) numerator / (double) denominator;
+        final Value denominator = Value.of(methodsNumber).times(Value.of(classesNumber - 1));
+        final Value numerator = denominator.minus(totalMethodsVisibility);
+
+        Value methodHidingFactor = numerator.divide(denominator);
 
         javaProject.addMetric(Metric.of(
                 "MHF",
@@ -130,9 +135,10 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addCouplingFactor(JavaProject javaProject) {
-        final int denominator = (classesNumber * (classesNumber - 1)) / 2;
-        final int numerator = totalCoupling;
-        double couplingFactor = (double) numerator / (double) denominator;
+        Value numerator = Value.of((double) totalCoupling);
+        Value denominator = Value.of((double) classesNumber)
+                .times(Value.of((double) (classesNumber - 1))).divide(Value.of(2.0));
+        Value couplingFactor = numerator.divide(denominator);
 
         javaProject.addMetric(Metric.of(
                 "CF",
@@ -142,7 +148,8 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addAttributeInheritanceFactor(JavaProject javaProject) {
-        double attributeInheritanceFactor = (double) inheritedFields / (double) availableFields;
+        Value attributeInheritanceFactor = Value.of((double) inheritedFields)
+                .divide(Value.of((double) availableFields));
 
         javaProject.addMetric(Metric.of(
                 "AIF",
@@ -152,16 +159,21 @@ public class MoodMetricsSetCalculator {
     }
 
     private void addAttributeHidingFactor(JavaProject javaProject) {
-        totalAttributesVisibility += publicAttributesNumber * (classesNumber - 1);
+        totalAttributesVisibility = totalAttributesVisibility
+                .plus((Value.of(publicAttributesNumber)
+                        .times(Value.of(classesNumber - 1))));
         final Set<String> packages = classesPerPackage.getContents();
         for (String aPackage : packages) {
             final int visibleAttributes = packageVisibleAttributesPerPackage.getCountForObject(aPackage);
             final int classes = classesPerPackage.getCountForObject(aPackage);
-            totalAttributesVisibility += visibleAttributes * (classes - 1);
+            totalAttributesVisibility = totalAttributesVisibility
+                    .plus((Value.of(visibleAttributes)
+                            .times(Value.of(classes - 1))));
         }
-        final int ahfDenominator = attributesNumber * (classesNumber - 1);
-        final int ahfNumerator = ahfDenominator - totalAttributesVisibility;
-        double attributeHidingFactor = (double) ahfNumerator / (double) ahfDenominator;
+        final Value denominator = Value.of(attributesNumber).times(Value.of(classesNumber - 1));
+        final Value numerator = denominator.minus(totalAttributesVisibility);
+
+        Value attributeHidingFactor = numerator.divide(denominator);
 
         javaProject.addMetric(Metric.of(
                 "AHF",
@@ -297,7 +309,7 @@ public class MoodMetricsSetCalculator {
                     Objects.requireNonNull(containingClass).hasModifierProperty(PsiModifier.PRIVATE)) {
             } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
-                totalMethodsVisibility += getSubclassCount(containingClass);
+                totalMethodsVisibility = totalMethodsVisibility.plus(Value.of(getSubclassCount(containingClass)));
             } else if ((psiMethod.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
                     containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
                 publicMethodsNumber++;
@@ -317,7 +329,7 @@ public class MoodMetricsSetCalculator {
                     Objects.requireNonNull(containingClass).hasModifierProperty(PsiModifier.PRIVATE)) {
             } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) ||
                     containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
-                totalAttributesVisibility += getSubclassCount(containingClass);
+                totalAttributesVisibility = totalAttributesVisibility.plus(Value.of(getSubclassCount(containingClass)));
             } else if ((psiField.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
                     containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
                 publicAttributesNumber++;

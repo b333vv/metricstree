@@ -35,5 +35,4 @@ public class Bag<T> {
     public int getCountForObject(T obj) {
         return Objects.requireNonNullElse(contents.get(obj), 0);
     }
-
 }

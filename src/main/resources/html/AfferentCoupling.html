@@ -30,14 +30,19 @@
     contain any classes or if external classes do not use the package's classes.
 </p>
 <p class="img">
-    <img src="img/Ca.jpg" alt="Afferent Coupling (Ce)"/>
+    <img src="img/CaCe.png" alt="Afferent Coupling (Ce)"/>
 </p>
 <p class="main">
-    In the picture above it can be seen that class A has only 1 incoming dependency (from class X),
-    that is why the value for metrics Ca equals 1.
-    High values of metric Ca usually suggest high component stability. This is due to the fact that the class
-    depends on many other classes. Therefore, it can’t be modified significantly because, in this case,
-    the probability of spreading such changes increases.
+    In order to calculate the value of Ca for Package_1 (see figure above), we should count the number of classes
+    out of the package that have dependencies incident on it. For example, the package Package_1 has classes
+    called A and B. The sets that define the classes dependent on A and B are {C, E, F} and {C, D}, respectively.
+    The union of these two sets is the set of classes that depend upon Package_1.
+    In this case, the union set is given by {C, D, E, F}. Therefore, we conclude the Ca value for Package_1
+    is equal to 4, the total elements in this union set {C, D, E, F}.
+    It is noteworthy that class C has more than one dependency relationship focusing on Package_1,
+    as seen in the two dependency sets. However, we count all dependencies only once, even a class that
+    has more than one incident dependency relationship on the same package, like in the case of class C. Similarly,
+    the counting procedure is applied for the remaining packages, resulting in zero for Package_2 and Package_3.
 </p>
 <p class="main">
     According to

@@ -34,11 +34,13 @@ public class Value implements Comparable<Value> {
             return "N/A";
         }
     };
-    private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0########");
+    public static final Value ZERO = new Value(LargeInteger.ZERO);
+    public static final Value ONE = new Value(LargeInteger.ONE);
+
+    private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0###");
     private Number value;
 
-    private Value(Number value) {
-        assert (value != null);
+    private Value(@NotNull Number value) {
         this.value = value;
     }
 
@@ -56,6 +58,136 @@ public class Value implements Comparable<Value> {
 
     public static Value of(@NotNull Number n) {
         return new Value(n);
+    }
+
+    public Value plus(Value that) {
+        assert(that!=null);
+
+        Number other = that.value;
+        if(value instanceof LargeInteger) {
+            if(other instanceof LargeInteger) {
+                return new Value(((LargeInteger) value).plus((LargeInteger)other));
+            } else if(other instanceof Rational) {
+                return new Value(((Rational)other).plus(Converter.toRational((LargeInteger)value)));
+            } else if(other instanceof Real) {
+                return new Value(((Real)other).plus(Converter.toReal((LargeInteger)value)));
+            }
+
+        } else if (value instanceof Rational) {
+            if(other instanceof LargeInteger) {
+                return that.plus(this);
+            } else if(other instanceof Rational) {
+                return new Value(((Rational)other).plus((Rational) value));
+            } else if(other instanceof Real) {
+                return new Value(((Real)other).plus(Converter.toReal((Rational)value)));
+            }
+
+        } else if( value instanceof Real) {
+            if(other instanceof LargeInteger) {
+                return that.plus(this);
+            } else if (other instanceof Real) {
+                return new Value(((Real)other).plus((Real) value));
+            } else if(other instanceof Rational) {
+                return that.plus(this);
+            }
+        }
+
+        throw new UnsupportedOperationException("Unable to add "+value.getClass()+" to "+value.getClass());
+    }
+
+    public Value negate() {
+        if(value instanceof LargeInteger) {
+            return new Value(LargeInteger.ZERO.minus((LargeInteger)value));
+        } else if (value instanceof Rational) {
+            return new Value(Rational.ZERO.minus((Rational)value));
+        } else if(value instanceof Real) {
+            return new Value(Real.ZERO.minus((Real)value));
+        }
+
+        throw new UnsupportedOperationException("Unable to negate "+value.getClass());
+    }
+
+    public Value minus(@NotNull Value that) {
+        return this.plus(that.negate());
+    }
+
+    public Value times(@NotNull Value that) {
+        Number other = that.value;
+        if(value instanceof LargeInteger) {
+            if(other instanceof LargeInteger) {
+                return new Value(((LargeInteger) value).times((LargeInteger)other));
+            } else if(other instanceof Rational) {
+                return new Value(((Rational)other).times(Converter.toRational((LargeInteger)value)));
+            } else if(other instanceof Real) {
+                return new Value(((Real)other).times(Converter.toReal((LargeInteger)value)));
+            }
+
+        } else if (value instanceof Rational) {
+            if(other instanceof LargeInteger) {
+                return that.times(this);
+            } else if(other instanceof Rational) {
+                return new Value(((Rational)other).times((Rational) value));
+            } else if(other instanceof Real) {
+                return new Value(((Real)other).times(Converter.toReal((Rational)value)));
+            }
+
+        } else if( value instanceof Real) {
+            if(other instanceof LargeInteger) {
+                return that.times(this);
+            } else if (other instanceof Real) {
+                return new Value(((Real)other).times((Real) value));
+            } else if(other instanceof Rational) {
+                return that.times(this);
+            }
+        }
+
+        throw new UnsupportedOperationException("Unable to multiply "+value.getClass()+" to "+value.getClass());
+    }
+
+    public Value divide(@NotNull Value that) {
+
+        Number other = that.value;
+        if(value instanceof LargeInteger) {
+            if(other instanceof LargeInteger) {
+                return new Value(Rational.valueOf((LargeInteger)value, (LargeInteger)other));
+            } else if(other instanceof Rational) {
+                return new Value(Converter.toRational((LargeInteger)value).divide((Rational)other));
+            } else if(other instanceof Real) {
+                return new Value(Converter.toReal((LargeInteger)value).divide((Real)other));
+            }
+
+        } else if (value instanceof Rational) {
+            if(other instanceof LargeInteger) {
+                return new Value(((Rational) value).divide(Converter.toRational((LargeInteger)other)));
+            } else if(other instanceof Rational) {
+                return new Value(((Rational) value).divide((Rational) other));
+            } else if(other instanceof Real) {
+                return new Value(Converter.toReal((Rational)value).divide((Real)other));
+            }
+
+        } else if( value instanceof Real) {
+            if(other instanceof LargeInteger) {
+                return new Value(((Real)value).divide(Converter.toReal((LargeInteger)other)));
+            } else if(other instanceof Rational) {
+                return new Value(((Real)value).divide(Converter.toReal((Rational)other)));
+            } else if (other instanceof Real) {
+                return new Value(((Real)value).divide((Real) other));
+            }
+        }
+
+        throw new UnsupportedOperationException("Unable to divide "+value.getClass()+" to "+value.getClass());
+    }
+
+    public Value pow(int exp) {
+        return new Value(value.pow(exp));
+    }
+
+    public Value abs() {
+        if(this.isLessThan(Value.ZERO)) {
+            return this.negate();
+        } else {
+            return this;
+        }
     }
 
     @Override
@@ -98,7 +230,7 @@ public class Value implements Comparable<Value> {
 
         } else if (value instanceof Rational) {
             if (other instanceof LargeInteger) {
-                return 0-that.compareTo(this);
+                return 0 - that.compareTo(this);
             } else if (other instanceof Rational) {
                 return value.compareTo(other);
             } else if (other instanceof Real) {
@@ -107,9 +239,9 @@ public class Value implements Comparable<Value> {
 
         } else if (value instanceof Real) {
             if (other instanceof LargeInteger) {
-                return 0-that.compareTo(this);
+                return 0 - that.compareTo(this);
             } else if (other instanceof Rational) {
-                return 0-that.compareTo(this);
+                return 0 - that.compareTo(this);
             } else if (other instanceof Real) {
                 return compareReals((Real) this.value, (Real) other);
             }
@@ -143,7 +275,7 @@ public class Value implements Comparable<Value> {
 
     public String percentageFormat() {
         NumberFormat format = NumberFormat.getPercentInstance();
-        format.setMinimumFractionDigits(2);
+        format.setMinimumFractionDigits(4);
         return format.format(value);
     }
 }

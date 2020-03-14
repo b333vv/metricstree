@@ -25,6 +25,7 @@ import org.b333vv.metric.util.MetricsUtils;
 
 public class MessagePassingCouplingVisitor extends JavaClassVisitor {
     private int methodCallsNumber = 0;
+
     @Override
     public void visitClass(PsiClass psiClass) {
         metric = Metric.of("MPC", "Message Passing Coupling",

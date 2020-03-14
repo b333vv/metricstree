@@ -19,9 +19,12 @@ package org.b333vv.metric.model.builder;
 import com.intellij.psi.*;
 import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.model.metric.util.ClassUtils;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DependenciesBuilder {
 
@@ -47,6 +50,17 @@ public class DependenciesBuilder {
         return packagesDependentsForClass
                 .map(Bag::getContents)
                 .orElse(Collections.emptySet());
+    }
+
+    public Set<PsiClass> getDependentsSet(PsiClass psiClass, PsiPackage psiPackage) {
+        if (classesDependents.get(psiClass) == null) {
+            return Set.of();
+        }
+        Set<PsiClass> result = classesDependents.get(psiClass).getContents()
+                .stream()
+                .filter(c -> !ClassUtils.findPackage(c).equals(psiPackage))
+                .collect(Collectors.toSet());
+        return result;
     }
 
     public Set<PsiClass> getClassesDependencies(PsiClass psiClass) {
@@ -193,25 +207,25 @@ public class DependenciesBuilder {
             addDependencyForClass(classType.resolve());
         }
 
-        private void addDependencyForClass(PsiClass psiClass) {
-            if (currentClass == null || psiClass == null || psiClass.equals(currentClass)) {
+        private void addDependencyForClass(PsiClass referencedClass) {
+            if (currentClass == null || referencedClass == null || referencedClass.equals(currentClass)) {
                 return;
             }
-            if (psiClass instanceof PsiCompiledElement || psiClass instanceof PsiAnonymousClass ||
-                    psiClass instanceof PsiTypeParameter) {
+            if (referencedClass instanceof PsiCompiledElement || referencedClass instanceof PsiAnonymousClass ||
+                    referencedClass instanceof PsiTypeParameter) {
                 return;
             }
-            add(currentClass, psiClass, classesDependencies);
-            add(psiClass, currentClass, classesDependents);
+            add(currentClass, referencedClass, classesDependencies);
+            add(referencedClass, currentClass, classesDependents);
 
-            final PsiPackage dependencyPackage = ClassUtils.findPackage(psiClass);
+            final PsiPackage dependencyPackage = ClassUtils.findPackage(referencedClass);
             if (dependencyPackage != null) {
                 add(currentClass, dependencyPackage, packagesDependencies);
             }
 
             final PsiPackage aPackage = ClassUtils.findPackage(currentClass);
             if (aPackage != null) {
-                add(psiClass, aPackage, packagesDependents);
+                add(referencedClass, aPackage, packagesDependents);
             }
         }
 

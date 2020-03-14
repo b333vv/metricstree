@@ -172,7 +172,7 @@ public class ProjectMetricsRunner {
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
             projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
-            dependenciesBuilder.build(psiJavaFile);
+             dependenciesBuilder.build(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }
