@@ -3,6 +3,7 @@
 build
 classes
 gradle
+out
 
 *.iml
 *.ipr

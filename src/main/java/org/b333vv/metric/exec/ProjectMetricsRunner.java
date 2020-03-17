@@ -50,7 +50,7 @@ public class ProjectMetricsRunner {
     private int filesCount;
     private int progress = 0;
 
-    private static DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
+    private static DependenciesBuilder dependenciesBuilder;
 
     private final Runnable calculate;
     private final Runnable martinMetricSetCalculating;
@@ -66,6 +66,7 @@ public class ProjectMetricsRunner {
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
         calculate = () -> {
+            dependenciesBuilder = new DependenciesBuilder();
             MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(true);
             projectModelBuilder = new ProjectModelBuilder(javaProject);
             indicator = ProgressManager.getInstance().getProgressIndicator();
@@ -172,7 +173,7 @@ public class ProjectMetricsRunner {
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
             projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
-             dependenciesBuilder.build(psiJavaFile);
+            dependenciesBuilder.build(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }

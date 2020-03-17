@@ -83,7 +83,8 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         });
             }
             if (getMetricsTreeFilter().isPackageMetricsVisible()
-                    && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()) {
+                    && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()
+                    && !javaPackage.getClasses().collect(Collectors.toSet()).isEmpty()) {
                 javaPackage.getMetrics()
                         .filter(this::mustBeShown)
                         .sorted(Comparator.comparing(Metric::getName))

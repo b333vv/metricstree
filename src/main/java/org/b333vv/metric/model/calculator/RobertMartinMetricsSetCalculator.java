@@ -25,21 +25,20 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.BucketedCount;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RobertMartinMetricsSetCalculator {
     private final AnalysisScope scope;
 
     private final BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
-//    private final BucketedCount<PsiPackage> externalDependentsPerPackageNumber = new BucketedCount<>();
-
+    private final Map<PsiPackage, HashSet<PsiClass>> dependents = new HashMap<>();
     private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
     private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
-
-    private final Map<PsiPackage, HashSet<PsiClass>> dependents = new HashMap<>();
 
     public RobertMartinMetricsSetCalculator(AnalysisScope scope) {
         this.scope = scope;
@@ -120,15 +119,6 @@ public class RobertMartinMetricsSetCalculator {
                     .filter(p -> !p.equals(psiPackage))
                     .collect(Collectors.toSet());
             externalDependenciesPerPackageNumber.incrementBucketValue(psiPackage, packageDependencies.size());
-
-//            externalDependentsPerPackageNumber.createBucket(psiPackage);
-//            Set<PsiPackage> packageDependents = dependenciesBuilder.getPackagesDependents(psiClass)
-//                    .stream()
-//                    .filter(p -> !p.equals(psiPackage))
-//                    .collect(Collectors.toSet());
-//
-//            externalDependentsPerPackageNumber.incrementBucketValue(psiPackage, packageDependents.size());
-
 
             if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
                 abstractClassesPerPackageNumber.incrementBucketValue(psiPackage);

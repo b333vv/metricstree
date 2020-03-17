@@ -19,12 +19,10 @@ package org.b333vv.metric.model.builder;
 import com.intellij.psi.*;
 import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.model.metric.util.ClassUtils;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DependenciesBuilder {
 
