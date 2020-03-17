@@ -23,10 +23,6 @@ repositories {
     mavenCentral()
 }
 
-test {
-    systemProperty "idea.home.path", "/Users/vadim/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/193.5233.102/5a74bbe98a814d61e6069abd0902b46668f1278c/ideaIC-193.5233.102"
-}
-
 dependencies {
     //Libraries
     compile (group: 'org.jscience', name: 'jscience', version: '4.3.1') {
