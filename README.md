@@ -1,4 +1,4 @@
-# MetricsTree IntelliJ IDEA plugin 
+# MetricsTree IntelliJ IDEA plugin [![Build Status](https://travis-ci.org/b333vv/metricstree.svg?branch=master)](https://travis-ci.org/b333vv)
 
 MetricsTree is an IDE extension that helps you evaluate quantitative properties of java code. 
 MetricsTree calculates metrics on project, package, class and method levels. 
