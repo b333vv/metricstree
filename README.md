@@ -41,14 +41,25 @@ It supports the most common metric sets.
     - Loop Nesting Depth
     - Condition Nesting Depth
     - Number Of Loops
+> 1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
+> 2. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
+> 3. Martin, R. C. Agile Software Development: Principles, Patterns, and Practices. Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002.
+> 4. S. R. Chidamber and C. F. Kemerer. A Metrics Suite for Object Oriented Design. In IEEE Transactions on Software Engineering, volume 20 (6), pages 476-493, June 1994.
+> 5. M. Lorenz, J. Kidd. Object Oriented Software Metrics, Prentice Hall, NJ, 1994.
+> 6. W. Li and S. Henry. Object-oriented metrics that predict maintainability. Journal of Systems and Software, Volume 23, Issue 2, pages 111-122, November 1993.
 # Featutes   
  - Represents metrics calculation results as a tree view
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
-  ![Image of MetricsTree](metricstree-light-sample.png)      
-1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
-2. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
-3. Martin, R. C. Agile Software Development: Principles, Patterns, and Practices. Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002.
-4. S. R. Chidamber and C. F. Kemerer. A Metrics Suite for Object Oriented Design. In IEEE Transactions on Software Engineering, volume 20 (6), pages 476-493, June 1994.
-5. M. Lorenz, J. Kidd. Object Oriented Software Metrics, Prentice Hall, NJ, 1994.
-6. W. Li and S. Henry. Object-oriented metrics that predict maintainability. Journal of Systems and Software, Volume 23, Issue 2, pages 111-122, November 1993.
+![Image of MetricsTree](metricstree-light-sample.png)
+# Installation
+The plugin can be installed from the JetBrains plugin repository within your IDE with 
+Preferences | Plugins | Market Place and searching for MetricsTree. 
+# Compatibility
+The plugin tested for compatibility with IntelliJ IDEA version 2019.3+ (since build #IC-193.5233.102).
+# Development
+The plugin is written in Java using IntelliJ's plugin framework.
+The code is hosted on GitHub and has a Travis-CI integration for automatic testing.
+Compilation is done with Gradle (v 5.2.1+) using the IntelliJ Gradle plugin and should work out of the box.
+# License     
+The plugin is distributed under Apache License, version 2.0. For full license terms, see [LICENCE](../blob/master/LICENSE).
