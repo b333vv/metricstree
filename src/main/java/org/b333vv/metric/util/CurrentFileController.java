@@ -26,17 +26,18 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import org.b333vv.metric.ui.tool.ClassMetricsPanel;
+import org.b333vv.metric.ui.tool.MetricsTreePanel;
 import org.jetbrains.annotations.NotNull;
 
 public class CurrentFileController {
     private final Project project;
-    private ClassMetricsPanel panel;
+    private MetricsTreePanel panel;
 
     public CurrentFileController(Project project) {
         this.project = project;
     }
 
-    public void setPanel(ClassMetricsPanel panel) {
+    public void setPanel(MetricsTreePanel panel) {
         this.panel = panel;
         initEventHandling();
         update();
@@ -52,27 +53,23 @@ public class CurrentFileController {
     public void update() {
         MetricsUtils.setProject(project);
         VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
+        panel.clear();
         if (selectedFile == null) {
-            panel.clear();
             return;
         }
         PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
         if (psiFile == null) {
-            panel.clear();
             return;
         }
         if (psiFile instanceof PsiCompiledElement) {
-            panel.clear();
             return;
         }
         final FileType fileType = psiFile.getFileType();
         if (fileType.isBinary()) {
-            panel.clear();
             return;
         }
         if (!fileType.getName().equals("JAVA")) {
-            panel.clear();
-            return;
+             return;
         }
         PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
         panel.update(psiJavaFile);

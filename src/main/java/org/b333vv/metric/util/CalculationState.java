@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.actions;
+package org.b333vv.metric.util;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.b333vv.metric.util.MetricsUtils;
-import org.jetbrains.annotations.NotNull;
-
-public class CalculateProjectMetricsAction extends AbstractAction {
-
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        MetricsUtils.calculateProjectMetrics();
-    }
-
-    @Override
-    public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(!MetricsUtils.isProjectMetricsCalculationPerforming());
-    }
+public enum CalculationState {
+    IDLE, RUNNING, DONE, CANCELED
 }

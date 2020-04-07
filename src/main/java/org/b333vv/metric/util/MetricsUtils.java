@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel;
 import org.b333vv.metric.ui.tool.ClassMetricsPanel;
 import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
@@ -45,17 +46,32 @@ public class MetricsUtils {
     private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
     private static ClassMetricsPanel classMetricsPanel;
+    private static ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel;
     private static ProjectMetricsPanel projectMetricsPanel;
     private static boolean autoScrollable = true;
+    private static boolean projectMetricsCalculationPerforming;
+    private static boolean classMetricsValuesEvolutionCalculationPerforming;
 
     private MetricsUtils() {
         // Utility class
     }
 
+    public static boolean isProjectMetricsCalculationPerforming() {
+        return projectMetricsCalculationPerforming;
+    }
+
+    public static void setProjectMetricsCalculationPerforming(boolean projectMetricsCalculationPerforming) {
+        MetricsUtils.projectMetricsCalculationPerforming = projectMetricsCalculationPerforming;
+    }
+
+    public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean classMetricsValuesEvolutionCalculationPerforming) {
+        MetricsUtils.classMetricsValuesEvolutionCalculationPerforming = classMetricsValuesEvolutionCalculationPerforming;
+    }
+
     public static <T> T get(ComponentManager container, Class<T> clazz) {
         T t = container.getComponent(clazz);
         if (t == null) {
-            LOG.error("Could not find class in container: " + clazz.getName());
+            LOG.error("Could not find class in the container: " + clazz.getName());
             throw new IllegalArgumentException("Class not found: " + clazz.getName());
         }
         return t;
@@ -104,9 +120,15 @@ public class MetricsUtils {
         return classMetricsPanel;
     }
 
+    public static ClassMetricsValuesEvolutionPanel getClassMetricsValuesEvolutionPanel() {
+        return classMetricsValuesEvolutionPanel;
+    }
+
     public static void setClassMetricsPanel(ClassMetricsPanel value) {
         classMetricsPanel = value;
     }
+
+    public static void setClassMetricsValuesEvolutionPanel(ClassMetricsValuesEvolutionPanel value) { classMetricsValuesEvolutionPanel = value; }
 
     public static void refreshMetricsTree() {
         classMetricsPanel.refresh();
@@ -122,6 +144,10 @@ public class MetricsUtils {
 
     public static void calculateProjectMetrics() {
         projectMetricsPanel.calculateMetrics();
+    }
+
+    public static void calculateClassMetricsEvolution() {
+        classMetricsValuesEvolutionPanel.calculateMetricsEvolution();
     }
 
     public static boolean isAutoScrollable() {
@@ -140,10 +166,11 @@ public class MetricsUtils {
         return projectMetricsPanel != null && projectMetricsPanel.isMetricsTreeExists();
     }
 
-    public static boolean isMetricsCalculationPerformed() {
-        return projectMetricsPanel != null && projectMetricsPanel.isMetricsCalculationPerformed();
+    public static boolean isMetricsEvolutionCalculationPossible() {
+        return classMetricsValuesEvolutionPanel != null
+                && classMetricsValuesEvolutionPanel.isUnderGit()
+                && !classMetricsValuesEvolutionCalculationPerforming;
     }
-
 
     @Nullable
     private static VirtualFile getVirtualFile(PsiElement psiElement) {

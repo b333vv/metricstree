@@ -25,6 +25,7 @@ import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
+import org.b333vv.metric.util.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
@@ -150,11 +151,11 @@ public class MetricsDescriptionPanel {
 
         if (MetricsService.isControlValidRanges()) {
             if (!metric.hasAllowableValue()) {
-                currentValue.setIcon(AllIcons.General.BalloonError);
+                currentValue.setIcon(MetricsIcons.INVALID_VALUE);
             } else if (metric.getRange() == Range.UNDEFINED) {
-                currentValue.setIcon(AllIcons.General.BalloonWarning);
+                currentValue.setIcon(MetricsIcons.NOT_TRACKED);
             } else {
-                currentValue.setIcon(AllIcons.Actions.Commit);
+                currentValue.setIcon(MetricsIcons.VALID_VALUE);
             }
         } else {
             allowableRangeValue.setText("");

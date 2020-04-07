@@ -51,7 +51,9 @@ It supports the most common metric sets.
  - Represents metrics calculation results as a tree view
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
+ - Shows class metrics values evolution based on 'git log'
 ![Image of MetricsTree](metricstree-light-sample.png)
+![Image of MetricsTree](metricstree-darcula-sample.png)
 # Installation
 The plugin can be installed from the JetBrains plugin repository within your IDE with 
 Preferences | Plugins | Market Place and searching for MetricsTree. 

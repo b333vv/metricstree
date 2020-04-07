@@ -28,7 +28,7 @@ public class CommonUtils {
             return 0;
         }
         final String text = element.getText();
-        element.getContainingFile().getVirtualFile().getDetectedLineSeparator();
+//        element.getContainingFile().getVirtualFile().getDetectedLineSeparator();
         return countLines(text);
     }
 

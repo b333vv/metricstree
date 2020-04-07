@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_CLASS_METRICS_TREE = "Class Metrics Tree";
+    public static final String TAB_CLASS_METRICS_EVOLUTION_TREE = "Class Metrics Values Evolution Tree";
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics Tree";
     public static final String TAB_LOGS = "Log";
 
@@ -35,6 +36,14 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(classMetricsPanel, TAB_CLASS_METRICS_TREE, false);
         toolWindow.getContentManager().addDataProvider(classMetricsPanel);
+        toolWindow.getContentManager().addContent(treeContent);
+    }
+
+    private static void addClassMetricsValuesEvolutionTreeTab(Project project, ToolWindow toolWindow) {
+        ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel = new ClassMetricsValuesEvolutionPanel(project);
+        Content treeContent = toolWindow.getContentManager().getFactory()
+                .createContent(classMetricsValuesEvolutionPanel, TAB_CLASS_METRICS_EVOLUTION_TREE, false);
+        toolWindow.getContentManager().addDataProvider(classMetricsValuesEvolutionPanel);
         toolWindow.getContentManager().addContent(treeContent);
     }
 
@@ -58,6 +67,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull Project project, @NotNull final ToolWindow toolWindow) {
         MetricsService.init(project);
         addClassMetricsTreeTab(project, toolWindow);
+        addClassMetricsValuesEvolutionTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
         addLogTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);

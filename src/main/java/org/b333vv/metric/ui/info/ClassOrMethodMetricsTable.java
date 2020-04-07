@@ -25,6 +25,7 @@ import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
+import org.b333vv.metric.util.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
@@ -182,11 +183,11 @@ public class ClassOrMethodMetricsTable {
 
         private Icon getRowIcon(Metric metric) {
             if (!metric.hasAllowableValue()) {
-                return AllIcons.General.BalloonError;
+                return MetricsIcons.INVALID_VALUE;
             } else if (metric.getRange() == Range.UNDEFINED) {
-                return AllIcons.General.BalloonWarning;
+                return MetricsIcons.NOT_TRACKED;
             }
-            return AllIcons.Actions.Commit;
+            return MetricsIcons.VALID_VALUE;
         }
     }
 }

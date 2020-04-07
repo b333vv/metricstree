@@ -18,7 +18,7 @@ package org.b333vv.metric.model.calculator;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.psi.*;
-import org.b333vv.metric.exec.ProjectMetricsRunner;
+import org.b333vv.metric.exec.ProjectMetricsProcessor;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -108,7 +108,7 @@ public class RobertMartinMetricsSetCalculator {
                 return;
             }
 
-            DependenciesBuilder dependenciesBuilder = ProjectMetricsRunner.getDependenciesBuilder();
+            DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
 
             dependents.computeIfAbsent(psiPackage, k -> new HashSet<>())
                     .addAll(dependenciesBuilder.getDependentsSet(psiClass, psiPackage));

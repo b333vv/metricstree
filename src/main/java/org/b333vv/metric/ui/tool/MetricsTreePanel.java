@@ -29,6 +29,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
+import com.intellij.util.messages.MessageBus;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaPackage;
@@ -50,8 +51,9 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.beans.PropertyChangeListener;
 
-public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
+public abstract class MetricsTreePanel extends SimpleToolWindowPanel implements PropertyChangeListener {
     protected static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
     protected static final Logger LOG = Logger.getInstance(MetricsTreePanel.class);
     protected transient CurrentFileController scope;
@@ -80,6 +82,10 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
                 (DefaultActionGroup) actionManager.getAction(actionId), false);
         actionToolbar.setOrientation(SwingConstants.VERTICAL);
         setToolbar(actionToolbar.getComponent());
+    }
+
+    public JavaProject getJavaProject() {
+        return javaProject;
     }
 
     public void createUIComponents() {
@@ -218,4 +224,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     public boolean isMetricsTreeExists() {
         return metricsTreeExists;
     }
+
+    public void update(@NotNull PsiJavaFile file) {}
 }

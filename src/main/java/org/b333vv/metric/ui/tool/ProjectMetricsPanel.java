@@ -20,25 +20,42 @@ import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import org.b333vv.metric.exec.ProjectMetricsRunner;
+import org.b333vv.metric.exec.ProjectMetricsProcessor;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 
+import java.beans.PropertyChangeEvent;
+
 public class ProjectMetricsPanel extends MetricsTreePanel {
-    private boolean metricsCalculationPerformed;
+
+    private ProjectMetricsProcessor projectMetricsProcessor;
+
     public ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar");
         MetricsUtils.setProjectMetricsPanel(this);
     }
 
-    public boolean isMetricsCalculationPerformed() {
-        return metricsCalculationPerformed;
-    }
-
-    public void setMetricsCalculationPerformed(boolean metricsCalculationPerformed) {
-        this.metricsCalculationPerformed = metricsCalculationPerformed;
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        CalculationState state = (CalculationState) evt.getNewValue();
+        switch (state) {
+            case DONE:
+                showResults(projectMetricsProcessor.getMetricsTreeModel());
+                MetricsUtils.setProjectMetricsCalculationPerforming(false);
+                console.info("Building metrics tree for project " + project.getName() + " finished");
+                break;
+            case CANCELED :
+                clear();
+                console.info("Building metrics tree for project " + project.getName() + " canceled");
+                MetricsUtils.setProjectMetricsCalculationPerforming(false);
+                break;
+            case RUNNING:
+                MetricsUtils.setProjectMetricsCalculationPerforming(true);
+            default: break;
+        }
     }
 
     public void calculateMetrics() {
@@ -47,15 +64,11 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
         console.info("Building metrics tree for project " + project.getName()
-                + ": processing " + analysisScope.getFileCount() + " java files");
-        ProjectMetricsRunner projectMetricsRunner = new ProjectMetricsRunner(project, analysisScope, javaProject);
-        MetricsUtils.getDumbService().runWhenSmart(() -> projectMetricsRunner.execute());
+                + " started: processing " + analysisScope.getFileCount() + " java files");
+        projectMetricsProcessor = new ProjectMetricsProcessor(project, analysisScope, javaProject);
+        projectMetricsProcessor.addPropertyChangeListener(this);
+        MetricsUtils.getDumbService().runWhenSmart(projectMetricsProcessor::execute);
         metricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-    }
-
-    public void cancelMetricsCalculate() {
-        clear();
-        console.info("Building metrics tree for project " + project.getName() + " canceled");
     }
 
     @Override

@@ -22,12 +22,18 @@ import javax.swing.*;
 
 public class MetricsIcons {
 
-  public static final Icon PROJECT_METRIC = IconLoader.getIcon("/images/projectMetric11Yellow.svg");
-  public static final Icon PACKAGE_METRIC = IconLoader.getIcon("/images/packageMetric11Yellow.svg");
-  public static final Icon CLASS_METRIC = IconLoader.getIcon("/images/classMetric11Yellow.svg");
-  public static final Icon METHOD_METRIC = IconLoader.getIcon("/images/methodMetric11Yellow.svg");
+  public static final Icon PROJECT_METRIC = IconLoader.getIcon("/images/projectMetric.svg");
+  public static final Icon PACKAGE_METRIC = IconLoader.getIcon("/images/packageMetric.svg");
+  public static final Icon CLASS_METRIC = IconLoader.getIcon("/images/classMetric.svg");
+  public static final Icon METHOD_METRIC = IconLoader.getIcon("/images/methodMetric.svg");
   public static final Icon CONSTRUCTOR = IconLoader.getIcon("/images/constructor.svg");
   public static final Icon NA = IconLoader.getIcon("/images/na.svg");
+  public static final Icon INCREASED = IconLoader.getIcon("/images/increased.svg");
+  public static final Icon DECREASED = IconLoader.getIcon("/images/decreased.svg");
+  public static final Icon EQUAL = IconLoader.getIcon("/images/equal.svg");
+  public static final Icon NOT_TRACKED = IconLoader.getIcon("/images/notTracked.svg");
+  public static final Icon INVALID_VALUE = IconLoader.getIcon("/images/invalidValue.svg");
+  public static final Icon VALID_VALUE = IconLoader.getIcon("/images/validValue.svg");
 
   private MetricsIcons() {
     // only static

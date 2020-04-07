@@ -17,7 +17,7 @@
 package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
-import org.b333vv.metric.exec.ProjectMetricsRunner;
+import org.b333vv.metric.exec.ProjectMetricsProcessor;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
@@ -33,7 +33,7 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
         metric = Metric.of("CBO", "Coupling Between Objects",
                 "/html/CouplingBetweenObjects.html", Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            DependenciesBuilder dependenciesBuilder = ProjectMetricsRunner.getDependenciesBuilder();
+            DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
             Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             Set<PsiClass> dependents = dependenciesBuilder.getClassesDependents(psiClass);
             Set<PsiClass> union = new HashSet<>(dependencies);

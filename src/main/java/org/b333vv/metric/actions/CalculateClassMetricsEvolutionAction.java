@@ -20,15 +20,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class CalculateProjectMetricsAction extends AbstractAction {
+public class CalculateClassMetricsEvolutionAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        MetricsUtils.calculateProjectMetrics();
+        MetricsUtils.calculateClassMetricsEvolution();
     }
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(!MetricsUtils.isProjectMetricsCalculationPerforming());
+        e.getPresentation().setEnabled(MetricsUtils.isMetricsEvolutionCalculationPossible());
     }
 }

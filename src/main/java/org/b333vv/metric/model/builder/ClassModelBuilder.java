@@ -20,10 +20,11 @@ import com.intellij.psi.PsiJavaFile;
 import org.apache.commons.io.FilenameUtils;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
+import org.jetbrains.annotations.NotNull;
 
 public class ClassModelBuilder extends ModelBuilder {
 
-    public JavaProject buildJavaProject(PsiJavaFile psiJavaFile) {
+    public JavaProject buildJavaProject(@NotNull PsiJavaFile psiJavaFile) {
         JavaProject javaProject = new JavaProject(FilenameUtils.getBaseName(psiJavaFile.getName()));
         JavaPackage javaPackage = new JavaPackage(psiJavaFile.getPackageName(), null);
         javaProject.addPackage(javaPackage);

@@ -10,11 +10,17 @@ apply plugin: 'idea'
 sourceCompatibility = 1.9
 targetCompatibility = 1.9
 
-intellij { plugins = ['java'] }
+//intellij { }
 
 intellij {
     version 'IC-193.5233.102'
-    updateSinceUntilBuild false
+    plugins = ['java', 'git4idea']
+    updateSinceUntilBuild true
+}
+
+patchPluginXml {
+    sinceBuild '193'
+    untilBuild ''
 }
 
 group = 'org.b333vv.metricstree'

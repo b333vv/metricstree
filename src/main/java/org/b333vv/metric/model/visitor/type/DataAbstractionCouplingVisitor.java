@@ -36,12 +36,10 @@ public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
         final Set<PsiClass> psiClasses = new HashSet<>();
         final PsiField[] psiClassFields = psiClass.getFields();
         for (final PsiField psiField : psiClassFields) {
-            if (psiField.isPhysical()) {
-                final PsiType psiType = psiField.getType().getDeepComponentType();
-                final PsiClass resolvedClassInType = PsiUtil.resolveClassInType(psiType);
-                if (resolvedClassInType != null) {
-                    psiClasses.add(resolvedClassInType);
-                }
+            final PsiType psiType = psiField.getType().getDeepComponentType();
+            final PsiClass resolvedClassInType = PsiUtil.resolveClassInType(psiType);
+            if (resolvedClassInType != null) {
+                psiClasses.add(resolvedClassInType);
             }
         }
         if (ClassUtils.isConcrete(psiClass)) {

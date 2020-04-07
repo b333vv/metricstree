@@ -77,10 +77,14 @@ public abstract class MetricTreeBuilder {
                 if (mustBeShown(metric) && checkClassMetricsSets(metric.getName())) {
                     MetricNode metricNode = new ClassMetricNode(metric);
                     classNode.add(metricNode);
+                    storeMetric(classNode, metricNode);
                 }
             }
         }
     }
+
+    protected void storeMetric(ClassNode classNode, MetricNode metricNode) {}
+    protected void storeMetric(MethodNode methodNode, MetricNode metricNode) {}
 
     protected void addMethodMetricsNodes(MethodNode methodNode) {
         List<Metric> sortedMetrics = methodNode.getJavaMethod().getMetrics()
@@ -89,6 +93,7 @@ public abstract class MetricTreeBuilder {
             if (mustBeShown(metric)) {
                 MetricNode metricNode = new MethodMetricNode(metric);
                 methodNode.add(metricNode);
+                storeMetric(methodNode, metricNode);
             }
         }
     }

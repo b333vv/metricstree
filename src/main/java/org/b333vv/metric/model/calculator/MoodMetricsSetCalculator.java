@@ -23,7 +23,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
-import org.b333vv.metric.exec.ProjectMetricsRunner;
+import org.b333vv.metric.exec.ProjectMetricsProcessor;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -269,7 +269,7 @@ public class MoodMetricsSetCalculator {
         }
 
         private void processCouplingFactor(PsiClass psiClass) {
-            final DependenciesBuilder dependenciesBuilder = ProjectMetricsRunner.getDependenciesBuilder();
+            final DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
             final Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             totalCoupling += dependencies.stream()
                     .filter(c -> !psiClass.isInheritor(c, true))

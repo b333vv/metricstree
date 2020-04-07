@@ -35,7 +35,7 @@ public class JavaMethod extends JavaCode {
         psiMethod = aMethod;
     }
 
-    private static String signature(PsiMethod aMethod) {
+    public static String signature(PsiMethod aMethod) {
         StringBuilder signature = new StringBuilder();
         MethodSignature methodSignature = aMethod.getSignature(PsiSubstitutor.EMPTY);
         signature.append(aMethod.getName());

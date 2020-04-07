@@ -48,7 +48,7 @@ public class SettingsPanel {
 
         tabs.insertTab("Metrics Valid Values", null, metricsValidRangesPanel.getComponent(),
                 "Configure valid values ", 0);
-        tabs.insertTab("Class Metrics Tree Composition", null, classMetricsTreeSettingsPanel.getComponent(),
+        tabs.insertTab("Class Metrics (and Values Evolution) Tree Composition", null, classMetricsTreeSettingsPanel.getComponent(),
                 "Configure class metrics tree composition", 1);
         tabs.insertTab("Project Metrics Tree Composition", null, projectMetricsTreeSettingsPanel.getComponent(),
                 "Configure project metrics tree composition", 2);

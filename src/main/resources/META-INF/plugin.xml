@@ -52,12 +52,20 @@
       ]]>
     </description>
 
-    <version>2020.1.0</version>
+    <change-notes><![CDATA[
+      <ul>
+        <li>2020.1.1 - Class metrics values evolution tree based on 'git log' added.</li>
+      </ul>
+      ]]>
+    </change-notes>
+
+    <version>2020.1.1</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends>Git4Idea</depends>
 
     <idea-version since-build="193.1316"/>
 
@@ -129,6 +137,13 @@
                 text="Show Class Metrics Tree"
                 description="Show class metrics tree"
                 icon="AllIcons.Actions.Show">
+        </action>
+
+        <action id="Metrics.CalculateClassMetricsEvolution"
+                class="org.b333vv.metric.actions.CalculateClassMetricsEvolutionAction"
+                text="Calculate Class Metrics Evolution"
+                description="Calculate class metrics evolution"
+                icon="AllIcons.Actions.Execute">
         </action>
 
         <action id="Metrics.ShowProjectMetrics"
@@ -255,6 +270,13 @@
             <reference id="Metrics.Configure"/>
             <separator/>
             <reference id="Metrics.Autoscroll"/>
+        </group>
+
+        <group id="Metrics.ClassMetricsEvolutionToolbar">
+            <reference id="Metrics.CalculateClassMetricsEvolution"/>
+            <separator/>
+            <reference id="Metrics.Configure"/>
+            <separator/>
         </group>
 
         <action id="Metrics.LogConsoleClean"

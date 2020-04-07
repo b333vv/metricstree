@@ -19,21 +19,25 @@ package org.b333vv.metric.ui.tool;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.CurrentFileController;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.beans.PropertyChangeEvent;
+
 public class ClassMetricsPanel extends MetricsTreePanel {
 
     public ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
-
         this.scope = new CurrentFileController(project);
         MetricsUtils.setClassMetricsPanel(this);
         subscribeToEvents();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
     }
 
     protected void subscribeToEvents() {
@@ -41,7 +45,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     public void update(@NotNull PsiJavaFile file) {
-            psiJavaFile = file;
+        psiJavaFile = file;
         if (MetricsService.isShowClassMetricsTree()) {
             MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
         }
@@ -54,7 +58,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
         console.info("Built metrics tree for " + psiJavaFile.getName());
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        JavaProject javaProject = classModelBuilder.buildJavaProject(psiJavaFile);
+        javaProject = classModelBuilder.buildJavaProject(psiJavaFile);
         metricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
         buildTreeModel();
     }

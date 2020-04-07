@@ -41,6 +41,14 @@ public class MetricNode extends AbstractNode {
         return AllIcons.Nodes.Artifact;
     }
 
+    protected String getText() {
+        if (Sets.inMoodMetricsSet(metric.getName())) {
+            return metric.getDescription() + ": " + metric.getValue().percentageFormat();
+        } else {
+            return metric.getDescription() + ": " + metric.getFormattedValue();
+        }
+    }
+
     public Metric getMetric() {
         return metric;
     }
@@ -56,16 +64,16 @@ public class MetricNode extends AbstractNode {
             } else if (!metric.hasAllowableValue()) {
                 renderer.setIconToolTip("This metric has an unacceptable value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                        AllIcons.General.BalloonError));
+                        MetricsIcons.INVALID_VALUE));
             } else {
                 if (metric.getRange() == Range.UNDEFINED) {
                     renderer.setIconToolTip("The desired value range is not set for this metric");
                     renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                            AllIcons.General.BalloonWarning));
+                            MetricsIcons.NOT_TRACKED));
                 } else {
                     renderer.setIconToolTip("This metric has an acceptable value");
                     renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                            AllIcons.Actions.Commit));
+                            MetricsIcons.VALID_VALUE));
                 }
             }
         } else {
@@ -76,10 +84,6 @@ public class MetricNode extends AbstractNode {
                 renderer.setIcon(getIcon());
             }
         }
-        if (Sets.inMoodMetricsSet(metric.getName())) {
-            renderer.append(metric.getDescription() + ": " + metric.getValue().percentageFormat());
-        } else {
-            renderer.append(metric.getDescription() + ": " + metric.getFormattedValue());
-        }
+        renderer.append(getText());
     }
 }

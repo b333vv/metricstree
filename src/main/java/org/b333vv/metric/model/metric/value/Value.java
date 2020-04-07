@@ -92,7 +92,7 @@ public class Value implements Comparable<Value> {
             }
         }
 
-        throw new UnsupportedOperationException("Unable to add "+value.getClass()+" to "+value.getClass());
+        throw new UnsupportedOperationException("Unable to add " + value.getClass() + " to "+value.getClass());
     }
 
     public Value negate() {
@@ -104,7 +104,7 @@ public class Value implements Comparable<Value> {
             return new Value(Real.ZERO.minus((Real)value));
         }
 
-        throw new UnsupportedOperationException("Unable to negate "+value.getClass());
+        throw new UnsupportedOperationException("Unable to negate " + value.getClass());
     }
 
     public Value minus(@NotNull Value that) {

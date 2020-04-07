@@ -36,12 +36,15 @@ import org.b333vv.metric.model.calculator.MoodMetricsSetCalculator;
 import org.b333vv.metric.model.calculator.RobertMartinMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
-public class ProjectMetricsRunner {
+public class ProjectMetricsProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
@@ -49,6 +52,11 @@ public class ProjectMetricsRunner {
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
+
+    private CalculationState state = CalculationState.IDLE;
+    private final PropertyChangeSupport support;
+
+    private DefaultTreeModel metricsTreeModel;
 
     private static DependenciesBuilder dependenciesBuilder;
 
@@ -59,15 +67,20 @@ public class ProjectMetricsRunner {
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
 
-    public ProjectMetricsRunner(Project project, AnalysisScope scope, JavaProject javaProject ) {
+    public ProjectMetricsProcessor(Project project, AnalysisScope scope, JavaProject javaProject ) {
         this.project = project;
         this.javaProject = javaProject;
+
+        support = new PropertyChangeSupport(this);
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
         calculate = () -> {
             dependenciesBuilder = new DependenciesBuilder();
-            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(true);
+
+            support.firePropertyChange("state", this.state, CalculationState.RUNNING);
+            this.state = CalculationState.RUNNING;
+
             projectModelBuilder = new ProjectModelBuilder(javaProject);
             indicator = ProgressManager.getInstance().getProgressIndicator();
             indicator.setText("Initializing");
@@ -90,16 +103,28 @@ public class ProjectMetricsRunner {
 
         buildTree = () -> {
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-            MetricsUtils.getProjectMetricsPanel().showResults(metricsTreeModel);
-            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
+            metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
+            support.firePropertyChange("state", this.state, CalculationState.DONE);
+            this.state = CalculationState.IDLE;
         };
 
         cancel = () -> {
             queue.clear();
-            MetricsUtils.getProjectMetricsPanel().cancelMetricsCalculate();
-            MetricsUtils.getProjectMetricsPanel().setMetricsCalculationPerformed(false);
+            support.firePropertyChange("state", this.state, CalculationState.CANCELED);
+            this.state = CalculationState.IDLE;
         };
+    }
+
+    public DefaultTreeModel getMetricsTreeModel() {
+        return metricsTreeModel;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+        support.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+        support.removePropertyChangeListener(propertyChangeListener);
     }
 
     public static DependenciesBuilder getDependenciesBuilder() {
