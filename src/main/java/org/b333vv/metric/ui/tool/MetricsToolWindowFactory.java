@@ -32,7 +32,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_LOGS = "Log";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
-        ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(project);
+        ClassMetricsPanel classMetricsPanel = ClassMetricsPanel.newInstance(project);
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(classMetricsPanel, TAB_CLASS_METRICS_TREE, false);
         toolWindow.getContentManager().addDataProvider(classMetricsPanel);
@@ -40,7 +40,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     }
 
     private static void addClassMetricsValuesEvolutionTreeTab(Project project, ToolWindow toolWindow) {
-        ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel = new ClassMetricsValuesEvolutionPanel(project);
+        ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel = ClassMetricsValuesEvolutionPanel.newInstance(project);
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(classMetricsValuesEvolutionPanel, TAB_CLASS_METRICS_EVOLUTION_TREE, false);
         toolWindow.getContentManager().addDataProvider(classMetricsValuesEvolutionPanel);
@@ -48,7 +48,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     }
 
     private static void addProjectMetricsTreeTab(Project project, ToolWindow toolWindow) {
-        ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
+        ProjectMetricsPanel projectMetricsPanel = ProjectMetricsPanel.newInstance(project);
         Content treeContent = toolWindow.getContentManager().getFactory()
                 .createContent(
                         projectMetricsPanel, TAB_PROJECT_METRICS_TREE, false);

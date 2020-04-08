@@ -76,7 +76,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel implements 
         this.project = project;
         createUIComponents();
         console = MetricsUtils.get(project, MetricsConsole.class);
-        this.scope = new CurrentFileController(project);
+        scope = new CurrentFileController(project);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction(actionId), false);

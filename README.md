@@ -58,7 +58,7 @@ It supports the most common metric sets.
 The plugin can be installed from the JetBrains plugin repository within your IDE with 
 Preferences | Plugins | Market Place and searching for MetricsTree. 
 # Compatibility
-The plugin tested for compatibility with IntelliJ IDEA version 2019.3+ (since build #IC-193.5233.102).
+The plugin tested for compatibility with IntelliJ IDEA version 2019.3+.
 # Development
 The plugin is written in Java using IntelliJ's plugin framework.
 The code is hosted on GitHub and has a Travis-CI integration for automatic testing.

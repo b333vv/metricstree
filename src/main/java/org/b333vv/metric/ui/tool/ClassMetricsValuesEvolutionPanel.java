@@ -21,7 +21,6 @@ import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
 import org.b333vv.metric.exec.ClassMetricsValuesEvolutionProcessor;
 import org.b333vv.metric.util.CalculationState;
-import org.b333vv.metric.util.CurrentFileController;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,15 +30,15 @@ public class ClassMetricsValuesEvolutionPanel extends MetricsTreePanel {
 
     private ClassMetricsValuesEvolutionProcessor classMetricsValuesEvolutionProcessor;
 
-    public ClassMetricsValuesEvolutionPanel(Project project) {
+    private ClassMetricsValuesEvolutionPanel(Project project) {
         super(project, "Metrics.ClassMetricsEvolutionToolbar");
-        this.scope = new CurrentFileController(project);
-        MetricsUtils.setClassMetricsValuesEvolutionPanel(this);
-        subscribeToEvents();
     }
 
-    protected void subscribeToEvents() {
-        scope.setPanel(this);
+    public static ClassMetricsValuesEvolutionPanel newInstance(Project project) {
+        ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel = new ClassMetricsValuesEvolutionPanel(project);
+        MetricsUtils.setClassMetricsValuesEvolutionPanel(classMetricsValuesEvolutionPanel);
+        classMetricsValuesEvolutionPanel.scope.setPanel(classMetricsValuesEvolutionPanel);
+        return classMetricsValuesEvolutionPanel;
     }
 
     public void update(@NotNull PsiJavaFile file) {

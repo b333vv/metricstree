@@ -33,9 +33,14 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     private ProjectMetricsProcessor projectMetricsProcessor;
 
-    public ProjectMetricsPanel(Project project) {
+    private ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar");
-        MetricsUtils.setProjectMetricsPanel(this);
+    }
+
+    public static ProjectMetricsPanel newInstance(Project project) {
+        ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
+        MetricsUtils.setProjectMetricsPanel(projectMetricsPanel);
+        return projectMetricsPanel;
     }
 
     @Override

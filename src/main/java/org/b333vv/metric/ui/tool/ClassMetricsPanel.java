@@ -20,7 +20,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
-import org.b333vv.metric.util.CurrentFileController;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -29,19 +28,19 @@ import java.beans.PropertyChangeEvent;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
 
-    public ClassMetricsPanel(Project project) {
+    private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
-        this.scope = new CurrentFileController(project);
-        MetricsUtils.setClassMetricsPanel(this);
-        subscribeToEvents();
+    }
+
+    public static ClassMetricsPanel newInstance(Project project) {
+        ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(project);
+        MetricsUtils.setClassMetricsPanel(classMetricsPanel);
+        classMetricsPanel.scope.setPanel(classMetricsPanel);
+        return classMetricsPanel;
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-    }
-
-    protected void subscribeToEvents() {
-        scope.setPanel(this);
+    public void propertyChange(PropertyChangeEvent event) {
     }
 
     public void update(@NotNull PsiJavaFile file) {
