@@ -17,8 +17,12 @@
 package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiJavaFile;
+import org.b333vv.metric.exec.Computable;
+import org.b333vv.metric.exec.Memorizer;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
+import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
@@ -27,6 +31,14 @@ import org.jetbrains.annotations.NotNull;
 import java.beans.PropertyChangeEvent;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
+
+    private final Computable<PsiJavaFile, JavaProject> c =
+            (key, subject) -> {
+                ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+                return classModelBuilder.buildJavaCode(psiJavaFile);
+            };
+
+    private final Computable<PsiJavaFile, JavaProject> cache = new Memorizer<>(c, console);
 
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
@@ -55,9 +67,20 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
+//        console.info("Built metrics tree for " + psiJavaFile.getName());
+//        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+//        javaProject = classModelBuilder.buildJavaCode(psiJavaFile);
+//        metricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
+//        buildTreeModel();
         console.info("Built metrics tree for " + psiJavaFile.getName());
-        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        javaProject = classModelBuilder.buildJavaProject(psiJavaFile);
+
+        try {
+            String key = psiJavaFile.getVirtualFile().getCanonicalPath() + ":" + psiJavaFile.getModificationStamp();
+            javaProject = cache.compute(key, psiJavaFile);
+        } catch (InterruptedException e) {
+            console.error("Built metrics tree for " + psiJavaFile.getName() + " interrupted");
+        }
+
         metricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
         buildTreeModel();
     }

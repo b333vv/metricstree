@@ -16,9 +16,6 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
@@ -29,9 +26,6 @@ import org.b333vv.metric.ui.tree.node.*;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class MetricTreeBuilder {
     protected DefaultTreeModel model;
@@ -41,62 +35,54 @@ public abstract class MetricTreeBuilder {
         this.javaProject = javaProject;
     }
 
-    public JavaProject getJavaProject() {
-        return javaProject;
-    }
-
     public abstract DefaultTreeModel createMetricTreeModel();
 
     protected void addSubClasses(ClassNode parentClassNode) {
-        List<JavaClass> sortedClasses = parentClassNode.getJavaClass().getClasses()
-                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
-        for (JavaClass javaClass : sortedClasses) {
-            ClassNode classNode = new ClassNode(javaClass);
-            parentClassNode.add(classNode);
-            addSubClasses(classNode);
-            addTypeMetricsAndMethodNodes(classNode);
-        }
+        parentClassNode.getJavaClass().getClasses()
+                .forEach(c -> {
+                    ClassNode classNode = new ClassNode(c);
+                    parentClassNode.add(classNode);
+                    addSubClasses(classNode);
+                    addTypeMetricsAndMethodNodes(classNode);
+                });
     }
 
     protected void addTypeMetricsAndMethodNodes(ClassNode classNode) {
         if (getMetricsTreeFilter().isMethodMetricsVisible()) {
-            List<JavaMethod> sortedMethods = classNode.getJavaClass().getMethods()
-                    .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
-            for (JavaMethod javaMethod : sortedMethods) {
-                MethodNode methodNode = new MethodNode(javaMethod);
-                classNode.add(methodNode);
-                if (getMetricsTreeFilter().isMethodMetricsVisible()) {
-                    addMethodMetricsNodes(methodNode);
-                }
-            }
+            classNode.getJavaClass().getMethods()
+                    .forEach(m -> {
+                        MethodNode methodNode = new MethodNode(m);
+                        classNode.add(methodNode);
+                        if (getMetricsTreeFilter().isMethodMetricsVisible()) {
+                            addMethodMetricsNodes(methodNode);
+                        }});
         }
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
-            List<Metric> sortedMetrics = classNode.getJavaClass().getMetrics()
-                    .sorted(Comparator.comparing(Metric::getName)).collect(Collectors.toList());
-            for (Metric metric : sortedMetrics) {
-                if (mustBeShown(metric) && checkClassMetricsSets(metric.getName())) {
-                    MetricNode metricNode = new ClassMetricNode(metric);
-                    classNode.add(metricNode);
-                    storeMetric(classNode, metricNode);
-                }
-            }
+            classNode.getJavaClass().getMetrics()
+                    .forEach(m -> {
+                        if (mustBeShown(m) && checkClassMetricsSets(m.getName())) {
+                            MetricNode metricNode = new ClassMetricNode(m);
+                            classNode.add(metricNode);
+                            storeMetric(classNode, metricNode);
+                        }
+                    });
         }
+    }
+
+    protected void addMethodMetricsNodes(MethodNode methodNode) {
+        methodNode.getJavaMethod().getMetrics()
+                .forEach(m -> {
+                    if (mustBeShown(m)) {
+                        MetricNode metricNode = new MethodMetricNode(m);
+                        methodNode.add(metricNode);
+                        storeMetric(methodNode, metricNode);
+                    }
+                });
     }
 
     protected void storeMetric(ClassNode classNode, MetricNode metricNode) {}
-    protected void storeMetric(MethodNode methodNode, MetricNode metricNode) {}
 
-    protected void addMethodMetricsNodes(MethodNode methodNode) {
-        List<Metric> sortedMetrics = methodNode.getJavaMethod().getMetrics()
-                .sorted(Comparator.comparing(Metric::getName)).collect(Collectors.toList());
-        for (Metric metric : sortedMetrics) {
-            if (mustBeShown(metric)) {
-                MetricNode metricNode = new MethodMetricNode(metric);
-                methodNode.add(metricNode);
-                storeMetric(methodNode, metricNode);
-            }
-        }
-    }
+    protected void storeMetric(MethodNode methodNode, MetricNode metricNode) {}
 
     protected MetricsTreeFilter getMetricsTreeFilter() {
         return MetricsUtils.getClassMetricsTreeFilter();

@@ -24,7 +24,6 @@ import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -48,7 +47,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     private JavaPackage findOrCreateJavaPackage(JavaProject javaProject, PsiJavaFile psiJavaFile) {
         List<PsiPackage> packageList = ClassUtils.getPackagesRecursive(psiJavaFile);
-        if (javaProject.getPackagesMap().isEmpty()) {
+        if (javaProject.allPackagesIsEmpty()) {
             return makeNewRootJavaPackage(javaProject, packageList);
         } else {
             Collections.reverse(packageList);
@@ -56,9 +55,9 @@ public class ProjectModelBuilder extends ModelBuilder {
             int j = 0;
             JavaPackage aPackage = null;
             for (int i = 0; i < psiPackages.length; i++) {
-                JavaPackage javaPackage = javaProject.getPackagesMap().get(psiPackages[i].getQualifiedName());
+                JavaPackage javaPackage = javaProject.getFromAllPackages(psiPackages[i].getQualifiedName());
                 if (javaPackage != null) {
-                    aPackage = javaProject.getPackagesMap().get(psiPackages[i].getQualifiedName());
+                    aPackage = javaProject.getFromAllPackages(psiPackages[i].getQualifiedName());
                     j = i;
                     break;
                 }
@@ -69,7 +68,7 @@ public class ProjectModelBuilder extends ModelBuilder {
             }
             for (int i = j - 1; i >= 0; i--) {
                 JavaPackage newPackage = new JavaPackage(psiPackages[i].getName(), psiPackages[i]);
-                javaProject.getPackagesMap().put(newPackage.getPsiPackage().getQualifiedName(), newPackage);
+                javaProject.putToAllPackages(newPackage.getPsiPackage().getQualifiedName(), newPackage);
                 aPackage.addPackage(newPackage);
                 aPackage = newPackage;
             }
@@ -82,13 +81,13 @@ public class ProjectModelBuilder extends ModelBuilder {
         Iterator<PsiPackage> psiPackageIterator = packageList.iterator();
         PsiPackage firstPsiPackage = psiPackageIterator.next();
         JavaPackage firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
-        javaProject.getPackagesMap().put(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+        javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
         javaProject.addPackage(firstJavaPackage);
         JavaPackage currentJavaPackage = firstJavaPackage;
         while (psiPackageIterator.hasNext()) {
             PsiPackage aPsiPackage = psiPackageIterator.next();
             JavaPackage aJavaPackage = new JavaPackage(aPsiPackage.getName(), aPsiPackage);
-            javaProject.getPackagesMap().put(aJavaPackage.getPsiPackage().getQualifiedName(), aJavaPackage);
+            javaProject.putToAllPackages(aJavaPackage.getPsiPackage().getQualifiedName(), aJavaPackage);
             currentJavaPackage.addPackage(aJavaPackage);
             currentJavaPackage = aJavaPackage;
         }
@@ -96,8 +95,8 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     @Override
-    protected void addClassToClassesSet(JavaClass javaClass) {
-        javaProject.addClassToClassesSet(javaClass);
+    protected void addToAllClasses(JavaClass javaClass) {
+        javaProject.addToAllClasses(javaClass);
     }
 
     @Override

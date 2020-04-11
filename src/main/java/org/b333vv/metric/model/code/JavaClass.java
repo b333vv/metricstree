@@ -19,35 +19,39 @@ package org.b333vv.metric.model.code;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 public class JavaClass extends JavaCode {
     private final PsiClass psiClass;
 
-    public JavaClass(PsiClass aClass) {
-        super(aClass.getName());
-        this.psiClass = aClass;
+    public JavaClass(@NotNull PsiClass psiClass) {
+        super(Objects.requireNonNull(psiClass.getName()));
+        this.psiClass = psiClass;
     }
 
-    public void addClass(JavaClass javaClass) {
+    public void addClass(@NotNull JavaClass javaClass) {
         addChild(javaClass);
     }
 
     public Stream<JavaMethod> getMethods() {
         return children.stream()
                 .filter(c -> c instanceof JavaMethod)
+                .sorted(Comparator.comparing(JavaCode::getName))
                 .map(c -> (JavaMethod) c);
     }
 
     public Stream<JavaClass> getClasses() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
+                .sorted(Comparator.comparing(JavaCode::getName))
                 .map(c -> (JavaClass) c);
     }
 
-    public void addMethod(JavaMethod javaMethod) {
+    public void addMethod(@NotNull JavaMethod javaMethod) {
         addChild(javaMethod);
     }
 
@@ -75,7 +79,7 @@ public class JavaClass extends JavaCode {
     }
 
     @Override
-    public void accept(PsiElementVisitor visitor) {
+    public void accept(@NotNull PsiElementVisitor visitor) {
         if (visitor instanceof JavaClassVisitor) {
             ((JavaClassVisitor) visitor).visitJavaClass(this);
         }

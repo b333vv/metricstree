@@ -41,7 +41,7 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        javaProject = classModelBuilder.buildJavaProject(psiJavaFile);
+        javaProject = classModelBuilder.buildJavaCode(psiJavaFile);
         rootJavaClass = javaProject.getPackages().findFirst().get().getClasses().findFirst().get();
 
         ClassMetricTreeBuilder classMetricTreeBuilder = new ClassMetricTreeBuilder(javaProject);

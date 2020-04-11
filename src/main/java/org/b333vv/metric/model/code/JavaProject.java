@@ -16,35 +16,37 @@
 
 package org.b333vv.metric.model.code;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class JavaProject extends JavaCode {
-    private final Map<String, JavaPackage> packagesMap;
-    private final Set<JavaClass> classes;
+    private final Map<String, JavaPackage> allPackages;
+    private final Set<JavaClass> allClasses;
 
-
-    public JavaProject(String name) {
+    public JavaProject(@NotNull String name) {
         super(name);
-        packagesMap = new HashMap<>();
-        classes = new HashSet<>();
+        allPackages = new ConcurrentHashMap<>();
+        allClasses = new ConcurrentHashMap<JavaClass, Boolean>().keySet(true);;
     }
 
     public Stream<JavaPackage> getPackages() {
         return children.stream()
                 .filter(c -> c instanceof JavaPackage)
+                .sorted(Comparator.comparing(JavaCode::getName))
                 .map(c -> (JavaPackage) c);
     }
 
-    public void addPackage(JavaPackage aJavaPackage) {
-        addChild(aJavaPackage);
+    public void addPackage(@NotNull JavaPackage javaPackage) {
+        addChild(javaPackage);
     }
 
-    public void addClassToClassesSet(JavaClass javaClass) {
-        classes.add(javaClass);
+    public void addToAllClasses(@NotNull JavaClass javaClass) {
+        allClasses.add(javaClass);
     }
 
     @Override
@@ -52,11 +54,19 @@ public class JavaProject extends JavaCode {
         return "Project(" + this.getName() + ")";
     }
 
-    public Map<String, JavaPackage> getPackagesMap() {
-        return packagesMap;
+    public void putToAllPackages(@NotNull String name, @NotNull JavaPackage javaPackage) {
+        allPackages.put(name, javaPackage);
     }
-    public Stream<JavaPackage> getAllPackages() { return packagesMap.values().stream(); }
-    public Stream<JavaClass> getAllClasses() { return classes.stream(); }
 
+    public JavaPackage getFromAllPackages(@NotNull String name) {
+        return allPackages.get(name);
+    }
 
+    public boolean allPackagesIsEmpty() {
+        return allPackages.isEmpty();
+    }
+
+    public Stream<JavaPackage> getAllPackages() { return allPackages.values().stream(); }
+
+    public Stream<JavaClass> getAllClasses() { return allClasses.stream(); }
 }

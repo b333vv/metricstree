@@ -26,14 +26,14 @@ import org.jetbrains.annotations.Nullable;
 public class MetricsBackgroundableTask extends Task.Backgroundable {
 
     private final Runnable task;
-    private Runnable onSuccess;
     private final Runnable onCancel;
+    private Runnable onSuccess;
     private Runnable onFinished;
 
     public MetricsBackgroundableTask(@Nullable Project project,
                                      @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
                                      boolean canBeCancelled,
-                                     Runnable task,
+                                     @NotNull Runnable task,
                                      Runnable onSuccess,
                                      Runnable onCancel,
                                      Runnable onFinished) {

@@ -18,10 +18,7 @@ package org.b333vv.metric.ui.info;
 
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.SideBorder;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.jetbrains.annotations.NotNull;
@@ -73,6 +70,10 @@ public class BottomPanel {
 
     public void setData(@NotNull JavaPackage javaPackage) {
         updateDescription("Package: " + javaPackage.getName());
+    }
+
+    public void setData(@NotNull JavaFile javaFile) {
+        updateDescription("File: " + javaFile.getName());
     }
 
     public void setData(@NotNull JavaClass javaClass) {

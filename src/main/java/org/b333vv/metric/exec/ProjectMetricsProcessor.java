@@ -38,7 +38,6 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
 import java.beans.PropertyChangeListener;
@@ -46,20 +45,12 @@ import java.beans.PropertyChangeSupport;
 
 public class ProjectMetricsProcessor {
 
-    private final Project project;
-    private final JavaProject javaProject;
-    private ProjectModelBuilder projectModelBuilder;
-    private ProgressIndicator indicator;
-    private int filesCount;
-    private int progress = 0;
-
-    private CalculationState state = CalculationState.IDLE;
-    private final PropertyChangeSupport support;
-
-    private DefaultTreeModel metricsTreeModel;
-
     private static DependenciesBuilder dependenciesBuilder;
 
+    private final Project project;
+    private final JavaProject javaProject;
+    private final ProjectModelBuilder projectModelBuilder;
+    private final PropertyChangeSupport support;
     private final Runnable calculate;
     private final Runnable martinMetricSetCalculating;
     private final Runnable moodMetricSetCalculating;
@@ -67,9 +58,16 @@ public class ProjectMetricsProcessor {
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
 
+    private ProgressIndicator indicator;
+    private int filesCount;
+    private int progress = 0;
+    private CalculationState state = CalculationState.IDLE;
+    private DefaultTreeModel metricsTreeModel;
+
     public ProjectMetricsProcessor(Project project, AnalysisScope scope, JavaProject javaProject ) {
         this.project = project;
         this.javaProject = javaProject;
+        projectModelBuilder = new ProjectModelBuilder(javaProject);
 
         support = new PropertyChangeSupport(this);
 
@@ -78,10 +76,8 @@ public class ProjectMetricsProcessor {
         calculate = () -> {
             dependenciesBuilder = new DependenciesBuilder();
 
-            support.firePropertyChange("state", this.state, CalculationState.RUNNING);
-            this.state = CalculationState.RUNNING;
-
-            projectModelBuilder = new ProjectModelBuilder(javaProject);
+            support.firePropertyChange("state", state, CalculationState.RUNNING);
+            state = CalculationState.RUNNING;
             indicator = ProgressManager.getInstance().getProgressIndicator();
             indicator.setText("Initializing");
             filesCount = scope.getFileCount();
@@ -90,7 +86,7 @@ public class ProjectMetricsProcessor {
         };
 
         martinMetricSetCalculating = () -> {
-            ReadAction.run(() -> projectModelBuilder.calculateMetrics());
+            ReadAction.run(projectModelBuilder::calculateMetrics);
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator =
                     new RobertMartinMetricsSetCalculator(scope);
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));

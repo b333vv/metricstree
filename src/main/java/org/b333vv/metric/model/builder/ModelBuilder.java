@@ -20,10 +20,13 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
+import org.apache.commons.io.FilenameUtils;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -31,14 +34,27 @@ import java.util.stream.Stream;
 public abstract class ModelBuilder {
 
     protected void createJavaClass(@NotNull JavaPackage javaPackage, @NotNull PsiJavaFile psiJavaFile) {
-        for (PsiClass psiClass : psiJavaFile.getClasses()) {
-            JavaClass javaClass = new JavaClass(psiClass);
+        PsiClass[] psiClasses = psiJavaFile.getClasses();
+        if (psiClasses.length > 1) {
+            JavaFile javaFile = new JavaFile(psiJavaFile.getName());
+            javaPackage.addFile(javaFile);
+            for (PsiClass psiClass : psiClasses) {
+                JavaClass javaClass = new JavaClass(psiClass);
+                getJavaClassVisitors().forEach(javaClass::accept);
+                javaFile.addClass(javaClass);
+                buildConstructors(javaClass);
+                buildMethods(javaClass);
+                buildInnerClasses(psiClass, javaClass);
+                addToAllClasses(javaClass);
+            }
+        } else {
+            JavaClass javaClass = new JavaClass(psiClasses[0]);
             getJavaClassVisitors().forEach(javaClass::accept);
             javaPackage.addClass(javaClass);
             buildConstructors(javaClass);
             buildMethods(javaClass);
-            buildInnerClasses(psiClass, javaClass);
-            addClassToClassesSet(javaClass);
+            buildInnerClasses(psiClasses[0], javaClass);
+            addToAllClasses(javaClass);
         }
     }
 
@@ -65,12 +81,12 @@ public abstract class ModelBuilder {
             getJavaClassVisitors().forEach(javaClass::accept);
             buildConstructors(javaClass);
             buildMethods(javaClass);
-            addClassToClassesSet(javaClass);
+            addToAllClasses(javaClass);
             buildInnerClasses(psiClass, javaClass);
         }
     }
 
-    protected void addClassToClassesSet(JavaClass javaClass) {}
+    protected void addToAllClasses(JavaClass javaClass) {}
 
     protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
         return MetricsService.getJavaClassVisitorsForClassMetricsTree();

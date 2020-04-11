@@ -16,9 +16,7 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
@@ -45,7 +43,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                     && getMetricsTreeFilter().isMoodMetricsSetVisible()) {
                 javaProject.getMetrics()
                         .filter(this::mustBeShown)
-                        .sorted(Comparator.comparing(Metric::getName))
                         .forEach(m -> {
                             MetricNode metricNode = new ProjectMetricNode(m);
                             projectNode.add(metricNode);
@@ -55,7 +52,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                     || getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
                 javaProject.getPackages()
-                        .sorted(Comparator.comparing(JavaCode::getName))
                         .map(PackageNode::new).forEach(packageNode -> {
                     projectNode.add(packageNode);
                     addPackages(packageNode);
@@ -73,13 +69,25 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
             addPackages(packageNode);
             if (getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
-                packageNode.getJavaPackage().getClasses()
-                        .sorted(Comparator.comparing(JavaCode::getName))
+                packageNode.getJavaPackage().getFilesAndClasses()
                         .forEach(c -> {
-                            ClassNode childClassNode = new ClassNode(c);
-                            packageNode.add(childClassNode);
-                            addSubClasses(childClassNode);
-                            addTypeMetricsAndMethodNodes(childClassNode);
+                            if (c instanceof JavaFile) {
+                                JavaFile javaFile = (JavaFile) c;
+                                FileNode childFileNode = new FileNode(javaFile);
+                                packageNode.add(childFileNode);
+                                javaFile.getClasses()
+                                        .forEach(childClass -> {
+                                            ClassNode classNode = new ClassNode(childClass);
+                                            childFileNode.add(classNode);
+                                            addSubClasses(classNode);
+                                            addTypeMetricsAndMethodNodes(classNode);
+                                        });
+                            } else {
+                                ClassNode childClassNode = new ClassNode((JavaClass) c);
+                                packageNode.add(childClassNode);
+                                addSubClasses(childClassNode);
+                                addTypeMetricsAndMethodNodes(childClassNode);
+                            }
                         });
             }
             if (getMetricsTreeFilter().isPackageMetricsVisible()
@@ -87,7 +95,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                     && !javaPackage.getClasses().collect(Collectors.toSet()).isEmpty()) {
                 javaPackage.getMetrics()
                         .filter(this::mustBeShown)
-                        .sorted(Comparator.comparing(Metric::getName))
                         .forEach(m -> {
                             MetricNode metricNode = new PackageMetricNode(m);
                             packageNode.add(metricNode);

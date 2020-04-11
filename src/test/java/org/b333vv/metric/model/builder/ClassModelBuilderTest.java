@@ -48,7 +48,7 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         projectName = FilenameUtils.getBaseName(psiJavaFile.getName());
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        javaProject = classModelBuilder.buildJavaProject(psiJavaFile);
+        javaProject = classModelBuilder.buildJavaCode(psiJavaFile);
         javaClass = javaProject.getPackages().findFirst().get().getClasses().findFirst().get();
         classMetrics = javaClass.getMetrics().collect(Collectors.toMap(Metric::getName, Function.identity()));
         methods = javaClass.getMethods().collect(Collectors.toMap(JavaMethod::getName, Function.identity()));

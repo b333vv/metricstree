@@ -17,17 +17,21 @@
 package org.b333vv.metric.model.code;
 
 import com.intellij.psi.PsiPackage;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 public class JavaPackage extends JavaCode {
+    @Nullable
     private final PsiPackage psiPackage;
 
-    public JavaPackage(String name, PsiPackage psiPackage) {
+    public JavaPackage(String name, @Nullable PsiPackage psiPackage) {
         super(name);
         this.psiPackage = psiPackage;
     }
 
+    @Nullable
     public PsiPackage getPsiPackage() {
         return psiPackage;
     }
@@ -35,12 +39,27 @@ public class JavaPackage extends JavaCode {
     public Stream<JavaClass> getClasses() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
+                .sorted(Comparator.comparing(JavaCode::getName))
                 .map(c -> (JavaClass) c);
+    }
+
+    public Stream<JavaCode> getFilesAndClasses() {
+        return children.stream()
+                .filter(c -> c instanceof JavaFile || c instanceof JavaClass)
+                .sorted(Comparator.comparing(JavaCode::getName));
+    }
+
+    public Stream<JavaFile> getFiles() {
+        return children.stream()
+                .filter(c -> c instanceof JavaFile)
+                .sorted(Comparator.comparing(JavaCode::getName))
+                .map(c -> (JavaFile) c);
     }
 
     public Stream<JavaPackage> getPackages() {
         return children.stream()
                 .filter(c -> c instanceof JavaPackage)
+                .sorted(Comparator.comparing(JavaCode::getName))
                 .map(c -> (JavaPackage) c);
     }
 
@@ -50,6 +69,10 @@ public class JavaPackage extends JavaCode {
 
     public void addPackage(JavaPackage javaPackage) {
         addChild(javaPackage);
+    }
+
+    public void addFile(JavaFile javaFile) {
+        addChild(javaFile);
     }
 
     @Override

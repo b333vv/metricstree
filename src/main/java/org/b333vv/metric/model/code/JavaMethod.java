@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 public class JavaMethod extends JavaCode {
     private final PsiMethod psiMethod;
 
-    public JavaMethod(PsiMethod aMethod) {
-        super(signature(aMethod));
-        psiMethod = aMethod;
+    public JavaMethod(PsiMethod psiMethod) {
+        super(signature(psiMethod));
+        this.psiMethod = psiMethod;
     }
 
     public static String signature(PsiMethod aMethod) {

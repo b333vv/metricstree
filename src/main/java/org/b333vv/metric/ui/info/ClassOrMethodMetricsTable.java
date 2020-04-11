@@ -83,6 +83,7 @@ public class ClassOrMethodMetricsTable {
     }
 
     public void clear() {
+        panel.setBorder(IdeBorderFactory.createTitledBorder(""));
         model.set(List.of());
     }
 

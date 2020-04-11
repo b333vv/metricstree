@@ -47,6 +47,9 @@
                 <li>
                     Supports controlling calculated metrics values
                 </li>
+                <li>
+                    Shows class metrics values evolution based on 'git log'
+                </li>
             </ul>
         </html>
       ]]>

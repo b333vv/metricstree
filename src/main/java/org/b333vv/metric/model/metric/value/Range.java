@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.model.metric.value;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Range {
     public static final Range UNDEFINED = new Range(Value.UNDEFINED, Value.UNDEFINED) {
         @Override
@@ -33,19 +35,23 @@ public class Range {
             return "";
         }
     };
-    private Value from;
-    private Value to;
 
-    public Range(Value from, Value to) {
+    private final Value from;
+    private final Value to;
+
+    private Range(Value from, Value to) {
         this.from = from;
         this.to = to;
     }
 
-    public static Range of(Value from, Value to) {
+    public static Range of(@NotNull Value from, @NotNull Value to) {
+        if (from.isGreaterThan(to)) {
+            throw new IllegalArgumentException("Wrong range bounds: from > to");
+        }
         return new Range(from, to);
     }
 
-    public boolean includes(Value value) {
+    public boolean includes(@NotNull Value value) {
         return (value.isEqualsOrGreaterThan(from) && value.isEqualsOrLessThan(to));
     }
 

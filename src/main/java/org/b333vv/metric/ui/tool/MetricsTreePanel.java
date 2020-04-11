@@ -30,10 +30,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.util.messages.MessageBus;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.ui.info.BottomPanel;
 import org.b333vv.metric.ui.info.ClassOrMethodMetricsTable;
@@ -163,6 +160,11 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel implements 
             JavaPackage javaPackage = ((PackageNode) node).getJavaPackage();
             bottomPanel.setData(javaPackage);
             classOrMethodMetricsTable.set(javaPackage);
+            rightPanelRepaint();
+        } else if (node instanceof FileNode) {
+            JavaFile javaFile = ((FileNode) node).getJavaFile();
+            bottomPanel.setData(javaFile);
+            classOrMethodMetricsTable.clear();
             rightPanelRepaint();
         } else if (node instanceof ClassNode) {
             JavaClass javaClass = ((ClassNode) node).getJavaClass();

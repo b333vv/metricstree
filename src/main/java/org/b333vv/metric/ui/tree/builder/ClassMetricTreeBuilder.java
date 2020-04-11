@@ -16,12 +16,12 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.ui.tree.node.ClassNode;
+import org.b333vv.metric.ui.tree.node.FileNode;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.util.Comparator;
 
 public class ClassMetricTreeBuilder extends MetricTreeBuilder {
 
@@ -30,19 +30,30 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     public DefaultTreeModel createMetricTreeModel() {
-            if (!javaProject.getPackages().findFirst().isPresent()) {
-                return null;
-            }
-            JavaPackage javaPackage = javaProject.getPackages().findFirst().get();
-            if (!javaPackage.getClasses().findFirst().isPresent()) {
-                return null;
-            }
+        if (!javaProject.getPackages().findFirst().isPresent()) {
+            return null;
+        }
+        JavaPackage javaPackage = javaProject.getPackages().findFirst().get();
+        if (javaPackage.getFiles().findFirst().isPresent()) {
+            JavaFile rootJavaFile = javaPackage.getFiles().findFirst().get();
+            FileNode rootFileNode = new FileNode(rootJavaFile);
+            model = new DefaultTreeModel(rootFileNode);
+            model.setRoot(rootFileNode);
+            rootJavaFile.getClasses()
+                    .forEach(c -> {
+                ClassNode classNode = new ClassNode(c);
+                rootFileNode.add(classNode);
+                addSubClasses(classNode);
+                addTypeMetricsAndMethodNodes(classNode);
+            });
+        } else if (javaPackage.getClasses().findFirst().isPresent()) {
             JavaClass rootJavaClass = javaPackage.getClasses().findFirst().get();
             ClassNode rootClassNode = new ClassNode(rootJavaClass);
             model = new DefaultTreeModel(rootClassNode);
             model.setRoot(rootClassNode);
             addSubClasses(rootClassNode);
             addTypeMetricsAndMethodNodes(rootClassNode);
-            return model;
+        }
+        return model;
     }
 }

@@ -19,6 +19,9 @@ package org.b333vv.metric.model.calculator;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.ProjectCoreUtil;
+import com.intellij.openapi.roots.GeneratedSourcesFilter;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
@@ -77,15 +80,10 @@ public class MoodMetricsSetCalculator {
         indicator.setText("Calculating metrics");
 
         addAttributeHidingFactor(javaProject);
-
         addAttributeInheritanceFactor(javaProject);
-
         addCouplingFactor(javaProject);
-
         addMethodHidingFactor(javaProject);
-
         addMethodInheritanceFactor(javaProject);
-
         addPolymorphismFactor(javaProject);
     }
 
