@@ -24,7 +24,7 @@
                MetricsTree is an IDE extension that helps you evaluate quantitative properties of java code.
                It supports the most common metric sets on project, package, class and method levels.
             </p>
-            <h3>Core metrics sets</h3
+            <h3>Core metrics sets</h3>
             <ul>
                 <li>
                    Project level: MOOD metrics set

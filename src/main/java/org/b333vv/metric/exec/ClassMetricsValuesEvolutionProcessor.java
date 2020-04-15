@@ -33,8 +33,10 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
 import org.b333vv.metric.util.CalculationState;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -54,6 +56,7 @@ public class ClassMetricsValuesEvolutionProcessor {
     private final BackgroundTaskQueue queue;
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution = new HashMap<>();
+    private final ClassModelBuilder classModelBuilder;
 
     private DefaultTreeModel metricsTreeModel;
     private CalculationState state = CalculationState.IDLE;
@@ -61,6 +64,7 @@ public class ClassMetricsValuesEvolutionProcessor {
     public ClassMetricsValuesEvolutionProcessor(@NotNull PsiJavaFile psiJavaFile) {
 
         this.psiJavaFile = psiJavaFile;
+        classModelBuilder = new ClassModelBuilder();
         queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics History");
 
         getFileFromGitCalculateMetricsAndPutThemToMap = () ->
@@ -74,7 +78,6 @@ public class ClassMetricsValuesEvolutionProcessor {
             GitRepositoryManager gitRepositoryManager = GitUtil.getRepositoryManager(psiJavaFile.getProject());
             VirtualFile root = gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile()).getRoot();
             List<? extends TimedVcsCommit> commits;
-            ClassModelBuilder classModelBuilder = new ClassModelBuilder();
 
             try {
                 commits = GitHistoryUtils.collectTimedCommits(psiJavaFile.getProject(), root,
@@ -90,29 +93,21 @@ public class ClassMetricsValuesEvolutionProcessor {
                                 psiJavaFile.getFileType(),
                                 new String(GitFileUtils.getFileContent(psiJavaFile.getProject(), root, commit.getId().toShortString(),
                                         VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()))));
-
-                        JavaPackage rootJavaPackage = classModelBuilder
-                                .buildJavaCode(gitPsiJavaFile)
-                                .getPackages()
-                                .findFirst().get();
-
-                        if (rootJavaPackage.getFiles().findFirst().isPresent()) {
-                            JavaFile javaFile = rootJavaPackage.getFiles().findFirst().get();
-                            javaFile.getClasses()
-                                    .forEach(c -> classMetricsEvolution.put(commit, c));
-                        } else if (rootJavaPackage.getClasses().findFirst().isPresent()) {
-                            classMetricsEvolution.put(commit, rootJavaPackage.getClasses().findFirst().get());
-                        }
+                        JavaFile javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
+                        javaFile.getClasses()
+                                .forEach(c -> classMetricsEvolution.put(commit, c));
                     });
                 }
-            } catch (VcsException ignored) {}
+            } catch (VcsException e) {
+                MetricsUtils.getConsole().error(e.getMessage());
+            }
         };
 
         buildTree = () -> {
             ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-            JavaProject javaProject = classModelBuilder.buildJavaCode(psiJavaFile);
+            JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
-                    new ClassMetricsValuesEvolutionTreeBuilder(javaProject, Collections.unmodifiableMap(classMetricsEvolution));
+                    new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution));
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();
             support.firePropertyChange("state", this.state, CalculationState.DONE);
             this.state = CalculationState.IDLE;

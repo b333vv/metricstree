@@ -61,7 +61,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel implements 
     protected JBPanel<?> rightPanel;
     protected transient ClassOrMethodMetricsTable classOrMethodMetricsTable;
     protected transient MetricTreeBuilder metricTreeBuilder;
-    protected transient final MetricsConsole console;
     protected JScrollPane scrollableTablePanel;
     protected transient PsiJavaFile psiJavaFile;
     protected transient JavaProject javaProject;
@@ -72,7 +71,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel implements 
         super(false, true);
         this.project = project;
         createUIComponents();
-        console = MetricsUtils.get(project, MetricsConsole.class);
         scope = new CurrentFileController(project);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
@@ -209,10 +207,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel implements 
             metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
             metricsTreeExists = true;
         }
-    }
-
-    public MetricsConsole getConsole() {
-        return console;
     }
 
     public void clear() {

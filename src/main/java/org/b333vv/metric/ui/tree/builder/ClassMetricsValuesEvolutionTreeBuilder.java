@@ -18,6 +18,7 @@ package org.b333vv.metric.ui.tree.builder;
 
 import com.intellij.vcs.log.TimedVcsCommit;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -39,9 +40,9 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
     private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution;
     private final Map<String, Value> previousValue = new HashMap<>();
 
-    public ClassMetricsValuesEvolutionTreeBuilder(JavaProject javaProject,
+    public ClassMetricsValuesEvolutionTreeBuilder(JavaFile javaFile,
                                                   Map<TimedVcsCommit, JavaClass> classMetricsEvolution) {
-        super(javaProject);
+        super(javaFile);
         this.classMetricsEvolution = classMetricsEvolution;
     }
 

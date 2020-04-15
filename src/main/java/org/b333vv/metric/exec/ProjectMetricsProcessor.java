@@ -38,10 +38,12 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.MetricsService;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.concurrent.*;
 
 public class ProjectMetricsProcessor {
 
@@ -57,6 +59,7 @@ public class ProjectMetricsProcessor {
     private final Runnable buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
+//    private final BackgroundTaskQueue queue2;
 
     private ProgressIndicator indicator;
     private int filesCount;
@@ -64,18 +67,18 @@ public class ProjectMetricsProcessor {
     private CalculationState state = CalculationState.IDLE;
     private DefaultTreeModel metricsTreeModel;
 
-    public ProjectMetricsProcessor(Project project, AnalysisScope scope, JavaProject javaProject ) {
+    public ProjectMetricsProcessor(Project project, AnalysisScope scope, JavaProject javaProject) {
         this.project = project;
         this.javaProject = javaProject;
-        projectModelBuilder = new ProjectModelBuilder(javaProject);
+        this.projectModelBuilder = new ProjectModelBuilder(javaProject);
 
         support = new PropertyChangeSupport(this);
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
+//        queue2 = new BackgroundTaskQueue(project, "Calculating Metrics");
 
         calculate = () -> {
             dependenciesBuilder = new DependenciesBuilder();
-
             support.firePropertyChange("state", state, CalculationState.RUNNING);
             state = CalculationState.RUNNING;
             indicator = ProgressManager.getInstance().getProgressIndicator();
@@ -83,12 +86,11 @@ public class ProjectMetricsProcessor {
             filesCount = scope.getFileCount();
             scope.accept(new PsiJavaFileVisitor());
             indicator.setText("Calculating metrics");
+            ReadAction.run(projectModelBuilder::calculateDeferredMetrics);
         };
 
         martinMetricSetCalculating = () -> {
-            ReadAction.run(projectModelBuilder::calculateMetrics);
-            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator =
-                    new RobertMartinMetricsSetCalculator(scope);
+            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope);
             ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate(javaProject));
         };
 

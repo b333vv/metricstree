@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel;
 import org.b333vv.metric.ui.tool.ClassMetricsPanel;
 import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
@@ -54,6 +55,10 @@ public class MetricsUtils {
 
     private MetricsUtils() {
         // Utility class
+    }
+
+    public static synchronized MetricsConsole getConsole() {
+        return get(project, MetricsConsole.class);
     }
 
     public static boolean isProjectMetricsCalculationPerforming() {

@@ -23,6 +23,7 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.ui.content.Content;
 import org.b333vv.metric.ui.log.MetricsLogPanel;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {

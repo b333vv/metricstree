@@ -20,42 +20,28 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
-import org.apache.commons.io.FilenameUtils;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
 
 public abstract class ModelBuilder {
 
-    protected void createJavaClass(@NotNull JavaPackage javaPackage, @NotNull PsiJavaFile psiJavaFile) {
-        PsiClass[] psiClasses = psiJavaFile.getClasses();
-        if (psiClasses.length > 1) {
-            JavaFile javaFile = new JavaFile(psiJavaFile.getName());
-            javaPackage.addFile(javaFile);
-            for (PsiClass psiClass : psiClasses) {
-                JavaClass javaClass = new JavaClass(psiClass);
-                getJavaClassVisitors().forEach(javaClass::accept);
-                javaFile.addClass(javaClass);
-                buildConstructors(javaClass);
-                buildMethods(javaClass);
-                buildInnerClasses(psiClass, javaClass);
-                addToAllClasses(javaClass);
-            }
-        } else {
-            JavaClass javaClass = new JavaClass(psiClasses[0]);
+    protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
+        JavaFile javaFile = new JavaFile(psiJavaFile.getName());
+        for (PsiClass psiClass : psiJavaFile.getClasses()) {
+            JavaClass javaClass = new JavaClass(psiClass);
             getJavaClassVisitors().forEach(javaClass::accept);
-            javaPackage.addClass(javaClass);
+            javaFile.addClass(javaClass);
             buildConstructors(javaClass);
             buildMethods(javaClass);
-            buildInnerClasses(psiClasses[0], javaClass);
+            buildInnerClasses(psiClass, javaClass);
             addToAllClasses(javaClass);
         }
+        return javaFile;
     }
 
     protected void buildConstructors(JavaClass javaClass) {

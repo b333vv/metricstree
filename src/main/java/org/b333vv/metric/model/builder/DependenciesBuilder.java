@@ -54,11 +54,10 @@ public class DependenciesBuilder {
         if (classesDependents.get(psiClass) == null) {
             return Set.of();
         }
-        Set<PsiClass> result = classesDependents.get(psiClass).getContents()
+        return classesDependents.get(psiClass).getContents()
                 .stream()
                 .filter(c -> !ClassUtils.findPackage(c).equals(psiPackage))
                 .collect(Collectors.toSet());
-        return result;
     }
 
     public Set<PsiClass> getClassesDependencies(PsiClass psiClass) {

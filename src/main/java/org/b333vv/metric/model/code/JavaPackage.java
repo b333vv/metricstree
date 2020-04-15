@@ -43,12 +43,6 @@ public class JavaPackage extends JavaCode {
                 .map(c -> (JavaClass) c);
     }
 
-    public Stream<JavaCode> getFilesAndClasses() {
-        return children.stream()
-                .filter(c -> c instanceof JavaFile || c instanceof JavaClass)
-                .sorted(Comparator.comparing(JavaCode::getName));
-    }
-
     public Stream<JavaFile> getFiles() {
         return children.stream()
                 .filter(c -> c instanceof JavaFile)

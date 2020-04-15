@@ -50,11 +50,11 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
             case DONE:
                 showResults(projectMetricsProcessor.getMetricsTreeModel());
                 MetricsUtils.setProjectMetricsCalculationPerforming(false);
-                console.info("Building metrics tree for project " + project.getName() + " finished");
+                MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " finished");
                 break;
             case CANCELED :
                 clear();
-                console.info("Building metrics tree for project " + project.getName() + " canceled");
+                MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " canceled");
                 MetricsUtils.setProjectMetricsCalculationPerforming(false);
                 break;
             case RUNNING:
@@ -68,7 +68,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         javaProject = new JavaProject(project.getName());
         AnalysisScope analysisScope = new AnalysisScope(project);
         analysisScope.setIncludeTestSource(false);
-        console.info("Building metrics tree for project " + project.getName()
+        MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName()
                 + " started: processing " + analysisScope.getFileCount() + " java files");
         projectMetricsProcessor = new ProjectMetricsProcessor(project, analysisScope, javaProject);
         projectMetricsProcessor.addPropertyChangeListener(this);

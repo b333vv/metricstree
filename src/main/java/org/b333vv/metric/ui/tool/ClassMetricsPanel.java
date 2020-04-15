@@ -17,12 +17,11 @@
 package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.exec.Computable;
+import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.exec.Memorizer;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
@@ -32,13 +31,13 @@ import java.beans.PropertyChangeEvent;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
 
-    private final Computable<PsiJavaFile, JavaProject> c =
+    private final Computable<PsiJavaFile, JavaFile> c =
             (key, subject) -> {
                 ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-                return classModelBuilder.buildJavaCode(psiJavaFile);
+                return classModelBuilder.buildJavaFile(psiJavaFile);
             };
 
-    private final Computable<PsiJavaFile, JavaProject> cache = new Memorizer<>(c, console);
+    private final Computable<PsiJavaFile, JavaFile> cache = new Memorizer<>(c);
 
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
@@ -67,21 +66,19 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
-//        console.info("Built metrics tree for " + psiJavaFile.getName());
+        MetricsUtils.getConsole().firstPart("Built metrics tree for " + psiJavaFile.getName());
 //        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-//        javaProject = classModelBuilder.buildJavaCode(psiJavaFile);
-//        metricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
-//        buildTreeModel();
-        console.info("Built metrics tree for " + psiJavaFile.getName());
-
+//        JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+        JavaFile javaFile = null;
         try {
-            String key = psiJavaFile.getVirtualFile().getCanonicalPath() + ":" + psiJavaFile.getModificationStamp();
-            javaProject = cache.compute(key, psiJavaFile);
+            String key = psiJavaFile.getPackageName() + "|" + psiJavaFile.getName() + ":" + psiJavaFile.getModificationStamp();
+            javaFile = cache.compute(key, psiJavaFile);
         } catch (InterruptedException e) {
-            console.error("Built metrics tree for " + psiJavaFile.getName() + " interrupted");
+            MetricsUtils.getConsole().error("Built metrics tree for " + psiJavaFile.getName() + " interrupted");
         }
-
-        metricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
-        buildTreeModel();
+        if (javaFile != null) {
+            metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
+            buildTreeModel();
+        }
     }
 }

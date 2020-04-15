@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
@@ -29,10 +30,10 @@ import javax.swing.tree.DefaultTreeModel;
 
 public abstract class MetricTreeBuilder {
     protected DefaultTreeModel model;
-    protected final JavaProject javaProject;
+    protected final JavaCode javaCode;
 
-    public MetricTreeBuilder(JavaProject javaProject) {
-        this.javaProject = javaProject;
+    public MetricTreeBuilder(JavaCode javaCode) {
+        this.javaCode = javaCode;
     }
 
     public abstract DefaultTreeModel createMetricTreeModel();

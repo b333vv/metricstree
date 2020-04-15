@@ -47,7 +47,7 @@ public class ClassMetricsValuesEvolutionPanel extends MetricsTreePanel {
 
     public void calculateMetricsEvolution() {
         clear();
-        console.info("Building metrics values evolution tree for " + psiJavaFile.getName() + " started");
+        MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " started");
         classMetricsValuesEvolutionProcessor = new ClassMetricsValuesEvolutionProcessor(psiJavaFile);
         classMetricsValuesEvolutionProcessor.addPropertyChangeListener(this);
         classMetricsValuesEvolutionProcessor.buildClassMetricsValuesEvolutionMap();
@@ -64,11 +64,11 @@ public class ClassMetricsValuesEvolutionPanel extends MetricsTreePanel {
             case DONE:
                 showResults(classMetricsValuesEvolutionProcessor.getMetricsTreeModel());
                 MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
-                console.info("Building metrics values evolution tree for " + psiJavaFile.getName() + " finished");
+                MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " finished");
                 break;
             case CANCELED:
                 clear();
-                console.info("Building metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+                MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
                 MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
                 break;
             case RUNNING:

@@ -35,14 +35,19 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     private final JavaProject javaProject;
 
+//    private final Computable<PsiJavaFile, JavaFile> computable =
+//            (key, subject) -> createJavaFile(subject);
+//
+//    private final Computable<PsiJavaFile, JavaFile> cache = new Memorizer<>(computable);
+
     public ProjectModelBuilder(JavaProject javaProject) {
         super();
         this.javaProject = javaProject;
     }
 
     public void addJavaFileToJavaProject(JavaProject javaProject, PsiJavaFile psiJavaFile) {
-        JavaPackage javaPackage = findOrCreateJavaPackage(javaProject, psiJavaFile);
-        createJavaClass(javaPackage, psiJavaFile);
+        findOrCreateJavaPackage(javaProject, psiJavaFile)
+                .addFile(createJavaFile(psiJavaFile));
     }
 
     private JavaPackage findOrCreateJavaPackage(JavaProject javaProject, PsiJavaFile psiJavaFile) {
@@ -77,7 +82,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     @NotNull
-    private JavaPackage makeNewRootJavaPackage(JavaProject javaProject, List<PsiPackage> packageList) {
+    private JavaPackage makeNewRootJavaPackage(@NotNull JavaProject javaProject, @NotNull List<PsiPackage> packageList) {
         Iterator<PsiPackage> psiPackageIterator = packageList.iterator();
         PsiPackage firstPsiPackage = psiPackageIterator.next();
         JavaPackage firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
@@ -109,7 +114,7 @@ public class ProjectModelBuilder extends ModelBuilder {
         return MetricsService.getJavaMethodVisitorsForProjectMetricsTree();
     }
 
-    public void calculateMetrics() {
+    public void calculateDeferredMetrics() {
         javaProject.getAllClasses().forEach(c ->
             MetricsService.getDeferredJavaClassVisitorsForProjectMetricsTree()
                     .forEach(c::accept));

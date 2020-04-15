@@ -16,24 +16,23 @@
 
 package org.b333vv.metric.exec;
 
-import org.b333vv.metric.ui.log.MetricsConsole;
+import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.concurrent.*;
 
 public class Memorizer<S, R> implements Computable<S, R> {
     private final ConcurrentMap<String, Future<R>> cache = new ConcurrentHashMap<>();
     private final Computable<S, R> c;
-    private final MetricsConsole console;
 
-    public Memorizer(Computable<S, R> c, MetricsConsole console) {
+    public Memorizer(Computable<S, R> c) {
         this.c = c;
-        this.console = console;
     }
 
     public R compute(final String key, final S subject) throws InterruptedException {
         while (true) {
             Future<R> f = cache.get(key);
             if (f == null) {
+                MetricsUtils.getConsole().lastPart(" -- make new metrics model...");
                 cache.keySet().removeIf(s -> s.startsWith(key.split(":")[0]));
                 Callable<R> eval = () -> c.compute(key, subject);
                 FutureTask<R> ft = new FutureTask<>(eval);
@@ -42,14 +41,16 @@ public class Memorizer<S, R> implements Computable<S, R> {
                     f = ft;
                     ft.run();
                 }
+            } else {
+                MetricsUtils.getConsole().lastPart(" -- get metrics model from cache...");
             }
             try {
                 return f.get();
             } catch (CancellationException e) {
-                console.error(e.getMessage());
+                MetricsUtils.getConsole().error(e.getMessage());
                 cache.remove(key, f);
             } catch (ExecutionException e) {
-                console.error(e.getMessage());
+                MetricsUtils.getConsole().error(e.getMessage());
                 throw LaunderThrowable.launderThrowable(e.getCause());
             }
         }

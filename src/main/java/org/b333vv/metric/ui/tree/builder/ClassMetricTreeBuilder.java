@@ -21,33 +21,28 @@ import org.b333vv.metric.ui.tree.node.ClassNode;
 import org.b333vv.metric.ui.tree.node.FileNode;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.util.Comparator;
 
 public class ClassMetricTreeBuilder extends MetricTreeBuilder {
 
-    public ClassMetricTreeBuilder(JavaProject javaProject) {
-        super(javaProject);
+    public ClassMetricTreeBuilder(JavaCode javaCode) {
+        super(javaCode);
     }
 
     public DefaultTreeModel createMetricTreeModel() {
-        if (!javaProject.getPackages().findFirst().isPresent()) {
-            return null;
-        }
-        JavaPackage javaPackage = javaProject.getPackages().findFirst().get();
-        if (javaPackage.getFiles().findFirst().isPresent()) {
-            JavaFile rootJavaFile = javaPackage.getFiles().findFirst().get();
-            FileNode rootFileNode = new FileNode(rootJavaFile);
+        JavaFile javaFile = (JavaFile) javaCode;
+        if (javaFile.getClasses().count() > 1) {
+            FileNode rootFileNode = new FileNode(javaFile);
             model = new DefaultTreeModel(rootFileNode);
             model.setRoot(rootFileNode);
-            rootJavaFile.getClasses()
+            javaFile.getClasses()
                     .forEach(c -> {
                 ClassNode classNode = new ClassNode(c);
                 rootFileNode.add(classNode);
                 addSubClasses(classNode);
                 addTypeMetricsAndMethodNodes(classNode);
             });
-        } else if (javaPackage.getClasses().findFirst().isPresent()) {
-            JavaClass rootJavaClass = javaPackage.getClasses().findFirst().get();
+        } else if (javaFile.getClasses().findFirst().isPresent()) {
+            JavaClass rootJavaClass = javaFile.getClasses().findFirst().get();
             ClassNode rootClassNode = new ClassNode(rootJavaClass);
             model = new DefaultTreeModel(rootClassNode);
             model.setRoot(rootClassNode);

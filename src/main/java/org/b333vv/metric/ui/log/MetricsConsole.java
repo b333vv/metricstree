@@ -22,6 +22,7 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
@@ -31,46 +32,50 @@ import java.time.format.DateTimeFormatter;
 
 public class MetricsConsole implements ProjectComponent {
 
-  private final ConsoleView consoleView;
-  private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private final ConsoleView consoleView;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-  public MetricsConsole(Project project) {
-    consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-  }
+    public MetricsConsole(Project project) {
+        consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+    }
 
-  public static synchronized MetricsConsole get(@NotNull Project p) {
-    return p.getComponent(MetricsConsole.class);
-  }
+    @Override
+    public void projectClosed() {
+        Disposer.dispose(consoleView);
+    }
 
-  @Override
-  public void projectClosed() {
-    Disposer.dispose(consoleView);
-  }
+    public void debug(String msg) {
+        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    }
 
-  public void debug(String msg) {
-    getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
-  }
+    public void info(String msg) {
+        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    }
 
-  public void info(String msg) {
-    getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
-  }
+    public void firstPart(String msg) {
+        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg, ConsoleViewContentType.NORMAL_OUTPUT);
+    }
 
-  public void error(String msg) {
-    getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
-  }
+    public void lastPart(String msg) {
+        getConsoleView().print(msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    }
 
-  public void error(String msg, Throwable t) {
-    error(msg);
-    StringWriter errors = new StringWriter();
-    t.printStackTrace(new PrintWriter(errors));
-    error(errors.toString());
-  }
+    public void error(String msg) {
+        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
+    }
 
-  public void clear() {
-    getConsoleView().clear();
-  }
+    public void error(String msg, Throwable t) {
+        error(msg);
+        StringWriter errors = new StringWriter();
+        t.printStackTrace(new PrintWriter(errors));
+        error(errors.toString());
+    }
 
-  public ConsoleView getConsoleView() {
-    return this.consoleView;
-  }
+    public void clear() {
+        getConsoleView().clear();
+    }
+
+    public ConsoleView getConsoleView() {
+        return this.consoleView;
+    }
 }
