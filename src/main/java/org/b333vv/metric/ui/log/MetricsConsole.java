@@ -19,10 +19,10 @@ package org.b333vv.metric.ui.log;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
-import org.b333vv.metric.util.MetricsUtils;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.project.impl.ProjectLifecycleListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
@@ -30,18 +30,28 @@ import java.io.StringWriter;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public class MetricsConsole implements ProjectComponent {
+public class MetricsConsole implements ProjectLifecycleListener {
 
     private final ConsoleView consoleView;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private final Project project;
 
     public MetricsConsole(Project project) {
+        this.project = project;
         consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+        ProjectCloseListener projectCloseListener = new ProjectCloseListener();
+        project.getMessageBus()
+                .connect(project)
+                .subscribe(ProjectManager.TOPIC, projectCloseListener);
     }
 
-    @Override
-    public void projectClosed() {
-        Disposer.dispose(consoleView);
+    private class ProjectCloseListener implements ProjectManagerListener {
+        @Override
+        public void projectClosing(@NotNull Project closingProject) {
+            if (project == closingProject) {
+                consoleView.dispose();
+            }
+        }
     }
 
     public void debug(String msg) {

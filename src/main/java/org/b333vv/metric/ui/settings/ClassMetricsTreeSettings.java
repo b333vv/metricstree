@@ -17,7 +17,7 @@
 package org.b333vv.metric.ui.settings;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @State(name = "ClassMetricsTreeSettings", storages = {@Storage("class-metrics-tree.xml")})
-public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings>, ProjectComponent {
+public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings>, BaseComponent {
 
     private static final String CLASS_LEVEL = "Class level";
     private static final String METHOD_LEVEL = "Method level";

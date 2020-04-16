@@ -17,7 +17,7 @@
 package org.b333vv.metric.ui.settings;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @State(name = "MetricsValidRanges", storages = {@Storage("metrics-valid-ranges.xml")})
-public final class MetricsValidRangesSettings implements PersistentStateComponent<MetricsValidRangesSettings>, ProjectComponent {
+public final class MetricsValidRangesSettings implements PersistentStateComponent<MetricsValidRangesSettings>, BaseComponent {
 
     private boolean controlValidRanges;
 

@@ -43,6 +43,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.DefaultTreeModel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class ProjectMetricsProcessor {
@@ -52,14 +54,16 @@ public class ProjectMetricsProcessor {
     private final Project project;
     private final JavaProject javaProject;
     private final ProjectModelBuilder projectModelBuilder;
+//    private final MetricsCalculationExecutor metricsCalculationExecutor;
+    private final Set<PsiJavaFile> psiJavaFiles;
     private final PropertyChangeSupport support;
     private final Runnable calculate;
+    private final Runnable postCalculate;
     private final Runnable martinMetricSetCalculating;
     private final Runnable moodMetricSetCalculating;
     private final Runnable buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
-//    private final BackgroundTaskQueue queue2;
 
     private ProgressIndicator indicator;
     private int filesCount;
@@ -70,12 +74,14 @@ public class ProjectMetricsProcessor {
     public ProjectMetricsProcessor(Project project, AnalysisScope scope, JavaProject javaProject) {
         this.project = project;
         this.javaProject = javaProject;
-        this.projectModelBuilder = new ProjectModelBuilder(javaProject);
+        projectModelBuilder = new ProjectModelBuilder(javaProject);
+        psiJavaFiles = new HashSet<>();
+
+//        metricsCalculationExecutor = new MetricsCalculationExecutor(javaProject);
 
         support = new PropertyChangeSupport(this);
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
-//        queue2 = new BackgroundTaskQueue(project, "Calculating Metrics");
 
         calculate = () -> {
             dependenciesBuilder = new DependenciesBuilder();
@@ -85,7 +91,12 @@ public class ProjectMetricsProcessor {
             indicator.setText("Initializing");
             filesCount = scope.getFileCount();
             scope.accept(new PsiJavaFileVisitor());
+
             indicator.setText("Calculating metrics");
+        };
+
+        postCalculate = () -> {
+//            metricsCalculationExecutor.execute(psiJavaFiles);
             ReadAction.run(projectModelBuilder::calculateDeferredMetrics);
         };
 
@@ -131,7 +142,7 @@ public class ProjectMetricsProcessor {
 
     public final void execute() {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculate, null,
+                "Calculating Metrics...", true, calculate, postCalculate,
                 cancel, null);
 
         if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
@@ -175,14 +186,11 @@ public class ProjectMetricsProcessor {
         public void visitFile(PsiFile psiFile) {
             super.visitFile(psiFile);
             indicator.checkCanceled();
-            if (!psiFile.getFileType().getName().equals("JAVA")) {
-                return;
-            }
             if (psiFile instanceof PsiCompiledElement) {
                 return;
             }
             final FileType fileType = psiFile.getFileType();
-            if (fileType.isBinary()) {
+            if (!fileType.getName().equals("JAVA") || fileType.isBinary()) {
                 return;
             }
             final VirtualFile virtualFile = psiFile.getVirtualFile();
@@ -195,7 +203,11 @@ public class ProjectMetricsProcessor {
             indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            projectModelBuilder.addJavaFileToJavaProject(javaProject, psiJavaFile);
+
+            psiJavaFiles.add(psiJavaFile);
+
+            projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+
             dependenciesBuilder.build(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);

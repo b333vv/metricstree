@@ -35,25 +35,18 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     private final JavaProject javaProject;
 
-//    private final Computable<PsiJavaFile, JavaFile> computable =
-//            (key, subject) -> createJavaFile(subject);
-//
-//    private final Computable<PsiJavaFile, JavaFile> cache = new Memorizer<>(computable);
-
     public ProjectModelBuilder(JavaProject javaProject) {
-        super();
         this.javaProject = javaProject;
     }
 
-    public void addJavaFileToJavaProject(JavaProject javaProject, PsiJavaFile psiJavaFile) {
-        findOrCreateJavaPackage(javaProject, psiJavaFile)
-                .addFile(createJavaFile(psiJavaFile));
+    public void addJavaFileToJavaProject(@NotNull PsiJavaFile psiJavaFile) {
+        findOrCreateJavaPackage(psiJavaFile).addFile(createJavaFile(psiJavaFile));
     }
 
-    private JavaPackage findOrCreateJavaPackage(JavaProject javaProject, PsiJavaFile psiJavaFile) {
+    public JavaPackage findOrCreateJavaPackage(@NotNull PsiJavaFile psiJavaFile) {
         List<PsiPackage> packageList = ClassUtils.getPackagesRecursive(psiJavaFile);
         if (javaProject.allPackagesIsEmpty()) {
-            return makeNewRootJavaPackage(javaProject, packageList);
+            return makeNewRootJavaPackage(packageList);
         } else {
             Collections.reverse(packageList);
             PsiPackage[] psiPackages = packageList.toArray(new PsiPackage[0]);
@@ -69,7 +62,7 @@ public class ProjectModelBuilder extends ModelBuilder {
             }
             if (aPackage == null) {
                 Collections.reverse(packageList);
-                return makeNewRootJavaPackage(javaProject, packageList);
+                return makeNewRootJavaPackage(packageList);
             }
             for (int i = j - 1; i >= 0; i--) {
                 JavaPackage newPackage = new JavaPackage(psiPackages[i].getName(), psiPackages[i]);
@@ -82,7 +75,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     @NotNull
-    private JavaPackage makeNewRootJavaPackage(@NotNull JavaProject javaProject, @NotNull List<PsiPackage> packageList) {
+    private JavaPackage makeNewRootJavaPackage(@NotNull List<PsiPackage> packageList) {
         Iterator<PsiPackage> psiPackageIterator = packageList.iterator();
         PsiPackage firstPsiPackage = psiPackageIterator.next();
         JavaPackage firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
@@ -100,7 +93,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     @Override
-    protected void addToAllClasses(JavaClass javaClass) {
+    protected void addToAllClasses(@NotNull JavaClass javaClass) {
         javaProject.addToAllClasses(javaClass);
     }
 
