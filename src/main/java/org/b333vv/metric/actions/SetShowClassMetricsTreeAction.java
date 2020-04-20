@@ -18,6 +18,8 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.project.Project;
+import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 

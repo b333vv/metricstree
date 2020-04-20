@@ -18,18 +18,14 @@ package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiElement;
 import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.exec.ProjectMetricsProcessor;
-import org.b333vv.metric.ui.log.MetricsConsole;
-import org.b333vv.metric.util.CalculationState;
+import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.beans.PropertyChangeEvent;
 
 public class ProjectMetricsPanel extends MetricsTreePanel {
 
@@ -41,9 +37,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     public static ProjectMetricsPanel newInstance(Project project) {
         ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
-//        ----------------
-        MetricsUtils.setProjectMetricsPanel(projectMetricsPanel);
-//        ----------------
         return projectMetricsPanel;
     }
 
@@ -62,8 +55,15 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     private class ProjectMetricsEventListener implements MetricsEventListener {
         @Override
-        public void projectMetricsCalculated(@NotNull DefaultTreeModel metricsTreeModel) {
+        public void projectMetricsCalculated(@NotNull ProjectMetricTreeBuilder projectMetricTreeBuilder,
+                                             @NotNull DefaultTreeModel metricsTreeModel) {
+            metricTreeBuilder = projectMetricTreeBuilder;
             showResults(metricsTreeModel);
+        }
+
+        @Override
+        public void buildProjectMetricsTree() {
+            buildTreeModel();
         }
 
         @Override

@@ -18,6 +18,7 @@ package org.b333vv.metric.util;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
+import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.method.*;
@@ -35,6 +36,8 @@ public class MetricsService {
     private static final Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
     private static final Map<String, JavaRecursiveElementVisitor> deferredVisitors = new HashMap<>();
     private static boolean showClassMetricsTree;
+    private static Project project;
+
     static {
         visitors.put("NOAM", new NumberOfAddedMethodsVisitor());
         visitors.put("LCOM", new LackOfCohesionOfMethodsVisitor());
@@ -66,6 +69,7 @@ public class MetricsService {
         classMetricsTreeSettings = MetricsUtils.get(project, ClassMetricsTreeSettings.class);
         showClassMetricsTree = classMetricsTreeSettings.isShowClassMetricsTree();
         projectMetricsTreeSettings = MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
+        MetricsService.project = project;
     }
 
     public static Range getRangeForMetric(String metricName) {
@@ -133,11 +137,6 @@ public class MetricsService {
     public static void setShowClassMetricsTree(boolean showClassMetricsTree) {
         MetricsService.showClassMetricsTree = showClassMetricsTree;
         classMetricsTreeSettings.setShowClassMetricsTree(showClassMetricsTree);
-        if (!showClassMetricsTree) {
-            MetricsUtils.getClassMetricsPanel().clear();
-        } else {
-            MetricsUtils.getClassMetricsPanel().createUIComponents();
-            MetricsUtils.getClassMetricsPanel().refresh();
-        }
+        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).showClassMetricsTree(showClassMetricsTree);
     }
 }

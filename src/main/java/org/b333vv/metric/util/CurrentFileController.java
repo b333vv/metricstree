@@ -18,14 +18,8 @@ package org.b333vv.metric.util;
 
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiCompiledElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
-import org.b333vv.metric.ui.tool.ClassMetricsPanel;
 import org.b333vv.metric.ui.tool.MetricsTreePanel;
 import org.jetbrains.annotations.NotNull;
 

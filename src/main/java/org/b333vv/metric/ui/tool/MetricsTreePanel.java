@@ -57,7 +57,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     private JBPanel<?> rightPanel;
     private ClassOrMethodMetricsTable classOrMethodMetricsTable;
     private JPanel mainPanel;
-    private boolean metricsTreeExists = false;
     private JScrollPane scrollableTablePanel;
 
     protected final CurrentFileController scope;
@@ -197,23 +196,16 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         metricsTree.setModel(metricsTreeModel);
         if (metricsTreeModel == null) {
             classOrMethodMetricsTable.clear();
-            metricsTreeExists = false;
         } else {
             metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
-            metricsTreeExists = true;
         }
     }
 
     public void clear() {
-        metricsTreeExists = false;
         rightPanel.removeAll();
         mainPanel.removeAll();
         updateUI();
         createUIComponents();
-    }
-
-    public boolean isMetricsTreeExists() {
-        return metricsTreeExists;
     }
 
     public void update(@NotNull PsiJavaFile file) {}

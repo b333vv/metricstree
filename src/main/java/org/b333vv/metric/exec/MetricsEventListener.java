@@ -17,6 +17,7 @@
 package org.b333vv.metric.exec;
 
 import com.intellij.util.messages.Topic;
+import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -24,7 +25,7 @@ import javax.swing.tree.DefaultTreeModel;
 public interface MetricsEventListener {
     Topic<MetricsEventListener> TOPIC = new Topic<>("MetricsEventListener", MetricsEventListener.class);
 
-    default void projectMetricsCalculated(@NotNull DefaultTreeModel defaultTreeModel) {
+    default void projectMetricsCalculated(ProjectMetricTreeBuilder projectMetricTreeBuilder, @NotNull DefaultTreeModel defaultTreeModel) {
     }
 
     default void classMetricsValuesEvolutionCalculated(@NotNull DefaultTreeModel defaultTreeModel) {
@@ -34,5 +35,17 @@ public interface MetricsEventListener {
     }
 
     default void clearClassMetricsValuesEvolutionTree() {
+    }
+
+    default void buildClassMetricsTree() {
+    }
+
+    default void buildProjectMetricsTree() {
+    }
+
+    default void showClassMetricsTree(boolean showClassMetricsTree) {
+    }
+
+    default void refreshClassMetricsTree() {
     }
 }

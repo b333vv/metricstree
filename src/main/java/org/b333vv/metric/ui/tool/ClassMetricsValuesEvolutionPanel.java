@@ -18,15 +18,10 @@ package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
-import git4idea.GitUtil;
-import org.b333vv.metric.exec.ClassMetricsValuesEvolutionProcessor;
 import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.util.CalculationState;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.beans.PropertyChangeEvent;
 
 public class ClassMetricsValuesEvolutionPanel extends MetricsTreePanel {
 
@@ -38,21 +33,17 @@ public class ClassMetricsValuesEvolutionPanel extends MetricsTreePanel {
 
     public static ClassMetricsValuesEvolutionPanel newInstance(Project project) {
         ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel = new ClassMetricsValuesEvolutionPanel(project);
-        MetricsUtils.setClassMetricsValuesEvolutionPanel(classMetricsValuesEvolutionPanel);
         classMetricsValuesEvolutionPanel.scope.setPanel(classMetricsValuesEvolutionPanel);
         return classMetricsValuesEvolutionPanel;
     }
 
     public void update(@NotNull PsiJavaFile file) {
         psiJavaFile = file;
+        clear();
     }
 
     public PsiJavaFile getPsiJavaFile() {
         return psiJavaFile;
-    }
-
-    public boolean isUnderGit() {
-        return psiJavaFile != null && GitUtil.isUnderGit(psiJavaFile.getVirtualFile());
     }
 
     private class ClassMetricsValuesEvolutionEventListener implements MetricsEventListener {

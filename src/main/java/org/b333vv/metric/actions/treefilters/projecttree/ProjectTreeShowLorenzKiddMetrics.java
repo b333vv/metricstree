@@ -18,6 +18,8 @@ package org.b333vv.metric.actions.treefilters.projecttree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.project.Project;
+import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +39,9 @@ public class ProjectTreeShowLorenzKiddMetrics extends ToggleAction {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         MetricsUtils.getProjectMetricsTreeFilter().setLorenzKiddMetricsSetVisible(state);
-        MetricsUtils.getProjectMetricsPanel().buildTreeModel();
+        Project project = e.getProject();
+        if (project != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).buildProjectMetricsTree();
+        }
     }
 }

@@ -32,9 +32,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import org.b333vv.metric.ui.log.MetricsConsole;
-import org.b333vv.metric.ui.tool.ClassMetricsPanel;
-import org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel;
-import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 
 import javax.annotation.CheckForNull;
@@ -46,10 +43,9 @@ public class MetricsUtils {
     private static Project project;
     private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
-    private static ClassMetricsPanel classMetricsPanel;
-    private static ClassMetricsValuesEvolutionPanel classMetricsValuesEvolutionPanel;
-    private static ProjectMetricsPanel projectMetricsPanel;
     private static boolean autoScrollable = true;
+    private static boolean classMetricsTreeExists = false;
+    private static boolean projectMetricsTreeExists = false;
     private static boolean projectMetricsCalculationPerforming;
     private static boolean classMetricsValuesEvolutionCalculationPerforming;
 
@@ -144,32 +140,6 @@ public class MetricsUtils {
         return projectMetricsTreeFilter;
     }
 
-    public static ClassMetricsPanel getClassMetricsPanel() {
-        return classMetricsPanel;
-    }
-
-    public static ClassMetricsValuesEvolutionPanel getClassMetricsValuesEvolutionPanel() {
-        return classMetricsValuesEvolutionPanel;
-    }
-
-    public static void setClassMetricsPanel(ClassMetricsPanel value) {
-        classMetricsPanel = value;
-    }
-
-    public static void setClassMetricsValuesEvolutionPanel(ClassMetricsValuesEvolutionPanel value) { classMetricsValuesEvolutionPanel = value; }
-
-    public static void refreshMetricsTree() {
-        classMetricsPanel.refresh();
-    }
-
-    public static void setProjectMetricsPanel(ProjectMetricsPanel value) {
-        projectMetricsPanel = value;
-    }
-
-    public static ProjectMetricsPanel getProjectMetricsPanel() {
-        return projectMetricsPanel;
-    }
-
     public static boolean isAutoScrollable() {
         return autoScrollable;
     }
@@ -179,17 +149,23 @@ public class MetricsUtils {
     }
 
     public static boolean isClassMetricsTreeExists() {
-        return classMetricsPanel != null && classMetricsPanel.isMetricsTreeExists();
+        return classMetricsTreeExists;
     }
 
     public static boolean isProjectMetricsTreeExists() {
-        return projectMetricsPanel != null && projectMetricsPanel.isMetricsTreeExists();
+        return projectMetricsTreeExists;
     }
 
-    public static boolean isMetricsEvolutionCalculationPossible() {
-        return classMetricsValuesEvolutionPanel != null
-                && classMetricsValuesEvolutionPanel.isUnderGit()
-                && !classMetricsValuesEvolutionCalculationPerforming;
+    public static void setClassMetricsTreeExists(boolean classMetricsTreeExists) {
+        MetricsUtils.classMetricsTreeExists = classMetricsTreeExists;
+    }
+
+    public static void setProjectMetricsTreeExists(boolean projectMetricsTreeExists) {
+        MetricsUtils.projectMetricsTreeExists = projectMetricsTreeExists;
+    }
+
+    public static boolean isMetricsEvolutionCalculationPerforming() {
+        return classMetricsValuesEvolutionCalculationPerforming;
     }
 
     @Nullable

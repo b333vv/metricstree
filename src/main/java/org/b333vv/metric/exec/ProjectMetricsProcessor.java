@@ -76,6 +76,7 @@ public class ProjectMetricsProcessor {
 
         calculate = () -> {
             MetricsUtils.setProjectMetricsCalculationPerforming(true);
+            MetricsUtils.setProjectMetricsTreeExists(false);
             dependenciesBuilder = new DependenciesBuilder();
             indicator = ProgressManager.getInstance().getProgressIndicator();
             indicator.setText("Initializing");
@@ -101,8 +102,10 @@ public class ProjectMetricsProcessor {
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
 
             if (metricsTreeModel != null) {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsCalculated(metricsTreeModel);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .projectMetricsCalculated(projectMetricTreeBuilder, metricsTreeModel);
                 MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " finished");
+                MetricsUtils.setProjectMetricsTreeExists(true);
             }
 
             MetricsUtils.setProjectMetricsCalculationPerforming(false);

@@ -17,17 +17,16 @@
 package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.Computable;
 import com.intellij.psi.PsiJavaFile;
+import org.b333vv.metric.exec.Computable;
 import org.b333vv.metric.exec.Memorizer;
+import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.beans.PropertyChangeEvent;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
 
@@ -41,11 +40,13 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
+        MetricsEventListener metricsEventListener = new ClassMetricsEventListener();
+        project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
     }
 
     public static ClassMetricsPanel newInstance(Project project) {
         ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(project);
-        MetricsUtils.setClassMetricsPanel(classMetricsPanel);
+//        MetricsUtils.setClassMetricsPanel(classMetricsPanel);
         classMetricsPanel.scope.setPanel(classMetricsPanel);
         return classMetricsPanel;
     }
@@ -62,6 +63,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
+        MetricsUtils.setClassMetricsTreeExists(false);
         MetricsUtils.getConsole().firstPart("Built metrics tree for " + psiJavaFile.getName());
         JavaFile javaFile = null;
         try {
@@ -73,6 +75,29 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         if (javaFile != null) {
             metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
             buildTreeModel();
+            MetricsUtils.setClassMetricsTreeExists(true);
+        }
+    }
+
+    private class ClassMetricsEventListener implements MetricsEventListener {
+        @Override
+        public void buildClassMetricsTree() {
+            buildTreeModel();
+        }
+
+        @Override
+        public void showClassMetricsTree(boolean showClassMetricsTree) {
+            if (!showClassMetricsTree) {
+                clear();
+            } else {
+                createUIComponents();
+                refresh();
+            }
+        }
+
+        @Override
+        public void refreshClassMetricsTree() {
+            refresh();
         }
     }
 }
