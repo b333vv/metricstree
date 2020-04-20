@@ -48,8 +48,8 @@ public class FilterProjectMetricsTreeAction extends AbstractAction {
         ToolWindow toolWindow =
                 ToolWindowManager.getInstance(Objects.requireNonNull(e.getProject()))
                         .getToolWindow("MetricsTree");
-        actionPopupMenu.getComponent().show(
-                toolWindow.getComponent().getComponent(0),
+        actionPopupMenu.getComponent()
+                .show(toolWindow.getComponent().getComponent(0),
                 ((MouseEvent) e.getInputEvent()).getX(),
                 ((MouseEvent) e.getInputEvent()).getY());
     }

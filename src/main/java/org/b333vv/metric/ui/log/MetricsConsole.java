@@ -19,10 +19,12 @@ package org.b333vv.metric.ui.log;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.project.impl.ProjectLifecycleListener;
+import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
@@ -40,16 +42,14 @@ public class MetricsConsole implements ProjectLifecycleListener {
         this.project = project;
         consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
         ProjectCloseListener projectCloseListener = new ProjectCloseListener();
-        project.getMessageBus()
-                .connect(project)
-                .subscribe(ProjectManager.TOPIC, projectCloseListener);
+        project.getMessageBus().connect(project).subscribe(ProjectManager.TOPIC, projectCloseListener);
     }
 
     private class ProjectCloseListener implements ProjectManagerListener {
         @Override
         public void projectClosing(@NotNull Project closingProject) {
             if (project == closingProject) {
-                consoleView.dispose();
+                Disposer.dispose(consoleView);
             }
         }
     }

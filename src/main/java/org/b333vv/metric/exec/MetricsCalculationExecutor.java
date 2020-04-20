@@ -16,22 +16,15 @@
 
 package org.b333vv.metric.exec;
 
-import com.intellij.analysis.AnalysisScope;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiCompiledElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.builder.ProjectModelBuilder;
 import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsUtils;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static org.b333vv.metric.exec.LaunderThrowable.launderThrowable;

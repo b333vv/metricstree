@@ -52,27 +52,10 @@ public class CurrentFileController {
 
     public void update() {
         MetricsUtils.setProject(project);
-        VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
-        panel.clear();
-        if (selectedFile == null) {
-            return;
+        PsiJavaFile psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
+        if (psiJavaFile != null) {
+            panel.update(psiJavaFile);
         }
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
-        if (psiFile == null) {
-            return;
-        }
-        if (psiFile instanceof PsiCompiledElement) {
-            return;
-        }
-        final FileType fileType = psiFile.getFileType();
-        if (fileType.isBinary()) {
-            return;
-        }
-        if (!fileType.getName().equals("JAVA")) {
-             return;
-        }
-        PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-        panel.update(psiJavaFile);
     }
 
     private class EditorChangeListener implements FileEditorManagerListener {

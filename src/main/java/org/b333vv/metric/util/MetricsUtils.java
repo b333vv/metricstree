@@ -25,15 +25,15 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.DumbServiceImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
+import com.intellij.psi.*;
 import org.b333vv.metric.ui.log.MetricsConsole;
-import org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel;
 import org.b333vv.metric.ui.tool.ClassMetricsPanel;
+import org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel;
 import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 
@@ -101,6 +101,29 @@ public class MetricsUtils {
         return null;
     }
 
+    @CheckForNull
+    public static PsiJavaFile getSelectedPsiJavaFile(Project project) {
+        VirtualFile selectedFile = getSelectedFile(project);
+        if (selectedFile == null) {
+            return null;
+        }
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
+        if (psiFile == null) {
+            return null;
+        }
+        if (psiFile instanceof PsiCompiledElement) {
+            return null;
+        }
+        final FileType fileType = psiFile.getFileType();
+        if (fileType.isBinary()) {
+            return null;
+        }
+        if (!fileType.getName().equals("JAVA")) {
+            return null;
+        }
+        return (PsiJavaFile) psiFile;
+    }
+
     public static Project getProject() {
         return project;
     }
@@ -145,14 +168,6 @@ public class MetricsUtils {
 
     public static ProjectMetricsPanel getProjectMetricsPanel() {
         return projectMetricsPanel;
-    }
-
-    public static void calculateProjectMetrics() {
-        projectMetricsPanel.calculateMetrics();
-    }
-
-    public static void calculateClassMetricsEvolution() {
-        classMetricsValuesEvolutionPanel.calculateMetricsEvolution();
     }
 
     public static boolean isAutoScrollable() {

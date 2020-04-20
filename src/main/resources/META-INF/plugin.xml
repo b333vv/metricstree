@@ -93,6 +93,9 @@
         <component>
             <implementation-class>org.b333vv.metric.ui.tool.ProjectMetricsPanel</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel</implementation-class>
+        </component>
     </project-components>
 
     <actions>

@@ -38,14 +38,11 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.MetricsService;
-import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.*;
 
 public class ProjectMetricsProcessor {
 
@@ -54,9 +51,6 @@ public class ProjectMetricsProcessor {
     private final Project project;
     private final JavaProject javaProject;
     private final ProjectModelBuilder projectModelBuilder;
-//    private final MetricsCalculationExecutor metricsCalculationExecutor;
-    private final Set<PsiJavaFile> psiJavaFiles;
-    private final PropertyChangeSupport support;
     private final Runnable calculate;
     private final Runnable postCalculate;
     private final Runnable martinMetricSetCalculating;
@@ -68,37 +62,29 @@ public class ProjectMetricsProcessor {
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
-    private CalculationState state = CalculationState.IDLE;
-    private DefaultTreeModel metricsTreeModel;
 
-    public ProjectMetricsProcessor(Project project, AnalysisScope scope, JavaProject javaProject) {
+    public ProjectMetricsProcessor(Project project) {
         this.project = project;
-        this.javaProject = javaProject;
+        javaProject = new JavaProject(project.getName());
         projectModelBuilder = new ProjectModelBuilder(javaProject);
-        psiJavaFiles = new HashSet<>();
-
-//        metricsCalculationExecutor = new MetricsCalculationExecutor(javaProject);
-
-        support = new PropertyChangeSupport(this);
+        AnalysisScope scope = new AnalysisScope(project);
+        scope.setIncludeTestSource(false);
+        MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName()
+                + " started: processing " + scope.getFileCount() + " java files");
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
         calculate = () -> {
+            MetricsUtils.setProjectMetricsCalculationPerforming(true);
             dependenciesBuilder = new DependenciesBuilder();
-            support.firePropertyChange("state", state, CalculationState.RUNNING);
-            state = CalculationState.RUNNING;
             indicator = ProgressManager.getInstance().getProgressIndicator();
             indicator.setText("Initializing");
             filesCount = scope.getFileCount();
             scope.accept(new PsiJavaFileVisitor());
-
             indicator.setText("Calculating metrics");
         };
 
-        postCalculate = () -> {
-//            metricsCalculationExecutor.execute(psiJavaFiles);
-            ReadAction.run(projectModelBuilder::calculateDeferredMetrics);
-        };
+        postCalculate = () -> ReadAction.run(projectModelBuilder::calculateDeferredMetrics);
 
         martinMetricSetCalculating = () -> {
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope);
@@ -112,28 +98,21 @@ public class ProjectMetricsProcessor {
 
         buildTree = () -> {
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-            metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-            support.firePropertyChange("state", this.state, CalculationState.DONE);
-            this.state = CalculationState.IDLE;
+            DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
+
+            if (metricsTreeModel != null) {
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsCalculated(metricsTreeModel);
+                MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " finished");
+            }
+
+            MetricsUtils.setProjectMetricsCalculationPerforming(false);
         };
 
         cancel = () -> {
             queue.clear();
-            support.firePropertyChange("state", this.state, CalculationState.CANCELED);
-            this.state = CalculationState.IDLE;
+            MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " canceled");
+            MetricsUtils.setProjectMetricsCalculationPerforming(false);
         };
-    }
-
-    public DefaultTreeModel getMetricsTreeModel() {
-        return metricsTreeModel;
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        support.addPropertyChangeListener(propertyChangeListener);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        support.removePropertyChangeListener(propertyChangeListener);
     }
 
     public static DependenciesBuilder getDependenciesBuilder() {
@@ -142,12 +121,17 @@ public class ProjectMetricsProcessor {
 
     public final void execute() {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculate, postCalculate,
+                "Calculating Metrics...", true, calculate, null,
+                cancel, null);
+
+        MetricsBackgroundableTask classDeferredMetricsTask = new MetricsBackgroundableTask(project,
+                "Calculating Deferred Metrics...", true, postCalculate, null,
                 cancel, null);
 
         if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
-            classMetricsTask.setOnSuccess(buildTree);
+            classDeferredMetricsTask.setOnSuccess(buildTree);
             queue.run(classMetricsTask);
+            queue.run(classDeferredMetricsTask);
             return;
         }
         if (!MetricsService.isNeedToConsiderProjectMetrics()) {
@@ -156,6 +140,7 @@ public class ProjectMetricsProcessor {
                     true, martinMetricSetCalculating, buildTree,
                     cancel, null);
             queue.run(classMetricsTask);
+            queue.run(classDeferredMetricsTask);
             queue.run(packageMetricsTask);
             return;
         }
@@ -165,14 +150,17 @@ public class ProjectMetricsProcessor {
                     true, moodMetricSetCalculating, buildTree,
                     cancel, null);
             queue.run(classMetricsTask);
+            queue.run(classDeferredMetricsTask);
             queue.run(projectMetricsTask);
             return;
         }
         queue.run(classMetricsTask);
+        queue.run(classDeferredMetricsTask);
         MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                 "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                 true, martinMetricSetCalculating, null,
                 cancel, null);
+
         queue.run(packageMetricsTask);
         MetricsBackgroundableTask projectMetricsTask = new MetricsBackgroundableTask(project,
                 "Project Level Metrics: MOOD Metrics Set Calculating...",
@@ -203,11 +191,7 @@ public class ProjectMetricsProcessor {
             indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-
-            psiJavaFiles.add(psiJavaFile);
-
             projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
-
             dependenciesBuilder.build(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);

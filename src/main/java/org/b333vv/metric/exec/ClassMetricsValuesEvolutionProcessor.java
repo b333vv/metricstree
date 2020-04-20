@@ -31,21 +31,15 @@ import git4idea.util.GitFileUtils;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
-import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassMetricsValuesEvolutionProcessor {
 
@@ -54,26 +48,25 @@ public class ClassMetricsValuesEvolutionProcessor {
     private final Runnable buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
-    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
-    private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution = new HashMap<>();
+    private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution = new ConcurrentHashMap<>();
     private final ClassModelBuilder classModelBuilder;
 
     private DefaultTreeModel metricsTreeModel;
-    private CalculationState state = CalculationState.IDLE;
 
     public ClassMetricsValuesEvolutionProcessor(@NotNull PsiJavaFile psiJavaFile) {
 
         this.psiJavaFile = psiJavaFile;
         classModelBuilder = new ClassModelBuilder();
-        queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics History");
+        queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics Values Evolution");
+
+        MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " started");
 
         getFileFromGitCalculateMetricsAndPutThemToMap = () ->
         {
             if (!GitUtil.isUnderGit(psiJavaFile.getVirtualFile())) {
                 return;
             }
-            support.firePropertyChange("state", this.state, CalculationState.RUNNING);
-            this.state = CalculationState.RUNNING;
+            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(true);
 
             GitRepositoryManager gitRepositoryManager = GitUtil.getRepositoryManager(psiJavaFile.getProject());
             VirtualFile root = gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile()).getRoot();
@@ -109,37 +102,26 @@ public class ClassMetricsValuesEvolutionProcessor {
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
                     new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution));
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();
-            support.firePropertyChange("state", this.state, CalculationState.DONE);
-            this.state = CalculationState.IDLE;
+            if (metricsTreeModel != null) {
+                psiJavaFile.getProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .classMetricsValuesEvolutionCalculated(metricsTreeModel);
+                MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " finished");
+            }
+            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
         };
 
         cancel = () -> {
             queue.clear();
-            support.firePropertyChange("state", this.state, CalculationState.CANCELED);
-            this.state = CalculationState.IDLE;
+            MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
         };
     }
 
-    public DefaultTreeModel getMetricsTreeModel() {
-        return metricsTreeModel;
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        support.addPropertyChangeListener(propertyChangeListener);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        support.removePropertyChangeListener(propertyChangeListener);
-    }
-
     public void buildClassMetricsValuesEvolutionMap() {
-
-
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(psiJavaFile.getProject(),
                 "Get Metrics History for " + psiJavaFile.getName() + "...", true,
                 getFileFromGitCalculateMetricsAndPutThemToMap, buildTree,
                 cancel, null);
-
         queue.run(classMetricsTask);
     }
 }

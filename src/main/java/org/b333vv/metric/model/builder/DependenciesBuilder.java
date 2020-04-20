@@ -22,14 +22,16 @@ import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public class DependenciesBuilder {
 
-    private final Map<PsiClass, Bag<PsiClass>> classesDependencies = new HashMap<>();
-    private final Map<PsiClass, Bag<PsiClass>> classesDependents = new HashMap<>();
-    private final Map<PsiClass, Bag<PsiPackage>> packagesDependencies = new HashMap<>();
-    private final Map<PsiClass, Bag<PsiPackage>> packagesDependents = new HashMap<>();
+    private final Map<PsiClass, Bag<PsiClass>> classesDependencies = new ConcurrentHashMap<>();
+    private final Map<PsiClass, Bag<PsiClass>> classesDependents = new ConcurrentHashMap<>();
+    private final Map<PsiClass, Bag<PsiPackage>> packagesDependencies = new ConcurrentHashMap<>();
+    private final Map<PsiClass, Bag<PsiPackage>> packagesDependents = new ConcurrentHashMap<>();
 
     public void build(PsiElement psiElement) {
         final DependenciesVisitor visitor = new DependenciesVisitor();

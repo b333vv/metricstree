@@ -50,10 +50,6 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         return classMetricsPanel;
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent event) {
-    }
-
     public void update(@NotNull PsiJavaFile file) {
         psiJavaFile = file;
         if (MetricsService.isShowClassMetricsTree()) {
@@ -67,8 +63,6 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
         MetricsUtils.getConsole().firstPart("Built metrics tree for " + psiJavaFile.getName());
-//        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-//        JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
         JavaFile javaFile = null;
         try {
             String key = psiJavaFile.getPackageName() + "|" + psiJavaFile.getName() + ":" + psiJavaFile.getModificationStamp();

@@ -16,64 +16,35 @@
 
 package org.b333vv.metric.ui.tool;
 
-import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiElement;
+import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.exec.ProjectMetricsProcessor;
-import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.tree.DefaultTreeModel;
 import java.beans.PropertyChangeEvent;
 
 public class ProjectMetricsPanel extends MetricsTreePanel {
 
-    private ProjectMetricsProcessor projectMetricsProcessor;
-
     private ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar");
+        MetricsEventListener metricsEventListener = new ProjectMetricsEventListener();
+        project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
     }
 
     public static ProjectMetricsPanel newInstance(Project project) {
         ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
+//        ----------------
         MetricsUtils.setProjectMetricsPanel(projectMetricsPanel);
+//        ----------------
         return projectMetricsPanel;
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        CalculationState state = (CalculationState) evt.getNewValue();
-        switch (state) {
-            case DONE:
-                showResults(projectMetricsProcessor.getMetricsTreeModel());
-                MetricsUtils.setProjectMetricsCalculationPerforming(false);
-                MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " finished");
-                break;
-            case CANCELED :
-                clear();
-                MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName() + " canceled");
-                MetricsUtils.setProjectMetricsCalculationPerforming(false);
-                break;
-            case RUNNING:
-                MetricsUtils.setProjectMetricsCalculationPerforming(true);
-            default: break;
-        }
-    }
-
-    public void calculateMetrics() {
-        clear();
-        javaProject = new JavaProject(project.getName());
-        AnalysisScope analysisScope = new AnalysisScope(project);
-        analysisScope.setIncludeTestSource(false);
-        MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName()
-                + " started: processing " + analysisScope.getFileCount() + " java files");
-        projectMetricsProcessor = new ProjectMetricsProcessor(project, analysisScope, javaProject);
-        projectMetricsProcessor.addPropertyChangeListener(this);
-        MetricsUtils.getDumbService().runWhenSmart(projectMetricsProcessor::execute);
-        metricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
     }
 
     @Override
@@ -86,6 +57,18 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                     caretMover.moveEditorCaret(psiElement);
                 }
             }
+        }
+    }
+
+    private class ProjectMetricsEventListener implements MetricsEventListener {
+        @Override
+        public void projectMetricsCalculated(@NotNull DefaultTreeModel metricsTreeModel) {
+            showResults(metricsTreeModel);
+        }
+
+        @Override
+        public void clearProjectMetricsTree() {
+            clear();
         }
     }
 }
