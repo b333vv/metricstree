@@ -16,22 +16,18 @@
 
 package org.b333vv.metric.ui.info;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.util.MetricsIcons;
+import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.net.URL;
 

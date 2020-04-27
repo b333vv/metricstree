@@ -57,12 +57,15 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li>2020.1.2 - Metrics evolution data is now embedded in the class metrics tree.</li>
+      </ul>
+      <ul>
         <li>2020.1.1 - Class metrics values evolution tree based on 'git log' added.</li>
       </ul>
       ]]>
     </change-notes>
 
-    <version>2020.1.1</version>
+    <version>2020.1.2</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -92,9 +95,6 @@
         </component>
         <component>
             <implementation-class>org.b333vv.metric.ui.tool.ProjectMetricsPanel</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.b333vv.metric.ui.tool.ClassMetricsValuesEvolutionPanel</implementation-class>
         </component>
     </project-components>
 
@@ -143,6 +143,13 @@
                 text="Show Class Metrics Tree"
                 description="Show class metrics tree"
                 icon="AllIcons.Actions.Show">
+        </action>
+
+        <action id="Metrics.AddClassMetricsValuesEvolution"
+                class="org.b333vv.metric.actions.AddClassMetricsValuesEvolutionAction"
+                text="Calculate Class Metrics Evolution"
+                description="Calculate class metrics evolution"
+                icon="AllIcons.Vcs.History">
         </action>
 
         <action id="Metrics.CalculateClassMetricsEvolution"
@@ -267,6 +274,8 @@
             <reference id="Metrics.Configure"/>
             <separator/>
             <reference id="Metrics.ShowClassMetricsTree"/>
+            <separator/>
+            <reference id="Metrics.AddClassMetricsValuesEvolution"/>
         </group>
 
         <group id="Metrics.ProjectMetricsToolbar">

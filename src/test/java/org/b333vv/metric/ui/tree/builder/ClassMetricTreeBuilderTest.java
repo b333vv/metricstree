@@ -20,6 +20,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.node.ClassNode;
 import org.b333vv.metric.util.MetricsService;
@@ -28,7 +29,7 @@ import org.b333vv.metric.util.MetricsUtils;
 import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestCase {
-    private JavaProject javaProject;
+    private JavaFile javaFile;
     private JavaClass rootJavaClass;
     private DefaultTreeModel treeModel;
     private ClassNode rootClassNode;
@@ -41,10 +42,10 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        javaProject = classModelBuilder.buildJavaFile(psiJavaFile);
-        rootJavaClass = javaProject.getPackages().findFirst().get().getClasses().findFirst().get();
+        javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+        rootJavaClass = javaFile.getClasses().findFirst().get();
 
-        ClassMetricTreeBuilder classMetricTreeBuilder = new ClassMetricTreeBuilder(javaProject);
+        ClassMetricTreeBuilder classMetricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
         treeModel = classMetricTreeBuilder.createMetricTreeModel();
         rootClassNode = (ClassNode) treeModel.getRoot();
     }

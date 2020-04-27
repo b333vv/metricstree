@@ -17,11 +17,9 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.vcs.log.Hash;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.ui.tree.TreeCellRenderer;
-import org.b333vv.metric.util.MetricsIcons;
+import icons.MetricsIcons;
 
 import javax.swing.*;
 

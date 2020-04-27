@@ -39,13 +39,15 @@ import javax.swing.tree.DefaultTreeModel;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.FutureTask;
 
 public class ClassMetricsValuesEvolutionProcessor {
 
     private final PsiJavaFile psiJavaFile;
-    private final Runnable getFileFromGitCalculateMetricsAndPutThemToMap;
-    private final Runnable buildTree;
+    private FutureTask<Void> getFileFromGitCalculateMetricsAndPutThemToMap;
+    private FutureTask<Void> buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
     private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution = new ConcurrentHashMap<>();
@@ -57,14 +59,19 @@ public class ClassMetricsValuesEvolutionProcessor {
 
         this.psiJavaFile = psiJavaFile;
         classModelBuilder = new ClassModelBuilder();
+
+        MetricsEventListener metricsEventListener = new ClassMetricsEvolutionEventListener();
+        MetricsUtils.getProject().getMessageBus()
+                .connect(MetricsUtils.getProject()).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
+
         queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics Values Evolution");
 
-        MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " started");
+        MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " started");
 
-        getFileFromGitCalculateMetricsAndPutThemToMap = () ->
+        Callable<Void> gitCalculations = () ->
         {
             if (!GitUtil.isUnderGit(psiJavaFile.getVirtualFile())) {
-                return;
+                return null;
             }
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(true);
 
@@ -76,7 +83,7 @@ public class ClassMetricsValuesEvolutionProcessor {
                 commits = GitHistoryUtils.collectTimedCommits(psiJavaFile.getProject(), root,
                         "--", VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()));
                 if (commits.isEmpty()) {
-                    return;
+                    return null;
                 }
                 for (TimedVcsCommit commit : commits) {
                     ReadAction.run(() ->
@@ -94,9 +101,12 @@ public class ClassMetricsValuesEvolutionProcessor {
             } catch (VcsException e) {
                 MetricsUtils.getConsole().error(e.getMessage());
             }
+            return null;
         };
 
-        buildTree = () -> {
+        getFileFromGitCalculateMetricsAndPutThemToMap = new FutureTask<>(gitCalculations);
+
+        Callable<Void> buildingTree = () -> {
             ClassModelBuilder classModelBuilder = new ClassModelBuilder();
             JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
@@ -105,14 +115,17 @@ public class ClassMetricsValuesEvolutionProcessor {
             if (metricsTreeModel != null) {
                 psiJavaFile.getProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .classMetricsValuesEvolutionCalculated(metricsTreeModel);
-                MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " finished");
+                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
             }
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+            return null;
         };
+
+        buildTree = new FutureTask<>(buildingTree);
 
         cancel = () -> {
             queue.clear();
-            MetricsUtils.getConsole().info("Building metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+            MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
         };
     }
@@ -123,5 +136,18 @@ public class ClassMetricsValuesEvolutionProcessor {
                 getFileFromGitCalculateMetricsAndPutThemToMap, buildTree,
                 cancel, null);
         queue.run(classMetricsTask);
+    }
+
+    private class ClassMetricsEvolutionEventListener implements MetricsEventListener {
+        @Override
+        public void cancelMetricsValuesEvolutionCalculation() {
+            if (!queue.isEmpty()) {
+                getFileFromGitCalculateMetricsAndPutThemToMap.cancel(false);
+                buildTree.cancel(false);
+                queue.clear();
+                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+                MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+            }
+        }
     }
 }

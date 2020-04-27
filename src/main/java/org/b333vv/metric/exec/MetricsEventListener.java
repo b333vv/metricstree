@@ -48,4 +48,7 @@ public interface MetricsEventListener {
 
     default void refreshClassMetricsTree() {
     }
+
+    default void cancelMetricsValuesEvolutionCalculation() {
+    }
 }

@@ -29,7 +29,7 @@ import javax.swing.*;
 public class MetricsLogPanel extends SimpleToolWindowPanel {
   private static final String ID = "MetricsTree";
 
-  private transient final Project project;
+  private final Project project;
 
   public MetricsLogPanel(Project project) {
     super(false, true);

@@ -24,14 +24,14 @@ import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.CompositeIcon;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
-import org.b333vv.metric.util.MetricsIcons;
+import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
 
 public class MetricNode extends AbstractNode {
 
-    protected transient final Metric metric;
+    protected final Metric metric;
 
     public MetricNode(Metric metric) {
         this.metric = metric;

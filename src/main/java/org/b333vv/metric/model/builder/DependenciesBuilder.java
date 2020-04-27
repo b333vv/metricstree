@@ -19,6 +19,7 @@ package org.b333vv.metric.model.builder;
 import com.intellij.psi.*;
 import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.model.metric.util.ClassUtils;
+import org.b333vv.metric.model.metric.util.ConcurrentStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -41,13 +42,6 @@ public class DependenciesBuilder {
     public Set<PsiClass> getClassesDependents(PsiClass psiClass) {
         Optional<Bag<PsiClass>> classesDependentsForClass = Optional.ofNullable(classesDependents.get(psiClass));
         return classesDependentsForClass
-                .map(Bag::getContents)
-                .orElse(Collections.emptySet());
-    }
-
-    public Set<PsiPackage> getPackagesDependents(PsiClass psiClass) {
-        Optional<Bag<PsiPackage>> packagesDependentsForClass = Optional.ofNullable(packagesDependents.get(psiClass));
-        return packagesDependentsForClass
                 .map(Bag::getContents)
                 .orElse(Collections.emptySet());
     }
@@ -78,7 +72,8 @@ public class DependenciesBuilder {
 
     private class DependenciesVisitor extends JavaRecursiveElementVisitor {
 
-        private final Stack<PsiClass> classStack = new Stack<>();
+//        private final Stack<PsiClass> classStack = new Stack<>();
+        private final ConcurrentStack<PsiClass> classStack = new ConcurrentStack<>();
         private PsiClass currentClass = null;
 
         @Override

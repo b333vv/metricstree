@@ -20,6 +20,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.apache.commons.io.FilenameUtils;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -32,7 +33,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
-    private JavaProject javaProject;
+    private JavaFile javaFile;
     private String projectName;
     private JavaClass javaClass;
     private Map<String, Metric> classMetrics, methodMetrics;
@@ -48,8 +49,8 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         projectName = FilenameUtils.getBaseName(psiJavaFile.getName());
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        javaProject = classModelBuilder.buildJavaFile(psiJavaFile);
-        javaClass = javaProject.getPackages().findFirst().get().getClasses().findFirst().get();
+        javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+        javaClass = javaFile.getClasses().findFirst().get();
         classMetrics = javaClass.getMetrics().collect(Collectors.toMap(Metric::getName, Function.identity()));
         methods = javaClass.getMethods().collect(Collectors.toMap(JavaMethod::getName, Function.identity()));
         removeNode = methods.get("removeNode(int, Object, Object, boolean, boolean)");
@@ -59,10 +60,6 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
     protected String getTestDataPath() {
         return "testData";
-    }
-
-    public void testProjectName() {
-        assertEquals(projectName, javaProject.getName());
     }
 
     public void testClassMetricsCount() {

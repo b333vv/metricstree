@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.util;
+package icons;
 
 import com.intellij.openapi.util.IconLoader;
 
@@ -34,6 +34,7 @@ public class MetricsIcons {
   public static final Icon NOT_TRACKED = IconLoader.getIcon("/images/notTracked.svg");
   public static final Icon INVALID_VALUE = IconLoader.getIcon("/images/invalidValue.svg");
   public static final Icon VALID_VALUE = IconLoader.getIcon("/images/validValue.svg");
+  public static final Icon GIT = IconLoader.getIcon("/images/git.svg");
 
   private MetricsIcons() {
     // only static

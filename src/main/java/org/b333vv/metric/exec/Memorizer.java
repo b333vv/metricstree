@@ -32,7 +32,7 @@ public class Memorizer<S, R> implements Computable<S, R> {
         while (true) {
             Future<R> f = cache.get(key);
             if (f == null) {
-                MetricsUtils.getConsole().lastPart(": make new metrics model");
+                MetricsUtils.getConsole().lastPart(": made new metrics model");
 //              key pattern - package_name|file_name:modification_stamp
                 cache.keySet().removeIf(s -> s.startsWith(key.split(":")[0]));
                 Callable<R> eval = () -> c.compute(key, subject);
@@ -43,7 +43,7 @@ public class Memorizer<S, R> implements Computable<S, R> {
                     ft.run();
                 }
             } else {
-                MetricsUtils.getConsole().lastPart(": get metrics model from cache");
+                MetricsUtils.getConsole().lastPart(": got metrics model from cache");
             }
             try {
                 return f.get();

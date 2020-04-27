@@ -76,7 +76,7 @@ public class MetricsTreeSettingsTable {
 
     private static class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 5;
-        private transient List<MetricsTreeSettingsStub> rows;
+        private List<MetricsTreeSettingsStub> rows;
 
         public void setRows(List<MetricsTreeSettingsStub> rows) {
             this.rows = rows;

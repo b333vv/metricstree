@@ -26,7 +26,7 @@ import javax.swing.*;
 
 public class FileNode extends AbstractNode {
 
-    private final transient JavaFile javaFile;
+    private final JavaFile javaFile;
 
     public FileNode(JavaFile javaFile) {
         this.javaFile = javaFile;

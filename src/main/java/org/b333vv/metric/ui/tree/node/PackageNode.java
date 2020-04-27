@@ -22,7 +22,7 @@ import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
 public class PackageNode extends AbstractNode {
 
-    private final transient JavaPackage javaPackage;
+    private final JavaPackage javaPackage;
 
     public PackageNode(JavaPackage javaPackage) {
         this.javaPackage = javaPackage;

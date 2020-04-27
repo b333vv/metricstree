@@ -28,15 +28,17 @@ import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.tree.DefaultTreeModel;
+
 public class ClassMetricsPanel extends MetricsTreePanel {
 
-    private final Computable<PsiJavaFile, JavaFile> c =
-            (key, subject) -> {
-                ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-                return classModelBuilder.buildJavaFile(psiJavaFile);
-            };
-
-    private final Computable<PsiJavaFile, JavaFile> cache = new Memorizer<>(c);
+//    private final Computable<PsiJavaFile, JavaFile> c =
+//            (key, subject) -> {
+//                ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+//                return classModelBuilder.buildJavaFile(psiJavaFile);
+//            };
+//
+//    private final Computable<PsiJavaFile, JavaFile> cache = new Memorizer<>(c);
 
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
@@ -46,12 +48,14 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     public static ClassMetricsPanel newInstance(Project project) {
         ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(project);
-//        MetricsUtils.setClassMetricsPanel(classMetricsPanel);
         classMetricsPanel.scope.setPanel(classMetricsPanel);
         return classMetricsPanel;
     }
 
+    @Override
     public void update(@NotNull PsiJavaFile file) {
+        MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
+        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
         psiJavaFile = file;
         if (MetricsService.isShowClassMetricsTree()) {
             MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
@@ -59,29 +63,39 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     public void refresh() {
+//        MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
+//        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
         scope.update();
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
         MetricsUtils.setClassMetricsTreeExists(false);
-        MetricsUtils.getConsole().firstPart("Built metrics tree for " + psiJavaFile.getName());
-        JavaFile javaFile = null;
-        try {
-            String key = psiJavaFile.getPackageName() + "|" + psiJavaFile.getName() + ":" + psiJavaFile.getModificationStamp();
-            javaFile = cache.compute(key, psiJavaFile);
-        } catch (InterruptedException e) {
-            MetricsUtils.getConsole().error("Built metrics tree for " + psiJavaFile.getName() + " interrupted");
-        }
-        if (javaFile != null) {
-            metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
-            buildTreeModel();
-            MetricsUtils.setClassMetricsTreeExists(true);
-        }
+        MetricsUtils.getConsole().info("Built metrics tree for " + psiJavaFile.getName());
+        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+        JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+        metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
+        buildTreeModel();
+        MetricsUtils.setClassMetricsTreeExists(true);
+//        MetricsUtils.setClassMetricsTreeExists(false);
+//        MetricsUtils.getConsole().firstPart("Built metrics tree for " + psiJavaFile.getName());
+//        JavaFile javaFile = null;
+//        try {
+//            String key = psiJavaFile.getPackageName() + "|" + psiJavaFile.getName() + ":" + psiJavaFile.getModificationStamp();
+//            javaFile = cache.compute(key, psiJavaFile);
+//        } catch (InterruptedException e) {
+//            MetricsUtils.getConsole().error("Built metrics tree for " + psiJavaFile.getName() + " interrupted");
+//        }
+//        if (javaFile != null) {
+//            metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
+//            buildTreeModel();
+//            MetricsUtils.setClassMetricsTreeExists(true);
+//        }
     }
 
     private class ClassMetricsEventListener implements MetricsEventListener {
         @Override
         public void buildClassMetricsTree() {
+            MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
             buildTreeModel();
         }
 
@@ -98,6 +112,11 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         @Override
         public void refreshClassMetricsTree() {
             refresh();
+        }
+
+        @Override
+        public void classMetricsValuesEvolutionCalculated(@NotNull DefaultTreeModel metricsTreeModel) {
+            showResults(metricsTreeModel);
         }
     }
 }

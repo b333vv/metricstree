@@ -54,8 +54,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
             if (getMetricsTreeFilter().isPackageMetricsVisible()
                     || getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
-                javaProject.getPackages()
-                        .map(PackageNode::new).forEach(packageNode -> {
+                javaProject.getPackages().map(PackageNode::new).forEach(packageNode -> {
                     projectNode.add(packageNode);
                     addPackages(packageNode);
                 });
@@ -70,39 +69,47 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
             PackageNode packageNode = new PackageNode(javaPackage);
             parentNode.add(packageNode);
             addPackages(packageNode);
-            if (getMetricsTreeFilter().isClassMetricsVisible()
-                    || getMetricsTreeFilter().isMethodMetricsVisible()) {
-                packageNode.getJavaPackage().getFiles()
-                        .forEach(f -> {
-                            if (f.getClasses().count() > 1) {
-                                FileNode fileNode = new FileNode(f);
-                                packageNode.add(fileNode);
-                                f.getClasses()
-                                        .forEach(c -> {
-                                            ClassNode classNode = new ClassNode(c);
-                                            fileNode.add(classNode);
-                                            addSubClasses(classNode);
-                                            addTypeMetricsAndMethodNodes(classNode);
-                                        });
-                            } else if (f.getClasses().findFirst().isPresent()) {
-                                JavaClass javaClass = f.getClasses().findFirst().get();
-                                ClassNode classNode = new ClassNode(javaClass);
-                                packageNode.add(classNode);
-                                addSubClasses(classNode);
-                                addTypeMetricsAndMethodNodes(classNode);
-                            }
-                        });
-            }
-            if (getMetricsTreeFilter().isPackageMetricsVisible()
-                    && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()
-                    && !javaPackage.getFiles().collect(Collectors.toSet()).isEmpty()) {
-                javaPackage.getMetrics()
-                        .filter(this::mustBeShown)
-                        .forEach(m -> {
-                            MetricNode metricNode = new PackageMetricNode(m);
-                            packageNode.add(metricNode);
-                        });
-            }
+        }
+        addJavaFiles(parentNode);
+        addPackageMetrics(parentNode);
+    }
+
+    private void addPackageMetrics(PackageNode packageNode) {
+        if (getMetricsTreeFilter().isPackageMetricsVisible()
+                && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()
+                && !packageNode.getJavaPackage().getFiles().collect(Collectors.toSet()).isEmpty()) {
+            packageNode.getJavaPackage().getMetrics()
+                    .filter(this::mustBeShown)
+                    .forEach(m -> {
+                        MetricNode metricNode = new PackageMetricNode(m);
+                        packageNode.add(metricNode);
+                    });
+        }
+    }
+
+    private void addJavaFiles(PackageNode parentNode) {
+        if (getMetricsTreeFilter().isClassMetricsVisible()
+                || getMetricsTreeFilter().isMethodMetricsVisible()) {
+            parentNode.getJavaPackage().getFiles()
+                    .forEach(f -> {
+                        if (f.getClasses().count() > 1) {
+                            FileNode fileNode = new FileNode(f);
+                            parentNode.add(fileNode);
+                            f.getClasses()
+                                    .forEach(c -> {
+                                        ClassNode classNode = new ClassNode(c);
+                                        fileNode.add(classNode);
+                                        addSubClasses(classNode);
+                                        addTypeMetricsAndMethodNodes(classNode);
+                                    });
+                        } else if (f.getClasses().findFirst().isPresent()) {
+                            JavaClass javaClass = f.getClasses().findFirst().get();
+                            ClassNode classNode = new ClassNode(javaClass);
+                            parentNode.add(classNode);
+                            addSubClasses(classNode);
+                            addTypeMetricsAndMethodNodes(classNode);
+                        }
+                    });
         }
     }
 

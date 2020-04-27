@@ -22,7 +22,7 @@ import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
 public class ProjectNode extends AbstractNode {
 
-    private final transient JavaProject javaProject;
+    private final JavaProject javaProject;
 
     public ProjectNode(JavaProject javaProject) {
         this.javaProject = javaProject;

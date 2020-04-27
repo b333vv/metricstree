@@ -141,9 +141,9 @@ public class MetricsValidRangesTable {
 
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 5;
-        final transient MetricsValidRangesSettings metricsValidRangesSettings =
+        final MetricsValidRangesSettings metricsValidRangesSettings =
                 MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
-        private transient List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
+        private List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
 
         @Override
         public int getRowCount() {

@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.ui.info;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -25,7 +24,7 @@ import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.util.MetricsIcons;
+import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
@@ -109,7 +108,7 @@ public class ClassOrMethodMetricsTable {
 
     private static class Model extends AbstractTableModel {
 
-        private transient List<Metric> rows = List.of();
+        private List<Metric> rows = List.of();
 
         @Override
         public int getRowCount() {

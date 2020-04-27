@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.util;
 
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -46,8 +48,9 @@ public class MetricsUtils {
     private static boolean autoScrollable = true;
     private static boolean classMetricsTreeExists = false;
     private static boolean projectMetricsTreeExists = false;
-    private static boolean projectMetricsCalculationPerforming;
-    private static boolean classMetricsValuesEvolutionCalculationPerforming;
+    private static boolean projectMetricsCalculationPerforming = false;
+    private static boolean classMetricsValuesEvolutionCalculationPerforming = false;
+    private static boolean classMetricsValuesEvolutionAdded = false;
 
     private MetricsUtils() {
         // Utility class
@@ -67,6 +70,62 @@ public class MetricsUtils {
 
     public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean classMetricsValuesEvolutionCalculationPerforming) {
         MetricsUtils.classMetricsValuesEvolutionCalculationPerforming = classMetricsValuesEvolutionCalculationPerforming;
+    }
+
+    public static boolean isClassMetricsValuesEvolutionAdded() {
+        return classMetricsValuesEvolutionAdded;
+    }
+
+    public static void setClassMetricsValuesEvolutionAdded(boolean classMetricsValuesEvolutionAdded) {
+        MetricsUtils.classMetricsValuesEvolutionAdded = classMetricsValuesEvolutionAdded;
+    }
+
+    public static Project getProject() {
+        return project;
+    }
+
+    public static void setProject(Project value) {
+        project = value;
+    }
+
+    public static DumbService getDumbService() {
+        return DumbServiceImpl.getInstance(project);
+    }
+
+    public static MetricsTreeFilter getClassMetricsTreeFilter() {
+        return classMetricsTreeFilter;
+    }
+
+    public static MetricsTreeFilter getProjectMetricsTreeFilter() {
+        return projectMetricsTreeFilter;
+    }
+
+    public static boolean isAutoScrollable() {
+        return autoScrollable;
+    }
+
+    public static void setAutoScrollable(boolean autoScrollable) {
+        MetricsUtils.autoScrollable = autoScrollable;
+    }
+
+    public static boolean isClassMetricsTreeExists() {
+        return classMetricsTreeExists;
+    }
+
+    public static boolean isProjectMetricsTreeExists() {
+        return projectMetricsTreeExists;
+    }
+
+    public static void setClassMetricsTreeExists(boolean classMetricsTreeExists) {
+        MetricsUtils.classMetricsTreeExists = classMetricsTreeExists;
+    }
+
+    public static void setProjectMetricsTreeExists(boolean projectMetricsTreeExists) {
+        MetricsUtils.projectMetricsTreeExists = projectMetricsTreeExists;
+    }
+
+    public static boolean isMetricsEvolutionCalculationPerforming() {
+        return classMetricsValuesEvolutionCalculationPerforming;
     }
 
     public static <T> T get(ComponentManager container, Class<T> clazz) {
@@ -118,54 +177,6 @@ public class MetricsUtils {
             return null;
         }
         return (PsiJavaFile) psiFile;
-    }
-
-    public static Project getProject() {
-        return project;
-    }
-
-    public static void setProject(Project value) {
-        project = value;
-    }
-
-    public static DumbService getDumbService() {
-        return DumbServiceImpl.getInstance(project);
-    }
-
-    public static MetricsTreeFilter getClassMetricsTreeFilter() {
-        return classMetricsTreeFilter;
-    }
-
-    public static MetricsTreeFilter getProjectMetricsTreeFilter() {
-        return projectMetricsTreeFilter;
-    }
-
-    public static boolean isAutoScrollable() {
-        return autoScrollable;
-    }
-
-    public static void setAutoScrollable(boolean autoScrollable) {
-        MetricsUtils.autoScrollable = autoScrollable;
-    }
-
-    public static boolean isClassMetricsTreeExists() {
-        return classMetricsTreeExists;
-    }
-
-    public static boolean isProjectMetricsTreeExists() {
-        return projectMetricsTreeExists;
-    }
-
-    public static void setClassMetricsTreeExists(boolean classMetricsTreeExists) {
-        MetricsUtils.classMetricsTreeExists = classMetricsTreeExists;
-    }
-
-    public static void setProjectMetricsTreeExists(boolean projectMetricsTreeExists) {
-        MetricsUtils.projectMetricsTreeExists = projectMetricsTreeExists;
-    }
-
-    public static boolean isMetricsEvolutionCalculationPerforming() {
-        return classMetricsValuesEvolutionCalculationPerforming;
     }
 
     @Nullable

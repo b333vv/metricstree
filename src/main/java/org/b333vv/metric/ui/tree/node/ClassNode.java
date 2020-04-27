@@ -25,7 +25,7 @@ import javax.swing.*;
 
 public class ClassNode extends AbstractNode {
 
-    private final transient JavaClass javaClass;
+    private final JavaClass javaClass;
 
     public ClassNode(JavaClass javaClass) {
         this.javaClass = javaClass;

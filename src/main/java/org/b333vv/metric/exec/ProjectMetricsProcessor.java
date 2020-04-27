@@ -36,13 +36,10 @@ import org.b333vv.metric.model.calculator.MoodMetricsSetCalculator;
 import org.b333vv.metric.model.calculator.RobertMartinMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
-import org.b333vv.metric.util.CalculationState;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 
 public class ProjectMetricsProcessor {
 
