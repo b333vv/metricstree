@@ -24,10 +24,10 @@ import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
+import org.b333vv.metric.ui.settings.ranges.MetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
-import org.b333vv.metric.ui.settings.ranges.MetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings;
 
 import java.util.stream.Stream;

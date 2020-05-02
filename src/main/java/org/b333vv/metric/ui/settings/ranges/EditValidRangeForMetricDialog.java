@@ -96,7 +96,7 @@ public class EditValidRangeForMetricDialog extends DialogWrapper {
 
     public void setMetricsAllowableValueRangeStub(MetricsValidRangeStub metricsAllowableValueRangeStub) {
         this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
-        Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getType().description());
+        Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getDescription());
         panel.setBorder(b);
         SpinnerNumberModel minModel;
         SpinnerNumberModel maxModel;

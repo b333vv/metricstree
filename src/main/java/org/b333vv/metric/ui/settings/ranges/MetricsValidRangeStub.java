@@ -16,12 +16,9 @@
 
 package org.b333vv.metric.ui.settings.ranges;
 
-import org.b333vv.metric.model.metric.MetricType;
-
 import java.util.Objects;
 
 public class MetricsValidRangeStub {
-//    private MetricType type;
     private String name;
     private String description;
     private String level;
@@ -31,9 +28,8 @@ public class MetricsValidRangeStub {
     private long minLongValue;
     private long maxLongValue;
 
-    public MetricsValidRangeStub(String name, String description, String level,
-                                 boolean doubleValue, double minDoubleValue, double maxDoubleValue,
-                                 long minLongValue, long maxLongValue) {
+    public MetricsValidRangeStub(String name, String description, String level, boolean doubleValue,
+                                 double minDoubleValue, double maxDoubleValue, long minLongValue, long maxLongValue) {
         this.name = name;
         this.description = description;
         this.level = level;
@@ -42,83 +38,9 @@ public class MetricsValidRangeStub {
         this.maxDoubleValue = maxDoubleValue;
         this.minLongValue = minLongValue;
         this.maxLongValue = maxLongValue;
-    }
-
-    public MetricsValidRangeStub(MetricType type, boolean doubleValue,
-                                 double minDoubleValue, double maxDoubleValue, long minLongValue, long maxLongValue) {
-//        this.type = type;
-        this.name = type.name();
-        this.description = type.description();
-        this.level = type.level().level();
-        this.doubleValue = doubleValue;
-        this.minDoubleValue = minDoubleValue;
-        this.maxDoubleValue = maxDoubleValue;
-        this.minLongValue = minLongValue;
-        this.maxLongValue = maxLongValue;
-    }
-
-    public MetricsValidRangeStub(MetricType type, long minLongValue, long maxLongValue) {
-//        this.type = type;
-        this.name = type.name();
-        this.description = type.description();
-        this.level = type.level().level();
-        this.doubleValue = false;
-        this.minDoubleValue = 0.0;
-        this.maxDoubleValue = 0.0;
-        this.minLongValue = minLongValue;
-        this.maxLongValue = maxLongValue;
-    }
-
-    public MetricsValidRangeStub(MetricType type, double minDoubleValue, double maxDoubleValue) {
-//        this.type = type;
-        this.name = type.name();
-        this.description = type.description();
-        this.level = type.level().level();
-        this.doubleValue = true;
-        this.minDoubleValue = minDoubleValue;
-        this.maxDoubleValue = maxDoubleValue;
-        this.minLongValue = 0;
-        this.maxLongValue = 0;
     }
 
     public MetricsValidRangeStub(){}
-
-//    public MetricType getType() {
-//        return type;
-//    }
-//
-//    public void setType(MetricType type) {
-//        this.type = type;
-//    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public void setDoubleValue(boolean doubleValue) {
-        this.doubleValue = doubleValue;
-    }
 
     public boolean isDoubleValue() {
         return doubleValue;
@@ -156,16 +78,32 @@ public class MetricsValidRangeStub {
         this.maxLongValue = maxLongValue;
     }
 
-
-    public MetricType getType() {
-        return MetricType.valueOf(name);
+    public String getName() {
+        return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
-    @Override
-    public String toString() {
-//        return "[" + type.name() + "] " + type.description();
-        return "[" + name + "] " + description;
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDoubleValue(boolean doubleValue) {
+        this.doubleValue = doubleValue;
     }
 
     @Override
@@ -178,32 +116,19 @@ public class MetricsValidRangeStub {
                 Double.compare(that.getMaxDoubleValue(), getMaxDoubleValue()) == 0 &&
                 getMinLongValue() == that.getMinLongValue() &&
                 getMaxLongValue() == that.getMaxLongValue() &&
-                Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getDescription(), that.getDescription()) &&
-                Objects.equals(getLevel(), that.getLevel());
+                getName().equals(that.getName()) &&
+                getDescription().equals(that.getDescription()) &&
+                getLevel().equals(that.getLevel());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getLevel(), isDoubleValue(), getMinDoubleValue(), getMaxDoubleValue(), getMinLongValue(), getMaxLongValue());
+        return Objects.hash(getName(), getDescription(), getLevel(), isDoubleValue(),
+                getMinDoubleValue(), getMaxDoubleValue(), getMinLongValue(), getMaxLongValue());
     }
 
-    //    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof MetricsValidRangeStub)) return false;
-//        MetricsValidRangeStub that = (MetricsValidRangeStub) o;
-//        return isDoubleValue() == that.isDoubleValue() &&
-//                Double.compare(that.getMinDoubleValue(), getMinDoubleValue()) == 0 &&
-//                Double.compare(that.getMaxDoubleValue(), getMaxDoubleValue()) == 0 &&
-//                getMinLongValue() == that.getMinLongValue() &&
-//                getMaxLongValue() == that.getMaxLongValue() &&
-//                getType() == that.getType();
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(getType(), isDoubleValue(), getMinDoubleValue(),
-//                getMaxDoubleValue(), getMinLongValue(), getMaxLongValue());
-//    }
+    @Override
+    public String toString() {
+        return "[" + name + "] " + description;
+    }
 }

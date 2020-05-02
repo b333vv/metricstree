@@ -21,7 +21,6 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,8 +88,7 @@ public class AddValidRangeForMetricDialog extends DialogWrapper {
                     metricsAllowableValueRangeStub.setMinDoubleValue((Double) minValue.getModel().getValue());
                     metricsAllowableValueRangeStub.setMaxDoubleValue((Double) maxValue.getModel().getValue());
                     if (metricsAllowableValueRangeStub.getMaxDoubleValue() >= metricsAllowableValueRangeStub.getMinDoubleValue()) {
-//                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getType());
-                        metricsValidRangesSettings.removeFromUnControlledMetrics(MetricType.valueOf(metricsAllowableValueRangeStub.getName()));
+                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
                         super.actionPerformed(e);
                         dispose();
                     }
@@ -98,7 +96,7 @@ public class AddValidRangeForMetricDialog extends DialogWrapper {
                     metricsAllowableValueRangeStub.setMinLongValue((Long) minValue.getModel().getValue());
                     metricsAllowableValueRangeStub.setMaxLongValue((Long) maxValue.getModel().getValue());
                     if (metricsAllowableValueRangeStub.getMaxLongValue() >= metricsAllowableValueRangeStub.getMinLongValue()) {
-                        metricsValidRangesSettings.removeFromUnControlledMetrics(MetricType.valueOf(metricsAllowableValueRangeStub.getName()));
+                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
                         super.actionPerformed(e);
                         dispose();
                     }

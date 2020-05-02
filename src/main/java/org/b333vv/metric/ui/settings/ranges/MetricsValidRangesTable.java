@@ -56,7 +56,6 @@ public class MetricsValidRangesTable {
         table.getEmptyText().setText(emptyLabel);
         table.setDragEnabled(false);
         table.setShowVerticalLines(false);
-        table.setAutoCreateRowSorter(true);
 
         table.getTableHeader().setReorderingAllowed(false);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -142,9 +141,9 @@ public class MetricsValidRangesTable {
 
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 5;
-        final MetricsValidRangesSettings metricsValidRangesSettings =
+        final transient MetricsValidRangesSettings metricsValidRangesSettings =
                 MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
-        private List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
+        private transient List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
 
         @Override
         public int getRowCount() {
@@ -192,12 +191,6 @@ public class MetricsValidRangesTable {
         public Object getValueAt(int rowIndex, int columnIndex) {
             MetricsValidRangeStub item = rows.get(rowIndex);
             switch (columnIndex) {
-//                case 0:
-//                    return item.getType().name();
-//                case 1:
-//                    return item.getType().description();
-//                case 2:
-//                    return item.getType().level().level();
                 case 0:
                     return item.getName();
                 case 1:
