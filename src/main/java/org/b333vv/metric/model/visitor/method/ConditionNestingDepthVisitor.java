@@ -23,6 +23,8 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.MethodUtils;
 
+import static org.b333vv.metric.model.metric.MetricType.CND;
+
 public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
     private long methodNestingCount = 0;
     private long maximumDepth = 0;
@@ -30,8 +32,7 @@ public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric = Metric.of("CND", "Condition Nesting Depth",
-                "/html/ConditionNestingDepth.html", Value.UNDEFINED);
+        metric = Metric.of(CND, Value.UNDEFINED);
         long conditionNestingDepth = 0;
         if (methodNestingCount == 0) {
             maximumDepth = 0;
@@ -43,8 +44,7 @@ public class ConditionNestingDepthVisitor extends JavaMethodVisitor {
         if (methodNestingCount == 0 && !MethodUtils.isAbstract(method)) {
             conditionNestingDepth = maximumDepth;
         }
-        metric = Metric.of("CND", "Condition Nesting Depth",
-                "/html/ConditionNestingDepth.html", conditionNestingDepth);
+        metric = Metric.of(CND, conditionNestingDepth);
     }
 
     @Override

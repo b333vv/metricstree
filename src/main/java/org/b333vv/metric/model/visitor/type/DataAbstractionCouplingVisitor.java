@@ -27,12 +27,13 @@ import org.b333vv.metric.model.metric.value.Value;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.b333vv.metric.model.metric.MetricType.DAC;
+
 public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("DAC", "Data Abstraction Coupling",
-                "/html/DataAbstractionCoupling.html", Value.UNDEFINED);
+        metric = Metric.of(DAC, Value.UNDEFINED);
         final Set<PsiClass> psiClasses = new HashSet<>();
         final PsiField[] psiClassFields = psiClass.getFields();
         for (final PsiField psiField : psiClassFields) {
@@ -43,8 +44,7 @@ public class DataAbstractionCouplingVisitor extends JavaClassVisitor {
             }
         }
         if (ClassUtils.isConcrete(psiClass)) {
-            metric = Metric.of("DAC", "Data Abstraction Coupling",
-                    "/html/DataAbstractionCoupling.html", psiClasses.size());
+            metric = Metric.of(DAC, psiClasses.size());
         }
     }
 }

@@ -21,6 +21,8 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.MethodUtils;
 
+import static org.b333vv.metric.model.metric.MetricType.LND;
+
 public class LoopNestingDepthVisitor extends JavaMethodVisitor {
     private long loopNestingDepth = 0;
     private long methodNestingCount = 0;
@@ -29,8 +31,7 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethod(PsiMethod method) {
-        metric = Metric.of("LND", "Loop Nesting Depth",
-                "/html/LoopNestingDepth.html", Value.UNDEFINED);
+        metric = Metric.of(LND, Value.UNDEFINED);
         if (methodNestingCount == 0) {
             maximumDepth = 0;
             currentDepth = 0;
@@ -41,8 +42,7 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
         if (methodNestingCount == 0 && !MethodUtils.isAbstract(method)) {
             loopNestingDepth = maximumDepth;
         }
-        metric = Metric.of("LND", "Loop Nesting Depth",
-                "/html/LoopNestingDepth.html", loopNestingDepth);
+        metric = Metric.of(LND, loopNestingDepth);
     }
 
     @Override

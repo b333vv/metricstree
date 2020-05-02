@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.composition;
 
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
@@ -43,6 +43,7 @@ public class MetricsTreeSettingsTable {
         table.getEmptyText().setText(emptyLabel);
         table.setDragEnabled(false);
         table.setShowVerticalLines(false);
+        table.setAutoCreateRowSorter(true);
 
 
         table.getTableHeader().setReorderingAllowed(true);
@@ -135,13 +136,13 @@ public class MetricsTreeSettingsTable {
                 case 0:
                     return item.isNeedToConsider();
                 case 1:
-                    return item.getName();
+                    return item.getType().name();
                 case 2:
-                    return item.getDescription();
+                    return item.getType().description();
                 case 3:
-                    return item.getLevel();
+                    return item.getType().level().level();
                 case 4:
-                    return item.getSet();
+                    return item.getType().set().set();
                 default:
                     return item;
             }

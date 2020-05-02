@@ -82,13 +82,13 @@
 
     <project-components>
         <component>
-            <implementation-class>org.b333vv.metric.ui.settings.MetricsValidRangesSettings</implementation-class>
+            <implementation-class>org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings</implementation-class>
         </component>
         <component>
-            <implementation-class>org.b333vv.metric.ui.settings.ClassMetricsTreeSettings</implementation-class>
+            <implementation-class>org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings</implementation-class>
         </component>
         <component>
-            <implementation-class>org.b333vv.metric.ui.settings.ProjectMetricsTreeSettings</implementation-class>
+            <implementation-class>org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings</implementation-class>
         </component>
         <component>
             <implementation-class>org.b333vv.metric.ui.log.MetricsConsole</implementation-class>
@@ -131,6 +131,13 @@
                 icon="AllIcons.Actions.Execute">
         </action>
 
+        <action id="Metrics.SortClassesByMetricsValues"
+                class="org.b333vv.metric.actions.SortClassesByMetricsValuesAction"
+                text="Sort Classes By Metrics Values"
+                description="Sort classes by metrics values"
+                icon="MetricsIcons.SORT_BY_VALUES">
+        </action>
+
         <action id="Metrics.Autoscroll"
                 class="org.b333vv.metric.actions.SetAutoScrollableAction"
                 text="Auto Scroll To Source In Editor"
@@ -150,13 +157,6 @@
                 text="Calculate Class Metrics Evolution"
                 description="Calculate class metrics evolution"
                 icon="AllIcons.Vcs.History">
-        </action>
-
-        <action id="Metrics.CalculateClassMetricsEvolution"
-                class="org.b333vv.metric.actions.CalculateClassMetricsEvolutionAction"
-                text="Calculate Class Metrics Evolution"
-                description="Calculate class metrics evolution"
-                icon="AllIcons.Actions.Execute">
         </action>
 
         <action id="Metrics.ShowProjectMetrics"
@@ -280,18 +280,13 @@
 
         <group id="Metrics.ProjectMetricsToolbar">
             <reference id="Metrics.FilterProjectMetricsTree"/>
+            <separator/>
             <reference id="Metrics.CalculateProjectMetrics"/>
+            <reference id="Metrics.SortClassesByMetricsValues"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>
             <reference id="Metrics.Autoscroll"/>
-        </group>
-
-        <group id="Metrics.ClassMetricsEvolutionToolbar">
-            <reference id="Metrics.CalculateClassMetricsEvolution"/>
-            <separator/>
-            <reference id="Metrics.Configure"/>
-            <separator/>
         </group>
 
         <action id="Metrics.LogConsoleClean"

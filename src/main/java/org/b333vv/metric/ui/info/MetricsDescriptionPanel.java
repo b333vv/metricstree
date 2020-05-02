@@ -21,10 +21,12 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
 import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -103,44 +105,24 @@ public class MetricsDescriptionPanel {
     }
 
     public void setMetric(Metric metric) {
-        Border b = IdeBorderFactory.createTitledBorder(metric.getDescription());
+        Border b = IdeBorderFactory.createTitledBorder(metric.getType().description());
         rightMetricPanel.setBorder(b);
-        if (Sets.inMoodMetricsSet(metric.getName())) {
+
+        metricLevel.setText(metric.getType().level().level());
+        metricSet.setText(metric.getType().set().set());
+        if (metric.getType().set() == MetricSet.MOOD) {
             allowableRangeValue.setText(metric.getRange().percentageFormat());
             currentValue.setText(metric.getValue().percentageFormat());
-            metricLevel.setText("Project level");
-            metricSet.setText("MOOD metrics set");
-        } else  if (Sets.inRobertMartinMetricsSet(metric.getName())) {
-            allowableRangeValue.setText(metric.getRange().toString());
-            currentValue.setText(metric.getValue().toString());
-            metricLevel.setText("Package level");
-            metricSet.setText("Robert C. Martin metrics set");
-        } else  if (Sets.inChidamberKemererMetricsSet(metric.getName())) {
-            allowableRangeValue.setText(metric.getRange().toString());
-            currentValue.setText(metric.getValue().toString());
-            metricLevel.setText("Class level");
-            metricSet.setText("Chidamber-Kemerer metrics set");
-        } else  if (Sets.inLorenzKiddMetricsSet(metric.getName())) {
-            allowableRangeValue.setText(metric.getRange().toString());
-            currentValue.setText(metric.getValue().toString());
-            metricLevel.setText("Class level");
-            metricSet.setText("Lorenz-Kidd metrics set");
-        } else  if (Sets.inLiHenryMetricsSet(metric.getName())) {
-            allowableRangeValue.setText(metric.getRange().toString());
-            currentValue.setText(metric.getValue().toString());
-            metricLevel.setText("Class level");
-            metricSet.setText("Li-Henry metrics set");
         } else {
             allowableRangeValue.setText(metric.getRange().toString());
             currentValue.setText(metric.getValue().toString());
-            metricLevel.setText("Method level");
-            metricSet.setText("-");
         }
 
         try {
-            URL url = MetricsDescriptionPanel.class.getResource(metric.getDescriptionUrl());
+            URL url = MetricsDescriptionPanel.class.getResource(metric.getType().url());
             metricDescription.setPage(url);
         } catch (Exception e) {
+            MetricsUtils.getConsole().error(e.getMessage());
             metricDescription.setContentType("text/html");
             metricDescription.setText("<html>Page not found.</html>");
         }

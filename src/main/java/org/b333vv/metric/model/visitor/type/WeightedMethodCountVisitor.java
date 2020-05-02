@@ -25,14 +25,14 @@ import org.b333vv.metric.model.visitor.method.MethodComplexityVisitor;
 
 import java.util.Arrays;
 
+import static org.b333vv.metric.model.metric.MetricType.WMC;
+
 public class WeightedMethodCountVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        metric = Metric.of("WMC", "Weighted Method Count",
-                "/html/WeightedMethodCount.html", Value.UNDEFINED);
+        metric = Metric.of(WMC, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            metric = Metric.of("WMC", "Weighted Method Count",
-                    "/html/WeightedMethodCount.html", getWeightedMethodCount(psiClass));
+            metric = Metric.of(WMC, getWeightedMethodCount(psiClass));
         }
     }
 

@@ -24,12 +24,13 @@ import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.util.MethodUtils;
 import org.b333vv.metric.model.metric.value.Value;
 
+import static org.b333vv.metric.model.metric.MetricType.NOAM;
+
 public class NumberOfAddedMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("NOAM", "Number Of Added Methods",
-                "/html/NumberOfAddedMethods.html", Value.UNDEFINED);
+        metric = Metric.of(NOAM, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             int addedMethodsNumber = 0;
             PsiMethod[] methods = psiClass.getMethods();
@@ -45,8 +46,7 @@ public class NumberOfAddedMethodsVisitor extends JavaClassVisitor {
                     addedMethodsNumber++;
                 }
             }
-            metric = Metric.of("NOAM", "Number Of Added Methods",
-                    "/html/NumberOfAddedMethods.html", addedMethodsNumber);
+            metric = Metric.of(NOAM, addedMethodsNumber);
         }
     }
 }

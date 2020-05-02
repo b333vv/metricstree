@@ -14,59 +14,30 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.composition;
+
+import org.b333vv.metric.model.metric.MetricType;
 
 import java.util.Objects;
 
 public class MetricsTreeSettingsStub {
-    private String name;
-    private String description;
-    private String level;
-    private String set;
+    private MetricType type;
     private boolean needToConsider;
 
-    public MetricsTreeSettingsStub(String name, String description, String level,
-                                   String set, boolean needToConsider) {
-        this.name = name;
-        this.description = description;
-        this.level = level;
-        this.set = set;
+    public MetricsTreeSettingsStub(MetricType type, boolean needToConsider) {
+        this.type = type;
         this.needToConsider = needToConsider;
     }
 
     public MetricsTreeSettingsStub() {
     }
 
-    public String getName() {
-        return name;
+    public MetricType getType() {
+        return type;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public String getSet() {
-        return set;
-    }
-
-    public void setSet(String set) {
-        this.set = set;
+    public void setType(MetricType type) {
+        this.type = type;
     }
 
     public boolean isNeedToConsider() {
@@ -83,14 +54,11 @@ public class MetricsTreeSettingsStub {
         if (!(o instanceof MetricsTreeSettingsStub)) return false;
         MetricsTreeSettingsStub that = (MetricsTreeSettingsStub) o;
         return isNeedToConsider() == that.isNeedToConsider() &&
-                getName().equals(that.getName()) &&
-                getDescription().equals(that.getDescription()) &&
-                getLevel().equals(that.getLevel()) &&
-                getSet().equals(that.getSet());
+                getType() == that.getType();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getLevel(), getSet(), isNeedToConsider());
+        return Objects.hash(getType(), isNeedToConsider());
     }
 }

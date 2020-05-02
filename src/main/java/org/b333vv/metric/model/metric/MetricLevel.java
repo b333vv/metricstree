@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.model.visitor.method;
+package org.b333vv.metric.model.metric;
 
-import com.intellij.psi.PsiMethod;
-import org.b333vv.metric.model.metric.Metric;
+public enum MetricLevel {
+    CLASS("Class Level"),
+    METHOD("Method Level"),
+    PACKAGE("Package Level"),
+    PROJECT("Project Level");
 
-import static org.b333vv.metric.model.metric.MetricType.CC;
+    private final String level;
 
-public class McCabeCyclomaticComplexityVisitor extends JavaMethodVisitor {
+    MetricLevel(String level) {
+        this.level = level;
+    }
 
-    @Override
-    public void visitMethod(PsiMethod psiMethod) {
-        MethodComplexityVisitor visitor = new MethodComplexityVisitor();
-        psiMethod.accept(visitor);
-        metric = Metric.of(CC, visitor.getMethodComplexity());
+    public String level() {
+        return level;
     }
 }

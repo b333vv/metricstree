@@ -21,7 +21,6 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
@@ -32,7 +31,7 @@ import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.ui.info.BottomPanel;
-import org.b333vv.metric.ui.info.ClassOrMethodMetricsTable;
+import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.info.MetricsDescriptionPanel;
 import org.b333vv.metric.ui.tree.MetricsTree;
 import org.b333vv.metric.ui.tree.builder.MetricTreeBuilder;
@@ -49,13 +48,12 @@ import java.awt.*;
 
 public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
-    private static final Logger LOG = Logger.getInstance(MetricsTreePanel.class);
 
     private MetricsTree metricsTree;
     private BottomPanel bottomPanel;
     private MetricsDescriptionPanel metricsDescriptionPanel;
     private JBPanel<?> rightPanel;
-    private ClassOrMethodMetricsTable classOrMethodMetricsTable;
+    private MetricsSummaryTable metricsSummaryTable;
     private JPanel mainPanel;
     private JScrollPane scrollableTablePanel;
 
@@ -77,7 +75,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         setToolbar(actionToolbar.getComponent());
     }
 
-    public void createUIComponents() {
+    final protected void createUIComponents() {
         metricsTree = new MetricsTree(null);
         metricsTree.addTreeSelectionListener(e -> treeSelectionChanged());
         bottomPanel = new BottomPanel();
@@ -96,9 +94,9 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricPanel.getVerticalScrollBar().setUnitIncrement(10);
 
-        classOrMethodMetricsTable = new ClassOrMethodMetricsTable();
+        metricsSummaryTable = new MetricsSummaryTable();
         scrollableTablePanel = ScrollPaneFactory.createScrollPane(
-                classOrMethodMetricsTable.getComponent(),
+                metricsSummaryTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
@@ -132,13 +130,13 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         return null;
     }
 
-    public void treeSelectionChanged() {
+    private void treeSelectionChanged() {
         AbstractNode node = metricsTree.getSelectedNode();
         if (node instanceof MetricNode) {
             Metric metric = ((MetricNode) node).getMetric();
             bottomPanel.setData(metric);
             metricsDescriptionPanel.setMetric(metric);
-            classOrMethodMetricsTable.clear();
+            metricsSummaryTable.clear();
             rightPanel.remove(0);
             rightPanel.add(metricsDescriptionPanel.getPanel());
             rightPanel.revalidate();
@@ -146,34 +144,34 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         } else if (node instanceof ProjectNode) {
             JavaProject jProject = ((ProjectNode) node).getJavaProject();
             bottomPanel.setData(jProject);
-            classOrMethodMetricsTable.set(jProject);
+            metricsSummaryTable.set(jProject);
             rightPanelRepaint();
         } else if (node instanceof PackageNode) {
             JavaPackage javaPackage = ((PackageNode) node).getJavaPackage();
             bottomPanel.setData(javaPackage);
-            classOrMethodMetricsTable.set(javaPackage);
+            metricsSummaryTable.set(javaPackage);
             rightPanelRepaint();
         } else if (node instanceof FileNode) {
             JavaFile javaFile = ((FileNode) node).getJavaFile();
             bottomPanel.setData(javaFile);
-            classOrMethodMetricsTable.clear();
+            metricsSummaryTable.clear();
             rightPanelRepaint();
         } else if (node instanceof ClassNode) {
             JavaClass javaClass = ((ClassNode) node).getJavaClass();
             bottomPanel.setData(javaClass);
-            classOrMethodMetricsTable.set(javaClass);
+            metricsSummaryTable.set(javaClass);
             rightPanelRepaint();
             openInEditor(javaClass.getPsiClass());
         } else if (node instanceof MethodNode) {
             JavaMethod javaMethod = ((MethodNode) node).getJavaMethod();
             bottomPanel.setData(javaMethod);
-            classOrMethodMetricsTable.set(javaMethod);
+            metricsSummaryTable.set(javaMethod);
             rightPanelRepaint();
             openInEditor(javaMethod.getPsiMethod());
         } else {
             bottomPanel.clear();
             metricsDescriptionPanel.clear();
-            classOrMethodMetricsTable.clear();
+            metricsSummaryTable.clear();
         }
     }
 
@@ -187,26 +185,26 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
 
     protected void openInEditor(PsiElement psiElement) {}
 
-    public void buildTreeModel() {
+    protected void buildTreeModel() {
         DefaultTreeModel metricsTreeModel = metricTreeBuilder.createMetricTreeModel();
         showResults(metricsTreeModel);
     }
 
-    public void showResults(DefaultTreeModel metricsTreeModel) {
+    protected void showResults(DefaultTreeModel metricsTreeModel) {
         metricsTree.setModel(metricsTreeModel);
         if (metricsTreeModel == null) {
-            classOrMethodMetricsTable.clear();
+            metricsSummaryTable.clear();
         } else {
             metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
         }
     }
 
-    public void clear() {
+    protected void clear() {
         rightPanel.removeAll();
         mainPanel.removeAll();
         updateUI();
         createUIComponents();
     }
 
-    public void update(@NotNull PsiJavaFile file) {}
+    abstract public void update(@NotNull PsiJavaFile file);
 }

@@ -20,12 +20,14 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import icons.MetricsIcons;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
-import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -34,12 +36,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ClassOrMethodMetricsTable {
+public class MetricsSummaryTable {
     private final Model model;
     private final JBScrollPane panel;
     private final JBTable table;
 
-    public ClassOrMethodMetricsTable() {
+    public MetricsSummaryTable() {
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
@@ -48,11 +50,13 @@ public class ClassOrMethodMetricsTable {
         table.setDragEnabled(false);
         table.setShowVerticalLines(false);
         table.getTableHeader().setReorderingAllowed(true);
+        table.setAutoCreateRowSorter(true);
 
         table.getColumnModel().getColumn(0).setMaxWidth(30);
         table.getColumnModel().getColumn(1).setMaxWidth(50);
-        table.getColumnModel().getColumn(3).setMaxWidth(130);
-        table.getColumnModel().getColumn(4).setMaxWidth(200);
+        table.getColumnModel().getColumn(2).setMaxWidth(140);
+        table.getColumnModel().getColumn(4).setMaxWidth(130);
+        table.getColumnModel().getColumn(5).setMaxWidth(200);
 
         panel = new JBScrollPane(table);
     }
@@ -63,17 +67,17 @@ public class ClassOrMethodMetricsTable {
             table.getColumnModel().getColumn(0).setMinWidth(30);
             table.getColumnModel().getColumn(0).setMaxWidth(30);
 
-            table.getColumnModel().getColumn(4).setWidth(200);
-            table.getColumnModel().getColumn(4).setMinWidth(200);
-            table.getColumnModel().getColumn(4).setMaxWidth(200);
+            table.getColumnModel().getColumn(5).setWidth(200);
+            table.getColumnModel().getColumn(5).setMinWidth(200);
+            table.getColumnModel().getColumn(5).setMaxWidth(200);
         } else {
             table.getColumnModel().getColumn(0).setWidth(0);
             table.getColumnModel().getColumn(0).setMinWidth(0);
             table.getColumnModel().getColumn(0).setMaxWidth(0);
 
-            table.getColumnModel().getColumn(4).setWidth(0);
-            table.getColumnModel().getColumn(4).setMinWidth(0);
-            table.getColumnModel().getColumn(4).setMaxWidth(0);
+            table.getColumnModel().getColumn(5).setWidth(0);
+            table.getColumnModel().getColumn(5).setMinWidth(0);
+            table.getColumnModel().getColumn(5).setMaxWidth(0);
         }
     }
 
@@ -100,7 +104,7 @@ public class ClassOrMethodMetricsTable {
         Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
         panel.setBorder(b);
         List<Metric> sortedMetrics = javaCode.getMetrics()
-                .sorted(Comparator.comparing(Metric::getName))
+                .sorted(Comparator.comparing(Metric::getType))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);
         hideOrShowValidValuesColumn(MetricsService.isControlValidRanges());
@@ -117,7 +121,7 @@ public class ClassOrMethodMetricsTable {
 
         @Override
         public int getColumnCount() {
-            return 5;
+            return 6;
         }
 
         @Override
@@ -131,10 +135,12 @@ public class ClassOrMethodMetricsTable {
                 case 1:
                     return "Metric";
                 case 2:
-                    return "Description";
+                    return "Metric Set";
                 case 3:
-                    return "Value";
+                    return "Description";
                 case 4:
+                    return "Value";
+                case 5:
                     return "Valid";
                 default:
                     return "";
@@ -161,20 +167,22 @@ public class ClassOrMethodMetricsTable {
                 case 0:
                     return getRowIcon(metric);
                 case 1:
-                    return metric.getName();
+                    return metric.getType().name();
                 case 2:
-                    return metric.getDescription();
+                    return metric.getType().set().set();
                 case 3:
-                    if (Sets.inMoodMetricsSet(metric.getName())) {
+                    return metric.getType().description();
+                case 4:
+                    if (metric.getType().set() == MetricSet.MOOD) {
                         return metric.getValue().percentageFormat();
                     } else {
                         return metric.getFormattedValue();
                     }
-                case 4:
-                    if (Sets.inMoodMetricsSet(metric.getName())) {
+                case 5:
+                    if (metric.getType().set() == MetricSet.MOOD) {
                         return metric.getRange().percentageFormat();
                     } else {
-                        return metric.getRange();
+                        return metric.getRange().toString();
                     }
                 default:
                     return metric;

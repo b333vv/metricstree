@@ -16,44 +16,37 @@
 
 package org.b333vv.metric.model.metric;
 
-import com.google.common.base.Objects;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.MetricsService;
 
+import java.util.Objects;
+
 public class Metric {
-    private final String name;
-    private final String description;
+    private final MetricType type;
     private final Value value;
     private final Range range;
-    private final String descriptionUrl;
 
-    protected Metric(String name, String description, String descriptionUrl, Value value) {
-        this.name = name;
-        this.description = description;
-        this.descriptionUrl = descriptionUrl;
+    private Metric(MetricType type, Value value) {
+        this.type = type;
         this.value = value;
-        this.range = MetricsService.getRangeForMetric(name);
+        this.range = MetricsService.getRangeForMetric(type);
     }
 
-    public static Metric of(String name, String description, String descriptionUrl, Value value) {
-        return new Metric(name, description, descriptionUrl, value);
+    public static Metric of(MetricType type, Value value) {
+        return new Metric(type, value);
     }
 
-    public static Metric of(String name, String description, String descriptionUrl, long value) {
-        return new Metric(name, description, descriptionUrl, Value.of(value));
+    public static Metric of(MetricType type, long value) {
+        return new Metric(type, Value.of(value));
     }
 
-    public static Metric of(String name, String description, String descriptionUrl, double value) {
-        return new Metric(name, description, descriptionUrl, Value.of(value));
+    public static Metric of(MetricType type, double value) {
+        return new Metric(type, Value.of(value));
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
+    public MetricType getType() {
+        return type;
     }
 
     public Value getValue() {
@@ -62,22 +55,21 @@ public class Metric {
 
     @Override
     public String toString() {
-        return name + ": " + value;
+        return type.name() + ": " + value;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Metric)) return false;
-        Metric that = (Metric) o;
-        return Objects.equal(name, that.name) &&
-                Objects.equal(description, that.description) &&
-                Objects.equal(value, that.value);
+        Metric metric = (Metric) o;
+        return getType() == metric.getType() &&
+                Objects.equals(getValue(), metric.getValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, description, value);
+        return Objects.hash(getType(), getValue());
     }
 
     public String getFormattedValue() {
@@ -91,9 +83,4 @@ public class Metric {
     public boolean hasAllowableValue() {
         return range.includes(value);
     }
-
-    public String getDescriptionUrl() {
-        return descriptionUrl;
-    }
-
 }

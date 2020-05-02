@@ -21,15 +21,15 @@ import com.intellij.psi.PsiMethodCallExpression;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
+
+import static org.b333vv.metric.model.metric.MetricType.MPC;
 
 public class MessagePassingCouplingVisitor extends JavaClassVisitor {
     private int methodCallsNumber = 0;
 
     @Override
     public void visitClass(PsiClass psiClass) {
-        metric = Metric.of("MPC", "Message Passing Coupling",
-                "/html/MessagePassingCoupling.html", Value.UNDEFINED);
+        metric = Metric.of(MPC, Value.UNDEFINED);
         if (!ClassUtils.isConcrete(psiClass)) {
             return;
         }
@@ -37,8 +37,7 @@ public class MessagePassingCouplingVisitor extends JavaClassVisitor {
             methodCallsNumber = 0;
         }
         super.visitClass(psiClass);
-        metric = Metric.of("MPC", "Message Passing Coupling",
-                "/html/MessagePassingCoupling.html", methodCallsNumber);
+        metric = Metric.of(MPC, methodCallsNumber);
     }
 
     @Override

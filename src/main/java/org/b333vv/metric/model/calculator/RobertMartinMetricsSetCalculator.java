@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.b333vv.metric.model.metric.MetricType.*;
+
 public class RobertMartinMetricsSetCalculator {
     private final AnalysisScope scope;
 
@@ -55,38 +57,18 @@ public class RobertMartinMetricsSetCalculator {
                     Value instability = (afferentCoupling + efferentCoupling) == 0 ? Value.of(1.0) :
                             Value.of((double) efferentCoupling)
                                     .divide(Value.of((double) (afferentCoupling + efferentCoupling)));
-                    p.addMetric(Metric.of(
-                            "Ce",
-                            "Efferent Coupling",
-                            "/html/EfferentCoupling.html",
-                            efferentCoupling));
-                    p.addMetric(Metric.of(
-                            "Ca",
-                            "Afferent Coupling",
-                            "/html/AfferentCoupling.html",
-                            afferentCoupling));
-                    p.addMetric(Metric.of(
-                            "I",
-                            "Instability",
-                            "/html/Instability.html",
-                            instability));
+                    p.addMetric(Metric.of(Ce, efferentCoupling));
+                    p.addMetric(Metric.of(Ca, afferentCoupling));
+                    p.addMetric(Metric.of(I, instability));
 
                     int classesNumber = classesPerPackageNumber.getBucketValue(p.getPsiPackage());
                     int abstractClassesNumber = abstractClassesPerPackageNumber.getBucketValue(p.getPsiPackage());
                     Value abstractness = classesNumber == 0 ? Value.of(1.0) :
                             Value.of((double) abstractClassesNumber).divide(Value.of((double) classesNumber));
-                    p.addMetric(Metric.of(
-                            "A",
-                            "Abstractness",
-                            "/html/Abstractness.html",
-                            abstractness));
+                    p.addMetric(Metric.of(A, abstractness));
 
                     Value distance = Value.of(1.0).minus(instability).minus(abstractness).abs();
-                    p.addMetric(Metric.of(
-                            "D",
-                            "Normalized Distance From Main Sequence",
-                            "/html/NormalizedDistanceFromMainSequence.html",
-                            distance));
+                    p.addMetric(Metric.of(D, distance));
                 });
     }
 

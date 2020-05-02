@@ -24,12 +24,13 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
 
+import static org.b333vv.metric.model.metric.MetricType.SIZE2;
+
 public class NumberOfAttributesAndMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
-                "/html/NumberOfAttributesAndMethods.html", Value.UNDEFINED);
+        metric = Metric.of(SIZE2, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             PsiMethod[] methods = psiClass.getAllMethods();
             PsiField[] fields = psiClass.getAllFields();
@@ -49,8 +50,7 @@ public class NumberOfAttributesAndMethodsVisitor extends JavaClassVisitor {
                     attributesNumber++;
                 }
             }
-            metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
-                    "/html/NumberOfAttributesAndMethods.html", (long) operationsNumber + attributesNumber);
+            metric = Metric.of(SIZE2, (long) operationsNumber + attributesNumber);
         }
     }
 }

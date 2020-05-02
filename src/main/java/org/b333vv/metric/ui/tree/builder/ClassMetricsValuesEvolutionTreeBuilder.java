@@ -108,11 +108,11 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
     }
 
     private String getKeyForClass(JavaClass javaClass, Metric metric) {
-        return javaClass.getPsiClass().getQualifiedName() + ":" + metric.getName();
+        return javaClass.getPsiClass().getQualifiedName() + ":" + metric.getType().name();
     }
 
     private String getKeyForMethod(JavaMethod javaMethod, Metric metric) {
         return Objects.requireNonNull(javaMethod.getPsiMethod().getContainingClass()).getQualifiedName()
-                + ":" + JavaMethod.signature(javaMethod.getPsiMethod()) + ":" + metric.getName();
+                + ":" + JavaMethod.signature(javaMethod.getPsiMethod()) + ":" + metric.getType().name();
     }
 }

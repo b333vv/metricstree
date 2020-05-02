@@ -21,15 +21,15 @@ import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.metric.Metric;
 
+import static org.b333vv.metric.model.metric.MetricType.NOO;
+
 public class NumberOfOperationsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("NOO", "Number Of Operations",
-                "/html/NumberOfOperations.html", Value.UNDEFINED);
+        metric = Metric.of(NOO, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            metric = Metric.of("NOO", "Number Of Operations",
-                    "/html/NumberOfOperations.html", psiClass.getAllMethods().length);
+            metric = Metric.of(NOO, psiClass.getAllMethods().length);
         }
     }
 }

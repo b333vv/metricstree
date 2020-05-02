@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.composition;
+
+import org.b333vv.metric.ui.settings.ConfigurationPanel;
 
 import javax.swing.*;
 import java.util.List;

@@ -19,9 +19,6 @@ package org.b333vv.metric.model.calculator;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.project.ProjectCoreUtil;
-import com.intellij.openapi.roots.GeneratedSourcesFilter;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
@@ -36,6 +33,8 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+
+import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class MoodMetricsSetCalculator {
     private final AnalysisScope scope;
@@ -90,22 +89,12 @@ public class MoodMetricsSetCalculator {
     private void addPolymorphismFactor(JavaProject javaProject) {
         Value polymorphismFactor = overridePotentialsNumber == 0 ? Value.of(1.0) :
                 Value.of((double) overridingMethodsNumber).divide(Value.of((double) overridePotentialsNumber));
-
-        javaProject.addMetric(Metric.of(
-                "PF",
-                "Polymorphism Factor",
-                "/html/PolymorphismFactor.html",
-                polymorphismFactor));
+        javaProject.addMetric(Metric.of(PF, polymorphismFactor));
     }
 
     private void addMethodInheritanceFactor(JavaProject javaProject) {
         Value methodInheritanceFactor = Value.of((double) inheritedMethods).divide(Value.of((double) availableMethods));
-
-        javaProject.addMetric(Metric.of(
-                "MIF",
-                "Method Inheritance Factor",
-                "/html/MethodInheritanceFactor.html",
-                methodInheritanceFactor));
+        javaProject.addMetric(Metric.of(MIF, methodInheritanceFactor));
     }
 
     private void addMethodHidingFactor(JavaProject javaProject) {
@@ -125,11 +114,7 @@ public class MoodMetricsSetCalculator {
 
         Value methodHidingFactor = numerator.divide(denominator);
 
-        javaProject.addMetric(Metric.of(
-                "MHF",
-                "Method Hiding Factor",
-                "/html/MethodHidingFactor.html",
-                methodHidingFactor));
+        javaProject.addMetric(Metric.of(MHF, methodHidingFactor));
     }
 
     private void addCouplingFactor(JavaProject javaProject) {
@@ -138,22 +123,14 @@ public class MoodMetricsSetCalculator {
                 .times(Value.of((double) (classesNumber - 1))).divide(Value.of(2.0));
         Value couplingFactor = numerator.divide(denominator);
 
-        javaProject.addMetric(Metric.of(
-                "CF",
-                "Coupling Factor",
-                "/html/CouplingFactor.html",
-                couplingFactor));
+        javaProject.addMetric(Metric.of(CF, couplingFactor));
     }
 
     private void addAttributeInheritanceFactor(JavaProject javaProject) {
         Value attributeInheritanceFactor = Value.of((double) inheritedFields)
                 .divide(Value.of((double) availableFields));
 
-        javaProject.addMetric(Metric.of(
-                "AIF",
-                "Attribute Inheritance Factor",
-                "/html/AttributeInheritanceFactor.html",
-                attributeInheritanceFactor));
+        javaProject.addMetric(Metric.of(AIF, attributeInheritanceFactor));
     }
 
     private void addAttributeHidingFactor(JavaProject javaProject) {
@@ -173,11 +150,7 @@ public class MoodMetricsSetCalculator {
 
         Value attributeHidingFactor = numerator.divide(denominator);
 
-        javaProject.addMetric(Metric.of(
-                "AHF",
-                "Attribute Hiding Factor",
-                "/html/AttributeHidingFactor.html",
-                attributeHidingFactor));
+        javaProject.addMetric(Metric.of(AHF, attributeHidingFactor));
     }
 
     private class Visitor extends JavaRecursiveElementVisitor {

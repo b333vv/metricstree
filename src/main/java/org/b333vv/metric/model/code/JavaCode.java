@@ -19,9 +19,11 @@ package org.b333vv.metric.model.code;
 import com.google.common.base.Objects;
 import com.intellij.psi.PsiElementVisitor;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +31,7 @@ import java.util.stream.Stream;
 
 public abstract class JavaCode {
     private final String name;
-    private final Map<String, Metric> metrics;
+    private final Map<MetricType, Metric> metrics;
     protected final Set<JavaCode> children;
 
     public JavaCode(@NotNull String name) {
@@ -44,7 +46,7 @@ public abstract class JavaCode {
 
     public Stream<Metric> getMetrics() {
         return metrics.values().stream()
-                .sorted(Comparator.comparing(Metric::getName));
+                .sorted(Comparator.comparing(Metric::getType));
     }
 
     @Override
@@ -61,7 +63,7 @@ public abstract class JavaCode {
     }
 
     public void addMetric(Metric metric) {
-        metrics.put(metric.getName(), metric);
+        metrics.put(metric.getType(), metric);
     }
 
     protected void addChild(JavaCode child) {

@@ -21,15 +21,15 @@ import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.metric.Metric;
 
+import static org.b333vv.metric.model.metric.MetricType.NOA;
+
 public class NumberOfAttributesVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("NOA", "Number Of Attributes",
-                "/html/NumberOfAttributes.html", Value.UNDEFINED);
+        metric = Metric.of(NOA, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            metric = Metric.of("NOA", "Number Of Attributes",
-                    "/html/NumberOfAttributes.html", psiClass.getAllFields().length);
+            metric = Metric.of(NOA, psiClass.getAllFields().length);
         }
     }
 }

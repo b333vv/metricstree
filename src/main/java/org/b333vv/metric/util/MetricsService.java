@@ -19,46 +19,27 @@ package org.b333vv.metric.util;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.visitor.method.*;
-import org.b333vv.metric.model.visitor.type.*;
-import org.b333vv.metric.ui.settings.*;
+import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
+import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
+import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
+import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
+import org.b333vv.metric.ui.settings.ranges.MetricsValidRangeStub;
+import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
+
+import static org.b333vv.metric.model.metric.MetricType.CBO;
 
 public class MetricsService {
     private static MetricsValidRangesSettings metricsValidRangesSettings;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
-    private static final Map<String, JavaRecursiveElementVisitor> visitors = new HashMap<>();
-    private static final Map<String, JavaRecursiveElementVisitor> deferredVisitors = new HashMap<>();
     private static boolean showClassMetricsTree;
     private static Project project;
-
-    static {
-        visitors.put("NOAM", new NumberOfAddedMethodsVisitor());
-        visitors.put("LCOM", new LackOfCohesionOfMethodsVisitor());
-        visitors.put("DIT", new DepthOfInheritanceTreeVisitor());
-        visitors.put("NOA", new NumberOfAttributesVisitor());
-        visitors.put("NOC", new NumberOfChildrenVisitor());
-        visitors.put("NOO", new NumberOfOperationsVisitor());
-        visitors.put("NOOM", new NumberOfOverriddenMethodsVisitor());
-        visitors.put("RFC", new ResponseForClassVisitor());
-        visitors.put("WMC", new WeightedMethodCountVisitor());
-        visitors.put("SIZE2", new NumberOfAttributesAndMethodsVisitor());
-        visitors.put("NOM", new NumberOfMethodsVisitor());
-        visitors.put("MPC", new MessagePassingCouplingVisitor());
-        visitors.put("DAC", new DataAbstractionCouplingVisitor());
-        visitors.put("LOC", new LinesOfCodeVisitor());
-        visitors.put("CND", new ConditionNestingDepthVisitor());
-        visitors.put("LND", new LoopNestingDepthVisitor());
-        visitors.put("CC", new McCabeCyclomaticComplexityVisitor());
-        visitors.put("NOL", new NumberOfLoopsVisitor());
-        deferredVisitors.put("CBO", new CouplingBetweenObjectsVisitor());
-    }
 
     private MetricsService() {
         // Utility class
@@ -72,9 +53,9 @@ public class MetricsService {
         MetricsService.project = project;
     }
 
-    public static Range getRangeForMetric(String metricName) {
+    public static Range getRangeForMetric(MetricType type) {
         MetricsValidRangeStub metricsAllowableValueRangeStub =
-                metricsValidRangesSettings.getControlledMetrics().get(metricName);
+                metricsValidRangesSettings.getMetricsAllowableValueRangeStub(type);
         if (metricsAllowableValueRangeStub == null) {
             return Range.UNDEFINED;
         }
@@ -88,35 +69,37 @@ public class MetricsService {
     public static Stream<JavaRecursiveElementVisitor> getJavaClassVisitorsForClassMetricsTree() {
         return classMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> visitors.get(m.getName()))
+                .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
     public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForClassMetricsTree() {
         return classMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> visitors.get(m.getName()))
+                .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaMethodVisitor);
     }
 
     public static Stream<JavaRecursiveElementVisitor> getJavaClassVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> visitors.get(m.getName()))
+                .filter(m -> m.getType() != CBO)
+                .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
     public static Stream<JavaRecursiveElementVisitor> getDeferredJavaClassVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> deferredVisitors.get(m.getName()))
+                .filter(m -> m.getType() == CBO)
+                .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
     public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> visitors.get(m.getName()))
+                .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaMethodVisitor);
     }
 

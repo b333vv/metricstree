@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.composition;
 
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import org.b333vv.metric.ui.settings.ConfigurationPanel;
 
 import javax.swing.*;
 import java.awt.*;

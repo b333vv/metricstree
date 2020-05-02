@@ -23,13 +23,14 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.MethodUtils;
 
+import static org.b333vv.metric.model.metric.MetricType.NOOM;
+
 public class NumberOfOverriddenMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
         long overriddenMethodsNumber = 0;
-        metric = Metric.of("NOOM", "Number Of Overridden Methods",
-                "/html/NumberOfOverriddenMethods.html", Value.UNDEFINED);
+        metric = Metric.of(NOOM, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             PsiMethod[] methods = psiClass.getMethods();
             for (PsiMethod method : methods) {
@@ -40,8 +41,7 @@ public class NumberOfOverriddenMethodsVisitor extends JavaClassVisitor {
                     overriddenMethodsNumber++;
                 }
             }
-            metric = Metric.of("NOOM", "Number Of Overridden Methods",
-                    "/html/NumberOfOverriddenMethods.html", overriddenMethodsNumber);
+            metric = Metric.of(NOOM, overriddenMethodsNumber);
         }
     }
 }

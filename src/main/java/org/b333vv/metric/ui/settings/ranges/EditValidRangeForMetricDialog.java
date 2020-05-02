@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.ranges;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -96,7 +96,7 @@ public class EditValidRangeForMetricDialog extends DialogWrapper {
 
     public void setMetricsAllowableValueRangeStub(MetricsValidRangeStub metricsAllowableValueRangeStub) {
         this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
-        Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getDescription());
+        Border b = IdeBorderFactory.createTitledBorder(this.metricsAllowableValueRangeStub.getType().description());
         panel.setBorder(b);
         SpinnerNumberModel minModel;
         SpinnerNumberModel maxModel;

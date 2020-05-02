@@ -28,21 +28,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.b333vv.metric.model.metric.MetricType.LCOM;
+
 public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
 
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
-                "/html/LackOfCohesionOfMethods.html", Value.UNDEFINED);
+        metric = Metric.of(LCOM, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             Set<PsiMethod> applicableMethods = getApplicableMethods(psiClass);
             Map<PsiMethod, Set<PsiField>> fieldsPerMethod = calculateFieldUsage(applicableMethods);
             Map<PsiMethod, Set<PsiMethod>> linkedMethods = calculateMethodLinkage(applicableMethods);
             Set<Set<PsiMethod>> components = calculateComponents(applicableMethods,
                     fieldsPerMethod, linkedMethods);
-            metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
-                    "/html/LackOfCohesionOfMethods.html", components.size());
+            metric = Metric.of(LCOM, components.size());
         }
     }
 

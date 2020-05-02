@@ -18,6 +18,12 @@ package org.b333vv.metric.ui.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettingsPanel;
+import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
+import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettingsPanel;
+import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesPanel;
+import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;

@@ -16,17 +16,31 @@
 
 package org.b333vv.metric.model.builder;
 
+import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
-import org.apache.commons.io.FilenameUtils;
-import org.b333vv.metric.model.code.JavaCode;
+import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Stream;
 
 public class ClassModelBuilder extends ModelBuilder {
 
     public JavaFile buildJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         return createJavaFile(psiJavaFile);
     }
+
+    @Override
+    protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
+        return MetricsService.getJavaClassVisitorsForClassMetricsTree();
+    }
+
+    @Override
+    protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors() {
+        return MetricsService.getJavaMethodVisitorsForClassMetricsTree();
+    }
+
+    @Override
+    protected void addToAllClasses(JavaClass javaClass) {}
 }

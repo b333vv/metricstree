@@ -19,6 +19,7 @@ package org.b333vv.metric.ui.tool;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.EditorController;
@@ -71,4 +72,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
             clear();
         }
     }
+
+    @Override
+    public void update(@NotNull PsiJavaFile file) {}
 }

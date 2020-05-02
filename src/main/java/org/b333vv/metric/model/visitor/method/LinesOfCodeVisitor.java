@@ -21,6 +21,8 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.CommonUtils;
 import org.b333vv.metric.model.metric.util.MethodUtils;
 
+import static org.b333vv.metric.model.metric.MetricType.LOC;
+
 public class LinesOfCodeVisitor extends JavaMethodVisitor {
     private int methodNestingDepth = 0;
     private long elementCount = 0;
@@ -38,7 +40,6 @@ public class LinesOfCodeVisitor extends JavaMethodVisitor {
         if (methodNestingDepth == 0 && !MethodUtils.isAbstract(method)) {
             linesOfCode = elementCount;
         }
-        metric = Metric.of("LOC", "Lines Of Code",
-                "/html/LinesOfCode.html", linesOfCode);
+        metric = Metric.of(LOC, linesOfCode);
     }
 }

@@ -18,13 +18,13 @@ package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.scale.JBUIScale;
+import icons.MetricsIcons;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.metric.Sets;
+import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.CompositeIcon;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
-import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
@@ -42,10 +42,10 @@ public class MetricNode extends AbstractNode {
     }
 
     protected String getText() {
-        if (Sets.inMoodMetricsSet(metric.getName())) {
-            return metric.getDescription() + ": " + metric.getValue().percentageFormat();
+        if (metric.getType().set() == MetricSet.MOOD) {
+            return metric.getType().description() + ": " + metric.getValue().percentageFormat();
         } else {
-            return metric.getDescription() + ": " + metric.getFormattedValue();
+            return metric.getType().description() + ": " + metric.getFormattedValue();
         }
     }
 

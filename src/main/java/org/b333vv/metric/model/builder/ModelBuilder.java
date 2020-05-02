@@ -23,7 +23,6 @@ import com.intellij.psi.PsiMethod;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -72,12 +71,9 @@ public abstract class ModelBuilder {
         }
     }
 
-    protected void addToAllClasses(JavaClass javaClass) {}
+    abstract protected void addToAllClasses(JavaClass javaClass);
 
-    protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
-        return MetricsService.getJavaClassVisitorsForClassMetricsTree();
-    }
-    protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors() {
-        return MetricsService.getJavaMethodVisitorsForClassMetricsTree();
-    }
+    abstract protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors();
+
+    abstract protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors();
 }

@@ -34,7 +34,7 @@ public class MetricsIcons {
   public static final Icon NOT_TRACKED = IconLoader.getIcon("/images/notTracked.svg");
   public static final Icon INVALID_VALUE = IconLoader.getIcon("/images/invalidValue.svg");
   public static final Icon VALID_VALUE = IconLoader.getIcon("/images/validValue.svg");
-  public static final Icon GIT = IconLoader.getIcon("/images/git.svg");
+  public static final Icon SORT_BY_VALUES = IconLoader.getIcon("/images/sortByValues.svg");
 
   private MetricsIcons() {
     // only static

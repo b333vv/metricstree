@@ -19,6 +19,8 @@ package org.b333vv.metric.ui.tree.builder;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricSet;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
@@ -61,7 +63,7 @@ public abstract class MetricTreeBuilder {
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
             classNode.getJavaClass().getMetrics()
                     .forEach(m -> {
-                        if (mustBeShown(m) && checkClassMetricsSets(m.getName())) {
+                        if (mustBeShown(m) && checkClassMetricsSets(m.getType())) {
                             MetricNode metricNode = new ClassMetricNode(m);
                             classNode.add(metricNode);
                             storeMetric(classNode, metricNode);
@@ -105,10 +107,10 @@ public abstract class MetricTreeBuilder {
                     && metric.getValue() == Value.UNDEFINED;
     }
 
-    protected boolean checkClassMetricsSets(String metricName) {
+    protected boolean checkClassMetricsSets(MetricType type) {
         MetricsTreeFilter metricsTreeFilter = getMetricsTreeFilter();
-        return metricsTreeFilter.isChidamberKemererMetricsSetVisible() && Sets.inChidamberKemererMetricsSet(metricName)
-                || metricsTreeFilter.isLorenzKiddMetricsSetVisible() && Sets.inLorenzKiddMetricsSet(metricName)
-                || metricsTreeFilter.isLiHenryMetricsSetVisible() && Sets.inLiHenryMetricsSet(metricName);
+        return metricsTreeFilter.isChidamberKemererMetricsSetVisible() && type.set() == MetricSet.CHIDAMBER_KEMERER
+                || metricsTreeFilter.isLorenzKiddMetricsSetVisible() && type.set() == MetricSet.LORENZ_KIDD
+                || metricsTreeFilter.isLiHenryMetricsSetVisible() && type.set() == MetricSet.LI_HENRY;
     }
 }

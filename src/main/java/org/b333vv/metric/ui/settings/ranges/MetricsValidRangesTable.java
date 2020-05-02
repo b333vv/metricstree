@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.ranges;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
@@ -56,6 +56,7 @@ public class MetricsValidRangesTable {
         table.getEmptyText().setText(emptyLabel);
         table.setDragEnabled(false);
         table.setShowVerticalLines(false);
+        table.setAutoCreateRowSorter(true);
 
         table.getTableHeader().setReorderingAllowed(false);
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -191,6 +192,12 @@ public class MetricsValidRangesTable {
         public Object getValueAt(int rowIndex, int columnIndex) {
             MetricsValidRangeStub item = rows.get(rowIndex);
             switch (columnIndex) {
+//                case 0:
+//                    return item.getType().name();
+//                case 1:
+//                    return item.getType().description();
+//                case 2:
+//                    return item.getType().level().level();
                 case 0:
                     return item.getName();
                 case 1:

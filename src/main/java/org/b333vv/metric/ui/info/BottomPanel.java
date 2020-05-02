@@ -20,6 +20,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.SideBorder;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.Sets;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,10 +56,10 @@ public class BottomPanel {
 
     public void setData(@NotNull Metric metric) {
         updateDescription("Metric: "
-                + metric.getDescription()
-                + " [" + metric.getName()
+                + metric.getType().description()
+                + " [" + metric.getType().name()
                 + " = "
-                + (Sets.inMoodMetricsSet(metric.getName())
+                + (metric.getType().set() == MetricSet.MOOD
                         ? metric.getValue().percentageFormat()
                         : metric.getFormattedValue())
                 + "]");

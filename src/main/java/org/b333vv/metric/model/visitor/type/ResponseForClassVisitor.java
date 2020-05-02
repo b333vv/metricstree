@@ -28,11 +28,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.b333vv.metric.model.metric.MetricType.RFC;
+
 public class ResponseForClassVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        metric = Metric.of("RFC", "Response For Class",
-                "/html/ResponseForClass.html", Value.UNDEFINED);
+        metric = Metric.of(RFC, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             Set<PsiMethod> methodsCalled = new HashSet<>();
             super.visitClass(psiClass);
@@ -51,8 +52,7 @@ public class ResponseForClassVisitor extends JavaClassVisitor {
                     }
                 }
             });
-            metric = Metric.of("RFC", "Response For Class",
-                    "/html/ResponseForClass.html", methodsCalled.size());
+            metric = Metric.of(RFC, methodsCalled.size());
         }
     }
 }

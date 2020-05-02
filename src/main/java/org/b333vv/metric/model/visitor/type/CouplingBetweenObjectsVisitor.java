@@ -26,20 +26,20 @@ import org.b333vv.metric.model.metric.value.Value;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.b333vv.metric.model.metric.MetricType.CBO;
+
 public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        metric = Metric.of("CBO", "Coupling Between Objects",
-                "/html/CouplingBetweenObjects.html", Value.UNDEFINED);
+        metric = Metric.of(CBO, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
             Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             Set<PsiClass> dependents = dependenciesBuilder.getClassesDependents(psiClass);
             Set<PsiClass> union = new HashSet<>(dependencies);
             union.addAll(dependents);
-            metric = Metric.of("CBO", "Coupling Between Objects",
-                    "/html/CouplingBetweenObjects.html", union.size());
+            metric = Metric.of(CBO, union.size());
         }
     }
 }

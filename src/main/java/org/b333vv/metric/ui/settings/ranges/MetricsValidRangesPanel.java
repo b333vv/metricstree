@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings;
+package org.b333vv.metric.ui.settings.ranges;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.ui.settings.ConfigurationPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -57,9 +60,15 @@ public class MetricsValidRangesPanel implements ConfigurationPanel<MetricsValidR
 
     @Override
     public void save(MetricsValidRangesSettings settings) {
-        Map<String, MetricsValidRangeStub> newMetricsMap = metricsValidRangesTable.get()
+        Map<MetricType, MetricsValidRangeStub> newMetricsMap = metricsValidRangesTable.get()
                 .stream()
-                .collect(Collectors.toMap(MetricsValidRangeStub::getName, Function.identity()));
+                .collect(Collectors.toMap(
+                        MetricsValidRangeStub::getType,
+                        Function.identity(),
+                        (l, r) -> {
+                            throw new IllegalArgumentException("Duplicate keys " + l.getType().name() + "and " + r.getType().name() + ".");
+                        },
+                        () -> new EnumMap<>(MetricType.class)));
         settings.setControlledMetrics(newMetricsMap);
         settings.setControlValidRanges(controlValidRanges.isSelected());
     }
