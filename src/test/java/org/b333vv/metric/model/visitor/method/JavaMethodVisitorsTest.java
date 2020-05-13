@@ -3,10 +3,13 @@ package org.b333vv.metric.model.visitor.method;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.MetricsUtils;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.util.MetricsService;
+
+import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
@@ -30,10 +33,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         LinesOfCodeVisitor linesOfCodeVisitor = new LinesOfCodeVisitor();
         javaMethod.accept(linesOfCodeVisitor);
 
-        Metric metric = Metric.of("LOC", "Lines Of Code",
-                "/html/LOC.html", 50);
+        Metric metric = Metric.of(LOC, 50);
 
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
+        assertEquals(metric, javaMethod.metrics().findFirst().get());
     }
 
     public void testConditionNestingDepthVisitor() {
@@ -44,10 +46,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         ConditionNestingDepthVisitor conditionNestingDepthVisitor = new ConditionNestingDepthVisitor();
         javaMethod.accept(conditionNestingDepthVisitor);
 
-        Metric metric = Metric.of("CND", "Condition Nesting Depth",
-                "/html/CND.html", 4);
+        Metric metric = Metric.of(CND, 4);
 
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
+        assertEquals(metric, javaMethod.metrics().findFirst().get());
     }
 
     public void testLoopNestingDepthVisitor() {
@@ -58,10 +59,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         LoopNestingDepthVisitor loopNestingDepthVisitor = new LoopNestingDepthVisitor();
         javaMethod.accept(loopNestingDepthVisitor);
 
-        Metric metric = Metric.of("LND", "Loop Nesting Depth",
-                "/html/LND.html", 1);
+        Metric metric = Metric.of(LND, 1);
 
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
+        assertEquals(metric, javaMethod.metrics().findFirst().get());
     }
 
     public void testMcCabeCyclomaticComplexityVisitor() {
@@ -72,10 +72,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         McCabeCyclomaticComplexityVisitor mcCabeCyclomaticComplexityVisitor = new McCabeCyclomaticComplexityVisitor();
         javaMethod.accept(mcCabeCyclomaticComplexityVisitor);
 
-        Metric metric = Metric.of("CC", "McCabe Cyclomatic Complexity",
-                "/html/CC.html", 22);
+        Metric metric = Metric.of(CC, 22);
 
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
+        assertEquals(metric, javaMethod.metrics().findFirst().get());
     }
 
     public void testNumberOfLoopsVisitor() {
@@ -86,9 +85,8 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
         NumberOfLoopsVisitor numberOfLoopsVisitor = new NumberOfLoopsVisitor();
         javaMethod.accept(numberOfLoopsVisitor);
 
-        Metric metric = Metric.of("NOL", "Number Of Loops",
-                "/html/NOL.html", 1);
+        Metric metric = Metric.of(NOL, 1);
 
-        assertEquals(metric, javaMethod.getMetrics().findFirst().get());
+        assertEquals(metric, javaMethod.metrics().findFirst().get());
     }
 }

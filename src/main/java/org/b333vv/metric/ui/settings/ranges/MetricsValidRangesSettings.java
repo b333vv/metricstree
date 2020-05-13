@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.ui.settings.ranges;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 @State(name = "MetricsValidRanges", storages = {@Storage("metrics-valid-ranges.xml")})
-public final class MetricsValidRangesSettings implements PersistentStateComponent<MetricsValidRangesSettings>, BaseComponent {
+public final class MetricsValidRangesSettings implements PersistentStateComponent<MetricsValidRangesSettings> {
 
     private boolean controlValidRanges;
 
@@ -51,6 +50,7 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
 
         controlValidRanges = true;
 
+        //--CONTROLLED---------------------------------------------------
         //Chidamber-Kemerer metrics set
         putToControlledMetricsMap(WMC, 0, 24);
         putToControlledMetricsMap(DIT, 0, 5);
@@ -59,7 +59,6 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
 
         //Lorenz-Kidd metrics set
         putToControlledMetricsMap(NOA, 0, 40);
-        putToControlledMetricsMap(NOO, 0, 20);
         putToControlledMetricsMap(NOOM, 0, 3);
 
         //Robert C. Martin metrics set
@@ -80,13 +79,14 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
         //Methods metrics set
         putToControlledMetricsMap(LOC, 0, 500);
 
-        //-----------------------------
+        //--UNCONTROLLED-------------------------------------------------
         //Chidamber-Kemerer metrics set
         putToUnControlledMetricsMap(NOC, 0, 100);
         putToUnControlledMetricsMap(LCOM, 0, 500);
 
         //Lorenz-Kidd metrics set
         putToUnControlledMetricsMap(NOAM, 0, 10);
+        putToUnControlledMetricsMap(NOO, 0, 20);
 
         //Li-Henry metrics set
         putToUnControlledMetricsMap(SIZE2, 0, 130);
@@ -177,12 +177,6 @@ public final class MetricsValidRangesSettings implements PersistentStateComponen
     @Override
     public synchronized void loadState(@NotNull MetricsValidRangesSettings state) {
         XmlSerializerUtil.copyBean(state, this);
-    }
-
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return "MetricsAllowableValueRangesSettings";
     }
 
     public void removeFromUnControlledMetrics(String key) {

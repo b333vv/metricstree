@@ -60,7 +60,7 @@ public class MetricsValidRangesPanel implements ConfigurationPanel<MetricsValidR
     public void save(MetricsValidRangesSettings settings) {
         Map<String, MetricsValidRangeStub> newMetricsMap = metricsValidRangesTable.get()
                 .stream()
-                .collect(Collectors.toMap(MetricsValidRangeStub::getName, Function.identity()));
+                .collect(Collectors.toMap(MetricsValidRangeStub::getName, x -> x));
         settings.setControlledMetrics(newMetricsMap);
         settings.setControlValidRanges(controlValidRanges.isSelected());
     }

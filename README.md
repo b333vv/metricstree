@@ -52,6 +52,7 @@ It supports the most common metric sets.
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
  - Shows class metrics values evolution based on 'git log'
+ - Detects classes-violators of recommended metrics values
 ![Image of MetricsTree](metricstree-light-sample.png)
 ![Image of MetricsTree](metricstree-darcula-sample.png)
 # Installation

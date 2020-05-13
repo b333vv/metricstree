@@ -30,6 +30,7 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.info.BottomPanel;
 import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.info.MetricsDescriptionPanel;
@@ -136,6 +137,15 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
             Metric metric = ((MetricNode) node).getMetric();
             bottomPanel.setData(metric);
             metricsDescriptionPanel.setMetric(metric);
+            metricsSummaryTable.clear();
+            rightPanel.remove(0);
+            rightPanel.add(metricsDescriptionPanel.getPanel());
+            rightPanel.revalidate();
+            rightPanel.repaint();
+        } else if (node instanceof MetricTypeNode) {
+            MetricType metricType = ((MetricTypeNode) node).getMetricType();
+            bottomPanel.setData(metricType);
+            metricsDescriptionPanel.setMetric(metricType);
             metricsSummaryTable.clear();
             rightPanel.remove(0);
             rightPanel.add(metricsDescriptionPanel.getPanel());

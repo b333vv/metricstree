@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.ui.settings.composition;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -31,8 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @State(name = "ClassMetricsTreeSettings", storages = {@Storage("class-metrics-tree.xml")})
-public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings>, BaseComponent {
-
+public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings> {
     private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
     private boolean showClassMetricsTree;
 
@@ -68,17 +66,11 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return "ClassMetricsTreeSettings";
-    }
-
     public List<MetricsTreeSettingsStub> getMetricsList() {
-        Comparator<MetricsTreeSettingsStub> compareByLevelAndName = Comparator
+        Comparator<MetricsTreeSettingsStub> compareByType = Comparator
                 .comparing(MetricsTreeSettingsStub::getType);
         return classTreeMetrics.stream()
-                .sorted(compareByLevelAndName)
+                .sorted(compareByType)
                 .collect(Collectors.toList());
     }
 

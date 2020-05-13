@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.scale.JBUIScale;
 import icons.MetricsIcons;
 import org.b333vv.metric.model.metric.Metric;
@@ -26,6 +27,7 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.CompositeIcon;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 import org.b333vv.metric.util.MetricsService;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -41,11 +43,16 @@ public class MetricNode extends AbstractNode {
         return AllIcons.Nodes.Artifact;
     }
 
-    protected String getText() {
+    protected String getMetricName() {
+        return metric.getType().description() + ": ";
+    }
+
+    @NotNull
+    private String getMetricValue() {
         if (metric.getType().set() == MetricSet.MOOD) {
-            return metric.getType().description() + ": " + metric.getValue().percentageFormat();
+            return metric.getValue().percentageFormat();
         } else {
-            return metric.getType().description() + ": " + metric.getFormattedValue();
+            return metric.getFormattedValue();
         }
     }
 
@@ -56,25 +63,25 @@ public class MetricNode extends AbstractNode {
     @Override
     public void render(TreeCellRenderer renderer) {
         int gap = JBUIScale.isUsrHiDPI() ? 8 : 4;
+        renderer.append(getMetricName());
         if (MetricsService.isControlValidRanges()) {
             if (metric.getValue() == Value.UNDEFINED) {
                 renderer.setIconToolTip("This metric was not calculated");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                        MetricsIcons.NA));
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NA));
+                renderer.append(getMetricValue());
             } else if (!metric.hasAllowableValue()) {
                 renderer.setIconToolTip("This metric has an unacceptable value");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                        MetricsIcons.INVALID_VALUE));
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.INVALID_VALUE));
+                renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
             } else {
                 if (metric.getRange() == Range.UNDEFINED) {
                     renderer.setIconToolTip("The desired value range is not set for this metric");
-                    renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                            MetricsIcons.NOT_TRACKED));
+                    renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NOT_TRACKED));
                 } else {
                     renderer.setIconToolTip("This metric has an acceptable value");
-                    renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(),
-                            MetricsIcons.VALID_VALUE));
+                    renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.VALID_VALUE));
                 }
+                renderer.append(getMetricValue());
             }
         } else {
             if (metric.getValue() == Value.UNDEFINED) {
@@ -83,7 +90,7 @@ public class MetricNode extends AbstractNode {
             } else {
                 renderer.setIcon(getIcon());
             }
+            renderer.append(getMetricValue());
         }
-        renderer.append(getText());
     }
 }

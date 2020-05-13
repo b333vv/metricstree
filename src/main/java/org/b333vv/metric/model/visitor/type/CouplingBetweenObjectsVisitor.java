@@ -22,6 +22,8 @@ import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,12 +36,14 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
         super.visitClass(psiClass);
         metric = Metric.of(CBO, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
-            Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
-            Set<PsiClass> dependents = dependenciesBuilder.getClassesDependents(psiClass);
-            Set<PsiClass> union = new HashSet<>(dependencies);
-            union.addAll(dependents);
-            metric = Metric.of(CBO, union.size());
+            DependenciesBuilder dependenciesBuilder = MetricsService.getDependenciesBuilder();
+            if (dependenciesBuilder != null) {
+                Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
+                Set<PsiClass> dependents = dependenciesBuilder.getClassesDependents(psiClass);
+                Set<PsiClass> union = new HashSet<>(dependencies);
+                union.addAll(dependents);
+                metric = Metric.of(CBO, union.size());
+            }
         }
     }
 }

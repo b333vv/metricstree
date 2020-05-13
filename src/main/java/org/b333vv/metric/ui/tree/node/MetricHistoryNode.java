@@ -17,9 +17,11 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ui.SimpleTextAttributes;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
 import icons.MetricsIcons;
+import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
 import javax.swing.*;
 
@@ -37,8 +39,8 @@ public class MetricHistoryNode extends MetricNode {
         this.currentValue = metric.getValue();
         this.previousValue = previousValue;
     }
-    @Override
-    public String getText() {
+
+    private String getDelta() {
         String delta = "";
         if (previousValue != Value.UNDEFINED) {
             if (currentValue.isLessThan(previousValue)) {
@@ -48,7 +50,11 @@ public class MetricHistoryNode extends MetricNode {
                 delta += " (+" + currentValue.minus(previousValue) + ")";
             }
         }
-        return currentValue.toString() + delta + " [" + dateTime + ", " + id + "]";
+        return delta;
+    }
+
+    private String getCommitInfo() {
+        return " [" + dateTime + ", " + id + "]";
     }
 
     @Override
@@ -63,5 +69,12 @@ public class MetricHistoryNode extends MetricNode {
             }
         }
         return AllIcons.Nodes.EmptyNode;
+    }
+
+    @Override
+    public void render(TreeCellRenderer renderer) {
+        super.render(renderer);
+        renderer.append(getDelta(), SimpleTextAttributes.ERROR_ATTRIBUTES);
+        renderer.append(getCommitInfo(), SimpleTextAttributes.GRAY_SMALL_ATTRIBUTES);
     }
 }

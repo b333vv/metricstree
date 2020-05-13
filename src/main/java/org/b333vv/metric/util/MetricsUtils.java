@@ -16,8 +16,6 @@
 
 package org.b333vv.metric.util;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -38,6 +36,7 @@ import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.*;
 
 public class MetricsUtils {
 
@@ -51,6 +50,7 @@ public class MetricsUtils {
     private static boolean projectMetricsCalculationPerforming = false;
     private static boolean classMetricsValuesEvolutionCalculationPerforming = false;
     private static boolean classMetricsValuesEvolutionAdded = false;
+
 
     private MetricsUtils() {
         // Utility class
@@ -221,5 +221,16 @@ public class MetricsUtils {
             editor = ((TextEditor) fileEditor).getEditor();
         }
         return editor;
+    }
+
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValueReversed(Map<K, V> map) {
+        List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+        list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+
+        Map<K, V> result = new LinkedHashMap<>();
+        for (Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
     }
 }

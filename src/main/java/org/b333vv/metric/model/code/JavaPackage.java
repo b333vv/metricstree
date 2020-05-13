@@ -36,25 +36,25 @@ public class JavaPackage extends JavaCode {
         return psiPackage;
     }
 
-    public Stream<JavaClass> getClasses() {
+    public Stream<JavaClass> classes() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaClass) c);
+                .map(c -> (JavaClass) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 
-    public Stream<JavaFile> getFiles() {
+    public Stream<JavaFile> files() {
         return children.stream()
                 .filter(c -> c instanceof JavaFile)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaFile) c);
+                .map(c -> (JavaFile) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 
-    public Stream<JavaPackage> getPackages() {
+    public Stream<JavaPackage> subPackages() {
         return children.stream()
                 .filter(c -> c instanceof JavaPackage)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaPackage) c);
+                .map(c -> (JavaPackage) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 
     public void addClass(JavaClass javaClass) {

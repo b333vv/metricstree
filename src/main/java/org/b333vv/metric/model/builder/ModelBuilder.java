@@ -33,7 +33,7 @@ public abstract class ModelBuilder {
         JavaFile javaFile = new JavaFile(psiJavaFile.getName());
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
-            getJavaClassVisitors().forEach(javaClass::accept);
+            classVisitors().forEach(javaClass::accept);
             javaFile.addClass(javaClass);
             buildConstructors(javaClass);
             buildMethods(javaClass);
@@ -47,7 +47,7 @@ public abstract class ModelBuilder {
         for (PsiMethod aConstructor : javaClass.getPsiClass().getConstructors()) {
             JavaMethod javaMethod = new JavaMethod(aConstructor);
             javaClass.addMethod(javaMethod);
-            getJavaMethodVisitors().forEach(javaMethod::accept);
+            methodVisitors().forEach(javaMethod::accept);
         }
     }
 
@@ -55,7 +55,7 @@ public abstract class ModelBuilder {
         for (PsiMethod aMethod : javaClass.getPsiClass().getMethods()) {
             JavaMethod javaMethod = new JavaMethod(aMethod);
             javaClass.addMethod(javaMethod);
-            getJavaMethodVisitors().forEach(javaMethod::accept);
+            methodVisitors().forEach(javaMethod::accept);
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class ModelBuilder {
         for (PsiClass psiClass : aClass.getInnerClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
             parentClass.addClass(javaClass);
-            getJavaClassVisitors().forEach(javaClass::accept);
+            classVisitors().forEach(javaClass::accept);
             buildConstructors(javaClass);
             buildMethods(javaClass);
             addToAllClasses(javaClass);
@@ -73,7 +73,7 @@ public abstract class ModelBuilder {
 
     abstract protected void addToAllClasses(JavaClass javaClass);
 
-    abstract protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors();
+    abstract protected Stream<JavaRecursiveElementVisitor> classVisitors();
 
-    abstract protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors();
+    abstract protected Stream<JavaRecursiveElementVisitor> methodVisitors();
 }

@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.b333vv.metric.model.metric.MetricType.CBO;
+
 public class ProjectModelBuilder extends ModelBuilder {
 
     private final JavaProject javaProject;
@@ -98,19 +100,16 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     @Override
-    protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
-        return MetricsService.getJavaClassVisitorsForProjectMetricsTree();
+    protected Stream<JavaRecursiveElementVisitor> classVisitors() {
+        return MetricsService.classVisitorsForProjectMetricsTree();
     }
 
     @Override
-    protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors() {
-        return MetricsService.getJavaMethodVisitorsForProjectMetricsTree();
+    protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
+        return MetricsService.methodsVisitorsForProjectMetricsTree();
     }
 
     public void calculateDeferredMetrics() {
-        javaProject.getAllClasses().forEach(c ->
-            MetricsService.getDeferredJavaClassVisitorsForProjectMetricsTree()
-                    .forEach(c::accept));
-
+        javaProject.allClasses().forEach(c -> c.accept(CBO.visitor()));
     }
 }

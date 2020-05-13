@@ -39,31 +39,31 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
             JavaProject javaProject = (JavaProject) javaCode;
-            ProjectNode projectNode = new ProjectNode(javaProject);
+            ProjectNode projectNode = new ProjectNode(javaProject, "whole project metrics");
             model = new DefaultTreeModel(projectNode);
             model.setRoot(projectNode);
             if (getMetricsTreeFilter().isProjectMetricsVisible()
                     && getMetricsTreeFilter().isMoodMetricsSetVisible()) {
-                javaProject.getMetrics()
+                javaProject.metrics()
                         .filter(this::mustBeShown)
-                        .forEach(m -> {
-                            MetricNode metricNode = new ProjectMetricNode(m);
-                            projectNode.add(metricNode);
-                        });
+                        .map(ProjectMetricNode::new)
+                        .forEach(projectNode::add);
             }
             if (getMetricsTreeFilter().isPackageMetricsVisible()
                     || getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
-                javaProject.getPackages().map(PackageNode::new).forEach(packageNode -> {
-                    projectNode.add(packageNode);
-                    addPackages(packageNode);
-                });
+                javaProject.packages()
+                        .map(PackageNode::new)
+                        .forEach(packageNode -> {
+                            projectNode.add(packageNode);
+                            addPackages(packageNode);
+                        });
             }
             return model;
     }
 
     private void addPackages(PackageNode parentNode) {
-        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().getPackages()
+        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().subPackages()
                 .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
         for (JavaPackage javaPackage : sortedPackages) {
             PackageNode packageNode = new PackageNode(javaPackage);
@@ -77,33 +77,31 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     private void addPackageMetrics(PackageNode packageNode) {
         if (getMetricsTreeFilter().isPackageMetricsVisible()
                 && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()
-                && !packageNode.getJavaPackage().getFiles().collect(Collectors.toSet()).isEmpty()) {
-            packageNode.getJavaPackage().getMetrics()
+                && !packageNode.getJavaPackage().files().collect(Collectors.toSet()).isEmpty()) {
+            packageNode.getJavaPackage().metrics()
                     .filter(this::mustBeShown)
-                    .forEach(m -> {
-                        MetricNode metricNode = new PackageMetricNode(m);
-                        packageNode.add(metricNode);
-                    });
+                    .map(PackageMetricNode::new)
+                    .forEach(packageNode::add);
         }
     }
 
     private void addJavaFiles(PackageNode parentNode) {
         if (getMetricsTreeFilter().isClassMetricsVisible()
                 || getMetricsTreeFilter().isMethodMetricsVisible()) {
-            parentNode.getJavaPackage().getFiles()
+            parentNode.getJavaPackage().files()
                     .forEach(f -> {
-                        if (f.getClasses().count() > 1) {
+                        if (f.classes().count() > 1) {
                             FileNode fileNode = new FileNode(f);
                             parentNode.add(fileNode);
-                            f.getClasses()
+                            f.classes()
+                                    .map(ClassNode::new)
                                     .forEach(c -> {
-                                        ClassNode classNode = new ClassNode(c);
-                                        fileNode.add(classNode);
-                                        addSubClasses(classNode);
-                                        addTypeMetricsAndMethodNodes(classNode);
+                                        fileNode.add(c);
+                                        addSubClasses(c);
+                                        addTypeMetricsAndMethodNodes(c);
                                     });
-                        } else if (f.getClasses().findFirst().isPresent()) {
-                            JavaClass javaClass = f.getClasses().findFirst().get();
+                        } else if (f.classes().findFirst().isPresent()) {
+                            JavaClass javaClass = f.classes().findFirst().get();
                             ClassNode classNode = new ClassNode(javaClass);
                             parentNode.add(classNode);
                             addSubClasses(classNode);

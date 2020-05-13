@@ -31,10 +31,10 @@ public class JavaFile extends JavaCode {
         addChild(javaClass);
     }
 
-    public Stream<JavaClass> getClasses() {
+    public Stream<JavaClass> classes() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaClass) c);
+                .map(c -> (JavaClass) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 }

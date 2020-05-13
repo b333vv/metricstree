@@ -50,12 +50,18 @@
                 <li>
                     Shows class metrics values evolution based on 'git log'
                 </li>
+                 <li>
+                    Detects classes-violators of recommended metrics values
+                </li>
             </ul>
         </html>
       ]]>
     </description>
 
     <change-notes><![CDATA[
+    <ul>
+        <li>2020.1.3 - Metrics tree with classes-violators of recommended metrics values was added.</li>
+      </ul>
       <ul>
         <li>2020.1.2 - Metrics evolution data is now embedded in the class metrics tree.</li>
       </ul>
@@ -65,7 +71,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.2</version>
+    <version>2020.1.3</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -128,13 +134,13 @@
                 class="org.b333vv.metric.actions.CalculateProjectMetricsAction"
                 text="Calculate Project Metrics"
                 description="Calculate project metrics"
-                icon="AllIcons.Actions.Execute">
+                icon="MetricsIcons.CALCULATE_PROJECT_METRICS">
         </action>
 
         <action id="Metrics.SortClassesByMetricsValues"
-                class="org.b333vv.metric.actions.SortClassesByMetricsValuesAction"
-                text="Sort Classes By Metrics Values"
-                description="Sort classes by metrics values"
+                class="org.b333vv.metric.actions.CalculateMetricsValuesViolatorsAction"
+                text="Find Classes With Invalid Metrics Values"
+                description="Find classes With invalid metrics values"
                 icon="MetricsIcons.SORT_BY_VALUES">
         </action>
 

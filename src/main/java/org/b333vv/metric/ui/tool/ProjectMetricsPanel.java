@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.ui.tree.builder.MetricsValuesViolatorsTreeBuilder;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
@@ -59,6 +60,11 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         public void projectMetricsCalculated(@NotNull ProjectMetricTreeBuilder projectMetricTreeBuilder,
                                              @NotNull DefaultTreeModel metricsTreeModel) {
             metricTreeBuilder = projectMetricTreeBuilder;
+            showResults(metricsTreeModel);
+        }
+
+        @Override
+        public void metricsValuesViolatorsCalculated(@NotNull DefaultTreeModel metricsTreeModel) {
             showResults(metricsTreeModel);
         }
 

@@ -34,11 +34,11 @@ public class JavaProject extends JavaCode {
         allClasses = new ConcurrentHashMap<JavaClass, Boolean>().keySet(true);;
     }
 
-    public Stream<JavaPackage> getPackages() {
+    public Stream<JavaPackage> packages() {
         return children.stream()
                 .filter(c -> c instanceof JavaPackage)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaPackage) c);
+                .map(c -> (JavaPackage) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 
     public void addPackage(@NotNull JavaPackage javaPackage) {
@@ -66,7 +66,7 @@ public class JavaProject extends JavaCode {
         return allPackages.isEmpty();
     }
 
-    public Stream<JavaPackage> getAllPackages() { return allPackages.values().stream(); }
+    public Stream<JavaPackage> allPackages() { return allPackages.values().stream(); }
 
-    public Stream<JavaClass> getAllClasses() { return allClasses.stream(); }
+    public Stream<JavaClass> allClasses() { return allClasses.stream(); }
 }

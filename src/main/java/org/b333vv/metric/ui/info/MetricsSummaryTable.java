@@ -24,10 +24,8 @@ import icons.MetricsIcons;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
-import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.util.MetricsService;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -103,7 +101,7 @@ public class MetricsSummaryTable {
         }
         Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
         panel.setBorder(b);
-        List<Metric> sortedMetrics = javaCode.getMetrics()
+        List<Metric> sortedMetrics = javaCode.metrics()
                 .sorted(Comparator.comparing(Metric::getType))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);

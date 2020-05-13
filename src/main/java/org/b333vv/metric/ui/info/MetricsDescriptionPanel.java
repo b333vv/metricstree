@@ -22,7 +22,7 @@ import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
-import org.b333vv.metric.model.metric.Sets;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import icons.MetricsIcons;
 import org.b333vv.metric.util.MetricsService;
@@ -138,6 +138,24 @@ public class MetricsDescriptionPanel {
         } else {
             allowableRangeValue.setText("");
         }
+    }
+
+    public void setMetric(MetricType metricType) {
+        Border b = IdeBorderFactory.createTitledBorder(metricType.description());
+        rightMetricPanel.setBorder(b);
+
+        metricLevel.setText(metricType.level().level());
+        metricSet.setText(metricType.set().set());
+
+        try {
+            URL url = MetricsDescriptionPanel.class.getResource(metricType.url());
+            metricDescription.setPage(url);
+        } catch (Exception e) {
+            MetricsUtils.getConsole().error(e.getMessage());
+            metricDescription.setContentType("text/html");
+            metricDescription.setText("<html>Page not found.</html>");
+        }
+        allowableRangeValue.setText("");
     }
 
     public void clear() {

@@ -22,6 +22,7 @@ import org.jscience.mathematics.number.Number;
 import org.jscience.mathematics.number.Rational;
 import org.jscience.mathematics.number.Real;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

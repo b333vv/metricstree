@@ -30,19 +30,19 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
 
     public DefaultTreeModel createMetricTreeModel() {
         JavaFile javaFile = (JavaFile) javaCode;
-        if (javaFile.getClasses().count() > 1) {
+        if (javaFile.classes().count() > 1) {
             FileNode rootFileNode = new FileNode(javaFile);
             model = new DefaultTreeModel(rootFileNode);
             model.setRoot(rootFileNode);
-            javaFile.getClasses()
+            javaFile.classes()
+                    .map(ClassNode::new)
                     .forEach(c -> {
-                ClassNode classNode = new ClassNode(c);
-                rootFileNode.add(classNode);
-                addSubClasses(classNode);
-                addTypeMetricsAndMethodNodes(classNode);
+                        rootFileNode.add(c);
+                        addSubClasses(c);
+                        addTypeMetricsAndMethodNodes(c);
             });
-        } else if (javaFile.getClasses().findFirst().isPresent()) {
-            JavaClass rootJavaClass = javaFile.getClasses().findFirst().get();
+        } else if (javaFile.classes().findFirst().isPresent()) {
+            JavaClass rootJavaClass = javaFile.classes().findFirst().get();
             ClassNode rootClassNode = new ClassNode(rootJavaClass);
             model = new DefaultTreeModel(rootClassNode);
             model.setRoot(rootClassNode);

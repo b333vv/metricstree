@@ -2,10 +2,13 @@ package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.MetricsUtils;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.util.MetricsService;
+
+import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
@@ -28,10 +31,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         DepthOfInheritanceTreeVisitor depthOfInheritanceTreeVisitor = new DepthOfInheritanceTreeVisitor();
         javaClass.accept(depthOfInheritanceTreeVisitor);
 
-        Metric metric = Metric.of("DIT", "Depth Of Inheritance Tree",
-                "/html/DIT.html", 1);
+        Metric metric = Metric.of(DIT, 1);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfChildrenVisitor() {
@@ -41,10 +43,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfChildrenVisitor numberOfChildrenVisitor = new NumberOfChildrenVisitor();
         javaClass.accept(numberOfChildrenVisitor);
 
-        Metric metric = Metric.of("NOC", "Number Of Children",
-                "/html/NOC.html", 1);
+        Metric metric = Metric.of(NOC, 1);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testResponseForClassVisitor() {
@@ -54,10 +55,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         ResponseForClassVisitor responseForClassVisitor = new ResponseForClassVisitor();
         javaClass.accept(responseForClassVisitor);
 
-        Metric metric = Metric.of("RFC", "Response For Class",
-                "/html/RFC.html", 59);
+        Metric metric = Metric.of(RFC, 59);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testLackOfCohesionOfMethodsVisitor() {
@@ -67,10 +67,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         LackOfCohesionOfMethodsVisitor lackOfCohesionOfMethodsVisitor = new LackOfCohesionOfMethodsVisitor();
         javaClass.accept(lackOfCohesionOfMethodsVisitor);
 
-        Metric metric = Metric.of("LCOM", "Lack Of Cohesion Of Methods",
-                "/html/LCOM.html", 5);
+        Metric metric = Metric.of(LCOM, 5);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testWeightedMethodCountVisitor() {
@@ -80,10 +79,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         WeightedMethodCountVisitor weightedMethodCountVisitor = new WeightedMethodCountVisitor();
         javaClass.accept(weightedMethodCountVisitor);
 
-        Metric metric = Metric.of("WMC", "Weighted Method Count",
-                "/html/WMC.html", 263);
+        Metric metric = Metric.of(WMC, 263);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfAddedMethodsVisitor() {
@@ -93,10 +91,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfAddedMethodsVisitor numberOfAddedMethodsVisitor = new NumberOfAddedMethodsVisitor();
         javaClass.accept(numberOfAddedMethodsVisitor);
 
-        Metric metric = Metric.of("NOAM", "Number Of Added Methods",
-                "/html/NOAM.html", 47);
+        Metric metric = Metric.of(NOAM, 47);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfAttributesVisitor() {
@@ -106,10 +103,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfAttributesVisitor numberOfAttributesVisitor = new NumberOfAttributesVisitor();
         javaClass.accept(numberOfAttributesVisitor);
 
-        Metric metric = Metric.of("NOA", "Number Of Attributes",
-                "/html/NOA.html", 13);
+        Metric metric = Metric.of(NOA, 13);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfOperationsVisitor() {
@@ -119,10 +115,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfOperationsVisitor numberOfOperationsVisitor = new NumberOfOperationsVisitor();
         javaClass.accept(numberOfOperationsVisitor);
 
-        Metric metric = Metric.of("NOO", "Number Of Operations",
-                "/html/NOO.html", 51);
+        Metric metric = Metric.of(NOO, 51);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfOverriddenMethodsVisitor() {
@@ -132,10 +127,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfOverriddenMethodsVisitor numberOfOverriddenMethodsVisitor = new NumberOfOverriddenMethodsVisitor();
         javaClass.accept(numberOfOverriddenMethodsVisitor);
 
-        Metric metric = Metric.of("NOOM", "Number Of Overridden Methods",
-                "/html/NOOM.html", 0);
+        Metric metric = Metric.of(NOOM, 0);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfAttributesAndMethodsVisitor() {
@@ -145,10 +139,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfAttributesAndMethodsVisitor numberOfAttributesAndMethodsVisitor = new NumberOfAttributesAndMethodsVisitor();
         javaClass.accept(numberOfAttributesAndMethodsVisitor);
 
-        Metric metric = Metric.of("SIZE2", "Number Of Attributes And Methods",
-                "/html/SIZE2.html", 64);
+        Metric metric = Metric.of(SIZE2, 64);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testNumberOfMethodsVisitor() {
@@ -158,10 +151,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfMethodsVisitor numberOfMethodsVisitor = new NumberOfMethodsVisitor();
         javaClass.accept(numberOfMethodsVisitor);
 
-        Metric metric = Metric.of("NOM", "Number Of Methods",
-                "/html/NOM.html", 51);
+        Metric metric = Metric.of(NOM, 51);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testDataAbstractionCouplingVisitor() {
@@ -171,10 +163,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         DataAbstractionCouplingVisitor dataAbstractionCouplingVisitor = new DataAbstractionCouplingVisitor();
         javaClass.accept(dataAbstractionCouplingVisitor);
 
-        Metric metric = Metric.of("DAC", "Data Abstraction Coupling",
-                "/html/DAC.html", 1);
+        Metric metric = Metric.of(DAC, 1);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 
     public void testMessagePassingCouplingVisitor() {
@@ -184,9 +175,8 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         MessagePassingCouplingVisitor messagePassingCouplingVisitor = new MessagePassingCouplingVisitor();
         javaClass.accept(messagePassingCouplingVisitor);
 
-        Metric metric = Metric.of("MPC", "Message Passing Coupling",
-                "/html/MPC.html", 51);
+        Metric metric = Metric.of(MPC, 51);
 
-        assertEquals(metric, javaClass.getMetrics().findFirst().get());
+        assertEquals(metric, javaClass.metrics().findFirst().get());
     }
 }

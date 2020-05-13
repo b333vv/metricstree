@@ -22,8 +22,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
@@ -32,11 +32,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.b333vv.metric.model.metric.MetricType.*;
+
 public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
     private JavaFile javaFile;
     private String projectName;
     private JavaClass javaClass;
-    private Map<String, Metric> classMetrics, methodMetrics;
+    private Map<MetricType, Metric> classMetrics, methodMetrics;
     private Map<String, JavaMethod> methods;
     private JavaMethod removeNode;
 
@@ -50,11 +52,11 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
         projectName = FilenameUtils.getBaseName(psiJavaFile.getName());
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
         javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
-        javaClass = javaFile.getClasses().findFirst().get();
-        classMetrics = javaClass.getMetrics().collect(Collectors.toMap(Metric::getName, Function.identity()));
-        methods = javaClass.getMethods().collect(Collectors.toMap(JavaMethod::getName, Function.identity()));
+        javaClass = javaFile.classes().findFirst().get();
+        classMetrics = javaClass.metrics().collect(Collectors.toMap(Metric::getType, Function.identity()));
+        methods = javaClass.methods().collect(Collectors.toMap(JavaMethod::getName, Function.identity()));
         removeNode = methods.get("removeNode(int, Object, Object, boolean, boolean)");
-        methodMetrics = removeNode.getMetrics().collect(Collectors.toMap(Metric::getName, Function.identity()));
+        methodMetrics = removeNode.metrics().collect(Collectors.toMap(Metric::getType, Function.identity()));
     }
 
     @Override
@@ -67,55 +69,55 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testDepthOfInheritanceTreeMetricValue() {
-        assertEquals(Value.of(1), classMetrics.get("DIT").getValue());
+        assertEquals(Value.of(1), classMetrics.get(DIT).getValue());
     }
 
     public void testNumberOfChildrenMetricValue() {
-        assertEquals(Value.of(0), classMetrics.get("NOC").getValue());
+        assertEquals(Value.of(0), classMetrics.get(NOC).getValue());
     }
 
     public void testResponseForClassMetricValue() {
-        assertEquals(Value.of(59), classMetrics.get("RFC").getValue());
+        assertEquals(Value.of(59), classMetrics.get(RFC).getValue());
     }
 
     public void testLackOfCohesionOfMethodsMetricValue() {
-        assertEquals(Value.of(5), classMetrics.get("LCOM").getValue());
+        assertEquals(Value.of(5), classMetrics.get(LCOM).getValue());
     }
 
     public void testWeightedMethodCountMetricValue() {
-        assertEquals(Value.of(263), classMetrics.get("WMC").getValue());
+        assertEquals(Value.of(263), classMetrics.get(WMC).getValue());
     }
 
     public void testNumberOfAddedMethodsMetricValue() {
-        assertEquals(Value.of(47), classMetrics.get("NOAM").getValue());
+        assertEquals(Value.of(47), classMetrics.get(NOAM).getValue());
     }
 
     public void testNumberOfAttributesMetricValue() {
-        assertEquals(Value.of(13), classMetrics.get("NOA").getValue());
+        assertEquals(Value.of(13), classMetrics.get(NOA).getValue());
     }
 
     public void testNumberOfOperationsMetricValue() {
-        assertEquals(Value.of(51), classMetrics.get("NOO").getValue());
+        assertEquals(Value.of(51), classMetrics.get(NOO).getValue());
     }
 
     public void testNumberOfOverriddenMethodsMetricValue() {
-        assertEquals(Value.of(0), classMetrics.get("NOOM").getValue());
+        assertEquals(Value.of(0), classMetrics.get(NOOM).getValue());
     }
 
     public void testNumberOfAttributesAndMethodsMetricValue() {
-        assertEquals(Value.of(64), classMetrics.get("SIZE2").getValue());
+        assertEquals(Value.of(64), classMetrics.get(SIZE2).getValue());
     }
 
     public void testNumberOfMethodsMetricValue() {
-        assertEquals(Value.of(51), classMetrics.get("NOM").getValue());
+        assertEquals(Value.of(51), classMetrics.get(NOM).getValue());
     }
 
     public void testDataAbstractionCouplingMetricValue() {
-        assertEquals(Value.of(1), classMetrics.get("DAC").getValue());
+        assertEquals(Value.of(1), classMetrics.get(DAC).getValue());
     }
 
     public void testMessagePassingCouplingMetricValue() {
-        assertEquals(Value.of(51), classMetrics.get("MPC").getValue());
+        assertEquals(Value.of(51), classMetrics.get(MPC).getValue());
     }
 
     public void testMethodsCount() {
@@ -127,22 +129,22 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testLinesOfCodeMetricValue() {
-        assertEquals(Value.of(50), methodMetrics.get("LOC").getValue());
+        assertEquals(Value.of(50), methodMetrics.get(LOC).getValue());
     }
 
     public void testConditionNestingDepthMetricValue() {
-        assertEquals(Value.of(4), methodMetrics.get("CND").getValue());
+        assertEquals(Value.of(4), methodMetrics.get(CND).getValue());
     }
 
     public void testLoopNestingDepthMetricValue() {
-        assertEquals(Value.of(1), methodMetrics.get("LND").getValue());
+        assertEquals(Value.of(1), methodMetrics.get(LND).getValue());
     }
 
     public void testMcCabeCyclomaticComplexityMetricValue() {
-        assertEquals(Value.of(22), methodMetrics.get("CC").getValue());
+        assertEquals(Value.of(22), methodMetrics.get(CC).getValue());
     }
 
     public void testNumberOfLoopsMetricValue() {
-        assertEquals(Value.of(1), methodMetrics.get("NOL").getValue());
+        assertEquals(Value.of(1), methodMetrics.get(NOL).getValue());
     }
 }

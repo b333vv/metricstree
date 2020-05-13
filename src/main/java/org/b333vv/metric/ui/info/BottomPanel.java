@@ -21,7 +21,7 @@ import com.intellij.ui.SideBorder;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
-import org.b333vv.metric.model.metric.Sets;
+import org.b333vv.metric.model.metric.MetricType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -62,6 +62,13 @@ public class BottomPanel {
                 + (metric.getType().set() == MetricSet.MOOD
                         ? metric.getValue().percentageFormat()
                         : metric.getFormattedValue())
+                + "]");
+    }
+
+    public void setData(@NotNull MetricType metricType) {
+        updateDescription("Metric: "
+                + metricType.description()
+                + " [" + metricType.name()
                 + "]");
     }
 

@@ -19,10 +19,11 @@ package org.b333vv.metric.model.metric;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.MetricsService;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class Metric {
+public class Metric implements Comparable<Metric> {
     private final MetricType type;
     private final Value value;
     private final Range range;
@@ -82,5 +83,11 @@ public class Metric {
 
     public boolean hasAllowableValue() {
         return range.includes(value);
+    }
+
+    @Override
+    public int compareTo(@NotNull Metric o) {
+        Value that = o.getValue();
+        return this.getValue().compareTo(that);
     }
 }

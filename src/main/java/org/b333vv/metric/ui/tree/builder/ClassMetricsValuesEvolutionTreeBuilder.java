@@ -20,8 +20,8 @@ import com.intellij.vcs.log.TimedVcsCommit;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.node.ClassNode;
 import org.b333vv.metric.ui.tree.node.MethodNode;
@@ -36,12 +36,12 @@ import java.util.*;
 
 public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuilder {
 
-    private final Map<String, MetricNode> classesAndMethodsMetrics = new HashMap<>();
-    private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution;
-    private final Map<String, Value> previousValue = new HashMap<>();
+    private final Map<EvolutionKey, MetricNode> classesAndMethodsMetrics = new HashMap<>();
+    private final Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution;
+    private final Map<EvolutionKey, Value> previousValue = new HashMap<>();
 
     public ClassMetricsValuesEvolutionTreeBuilder(JavaFile javaFile,
-                                                  Map<TimedVcsCommit, JavaClass> classMetricsEvolution) {
+                                                  Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution) {
         super(javaFile);
         this.classMetricsEvolution = classMetricsEvolution;
     }
@@ -71,48 +71,69 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
                                         TimeZone.getDefault().toZoneId())
                                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy' 'HH:mm:ss"));
                         String hash = timedMetricsSet.getKey().getId().toShortString();
-                        JavaClass javaClass = timedMetricsSet.getValue();
-                        buildMetricsNodesForClasses(javaClass, hash, dateTime);
+                        timedMetricsSet.getValue().stream().forEach(c -> buildMetricsNodesForClasses(c, hash, dateTime));
             });
         return model;
     }
 
     private void buildMetricsNodesForClasses(JavaClass javaClass, String hash, String dateTime) {
-        javaClass.getMetrics().forEach(m -> {
-            MetricHistoryNode historyNode =
-                    new MetricHistoryNode(dateTime,
-                            hash, m, previousValue
-                            .getOrDefault(getKeyForClass(javaClass, m), Value.UNDEFINED));
-            String key = getKeyForClass(javaClass, m);
-            if (classesAndMethodsMetrics.get(key) != null) {
-                classesAndMethodsMetrics.get(key).insert(historyNode, 0);
-                previousValue.put(getKeyForClass(javaClass, m), m.getValue());
-            }
-        });
-        javaClass.getClasses().forEach(c -> buildMetricsNodesForClasses(c, hash, dateTime));
-        javaClass.getMethods().forEach(m -> buildMetricsNodesForMethods(m, hash, dateTime));
+        javaClass.metrics().forEach(m -> handleMetric(hash, dateTime, m, getKeyForClass(javaClass, m)));
+        javaClass.innerClasses().forEach(c -> buildMetricsNodesForClasses(c, hash, dateTime));
+        javaClass.methods().forEach(m -> buildMetricsNodesForMethods(m, hash, dateTime));
     }
 
     private void buildMetricsNodesForMethods(JavaMethod javaMethod, String hash, String dateTime) {
-        javaMethod.getMetrics().forEach(m -> {
-            MetricHistoryNode historyNode =
-                    new MetricHistoryNode(dateTime,
-                            hash, m,
-                            previousValue.getOrDefault(getKeyForMethod(javaMethod, m), Value.UNDEFINED));
-            String key = getKeyForMethod(javaMethod, m);
-            if (classesAndMethodsMetrics.get(key) != null) {
-                classesAndMethodsMetrics.get(key).insert(historyNode, 0);
-                previousValue.put(getKeyForMethod(javaMethod, m), m.getValue());
-            }
-        });
+        javaMethod.metrics().forEach(m -> handleMetric(hash, dateTime, m, getKeyForMethod(javaMethod, m)));
     }
 
-    private String getKeyForClass(JavaClass javaClass, Metric metric) {
-        return javaClass.getPsiClass().getQualifiedName() + ":" + metric.getType().name();
+    private void handleMetric(String hash, String dateTime, Metric m, EvolutionKey key) {
+        MetricHistoryNode historyNode = new MetricHistoryNode(dateTime, hash, m, previousValue.getOrDefault(key, Value.UNDEFINED));
+        if (classesAndMethodsMetrics.get(key) != null) {
+            classesAndMethodsMetrics.get(key).insert(historyNode, 0);
+            previousValue.put(key, m.getValue());
+        }
     }
 
-    private String getKeyForMethod(JavaMethod javaMethod, Metric metric) {
-        return Objects.requireNonNull(javaMethod.getPsiMethod().getContainingClass()).getQualifiedName()
-                + ":" + JavaMethod.signature(javaMethod.getPsiMethod()) + ":" + metric.getType().name();
+    private EvolutionKey getKeyForClass(JavaClass javaClass, Metric metric) {
+        return new EvolutionKey(javaClass.getPsiClass().getQualifiedName(), metric.getType());
+    }
+
+    private EvolutionKey getKeyForMethod(JavaMethod javaMethod, Metric metric) {
+        return new EvolutionKey(Objects.requireNonNull(javaMethod.getPsiMethod().getContainingClass()).getQualifiedName(),
+                JavaMethod.signature(javaMethod.getPsiMethod()),
+                metric.getType());
+    }
+
+    private static class EvolutionKey {
+        private final String className;
+        private final String methodName;
+        private final MetricType metricType;
+
+        public EvolutionKey(String className, MetricType metricType) {
+            this.className = className;
+            this.methodName = "";
+            this.metricType = metricType;
+        }
+
+        public EvolutionKey(String className, String methodName, MetricType metricType) {
+            this.className = className;
+            this.methodName = methodName;
+            this.metricType = metricType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof EvolutionKey)) return false;
+            EvolutionKey that = (EvolutionKey) o;
+            return className.equals(that.className) &&
+                    methodName.equals(that.methodName) &&
+                    metricType == that.metricType;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(className, methodName, metricType);
+        }
     }
 }

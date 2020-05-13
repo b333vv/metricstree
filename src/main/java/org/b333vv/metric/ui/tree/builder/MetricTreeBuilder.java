@@ -17,11 +17,9 @@
 package org.b333vv.metric.ui.tree.builder;
 
 import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.Sets;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
@@ -41,45 +39,43 @@ public abstract class MetricTreeBuilder {
     public abstract DefaultTreeModel createMetricTreeModel();
 
     protected void addSubClasses(ClassNode parentClassNode) {
-        parentClassNode.getJavaClass().getClasses()
+        parentClassNode.getJavaClass().innerClasses()
+                .map(ClassNode::new)
                 .forEach(c -> {
-                    ClassNode classNode = new ClassNode(c);
-                    parentClassNode.add(classNode);
-                    addSubClasses(classNode);
-                    addTypeMetricsAndMethodNodes(classNode);
+                    parentClassNode.add(c);
+                    addSubClasses(c);
+                    addTypeMetricsAndMethodNodes(c);
                 });
     }
 
     protected void addTypeMetricsAndMethodNodes(ClassNode classNode) {
         if (getMetricsTreeFilter().isMethodMetricsVisible()) {
-            classNode.getJavaClass().getMethods()
+            classNode.getJavaClass().methods()
+                    .map(MethodNode::new)
                     .forEach(m -> {
-                        MethodNode methodNode = new MethodNode(m);
-                        classNode.add(methodNode);
+                        classNode.add(m);
                         if (getMetricsTreeFilter().isMethodMetricsVisible()) {
-                            addMethodMetricsNodes(methodNode);
+                            addMethodMetricsNodes(m);
                         }});
         }
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
-            classNode.getJavaClass().getMetrics()
+            classNode.getJavaClass().metrics()
+                    .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
+                    .map(ClassMetricNode::new)
                     .forEach(m -> {
-                        if (mustBeShown(m) && checkClassMetricsSets(m.getType())) {
-                            MetricNode metricNode = new ClassMetricNode(m);
-                            classNode.add(metricNode);
-                            storeMetric(classNode, metricNode);
-                        }
+                            classNode.add(m);
+                            storeMetric(classNode, m);
                     });
         }
     }
 
     protected void addMethodMetricsNodes(MethodNode methodNode) {
-        methodNode.getJavaMethod().getMetrics()
+        methodNode.getJavaMethod().metrics()
+                .filter(this::mustBeShown)
+                .map(MethodMetricNode::new)
                 .forEach(m -> {
-                    if (mustBeShown(m)) {
-                        MetricNode metricNode = new MethodMetricNode(m);
-                        methodNode.add(metricNode);
-                        storeMetric(methodNode, metricNode);
-                    }
+                    methodNode.add(m);
+                    storeMetric(methodNode, m);
                 });
     }
 

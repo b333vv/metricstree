@@ -51,6 +51,14 @@ public class Range {
         return new Range(from, to);
     }
 
+    public Value getFrom() {
+        return from;
+    }
+
+    public Value getTo() {
+        return to;
+    }
+
     public boolean includes(@NotNull Value value) {
         return (value.isEqualsOrGreaterThan(from) && value.isEqualsOrLessThan(to));
     }

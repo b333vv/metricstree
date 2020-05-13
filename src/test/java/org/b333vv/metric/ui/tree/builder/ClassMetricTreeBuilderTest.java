@@ -21,7 +21,6 @@ import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.node.ClassNode;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
@@ -43,7 +42,7 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
         javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
-        rootJavaClass = javaFile.getClasses().findFirst().get();
+        rootJavaClass = javaFile.classes().findFirst().get();
 
         ClassMetricTreeBuilder classMetricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
         treeModel = classMetricTreeBuilder.createMetricTreeModel();
@@ -60,9 +59,9 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
     }
 
     public void testNodeCount() {
-        assertEquals(rootJavaClass.getClasses().count()
-                + rootJavaClass.getMethods().count()
-                + rootJavaClass.getMetrics().count(),
+        assertEquals(rootJavaClass.innerClasses().count()
+                + rootJavaClass.methods().count()
+                + rootJavaClass.metrics().count(),
                 treeModel.getChildCount(rootClassNode));
     }
 }

@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.ui.settings.composition;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -30,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @State(name = "ProjectMetricsTreeSettings", storages = {@Storage("project-metrics-tree.xml")})
-public final class ProjectMetricsTreeSettings implements PersistentStateComponent<ProjectMetricsTreeSettings>, BaseComponent {
+public final class ProjectMetricsTreeSettings implements PersistentStateComponent<ProjectMetricsTreeSettings> {
 
     private final List<MetricsTreeSettingsStub> projectTreeMetrics = new ArrayList<>();
     private boolean needToConsiderProjectMetrics;
@@ -65,12 +64,6 @@ public final class ProjectMetricsTreeSettings implements PersistentStateComponen
     @Override
     public synchronized void loadState(@NotNull ProjectMetricsTreeSettings state) {
         XmlSerializerUtil.copyBean(state, this);
-    }
-
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return "ProjectMetricsTreeSettings";
     }
 
     public List<MetricsTreeSettingsStub> getMetricsList() {

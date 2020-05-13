@@ -16,41 +16,43 @@
 
 package org.b333vv.metric.ui.tree.node;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.psi.util.PsiUtil;
+import com.intellij.ui.SimpleTextAttributes;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
-import javax.swing.*;
+public class ViolatorClassNode extends ClassNode {
 
-public class ClassNode extends AbstractNode {
+    private final Metric metric;
 
-    protected final JavaClass javaClass;
-
-    public ClassNode(JavaClass javaClass) {
-        this.javaClass = javaClass;
+    public ViolatorClassNode(JavaClass javaClass, Metric metric) {
+        super(javaClass);
+        this.metric = metric;
     }
 
     public JavaClass getJavaClass() {
         return javaClass;
     }
 
-    public Icon getIcon() {
-        if (javaClass.getPsiClass().isInterface()) {
-            return AllIcons.Nodes.Interface;
+    private String getDelta() {
+        String delta = "";
+        if (metric.getValue() != Value.UNDEFINED) {
+            if (metric.getValue().isLessThan(metric.getRange().getFrom())) {
+                delta += " [-" + metric.getRange().getFrom().minus(metric.getValue()) + "]";
+            }
+            if (metric.getValue().isGreaterThan(metric.getRange().getTo())) {
+                delta += " [+" + metric.getValue().minus(metric.getRange().getTo()) + "]";
+            }
         }
-        if (javaClass.getPsiClass().isEnum()) {
-            return AllIcons.Nodes.Enum;
-        }
-        if (PsiUtil.isAbstractClass(javaClass.getPsiClass())) {
-            return AllIcons.Nodes.AbstractClass;
-        }
-        return AllIcons.Nodes.Class;
+        return delta;
     }
 
     @Override
     public void render(TreeCellRenderer renderer) {
         renderer.setIcon(getIcon());
         renderer.append(javaClass.getName());
+        renderer.append(": " + metric.getFormattedValue());
+        renderer.append(getDelta(), SimpleTextAttributes.ERROR_ATTRIBUTES);
     }
 }

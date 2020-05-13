@@ -35,6 +35,7 @@ public class MetricsIcons {
   public static final Icon INVALID_VALUE = IconLoader.getIcon("/images/invalidValue.svg");
   public static final Icon VALID_VALUE = IconLoader.getIcon("/images/validValue.svg");
   public static final Icon SORT_BY_VALUES = IconLoader.getIcon("/images/sortByValues.svg");
+  public static final Icon CALCULATE_PROJECT_METRICS = IconLoader.getIcon("/images/calculateProjectMetrics.svg");
 
   private MetricsIcons() {
     // only static

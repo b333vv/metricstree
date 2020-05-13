@@ -19,6 +19,7 @@ package org.b333vv.metric.util;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
@@ -40,6 +41,7 @@ public class MetricsService {
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static boolean showClassMetricsTree;
     private static Project project;
+    private static DependenciesBuilder dependenciesBuilder;
 
     private MetricsService() {
         // Utility class
@@ -66,21 +68,21 @@ public class MetricsService {
         }
     }
 
-    public static Stream<JavaRecursiveElementVisitor> getJavaClassVisitorsForClassMetricsTree() {
+    public static Stream<JavaRecursiveElementVisitor> classVisitorsForClassMetricsTree() {
         return classMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
-    public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForClassMetricsTree() {
+    public static Stream<JavaRecursiveElementVisitor> methodsVisitorsForClassMetricsTree() {
         return classMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaMethodVisitor);
     }
 
-    public static Stream<JavaRecursiveElementVisitor> getJavaClassVisitorsForProjectMetricsTree() {
+    public static Stream<JavaRecursiveElementVisitor> classVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .filter(m -> m.getType() != CBO)
@@ -88,7 +90,7 @@ public class MetricsService {
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
-    public static Stream<JavaRecursiveElementVisitor> getDeferredJavaClassVisitorsForProjectMetricsTree() {
+    public static Stream<JavaRecursiveElementVisitor> deferredClassVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .filter(m -> m.getType() == CBO)
@@ -96,7 +98,7 @@ public class MetricsService {
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
-    public static Stream<JavaRecursiveElementVisitor> getJavaMethodVisitorsForProjectMetricsTree() {
+    public static Stream<JavaRecursiveElementVisitor> methodsVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
@@ -121,5 +123,12 @@ public class MetricsService {
         MetricsService.showClassMetricsTree = showClassMetricsTree;
         classMetricsTreeSettings.setShowClassMetricsTree(showClassMetricsTree);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).showClassMetricsTree(showClassMetricsTree);
+    }
+
+    public static void setDependenciesBuilder(DependenciesBuilder dependenciesBuilder) {
+        MetricsService.dependenciesBuilder = dependenciesBuilder;
+    }
+    public static DependenciesBuilder getDependenciesBuilder() {
+        return dependenciesBuilder;
     }
 }

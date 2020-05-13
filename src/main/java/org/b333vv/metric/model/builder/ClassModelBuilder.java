@@ -32,13 +32,13 @@ public class ClassModelBuilder extends ModelBuilder {
     }
 
     @Override
-    protected Stream<JavaRecursiveElementVisitor> getJavaClassVisitors() {
-        return MetricsService.getJavaClassVisitorsForClassMetricsTree();
+    protected Stream<JavaRecursiveElementVisitor> classVisitors() {
+        return MetricsService.classVisitorsForClassMetricsTree();
     }
 
     @Override
-    protected Stream<JavaRecursiveElementVisitor> getJavaMethodVisitors() {
-        return MetricsService.getJavaMethodVisitorsForClassMetricsTree();
+    protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
+        return MetricsService.methodsVisitorsForClassMetricsTree();
     }
 
     @Override

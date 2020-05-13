@@ -18,8 +18,6 @@ package org.b333vv.metric.ui.tool;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
-import org.b333vv.metric.exec.Computable;
-import org.b333vv.metric.exec.Memorizer;
 import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaFile;
@@ -31,14 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
-
-//    private final Computable<PsiJavaFile, JavaFile> c =
-//            (key, subject) -> {
-//                ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-//                return classModelBuilder.buildJavaFile(psiJavaFile);
-//            };
-//
-//    private final Computable<PsiJavaFile, JavaFile> cache = new Memorizer<>(c);
 
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
@@ -76,20 +66,6 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
         buildTreeModel();
         MetricsUtils.setClassMetricsTreeExists(true);
-//        MetricsUtils.setClassMetricsTreeExists(false);
-//        MetricsUtils.getConsole().firstPart("Built metrics tree for " + psiJavaFile.getName());
-//        JavaFile javaFile = null;
-//        try {
-//            String key = psiJavaFile.getPackageName() + "|" + psiJavaFile.getName() + ":" + psiJavaFile.getModificationStamp();
-//            javaFile = cache.compute(key, psiJavaFile);
-//        } catch (InterruptedException e) {
-//            MetricsUtils.getConsole().error("Built metrics tree for " + psiJavaFile.getName() + " interrupted");
-//        }
-//        if (javaFile != null) {
-//            metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
-//            buildTreeModel();
-//            MetricsUtils.setClassMetricsTreeExists(true);
-//        }
     }
 
     private class ClassMetricsEventListener implements MetricsEventListener {

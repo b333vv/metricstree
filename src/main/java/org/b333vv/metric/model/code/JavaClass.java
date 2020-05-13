@@ -37,18 +37,18 @@ public class JavaClass extends JavaCode {
         addChild(javaClass);
     }
 
-    public Stream<JavaMethod> getMethods() {
+    public Stream<JavaMethod> methods() {
         return children.stream()
                 .filter(c -> c instanceof JavaMethod)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaMethod) c);
+                .map(c -> (JavaMethod) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 
-    public Stream<JavaClass> getClasses() {
+    public Stream<JavaClass> innerClasses() {
         return children.stream()
                 .filter(c -> c instanceof JavaClass)
-                .sorted(Comparator.comparing(JavaCode::getName))
-                .map(c -> (JavaClass) c);
+                .map(c -> (JavaClass) c)
+                .sorted(Comparator.comparing(JavaCode::getName));
     }
 
     public void addMethod(@NotNull JavaMethod javaMethod) {

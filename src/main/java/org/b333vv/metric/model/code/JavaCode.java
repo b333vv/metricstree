@@ -44,7 +44,7 @@ public abstract class JavaCode {
         return name;
     }
 
-    public Stream<Metric> getMetrics() {
+    public Stream<Metric> metrics() {
         return metrics.values().stream()
                 .sorted(Comparator.comparing(Metric::getType));
     }

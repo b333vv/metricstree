@@ -23,7 +23,6 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
-import org.b333vv.metric.exec.ProjectMetricsProcessor;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -38,6 +37,8 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class MoodMetricsSetCalculator {
     private final AnalysisScope scope;
+    private final DependenciesBuilder dependenciesBuilder;
+    private final JavaProject javaProject;
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
@@ -65,11 +66,13 @@ public class MoodMetricsSetCalculator {
     private int overridingMethodsNumber = 0;
     private int overridePotentialsNumber = 0;
 
-    public MoodMetricsSetCalculator(AnalysisScope scope) {
+    public MoodMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
         this.scope = scope;
+        this.dependenciesBuilder = dependenciesBuilder;
+        this.javaProject = javaProject;
     }
 
-    public void calculate(JavaProject javaProject) {
+    public void calculate() {
         indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();
@@ -78,26 +81,26 @@ public class MoodMetricsSetCalculator {
 
         indicator.setText("Calculating metrics");
 
-        addAttributeHidingFactor(javaProject);
-        addAttributeInheritanceFactor(javaProject);
-        addCouplingFactor(javaProject);
-        addMethodHidingFactor(javaProject);
-        addMethodInheritanceFactor(javaProject);
-        addPolymorphismFactor(javaProject);
+        addAttributeHidingFactor();
+        addAttributeInheritanceFactor();
+        addCouplingFactor();
+        addMethodHidingFactor();
+        addMethodInheritanceFactor();
+        addPolymorphismFactor();
     }
 
-    private void addPolymorphismFactor(JavaProject javaProject) {
+    private void addPolymorphismFactor() {
         Value polymorphismFactor = overridePotentialsNumber == 0 ? Value.of(1.0) :
                 Value.of((double) overridingMethodsNumber).divide(Value.of((double) overridePotentialsNumber));
         javaProject.addMetric(Metric.of(PF, polymorphismFactor));
     }
 
-    private void addMethodInheritanceFactor(JavaProject javaProject) {
+    private void addMethodInheritanceFactor() {
         Value methodInheritanceFactor = Value.of((double) inheritedMethods).divide(Value.of((double) availableMethods));
         javaProject.addMetric(Metric.of(MIF, methodInheritanceFactor));
     }
 
-    private void addMethodHidingFactor(JavaProject javaProject) {
+    private void addMethodHidingFactor() {
         totalMethodsVisibility = totalMethodsVisibility
                 .plus((Value.of(publicMethodsNumber)
                         .times(Value.of(classesNumber - 1))));
@@ -117,7 +120,7 @@ public class MoodMetricsSetCalculator {
         javaProject.addMetric(Metric.of(MHF, methodHidingFactor));
     }
 
-    private void addCouplingFactor(JavaProject javaProject) {
+    private void addCouplingFactor() {
         Value numerator = Value.of((double) totalCoupling);
         Value denominator = Value.of((double) classesNumber)
                 .times(Value.of((double) (classesNumber - 1))).divide(Value.of(2.0));
@@ -126,14 +129,14 @@ public class MoodMetricsSetCalculator {
         javaProject.addMetric(Metric.of(CF, couplingFactor));
     }
 
-    private void addAttributeInheritanceFactor(JavaProject javaProject) {
+    private void addAttributeInheritanceFactor() {
         Value attributeInheritanceFactor = Value.of((double) inheritedFields)
                 .divide(Value.of((double) availableFields));
 
         javaProject.addMetric(Metric.of(AIF, attributeInheritanceFactor));
     }
 
-    private void addAttributeHidingFactor(JavaProject javaProject) {
+    private void addAttributeHidingFactor() {
         totalAttributesVisibility = totalAttributesVisibility
                 .plus((Value.of(publicAttributesNumber)
                         .times(Value.of(classesNumber - 1))));
@@ -154,6 +157,10 @@ public class MoodMetricsSetCalculator {
     }
 
     private class Visitor extends JavaRecursiveElementVisitor {
+        @Override
+        public void visitFile(PsiFile psiFile) {
+            super.visitFile(psiFile);
+        }
         @Override
         public void visitClass(PsiClass aClass) {
             super.visitClass(aClass);
@@ -240,7 +247,7 @@ public class MoodMetricsSetCalculator {
         }
 
         private void processCouplingFactor(PsiClass psiClass) {
-            final DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
+//            final DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
             final Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             totalCoupling += dependencies.stream()
                     .filter(c -> !psiClass.isInheritor(c, true))

@@ -72,7 +72,6 @@ public class DependenciesBuilder {
 
     private class DependenciesVisitor extends JavaRecursiveElementVisitor {
 
-//        private final Stack<PsiClass> classStack = new Stack<>();
         private final ConcurrentStack<PsiClass> classStack = new ConcurrentStack<>();
         private PsiClass currentClass = null;
 
@@ -224,12 +223,7 @@ public class DependenciesBuilder {
         }
 
         private <K, V> void add(K k, V v, Map<K, Bag<V>> map) {
-            Bag<V> bag = map.get(k);
-            if (bag == null) {
-                bag = new Bag<>();
-                map.put(k, bag);
-            }
-            bag.add(v);
+            map.computeIfAbsent(k, (unused) -> new Bag<>()).add(v);
         }
     }
 }

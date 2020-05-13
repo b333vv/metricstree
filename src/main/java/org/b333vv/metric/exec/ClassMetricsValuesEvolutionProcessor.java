@@ -31,14 +31,13 @@ import git4idea.util.GitFileUtils;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -50,7 +49,7 @@ public class ClassMetricsValuesEvolutionProcessor {
     private FutureTask<Void> buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
-    private final Map<TimedVcsCommit, JavaClass> classMetricsEvolution = new ConcurrentHashMap<>();
+    private final Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution = new ConcurrentHashMap<>();
     private final ClassModelBuilder classModelBuilder;
 
     private DefaultTreeModel metricsTreeModel;
@@ -94,8 +93,8 @@ public class ClassMetricsValuesEvolutionProcessor {
                                 new String(GitFileUtils.getFileContent(psiJavaFile.getProject(), root, commit.getId().toShortString(),
                                         VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()))));
                         JavaFile javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
-                        javaFile.getClasses()
-                                .forEach(c -> classMetricsEvolution.put(commit, c));
+                        javaFile.classes()
+                                .forEach(c -> classMetricsEvolution.computeIfAbsent(commit, (unused) -> new HashSet<>()).add(c));
                     });
                 }
             } catch (VcsException e) {
