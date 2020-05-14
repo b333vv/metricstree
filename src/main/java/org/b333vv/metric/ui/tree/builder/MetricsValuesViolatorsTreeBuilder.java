@@ -75,7 +75,7 @@ public class MetricsValuesViolatorsTreeBuilder {
 
         @Override
         public Supplier<Map<JavaClass, Metric>> supplier() {
-            return HashMap::new;
+            return LinkedHashMap::new;
         }
 
         @Override
