@@ -36,6 +36,7 @@ import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.swing.*;
 import java.util.*;
 
 public class MetricsUtils {
@@ -144,6 +145,9 @@ public class MetricsUtils {
     @CheckForNull
     public static VirtualFile getSelectedFile(Project project) {
         if (project.isDisposed()) {
+            return null;
+        }
+        if (!SwingUtilities.isEventDispatchThread()) {
             return null;
         }
         FileEditorManager editorManager = FileEditorManager.getInstance(project);

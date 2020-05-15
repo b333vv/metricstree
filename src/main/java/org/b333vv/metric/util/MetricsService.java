@@ -114,6 +114,9 @@ public class MetricsService {
     }
 
     public static boolean isControlValidRanges() {
+        if (metricsValidRangesSettings == null) {
+            return false;
+        }
         return metricsValidRangesSettings.isControlValidRanges();
     }
 
