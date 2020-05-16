@@ -30,7 +30,6 @@ import org.b333vv.metric.util.MetricsUtils;
 import javax.swing.tree.DefaultTreeModel;
 
 public class MetricsValuesViolatorsProcessor {
-    private final DependenciesBuilder dependenciesBuilder;
 
     private final Project project;
     private final JavaProject javaProject;
@@ -43,8 +42,7 @@ public class MetricsValuesViolatorsProcessor {
     public MetricsValuesViolatorsProcessor(Project project) {
         this.project = project;
         javaProject = new JavaProject(project.getName());
-        dependenciesBuilder = new DependenciesBuilder();
-        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
+        DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
         AnalysisScope scope = new AnalysisScope(project);
         scope.setIncludeTestSource(false);
 

@@ -32,6 +32,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 
 public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuilder {
@@ -69,9 +70,9 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
                         String dateTime = LocalDateTime
                                 .ofInstant(Instant.ofEpochMilli(timedMetricsSet.getKey().getTimestamp()),
                                         TimeZone.getDefault().toZoneId())
-                                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy' 'HH:mm:ss"));
+                                    .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
                         String hash = timedMetricsSet.getKey().getId().toShortString();
-                        timedMetricsSet.getValue().stream().forEach(c -> buildMetricsNodesForClasses(c, hash, dateTime));
+                        timedMetricsSet.getValue().forEach(c -> buildMetricsNodesForClasses(c, hash, dateTime));
             });
         return model;
     }

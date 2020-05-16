@@ -75,7 +75,7 @@ public class ClassMetricsValuesEvolutionProcessor {
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(true);
 
             GitRepositoryManager gitRepositoryManager = GitUtil.getRepositoryManager(psiJavaFile.getProject());
-            VirtualFile root = gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile()).getRoot();
+            VirtualFile root = Objects.requireNonNull(gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile())).getRoot();
             List<? extends TimedVcsCommit> commits;
 
             try {
