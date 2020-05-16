@@ -35,7 +35,6 @@ import java.time.format.FormatStyle;
 public class MetricsConsole implements ProjectLifecycleListener {
 
     private final ConsoleView consoleView;
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
     private final Project project;
 
     public MetricsConsole(Project project) {
@@ -55,15 +54,15 @@ public class MetricsConsole implements ProjectLifecycleListener {
     }
 
     public void debug(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     public void info(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     public void firstPart(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg, ConsoleViewContentType.NORMAL_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg, ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     public void lastPart(String msg) {
@@ -71,7 +70,7 @@ public class MetricsConsole implements ProjectLifecycleListener {
     }
 
     public void error(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
     }
 
     public void error(String msg, Throwable t) {
