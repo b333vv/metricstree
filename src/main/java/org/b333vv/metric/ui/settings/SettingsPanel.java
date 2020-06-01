@@ -22,8 +22,10 @@ import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettingsPanel;
 import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettingsPanel;
-import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesPanel;
-import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesPanel;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesPanel;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
@@ -31,7 +33,8 @@ import java.awt.*;
 
 public class SettingsPanel {
     private final JPanel root;
-    private final MetricsValidRangesPanel metricsValidRangesPanel;
+    private final BasicMetricsValidRangesPanel basicMetricsValidRangesPanel;
+    private final DerivativeMetricsValidRangesPanel derivativeMetricsValidRangesPanel;
     private final ClassMetricsTreeSettingsPanel classMetricsTreeSettingsPanel;
     private final ProjectMetricsTreeSettingsPanel projectMetricsTreeSettingsPanel;
     private final Project project;
@@ -41,23 +44,28 @@ public class SettingsPanel {
         root = new JPanel(new BorderLayout());
         JBTabbedPane tabs = new JBTabbedPane();
 
-        MetricsValidRangesSettings metricsValidRangesSettings =
-                MetricsUtils.get(project, MetricsValidRangesSettings.class);
+        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
+                MetricsUtils.get(project, BasicMetricsValidRangesSettings.class);
+        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
+                MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
         ClassMetricsTreeSettings classMetricsTreeSettings =
                 MetricsUtils.get(project, ClassMetricsTreeSettings.class);
         ProjectMetricsTreeSettings projectMetricsTreeSettings =
                 MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
 
-        metricsValidRangesPanel = new MetricsValidRangesPanel(project, metricsValidRangesSettings);
+        basicMetricsValidRangesPanel = new BasicMetricsValidRangesPanel(project, basicMetricsValidRangesSettings);
+        derivativeMetricsValidRangesPanel = new DerivativeMetricsValidRangesPanel(project, derivativeMetricsValidRangesSettings);
         classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(classMetricsTreeSettings);
         projectMetricsTreeSettingsPanel = new ProjectMetricsTreeSettingsPanel(projectMetricsTreeSettings);
 
-        tabs.insertTab("Metrics Valid Values", null, metricsValidRangesPanel.getComponent(),
-                "Configure valid values ", 0);
+        tabs.insertTab("Basic Metrics Valid Values", null, basicMetricsValidRangesPanel.getComponent(),
+                "Configure valid values for basic metrics", 0);
+        tabs.insertTab("Derivative Metrics Valid Values", null, derivativeMetricsValidRangesPanel.getComponent(),
+                "Configure valid values for derivative metrics", 1);
         tabs.insertTab("Class Metrics Tree Composition", null, classMetricsTreeSettingsPanel.getComponent(),
-                "Configure class metrics tree composition", 1);
+                "Configure class metrics tree composition", 2);
         tabs.insertTab("Project Metrics Tree Composition", null, projectMetricsTreeSettingsPanel.getComponent(),
-                "Configure project metrics tree composition", 2);
+                "Configure project metrics tree composition", 3);
 
         root.add(tabs, BorderLayout.CENTER);
     }
@@ -70,8 +78,12 @@ public class SettingsPanel {
         return root;
     }
 
-    public boolean isModified(MetricsValidRangesSettings metricsValidRangesSettings) {
-        return metricsValidRangesPanel.isModified(metricsValidRangesSettings);
+    public boolean isModified(BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
+        return basicMetricsValidRangesPanel.isModified(basicMetricsValidRangesSettings);
+    }
+
+    public boolean isModified(DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings) {
+        return derivativeMetricsValidRangesPanel.isModified(derivativeMetricsValidRangesSettings);
     }
 
     public boolean isModified(ClassMetricsTreeSettings classMetricsTreeSettings) {
@@ -82,8 +94,12 @@ public class SettingsPanel {
         return projectMetricsTreeSettingsPanel.isModified(projectMetricsTreeSettings);
     }
 
-    public void save(MetricsValidRangesSettings metricsValidRangesSettings) {
-        metricsValidRangesPanel.save(metricsValidRangesSettings);
+    public void save(BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
+        basicMetricsValidRangesPanel.save(basicMetricsValidRangesSettings);
+    }
+
+    public void save(DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings) {
+        derivativeMetricsValidRangesPanel.save(derivativeMetricsValidRangesSettings);
     }
 
     public void save(ClassMetricsTreeSettings classMetricsTreeSettings) {

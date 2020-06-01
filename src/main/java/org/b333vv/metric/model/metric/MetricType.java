@@ -34,7 +34,7 @@ public enum MetricType {
     //Chidamber-Kemerer metrics set
     WMC("Weighted Methods Per Class", CHIDAMBER_KEMERER, CLASS, new WeightedMethodCountVisitor()),
     DIT("Depth Of Inheritance Tree", CHIDAMBER_KEMERER, CLASS, new DepthOfInheritanceTreeVisitor()),
-    CBO("Coupling Between Object", CHIDAMBER_KEMERER, CLASS, new CouplingBetweenObjectsVisitor()),
+    CBO("Coupling Between Objects", CHIDAMBER_KEMERER, CLASS, new CouplingBetweenObjectsVisitor()),
     RFC("Response For A Class", CHIDAMBER_KEMERER, CLASS, new ResponseForClassVisitor()),
     LCOM("Lack Of Cohesion Of Methods", CHIDAMBER_KEMERER, CLASS, new LackOfCohesionOfMethodsVisitor()),
     NOC("Number Of Children", CHIDAMBER_KEMERER, CLASS, new NumberOfChildrenVisitor()),

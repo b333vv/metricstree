@@ -16,13 +16,9 @@
 
 package org.b333vv.metric.ui.tree.node;
 
-import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.ui.scale.JBUIScale;
 import icons.MetricsIcons;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.ui.tree.CompositeIcon;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
-import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
 
@@ -50,7 +46,7 @@ public class MetricTypeNode extends AbstractNode {
     public void render(TreeCellRenderer renderer) {
         renderer.setIcon(getIcon());
         renderer.append(getMetricTypeName());
-        renderer.append(": " + MetricsService.getRangeForMetric(metricType).toString());
-        renderer.append(" [" + this.children.size() + " classes]", SimpleTextAttributes.GRAY_SMALL_ATTRIBUTES);
+//        renderer.append(": " + MetricsService.getRangeForMetric(metricType).toString());
+//        renderer.append(" [" + this.children.size() + " classes]", SimpleTextAttributes.GRAY_SMALL_ATTRIBUTES);
     }
 }

@@ -57,7 +57,7 @@ public class JavaClass extends JavaCode {
 
     @Override
     public String toString() {
-        return "Type(" + this.getName() + ")";
+        return this.getName();
     }
 
     public PsiClass getPsiClass() {

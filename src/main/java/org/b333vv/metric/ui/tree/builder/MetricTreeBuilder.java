@@ -20,10 +20,11 @@ import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.Range;
+import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
+import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -90,15 +91,14 @@ public abstract class MetricTreeBuilder {
     protected boolean mustBeShown(Metric metric) {
         MetricsTreeFilter metricsTreeFilter = getMetricsTreeFilter();
         return metricsTreeFilter.isAllowedValueMetricsVisible()
-                    && metric.hasAllowableValue()
-                    && metric.getRange() != Range.UNDEFINED
                     && metric.getValue() != Value.UNDEFINED
+                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR
                 || metricsTreeFilter.isDisallowedValueMetricsVisible()
-                    && !metric.hasAllowableValue()
                     && metric.getValue() != Value.UNDEFINED
+                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
                 || metricsTreeFilter.isNotSetValueMetricsVisible()
-                    && metric.getRange() == Range.UNDEFINED
                     && metric.getValue() != Value.UNDEFINED
+                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
                 || metricsTreeFilter.isNotApplicableMetricsVisible()
                     && metric.getValue() == Value.UNDEFINED;
     }

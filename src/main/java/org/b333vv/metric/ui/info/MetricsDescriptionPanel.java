@@ -23,8 +23,8 @@ import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.Range;
 import icons.MetricsIcons;
+import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
@@ -45,7 +45,7 @@ public class MetricsDescriptionPanel {
 
     public MetricsDescriptionPanel() {
         rightMetricPanel = new JPanel(new GridBagLayout());
-        JLabel allowableRangeLabel = new JLabel("Valid Range:");
+        JLabel allowableRangeLabel = new JLabel("Regular Range:");
         allowableRangeValue = new JLabel();
         JLabel currentValueLabel = new JLabel("Calculated Metrics Value:");
         currentValue = new JLabel();
@@ -57,15 +57,6 @@ public class MetricsDescriptionPanel {
         metricDescription = new JEditorPane();
         metricDescription.setContentType("text/html");
         metricDescription.setEditable(false);
-
-//        if (UIUtil.isUnderDarcula()) {
-//            HTMLEditorKit kit = new HTMLEditorKit();
-//            StyleSheet styleSheet = new StyleSheet();
-//            styleSheet.addRule("body { background-color: #303030 }");
-//            styleSheet.addRule("body { color: #D3D3D3; }");
-//            kit.getStyleSheet().addStyleSheet(styleSheet);
-//            metricDescription.setEditorKit(kit);
-//        }
 
         JScrollPane scrollableMetricDescriptionPanel = ScrollPaneFactory.createScrollPane(
                 metricDescription,
@@ -111,10 +102,10 @@ public class MetricsDescriptionPanel {
         metricLevel.setText(metric.getType().level().level());
         metricSet.setText(metric.getType().set().set());
         if (metric.getType().set() == MetricSet.MOOD) {
-            allowableRangeValue.setText(metric.getRange().percentageFormat());
+            allowableRangeValue.setText(MetricsService.getRangeForMetric(metric.getType()).percentageFormat());
             currentValue.setText(metric.getValue().percentageFormat());
         } else {
-            allowableRangeValue.setText(metric.getRange().toString());
+            allowableRangeValue.setText(MetricsService.getRangeForMetric(metric.getType()).toString());
             currentValue.setText(metric.getValue().toString());
         }
 
@@ -128,12 +119,20 @@ public class MetricsDescriptionPanel {
         }
 
         if (MetricsService.isControlValidRanges()) {
-            if (!metric.hasAllowableValue()) {
-                currentValue.setIcon(MetricsIcons.INVALID_VALUE);
-            } else if (metric.getRange() == Range.UNDEFINED) {
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+                currentValue.setIcon(MetricsIcons.REGULAR_VALUE);
+            }
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+                currentValue.setIcon(MetricsIcons.HIGH_VALUE);
+            }
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+                currentValue.setIcon(MetricsIcons.VERY_HIGH_VALUE);
+            }
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+                currentValue.setIcon(MetricsIcons.EXTREME_VALUE);
+            }
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
                 currentValue.setIcon(MetricsIcons.NOT_TRACKED);
-            } else {
-                currentValue.setIcon(MetricsIcons.VALID_VALUE);
             }
         } else {
             allowableRangeValue.setText("");
