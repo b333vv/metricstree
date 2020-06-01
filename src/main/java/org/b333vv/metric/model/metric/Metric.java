@@ -16,9 +16,7 @@
 
 package org.b333vv.metric.model.metric;
 
-import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -26,12 +24,10 @@ import java.util.Objects;
 public class Metric implements Comparable<Metric> {
     private final MetricType type;
     private final Value value;
-    private final Range range;
 
     private Metric(MetricType type, Value value) {
         this.type = type;
         this.value = value;
-        this.range = MetricsService.getRangeForMetric(type);
     }
 
     public static Metric of(MetricType type, Value value) {
@@ -75,14 +71,6 @@ public class Metric implements Comparable<Metric> {
 
     public String getFormattedValue() {
         return value.toString();
-    }
-
-    public Range getRange() {
-        return range;
-    }
-
-    public boolean hasAllowableValue() {
-        return range.includes(value);
     }
 
     @Override

@@ -18,65 +18,29 @@ package org.b333vv.metric.model.metric.value;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Range {
-    public static final Range UNDEFINED = new Range(Value.UNDEFINED, Value.UNDEFINED) {
-        @Override
-        public boolean includes(Value value) {
-            return true;
-        }
+public interface Range {
+    RangeType getRangeType(@NotNull Value value);
 
-        @Override
-        public String toString() {
-            return "";
-        }
+    Value getRegularFrom();
 
-        @Override
-        public String percentageFormat() {
-            return "";
-        }
-    };
+    Value getRegularTo();
 
-    private final Value from;
-    private final Value to;
+    Value getHighFrom();
 
-    private Range(Value from, Value to) {
-        this.from = from;
-        this.to = to;
-    }
+    Value getHighTo();
 
-    public static Range of(@NotNull Value from, @NotNull Value to) {
-        if (from.isGreaterThan(to)) {
-            throw new IllegalArgumentException("Wrong range bounds: from > to");
-        }
-        return new Range(from, to);
-    }
+    Value getVeryHighFrom();
 
-    public Value getFrom() {
-        return from;
-    }
+    Value getVeryHighTo();
 
-    public Value getTo() {
-        return to;
-    }
+    Value getExtremeFrom();
 
-    public boolean includes(@NotNull Value value) {
-        return (value.isEqualsOrGreaterThan(from) && value.isEqualsOrLessThan(to));
-    }
+    Value getExtremeTo();
 
     @Override
-    public String toString() {
-        return "[" +
-                from +
-                ".." +
-                to +
-                "]";
-    }
+    String toString();
 
-    public String percentageFormat() {
-        return "[" +
-                from.percentageFormat() +
-                ".." +
-                to.percentageFormat() +
-                "]";
-    }
+    String percentageFormat();
+
+    String getRangeByRangeType(RangeType rangeType);
 }

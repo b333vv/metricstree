@@ -33,25 +33,23 @@ import java.util.Objects;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class AddValidRangeForMetricDialog extends DialogWrapper {
+public class AddValidRangeForDerivativeMetricDialog extends DialogWrapper {
     private final JPanel panel;
     private final ComboBox metricsAllowableValuesRangeStubCombo;
     private final JSpinner minValue;
     private final JSpinner maxValue;
-    private MetricsValidRangeStub metricsAllowableValueRangeStub = null;
-    private boolean spinnerIsDouble;
+    private DerivativeMetricsValidRangeStub metricsAllowableValueRangeStub = null;
 
-
-    public AddValidRangeForMetricDialog(Project project) {
+    public AddValidRangeForDerivativeMetricDialog(Project project) {
         super(project, false);
-        setTitle("Add Valid Range For Metric");
+        setTitle("Add Range For Metric");
 
-        MetricsValidRangesSettings metricsValidRangesSettings = MetricsUtils.get(project, MetricsValidRangesSettings.class);
-        List<MetricsValidRangeStub> uncontrolledMetrics = metricsValidRangesSettings.getUnControlledMetricsList();
+        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
+        List<DerivativeMetricsValidRangeStub> uncontrolledMetrics = derivativeMetricsValidRangesSettings.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 
         metricsAllowableValuesRangeStubCombo.addItemListener(arg -> {
-            metricsAllowableValueRangeStub = (MetricsValidRangeStub)
+            metricsAllowableValueRangeStub = (DerivativeMetricsValidRangeStub)
                     metricsAllowableValuesRangeStubCombo.getSelectedItem();
             setMetricsAllowableValueRangeStub(Objects.requireNonNull(metricsAllowableValueRangeStub));
         });
@@ -62,7 +60,7 @@ public class AddValidRangeForMetricDialog extends DialogWrapper {
         JLabel comboBoxLabel = new JLabel("Metric");
         minValue = new JSpinner();
         maxValue = new JSpinner();
-        setMetricsAllowableValueRangeStub((MetricsValidRangeStub)
+        setMetricsAllowableValueRangeStub((DerivativeMetricsValidRangeStub)
                 Objects.requireNonNull(metricsAllowableValuesRangeStubCombo.getSelectedItem()));
 
         JBInsets insets = JBUI.insets(2, 2, 2, 2);
@@ -84,22 +82,12 @@ public class AddValidRangeForMetricDialog extends DialogWrapper {
         myOKAction = new OkAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (spinnerIsDouble) {
-                    metricsAllowableValueRangeStub.setMinDoubleValue((Double) minValue.getModel().getValue());
-                    metricsAllowableValueRangeStub.setMaxDoubleValue((Double) maxValue.getModel().getValue());
-                    if (metricsAllowableValueRangeStub.getMaxDoubleValue() >= metricsAllowableValueRangeStub.getMinDoubleValue()) {
-                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
-                        super.actionPerformed(e);
-                        dispose();
-                    }
-                } else {
-                    metricsAllowableValueRangeStub.setMinLongValue((Long) minValue.getModel().getValue());
-                    metricsAllowableValueRangeStub.setMaxLongValue((Long) maxValue.getModel().getValue());
-                    if (metricsAllowableValueRangeStub.getMaxLongValue() >= metricsAllowableValueRangeStub.getMinLongValue()) {
-                        metricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
-                        super.actionPerformed(e);
-                        dispose();
-                    }
+                metricsAllowableValueRangeStub.setMinValue((Double) minValue.getModel().getValue());
+                metricsAllowableValueRangeStub.setMaxValue((Double) maxValue.getModel().getValue());
+                if (metricsAllowableValueRangeStub.getMaxValue() >= metricsAllowableValueRangeStub.getMinValue()) {
+                    derivativeMetricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
+                    super.actionPerformed(e);
+                    dispose();
                 }
             }
         };
@@ -112,27 +100,16 @@ public class AddValidRangeForMetricDialog extends DialogWrapper {
         return panel;
     }
 
-    public MetricsValidRangeStub getMetricsAllowableValueRangeStub() {
+    public DerivativeMetricsValidRangeStub getMetricsAllowableValueRangeStub() {
         return metricsAllowableValueRangeStub;
     }
 
-    public void setMetricsAllowableValueRangeStub(MetricsValidRangeStub metricsAllowableValueRangeStub) {
+    public void setMetricsAllowableValueRangeStub(DerivativeMetricsValidRangeStub metricsAllowableValueRangeStub) {
         this.metricsAllowableValueRangeStub = metricsAllowableValueRangeStub;
-        SpinnerNumberModel minModel;
-        SpinnerNumberModel maxModel;
-        if (metricsAllowableValueRangeStub.isDoubleValue()) {
-            spinnerIsDouble = true;
-            minModel = new SpinnerNumberModel(Double.valueOf(this.metricsAllowableValueRangeStub.getMinDoubleValue()),
-                    Double.valueOf(0.00), Double.valueOf(1000000.00), Double.valueOf(0.01));
-            maxModel = new SpinnerNumberModel(Double.valueOf(this.metricsAllowableValueRangeStub.getMaxDoubleValue()),
-                    Double.valueOf(0.00), Double.valueOf(1000000.00), Double.valueOf(0.01));
-        } else {
-            spinnerIsDouble = false;
-            minModel = new SpinnerNumberModel(Long.valueOf(this.metricsAllowableValueRangeStub.getMinLongValue()),
-                    Long.valueOf(0), Long.valueOf(1000000), Long.valueOf(1));
-            maxModel = new SpinnerNumberModel(Long.valueOf(this.metricsAllowableValueRangeStub.getMaxLongValue()),
-                    Long.valueOf(0), Long.valueOf(1000000), Long.valueOf(1));
-        }
+        SpinnerNumberModel minModel = new SpinnerNumberModel(Double.valueOf(this.metricsAllowableValueRangeStub.getMinValue()),
+                Double.valueOf(0.00), Double.valueOf(1000000.00), Double.valueOf(0.01));
+        SpinnerNumberModel maxModel = new SpinnerNumberModel(Double.valueOf(this.metricsAllowableValueRangeStub.getMaxValue()),
+                Double.valueOf(0.00), Double.valueOf(1000000.00), Double.valueOf(0.01));
         minValue.setModel(minModel);
         maxValue.setModel(maxModel);
     }

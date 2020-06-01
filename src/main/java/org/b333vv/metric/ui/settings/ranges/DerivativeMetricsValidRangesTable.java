@@ -32,19 +32,19 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MetricsValidRangesTable {
-    private final Function<MetricsValidRangeStub, MetricsValidRangeStub> onEdit;
-    private final Supplier<MetricsValidRangeStub> onAdd;
+public class DerivativeMetricsValidRangesTable {
+    private final Function<DerivativeMetricsValidRangeStub, DerivativeMetricsValidRangeStub> onEdit;
+    private final Supplier<DerivativeMetricsValidRangeStub> onAdd;
     private final JBTable table;
     private final JPanel panel;
     private final Model model;
     private final Project project;
 
-    public MetricsValidRangesTable(String emptyLabel,
-                                   Function<MetricsValidRangeStub,
-                                   MetricsValidRangeStub> onEdit,
-                                   Supplier<MetricsValidRangeStub> onAdd,
-                                   Project project) {
+    public DerivativeMetricsValidRangesTable(String emptyLabel,
+                                             Function<DerivativeMetricsValidRangeStub,
+                                                  DerivativeMetricsValidRangeStub> onEdit,
+                                             Supplier<DerivativeMetricsValidRangeStub> onAdd,
+                                             Project project) {
         this.project = project;
         this.onEdit = onEdit;
         this.onAdd = onAdd;
@@ -102,19 +102,19 @@ public class MetricsValidRangesTable {
         return panel;
     }
 
-    public void set(List<MetricsValidRangeStub> data) {
+    public void set(List<DerivativeMetricsValidRangeStub> data) {
         model.set(data);
     }
 
-    public List<MetricsValidRangeStub> get() {
+    public List<DerivativeMetricsValidRangeStub> get() {
         return new ArrayList<>(model.items());
     }
 
     private void editEntry() {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
-            MetricsValidRangeStub value = model.items().get(selectedIndex);
-            MetricsValidRangeStub newValue = onEdit.apply(value);
+            DerivativeMetricsValidRangeStub value = model.items().get(selectedIndex);
+            DerivativeMetricsValidRangeStub newValue = onEdit.apply(value);
             if (newValue != null) {
                 model.items().set(selectedIndex, newValue);
             }
@@ -122,7 +122,7 @@ public class MetricsValidRangesTable {
     }
 
     private void addEntry() {
-        MetricsValidRangeStub newValue = onAdd.get();
+        DerivativeMetricsValidRangeStub newValue = onAdd.get();
         if (newValue != null) {
             model.items().add(newValue);
         }
@@ -131,19 +131,21 @@ public class MetricsValidRangesTable {
     private void removeEntry() {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
-            MetricsValidRangeStub value = model.items().get(selectedIndex);
-            MetricsValidRangesSettings metricsValidRangesSettings =
-                    MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
-            metricsValidRangesSettings.addToUnControlledMetrics(value);
+            DerivativeMetricsValidRangeStub value = model.items().get(selectedIndex);
+            DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
+                    MetricsUtils.get(DerivativeMetricsValidRangesTable.this.project, DerivativeMetricsValidRangesSettings.class);
+            derivativeMetricsValidRangesSettings.addToUnControlledMetrics(value);
             model.items().remove(value);
+            panel.revalidate();
+            panel.repaint();
         }
     }
 
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 5;
-        final MetricsValidRangesSettings metricsValidRangesSettings =
-                MetricsUtils.get(MetricsValidRangesTable.this.project, MetricsValidRangesSettings.class);
-        private List<MetricsValidRangeStub> rows = metricsValidRangesSettings.getControlledMetricsList();
+        final DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
+                MetricsUtils.get(DerivativeMetricsValidRangesTable.this.project, DerivativeMetricsValidRangesSettings.class);
+        private List<DerivativeMetricsValidRangeStub> rows = derivativeMetricsValidRangesSettings.getControlledMetricsList();
 
         @Override
         public int getRowCount() {
@@ -178,18 +180,18 @@ public class MetricsValidRangesTable {
             }
         }
 
-        public void set(List<MetricsValidRangeStub> rows) {
+        public void set(List<DerivativeMetricsValidRangeStub> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
-        public List<MetricsValidRangeStub> items() {
+        public List<DerivativeMetricsValidRangeStub> items() {
             return rows;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            MetricsValidRangeStub item = rows.get(rowIndex);
+            DerivativeMetricsValidRangeStub item = rows.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     return item.getName();
@@ -198,9 +200,9 @@ public class MetricsValidRangesTable {
                 case 2:
                     return item.getLevel();
                 case 3:
-                    return item.isDoubleValue() ? item.getMinDoubleValue() : item.getMinLongValue();
+                    return item.getMinValue();
                 case 4:
-                    return item.isDoubleValue() ? item.getMaxDoubleValue() : item.getMaxLongValue();
+                    return item.getMaxValue();
                 default:
                     return item;
             }

@@ -19,7 +19,6 @@ package org.b333vv.metric.ui.log;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -31,11 +30,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 public class MetricsConsole implements ProjectLifecycleListener {
 
     private final ConsoleView consoleView;
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private final Project project;
 
     public MetricsConsole(Project project) {
@@ -55,15 +54,15 @@ public class MetricsConsole implements ProjectLifecycleListener {
     }
 
     public void debug(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     public void info(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     public void firstPart(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg, ConsoleViewContentType.NORMAL_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg, ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     public void lastPart(String msg) {
@@ -71,7 +70,7 @@ public class MetricsConsole implements ProjectLifecycleListener {
     }
 
     public void error(String msg) {
-        getConsoleView().print(LocalTime.now().format(dateTimeFormatter) + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
+        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
     }
 
     public void error(String msg, Throwable t) {

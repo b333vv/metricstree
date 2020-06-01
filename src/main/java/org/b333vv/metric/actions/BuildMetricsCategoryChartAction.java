@@ -18,20 +18,19 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import org.b333vv.metric.exec.MetricCategoryChartProcessor;
 import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.exec.MetricsValuesViolatorsProcessor;
-import org.b333vv.metric.exec.ProjectMetricsProcessor;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class CalculateMetricsValuesViolatorsAction extends AbstractAction {
-
+public class BuildMetricsCategoryChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-            MetricsValuesViolatorsProcessor processor = new MetricsValuesViolatorsProcessor(project);
+            MetricCategoryChartProcessor processor = new MetricCategoryChartProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
             MetricsUtils.getDumbService().runWhenSmart(processor::execute);
         }
@@ -39,7 +38,15 @@ public class CalculateMetricsValuesViolatorsAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricsService.isControlValidRanges()
-                && !MetricsUtils.isProjectMetricsCalculationPerforming());
+        Project project = e.getProject();
+        if (project != null) {
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(e.getProject(),
+                    BasicMetricsValidRangesSettings.class);
+            e.getPresentation().setEnabled(
+                    MetricsService.isControlValidRanges()
+                            && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
+                            .anyMatch(s -> s.getLevel().equals("Class Level"))
+                            && !MetricsUtils.isProjectMetricsCalculationPerforming());
+        }
     }
 }

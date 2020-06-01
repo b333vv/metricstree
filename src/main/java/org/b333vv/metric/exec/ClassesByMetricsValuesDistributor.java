@@ -14,62 +14,41 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.tree.builder;
+package org.b333vv.metric.exec;
 
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.ui.tree.node.*;
+import org.b333vv.metric.model.metric.value.RangeType;
+import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.tree.DefaultTreeModel;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import static java.util.stream.Collector.Characteristics.IDENTITY_FINISH;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 
-public class MetricsValuesViolatorsTreeBuilder {
-
-    @Nullable
-    public DefaultTreeModel createMetricTreeModel(JavaProject javaProject) {
-        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = javaProject.allClasses().flatMap(
+public class ClassesByMetricsValuesDistributor {
+    public static Map<MetricType, Map<JavaClass, Metric>> classesByMetricsValuesDistribution(JavaProject javaProject) {
+        return javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
-                        .filter(m -> m.getRange() != Range.UNDEFINED)
+                        .filter(metric -> MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()
                         .stream())
-                .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, new MetricsValuesViolatorsCollector())));
-
-        ProjectNode projectNode = new ProjectNode(javaProject, "classes that violate recommended metric values");
-        DefaultTreeModel model = new DefaultTreeModel(projectNode);
-        model.setRoot(projectNode);
-
-        classesByMetricTypes.forEach((key, value) -> {
-            if (value.values().stream().anyMatch(m -> !m.hasAllowableValue())) {
-                MetricTypeNode metricTypeNode = new MetricTypeNode(key);
-                projectNode.add(metricTypeNode);
-                value.forEach((k, v) -> {
-                    if (!v.hasAllowableValue() && v.getValue() != Value.UNDEFINED) {
-                        ViolatorClassNode violatorClassNode = new ViolatorClassNode(k, v);
-                        metricTypeNode.add(violatorClassNode);
-                    }
-                });
-            }
-        });
-
-        return model;
+                .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, new SortedByMetricsValuesClassesCollector())));
     }
 
-    private static class MetricsValuesViolatorsCollector
+    private static class SortedByMetricsValuesClassesCollector
             implements Collector<Map<JavaClass, List<Metric>>, Map<JavaClass, Metric>, Map<JavaClass, Metric>>
     {
 
@@ -81,10 +60,10 @@ public class MetricsValuesViolatorsTreeBuilder {
         @Override
         public BiConsumer<Map<JavaClass, Metric>, Map<JavaClass, List<Metric>>> accumulator() {
             return (map, val) -> {
-                    Map.Entry<JavaClass, List<Metric>> entry = val.entrySet().iterator().next();
-                    JavaClass javaClass = entry.getKey();
-                    Metric metric = entry.getValue().get(0);
-                    map.put(javaClass, metric);
+                Map.Entry<JavaClass, List<Metric>> entry = val.entrySet().iterator().next();
+                JavaClass javaClass = entry.getKey();
+                Metric metric = entry.getValue().get(0);
+                map.put(javaClass, metric);
             };
         }
 

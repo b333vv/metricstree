@@ -53,8 +53,6 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     public void refresh() {
-//        MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
-//        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
         scope.update();
     }
 

@@ -21,16 +21,14 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
-import org.b333vv.metric.model.builder.ProjectModelBuilder;
 import org.b333vv.metric.model.calculator.ClassAndMethodsMetricsCalculator;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.tree.builder.MetricsValuesViolatorsTreeBuilder;
+import org.b333vv.metric.ui.tree.builder.SortedByMetricsValuesClassesTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
 
-public class MetricsValuesViolatorsProcessor {
-    private final DependenciesBuilder dependenciesBuilder;
+public class ClassDistributionByMetricValuesTreeProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
@@ -40,15 +38,14 @@ public class MetricsValuesViolatorsProcessor {
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
 
-    public MetricsValuesViolatorsProcessor(Project project) {
+    public ClassDistributionByMetricValuesTreeProcessor(Project project) {
         this.project = project;
         javaProject = new JavaProject(project.getName());
-        dependenciesBuilder = new DependenciesBuilder();
-        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
+        DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
         AnalysisScope scope = new AnalysisScope(project);
         scope.setIncludeTestSource(false);
 
-        MetricsUtils.getConsole().info("Building metrics values violators tree for project " + project.getName()
+        MetricsUtils.getConsole().info("Building class distribution by metric values tree for project " + project.getName()
                 + " started: processing " + scope.getFileCount() + " java files");
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
@@ -62,12 +59,12 @@ public class MetricsValuesViolatorsProcessor {
 
 
         buildTree = () -> {
-            MetricsValuesViolatorsTreeBuilder builder = new MetricsValuesViolatorsTreeBuilder();
+            SortedByMetricsValuesClassesTreeBuilder builder = new SortedByMetricsValuesClassesTreeBuilder();
             DefaultTreeModel metricsTreeModel = builder.createMetricTreeModel(javaProject);
 
             if (metricsTreeModel != null) {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricsValuesViolatorsCalculated(metricsTreeModel);
-                MetricsUtils.getConsole().info("Building metrics values violators tree for project " + project.getName() + " finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classesSortedByMetricsValues(metricsTreeModel);
+                MetricsUtils.getConsole().info("Building class distribution by metric values tree for project " + project.getName() + " finished");
             }
 
             MetricsUtils.setProjectMetricsCalculationPerforming(false);
@@ -75,7 +72,7 @@ public class MetricsValuesViolatorsProcessor {
 
         cancel = () -> {
             queue.clear();
-            MetricsUtils.getConsole().info("Building metrics values violators tree for project " + project.getName() + " canceled");
+            MetricsUtils.getConsole().info("Building class distribution by metric values tree for project " + project.getName() + " canceled");
             MetricsUtils.setProjectMetricsCalculationPerforming(false);
         };
     }
@@ -84,7 +81,6 @@ public class MetricsValuesViolatorsProcessor {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
                 "Calculating Metrics...", true, calculate, postCalculate,
                 cancel, buildTree);
-
         queue.run(classMetricsTask);
     }
 }

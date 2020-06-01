@@ -21,12 +21,13 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
+import org.b333vv.metric.util.MetricsService;
 
-public class ViolatorClassNode extends ClassNode {
+public class SortedByMetricsValueClassNode extends ClassNode {
 
     private final Metric metric;
 
-    public ViolatorClassNode(JavaClass javaClass, Metric metric) {
+    public SortedByMetricsValueClassNode(JavaClass javaClass, Metric metric) {
         super(javaClass);
         this.metric = metric;
     }
@@ -36,16 +37,9 @@ public class ViolatorClassNode extends ClassNode {
     }
 
     private String getDelta() {
-        String delta = "";
-        if (metric.getValue() != Value.UNDEFINED) {
-            if (metric.getValue().isLessThan(metric.getRange().getFrom())) {
-                delta += " [-" + metric.getRange().getFrom().minus(metric.getValue()) + "]";
-            }
-            if (metric.getValue().isGreaterThan(metric.getRange().getTo())) {
-                delta += " [+" + metric.getValue().minus(metric.getRange().getTo()) + "]";
-            }
-        }
-        return delta;
+        return " [+" + metric.getValue()
+                .minus(MetricsService.getRangeForMetric(metric.getType()).getRegularTo())
+                .plus(Value.ONE) + "]";
     }
 
     @Override

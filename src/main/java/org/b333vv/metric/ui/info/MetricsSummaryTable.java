@@ -24,7 +24,7 @@ import icons.MetricsIcons;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
-import org.b333vv.metric.model.metric.value.Range;
+import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
@@ -139,7 +139,7 @@ public class MetricsSummaryTable {
                 case 4:
                     return "Value";
                 case 5:
-                    return "Valid";
+                    return "Regular Range";
                 default:
                     return "";
             }
@@ -178,9 +178,9 @@ public class MetricsSummaryTable {
                     }
                 case 5:
                     if (metric.getType().set() == MetricSet.MOOD) {
-                        return metric.getRange().percentageFormat();
+                        return MetricsService.getRangeForMetric(metric.getType()).percentageFormat();
                     } else {
-                        return metric.getRange().toString();
+                        return MetricsService.getRangeForMetric(metric.getType()).toString();
                     }
                 default:
                     return metric;
@@ -188,12 +188,19 @@ public class MetricsSummaryTable {
         }
 
         private Icon getRowIcon(Metric metric) {
-            if (!metric.hasAllowableValue()) {
-                return MetricsIcons.INVALID_VALUE;
-            } else if (metric.getRange() == Range.UNDEFINED) {
-                return MetricsIcons.NOT_TRACKED;
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+                return MetricsIcons.REGULAR_VALUE;
             }
-            return MetricsIcons.VALID_VALUE;
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+                return MetricsIcons.HIGH_VALUE;
+            }
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+                return MetricsIcons.VERY_HIGH_VALUE;
+            }
+            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+                return MetricsIcons.EXTREME_VALUE;
+            }
+            return MetricsIcons.NOT_TRACKED;
         }
     }
 }

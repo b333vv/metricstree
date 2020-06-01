@@ -21,22 +21,24 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.model.metric.value.*;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
-import org.b333vv.metric.ui.settings.ranges.MetricsValidRangeStub;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
-import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 
 import java.util.stream.Stream;
 
 import static org.b333vv.metric.model.metric.MetricType.CBO;
 
 public class MetricsService {
-    private static MetricsValidRangesSettings metricsValidRangesSettings;
+    private static BasicMetricsValidRangesSettings basicMetricsValidRangesSettings;
+    private static DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
     private static ProjectMetricsTreeSettings projectMetricsTreeSettings;
     private static boolean showClassMetricsTree;
@@ -48,7 +50,8 @@ public class MetricsService {
     }
 
     public static void init(Project project) {
-        metricsValidRangesSettings = MetricsUtils.get(project, MetricsValidRangesSettings.class);
+        basicMetricsValidRangesSettings = MetricsUtils.get(project, BasicMetricsValidRangesSettings.class);
+        derivativeMetricsValidRangesSettings = MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
         classMetricsTreeSettings = MetricsUtils.get(project, ClassMetricsTreeSettings.class);
         showClassMetricsTree = classMetricsTreeSettings.isShowClassMetricsTree();
         projectMetricsTreeSettings = MetricsUtils.get(project, ProjectMetricsTreeSettings.class);
@@ -56,16 +59,17 @@ public class MetricsService {
     }
 
     public static Range getRangeForMetric(MetricType type) {
-        MetricsValidRangeStub metricsAllowableValueRangeStub =
-                metricsValidRangesSettings.getMetricsAllowableValueRangeStub(type);
-        if (metricsAllowableValueRangeStub == null) {
-            return Range.UNDEFINED;
+        BasicMetricsValidRangeStub basicStub = basicMetricsValidRangesSettings.getControlledMetrics().get(type.name());
+        if (basicStub != null) {
+            return BasicMetricsRange.of(Value.of(basicStub.getRegularBound()),
+                    Value.of(basicStub.getHighBound()), Value.of(basicStub.getVeryHighBound()));
         }
-        if (metricsAllowableValueRangeStub.isDoubleValue()) {
-            return Range.of(Value.of(metricsAllowableValueRangeStub.getMinDoubleValue()), Value.of(metricsAllowableValueRangeStub.getMaxDoubleValue()));
-        } else {
-            return Range.of(Value.of(metricsAllowableValueRangeStub.getMinLongValue()), Value.of(metricsAllowableValueRangeStub.getMaxLongValue()));
+        DerivativeMetricsValidRangeStub derivativeStub = derivativeMetricsValidRangesSettings.getControlledMetrics().get(type.name());
+        if (derivativeStub != null) {
+            return DerivativeMetricsRange.of(Value.of(derivativeStub.getMinValue()),
+                    Value.of(derivativeStub.getMaxValue()));
         }
+        return BasicMetricsRange.UNDEFINED;
     }
 
     public static Stream<JavaRecursiveElementVisitor> classVisitorsForClassMetricsTree() {
@@ -114,10 +118,10 @@ public class MetricsService {
     }
 
     public static boolean isControlValidRanges() {
-        if (metricsValidRangesSettings == null) {
+        if (basicMetricsValidRangesSettings == null) {
             return false;
         }
-        return metricsValidRangesSettings.isControlValidRanges();
+        return basicMetricsValidRangesSettings.isControlValidRanges();
     }
 
     public static boolean isShowClassMetricsTree() { return showClassMetricsTree; }

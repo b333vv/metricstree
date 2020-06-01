@@ -20,7 +20,8 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
-import org.b333vv.metric.ui.settings.ranges.MetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 import org.jetbrains.annotations.Nls;
 
 import javax.annotation.Nullable;
@@ -28,7 +29,8 @@ import javax.swing.*;
 
 public class MetricsConfigurable implements Configurable, Configurable.NoMargin, Configurable.NoScroll {
     private final Project project;
-    private final MetricsValidRangesSettings metricsValidRangesSettings;
+    private final BasicMetricsValidRangesSettings basicMetricsValidRangesSettings;
+    private final DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings;
     private final ClassMetricsTreeSettings classMetricsTreeSettings;
     private final ProjectMetricsTreeSettings projectMetricsTreeSettings;
 
@@ -36,7 +38,8 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     public MetricsConfigurable(Project project) {
         this.project = project;
-        this.metricsValidRangesSettings = project.getComponent(MetricsValidRangesSettings.class);
+        this.basicMetricsValidRangesSettings = project.getComponent(BasicMetricsValidRangesSettings.class);
+        this.derivativeMetricsValidRangesSettings = project.getComponent(DerivativeMetricsValidRangesSettings.class);
         this.classMetricsTreeSettings = project.getComponent(ClassMetricsTreeSettings.class);
         this.projectMetricsTreeSettings = project.getComponent(ProjectMetricsTreeSettings.class);
     }
@@ -64,7 +67,8 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     @Override
     public boolean isModified() {
-        return panel != null && (panel.isModified(metricsValidRangesSettings)
+        return panel != null && (panel.isModified(basicMetricsValidRangesSettings)
+                || panel.isModified(derivativeMetricsValidRangesSettings)
                 || panel.isModified(classMetricsTreeSettings)
                 || panel.isModified(projectMetricsTreeSettings));
     }
@@ -72,9 +76,10 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
     @Override
     public void apply() {
         if (panel != null) {
-            panel.save(metricsValidRangesSettings);
-            metricsValidRangesSettings.clearTemporaryControlledMetrics();
-            metricsValidRangesSettings.clearTemporaryUnControlledMetrics();
+            panel.save(basicMetricsValidRangesSettings);
+            panel.save(derivativeMetricsValidRangesSettings);
+            basicMetricsValidRangesSettings.clearTemporaryControlledMetrics();
+            basicMetricsValidRangesSettings.clearTemporaryUnControlledMetrics();
             panel.save(classMetricsTreeSettings);
             panel.save(projectMetricsTreeSettings);
         }
@@ -82,8 +87,8 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     @Override
     public void reset() {
-        metricsValidRangesSettings.returnAllToUnControlledMetrics();
-        metricsValidRangesSettings.returnAllToControlledMetrics();
+        basicMetricsValidRangesSettings.returnAllToUnControlledMetrics();
+        basicMetricsValidRangesSettings.returnAllToControlledMetrics();
     }
 
     @Override

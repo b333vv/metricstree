@@ -40,6 +40,7 @@ public class Value implements Comparable<Value> {
         }
     };
     public static final Value ZERO = new Value(LargeInteger.ZERO);
+    public static final Value ONE = new Value(LargeInteger.ONE);
 
     private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0###");
 

@@ -17,11 +17,19 @@
 package org.b333vv.metric.exec;
 
 import com.intellij.util.messages.Topic;
-import org.b333vv.metric.ui.tree.builder.MetricsValuesViolatorsTreeBuilder;
+import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.knowm.xchart.CategoryChart;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder.PieChartStructure;
 
 public interface MetricsEventListener {
     Topic<MetricsEventListener> TOPIC = new Topic<>("MetricsEventListener", MetricsEventListener.class);
@@ -29,7 +37,13 @@ public interface MetricsEventListener {
     default void projectMetricsCalculated(ProjectMetricTreeBuilder projectMetricTreeBuilder, @NotNull DefaultTreeModel defaultTreeModel) {
     }
 
-    default void metricsValuesViolatorsCalculated(@NotNull DefaultTreeModel metricsTreeModel) {
+    default void classesSortedByMetricsValues(@NotNull DefaultTreeModel defaultTreeModel) {
+    }
+
+    default void metricsChartBuilt(Set<MetricType> metricTypes, @NotNull CategoryChart categoryChart) {
+    }
+
+    default void metricsByMetricTypesChartBuilt(@NotNull List<PieChartStructure> chartList, Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes) {
     }
 
     default void classMetricsValuesEvolutionCalculated(@NotNull DefaultTreeModel defaultTreeModel) {
