@@ -25,9 +25,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ClassUtils {
+public final class ClassUtils {
+
     private ClassUtils() {
-//        Util class
+        // Utility class
     }
 
     public static boolean isConcrete(PsiClass psiClass) {

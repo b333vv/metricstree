@@ -33,7 +33,7 @@
                    Package level: Robert C. Martin metrics set
                 </li>
                 <li>
-                   Class level: Chidamber-Kemerer, Lorenz-Kidd, and Li-Henry metrics sets
+                   Class and method levels: Chidamber-Kemerer, Lorenz-Kidd, Li-Henry and Lanza-Marinescu metrics sets
                 </li>
             </ul>
             <h3>Features</h3>
@@ -48,10 +48,13 @@
                     Supports controlling calculated metrics values
                 </li>
                 <li>
-                    Shows class metrics values evolution based on 'git log'
+                    Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
                 </li>
                 <li>
-                    Displays classes distributions by their metrics values
+                    Displays classes distributions by their metrics values in charts
+                </li>
+                <li>
+                    Shows class metrics values evolution based on 'git log'
                 </li>
             </ul>
         </html>
@@ -59,6 +62,15 @@
     </description>
 
     <change-notes><![CDATA[
+        <ul>
+            <li>2020.1.5:
+                <ul>
+                    <li>Mechanisms for identifying and searching anti-patterns was developed.</li>
+                    <li>Ability to export classes metrics (in csv format) and all levels metrics (in xml format) was added.</li>
+                    <li>Several new class and methods levels metrics added.</li>
+                </ul>
+            </li>
+        </ul>
         <ul>
             <li>2020.1.4 - Charts with class distributions by metrics values was added.</li>
         </ul>
@@ -74,7 +86,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.4</version>
+    <version>2020.1.5</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -107,6 +119,9 @@
         </component>
         <component>
             <implementation-class>org.b333vv.metric.ui.tool.ProjectMetricsPanel</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.b333vv.metric.ui.settings.profile.MetricProfileSettings</implementation-class>
         </component>
     </project-components>
 
@@ -183,6 +198,20 @@
                 text="Build Metrics Distribution Chart By Type"
                 description="Build metrics distribution chart by type"
                 icon="MetricsIcons.PIE_CHART">
+        </action>
+
+        <action id="Metrics.BuildByProfileDistribution"
+                class="org.b333vv.metric.actions.BuildByProfilesDistributionAction"
+                text="Build Classes Distribution By Metrics Profile"
+                description="Build classes distribution By metrics profile"
+                icon="AllIcons.Actions.RunAll">
+        </action>
+
+        <action id="Metrics.ExportMetrics"
+                class="org.b333vv.metric.actions.ExportCalculatedMetricsAction"
+                text="Export Calculated Metrics To File"
+                description="Export calculated metrics to file"
+                icon="AllIcons.ToolbarDecorator.Export">
         </action>
 
         <action id="Metrics.ShowProjectMetrics"
@@ -319,12 +348,21 @@
             <separator/>
             <reference id="Metrics.Autoscroll"/>
             <separator/>
+            <reference id="Metrics.ExportMetrics"/>
+            <separator/>
             <reference id="Metrics.Configure"/>
         </group>
 
         <group id="Metrics.MetricsChartToolbar">
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
             <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
+            <separator/>
+            <reference id="Metrics.Configure"/>
+            <separator/>
+        </group>
+
+        <group id="Metrics.MetricsProfileToolbar">
+            <reference id="Metrics.BuildByProfileDistribution"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>

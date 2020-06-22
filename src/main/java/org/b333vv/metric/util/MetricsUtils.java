@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.*;
 
-public class MetricsUtils {
+public final class MetricsUtils {
 
     private static final Logger LOG = Logger.getInstance(MetricsUtils.class);
     private static Project project;

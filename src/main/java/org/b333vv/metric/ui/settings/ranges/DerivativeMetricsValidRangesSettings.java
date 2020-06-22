@@ -52,6 +52,16 @@ public final class DerivativeMetricsValidRangesSettings implements PersistentSta
 
         //--CONTROLLED---------------------------------------------------
 
+        //Method level
+        putToControlledMetricsMap(LAA, 0.33, 1.00);
+        putToControlledMetricsMap(CDISP, 0.00, 0.50);
+
+        //Bieman-Kang metrics set
+        putToControlledMetricsMap(TCC, 0.33, 1.00);
+
+        //Lanza-Marinescu metrics set
+        putToControlledMetricsMap(WOC, 0.50, 1.00);
+
         //Robert C. Martin metrics set
         putToControlledMetricsMap(I, 0.00, 1.00);
         putToControlledMetricsMap(A, 0.00, 1.00);

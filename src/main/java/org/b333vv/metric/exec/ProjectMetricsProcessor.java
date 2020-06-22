@@ -76,12 +76,12 @@ public class ProjectMetricsProcessor {
 
         martinMetricSetCalculating = () -> {
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope, dependenciesBuilder, javaProject);
-            ReadAction.run(() -> robertMartinMetricsSetCalculator.calculate());
+            ReadAction.run(robertMartinMetricsSetCalculator::calculate);
         };
 
         moodMetricSetCalculating = () -> {
             MoodMetricsSetCalculator moodMetricsSetCalculator = new MoodMetricsSetCalculator(scope, dependenciesBuilder, javaProject);
-            ReadAction.run(() -> moodMetricsSetCalculator.calculate());
+            ReadAction.run(moodMetricsSetCalculator::calculate);
         };
 
         buildTree = () -> {

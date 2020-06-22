@@ -32,7 +32,7 @@ public class BuildMetricsPieChartAction extends AnAction {
         Project project = e.getProject();
         if (project != null) {
             MetricPieChartProcessor processor = new MetricPieChartProcessor(project);
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
             MetricsUtils.getDumbService().runWhenSmart(processor::execute);
         }
     }

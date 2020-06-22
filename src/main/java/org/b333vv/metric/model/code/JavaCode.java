@@ -21,6 +21,7 @@ import com.intellij.psi.PsiElementVisitor;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -45,8 +46,9 @@ public abstract class JavaCode {
     }
 
     public Stream<Metric> metrics() {
+        Comparator<Metric> metricComparator = Comparator.comparing(m -> m.getType().description());
         return metrics.values().stream()
-                .sorted(Comparator.comparing(Metric::getType));
+                .sorted(metricComparator);
     }
 
     @Override
@@ -71,5 +73,10 @@ public abstract class JavaCode {
     }
 
     protected void accept(PsiElementVisitor visitor) {}
+
+    @Nullable
+    public Metric metric(MetricType metricType) {
+        return metrics.get(metricType);
+    }
 }
 

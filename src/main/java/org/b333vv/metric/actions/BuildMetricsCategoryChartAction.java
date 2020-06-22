@@ -31,7 +31,7 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             MetricCategoryChartProcessor processor = new MetricCategoryChartProcessor(project);
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
             MetricsUtils.getDumbService().runWhenSmart(processor::execute);
         }
     }

@@ -45,7 +45,8 @@ public class ClassAndMethodsMetricsCalculator {
     private int filesCount;
     private int progress = 0;
 
-    public ClassAndMethodsMetricsCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
+    public ClassAndMethodsMetricsCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder,
+                                            JavaProject javaProject) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
         this.javaProject = javaProject;
@@ -54,7 +55,7 @@ public class ClassAndMethodsMetricsCalculator {
 
     public void calculate() {
         MetricsUtils.setProjectMetricsCalculationPerforming(true);
-        MetricsUtils.setProjectMetricsTreeExists(false);
+//        MetricsUtils.setProjectMetricsTreeExists(false);
         indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();

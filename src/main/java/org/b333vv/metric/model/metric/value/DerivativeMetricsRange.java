@@ -18,8 +18,7 @@ package org.b333vv.metric.model.metric.value;
 
 import org.jetbrains.annotations.NotNull;
 
-import static org.b333vv.metric.model.metric.value.RangeType.REGULAR;
-import static org.b333vv.metric.model.metric.value.RangeType.EXTREME;
+import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class DerivativeMetricsRange implements Range {
     private final Value from;
@@ -59,8 +58,11 @@ public class DerivativeMetricsRange implements Range {
 
     @Override
     public RangeType getRangeType(@NotNull final Value value) {
+        if (value == Value.UNDEFINED) {
+            return RangeType.UNDEFINED;
+        }
         if (value.isEqualsOrGreaterThan(to) || value.isLessThan(from)) {
-            return EXTREME;
+            return HIGH;
         }
         if (value.isEqualsOrGreaterThan(from) && value.isLessThan(to)) {
             return REGULAR;

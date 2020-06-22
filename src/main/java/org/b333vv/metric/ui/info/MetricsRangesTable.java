@@ -164,8 +164,7 @@ public class MetricsRangesTable {
                     return "[" + metricTypeRange.getRange().getVeryHighFrom() + ".."
                             + metricTypeRange.getRange().getVeryHighTo() +")";
                 case 5:
-                    return "[" + metricTypeRange.getRange().getExtremeFrom() + ".."
-                            + metricTypeRange.getRange().getExtremeTo() +")";
+                    return "[" + metricTypeRange.getRange().getExtremeFrom() + "..\u221E)";
                 default:
                     return "";
             }

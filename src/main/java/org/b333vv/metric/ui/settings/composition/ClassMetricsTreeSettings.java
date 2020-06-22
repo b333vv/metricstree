@@ -22,6 +22,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,14 +42,10 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
     private void loadInitialValues() {
         showClassMetricsTree = true;
         for (MetricType type : MetricType.values()) {
-            if (type != MetricType.CBO && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+            if (!MetricsService.getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
                 classTreeMetrics.add(new MetricsTreeSettingsStub(type, true));
             }
         }
-    }
-
-    public List<MetricsTreeSettingsStub> getClassTreeMetrics() {
-        return new ArrayList<>(classTreeMetrics);
     }
 
     public void setClassTreeMetrics(List<MetricsTreeSettingsStub> metrics) {

@@ -41,6 +41,32 @@ public class Value implements Comparable<Value> {
     };
     public static final Value ZERO = new Value(LargeInteger.ZERO);
     public static final Value ONE = new Value(LargeInteger.ONE);
+    public static final Value INFINITY = new Value(LargeInteger.ZERO) {
+        @Override
+        public String toString() {
+            return "Infinity";
+        }
+
+        @Override
+        public boolean isGreaterThan(Value other) {
+            return true;
+        }
+
+        @Override
+        public boolean isEqualsOrGreaterThan(Value other) {
+            return false;
+        }
+
+        @Override
+        public boolean isLessThan(Value other) {
+            return false;
+        }
+
+        @Override
+        public boolean isEqualsOrLessThan(Value other) {
+            return false;
+        }
+    };
 
     private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0###");
 
@@ -72,27 +98,25 @@ public class Value implements Comparable<Value> {
         if (value instanceof LargeInteger) {
             if (other instanceof LargeInteger) {
                 return new Value(((LargeInteger) value).plus((LargeInteger)other));
-            } else if(other instanceof Rational) {
-                return new Value(((Rational)other).plus(Converter.toRational((LargeInteger)value)));
-            } else if(other instanceof Real) {
-                return new Value(((Real)other).plus(Converter.toReal((LargeInteger)value)));
+            } else if (other instanceof Rational) {
+                return new Value(((Rational)other).plus(Converter.toRational((LargeInteger) value)));
+            } else if (other instanceof Real) {
+                return new Value(((Real)other).plus(Converter.toReal((LargeInteger) value)));
             }
-
         } else if (value instanceof Rational) {
             if (other instanceof LargeInteger) {
                 return that.plus(this);
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return new Value(((Rational)other).plus((Rational) value));
-            } else if(other instanceof Real) {
-                return new Value(((Real)other).plus(Converter.toReal((Rational)value)));
+            } else if (other instanceof Real) {
+                return new Value(((Real)other).plus(Converter.toReal((Rational) value)));
             }
-
         } else if( value instanceof Real) {
             if (other instanceof LargeInteger) {
                 return that.plus(this);
             } else if (other instanceof Real) {
                 return new Value(((Real)other).plus((Real) value));
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return that.plus(this);
             }
         }
@@ -100,7 +124,7 @@ public class Value implements Comparable<Value> {
     }
 
     public Value negate() {
-        if(value instanceof LargeInteger) {
+        if (value instanceof LargeInteger) {
             return new Value(LargeInteger.ZERO.minus((LargeInteger) value));
         } else if (value instanceof Rational) {
             return new Value(Rational.ZERO.minus((Rational) value));
@@ -118,27 +142,27 @@ public class Value implements Comparable<Value> {
         @SuppressWarnings("rawtypes")
         Number other = that.value;
         if(value instanceof LargeInteger) {
-            if(other instanceof LargeInteger) {
+            if (other instanceof LargeInteger) {
                 return new Value(((LargeInteger) value).times((LargeInteger) other));
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return new Value(((Rational) other).times(Converter.toRational((LargeInteger) value)));
-            } else if(other instanceof Real) {
+            } else if (other instanceof Real) {
                 return new Value(((Real) other).times(Converter.toReal((LargeInteger) value)));
             }
         } else if (value instanceof Rational) {
-            if(other instanceof LargeInteger) {
+            if (other instanceof LargeInteger) {
                 return that.times(this);
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return new Value(((Rational)other).times((Rational) value));
-            } else if(other instanceof Real) {
+            } else if (other instanceof Real) {
                 return new Value(((Real)other).times(Converter.toReal((Rational)value)));
             }
-        } else if( value instanceof Real) {
-            if(other instanceof LargeInteger) {
+        } else if (value instanceof Real) {
+            if (other instanceof LargeInteger) {
                 return that.times(this);
             } else if (other instanceof Real) {
                 return new Value(((Real)other).times((Real) value));
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return that.times(this);
             }
         }
@@ -148,26 +172,26 @@ public class Value implements Comparable<Value> {
     public Value divide(@NotNull Value that) {
         @SuppressWarnings("rawtypes")
         Number other = that.value;
-        if(value instanceof LargeInteger) {
-            if(other instanceof LargeInteger) {
+        if (value instanceof LargeInteger) {
+            if (other instanceof LargeInteger) {
                 return new Value(Rational.valueOf((LargeInteger) value, (LargeInteger)other));
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return new Value(Converter.toRational((LargeInteger) value).divide((Rational)other));
-            } else if(other instanceof Real) {
+            } else if (other instanceof Real) {
                 return new Value(Converter.toReal((LargeInteger) value).divide((Real)other));
             }
         } else if (value instanceof Rational) {
-            if(other instanceof LargeInteger) {
+            if (other instanceof LargeInteger) {
                 return new Value(((Rational) value).divide(Converter.toRational((LargeInteger) other)));
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return new Value(((Rational) value).divide((Rational) other));
-            } else if(other instanceof Real) {
+            } else if (other instanceof Real) {
                 return new Value(Converter.toReal((Rational) value).divide((Real)other));
             }
-        } else if(value instanceof Real) {
-            if(other instanceof LargeInteger) {
+        } else if (value instanceof Real) {
+            if (other instanceof LargeInteger) {
                 return new Value(((Real) value).divide(Converter.toReal((LargeInteger) other)));
-            } else if(other instanceof Rational) {
+            } else if (other instanceof Rational) {
                 return new Value(((Real) value).divide(Converter.toReal((Rational) other)));
             } else if (other instanceof Real) {
                 return new Value(((Real) value).divide((Real) other));
@@ -181,7 +205,7 @@ public class Value implements Comparable<Value> {
     }
 
     public Value abs() {
-        if(this.isLessThan(Value.ZERO)) {
+        if (this.isLessThan(Value.ZERO)) {
             return this.negate();
         } else {
             return this;
@@ -247,7 +271,6 @@ public class Value implements Comparable<Value> {
                 return compareReals((Real) this.value, (Real) other);
             }
         }
-
         throw new UnsupportedOperationException("Unable to compare " + value.getClass() + " to " + value.getClass());
     }
 
@@ -261,18 +284,30 @@ public class Value implements Comparable<Value> {
     }
 
     public boolean isGreaterThan(Value other) {
+        if (other == Value.INFINITY) {
+            return false;
+        }
         return this.compareTo(other) > 0;
     }
 
     public boolean isEqualsOrGreaterThan(Value other) {
+        if (other == Value.INFINITY) {
+            return false;
+        }
         return this.compareTo(other) >= 0;
     }
 
     public boolean isLessThan(Value other) {
+        if (other == Value.INFINITY) {
+            return true;
+        }
         return this.compareTo(other) < 0;
     }
 
     public boolean isEqualsOrLessThan(Value other) {
+        if (other == Value.INFINITY) {
+            return false;
+        }
         return this.compareTo(other) <= 0;
     }
 

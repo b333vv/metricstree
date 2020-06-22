@@ -23,8 +23,11 @@ import com.intellij.psi.search.searches.SuperMethodsSearch;
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod;
 import com.intellij.util.Query;
 
-public class MethodUtils {
-    private MethodUtils() {}
+public final class MethodUtils {
+
+    private MethodUtils() {
+        // Utility class
+    }
 
     public static boolean hasConcreteSuperMethod(PsiMethod psiMethod) {
         final Query<MethodSignatureBackedByPsiMethod> search = SuperMethodsSearch.search(psiMethod,

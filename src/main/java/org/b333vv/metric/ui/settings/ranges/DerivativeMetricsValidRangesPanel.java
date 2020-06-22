@@ -40,7 +40,6 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
     private final Project project;
     private JPanel panel;
     private DerivativeMetricsValidRangesTable derivativeMetricsValidRangesTable;
-//    private JCheckBox controlValidRanges;
 
     public DerivativeMetricsValidRangesPanel(Project project, DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings) {
         this.project = project;
@@ -55,7 +54,6 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
     public boolean isModified(DerivativeMetricsValidRangesSettings settings) {
         List<DerivativeMetricsValidRangeStub> rows = settings.getControlledMetricsList();
         return !rows.equals(derivativeMetricsValidRangesTable.get());
-//                || settings.isControlValidRanges() != controlValidRanges.isSelected();
     }
 
     @Override
@@ -64,13 +62,11 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
                 .stream()
                 .collect(Collectors.toMap(DerivativeMetricsValidRangeStub::getName, x -> x));
         settings.setControlledMetrics(newMetricsMap);
-//        settings.setControlValidRanges(controlValidRanges.isSelected());
     }
 
     @Override
     public void load(DerivativeMetricsValidRangesSettings settings) {
         derivativeMetricsValidRangesTable.set(settings.getControlledMetricsList());
-//        controlValidRanges.setSelected(settings.isControlValidRanges());
     }
 
     private void createUIComponents(DerivativeMetricsValidRangesSettings settings) {
@@ -104,19 +100,9 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
 
         JPanel tablePanel = derivativeMetricsValidRangesTable.getComponent();
 
-//        panel.add(controlValidRanges, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-//                NORTHWEST, NONE, insets, 0, 0));
-
         panel.add(tablePanel, new GridBagConstraints(0, 1, 4, 2, 1.0, 1.0,
                 NORTHWEST, BOTH, insets, 40, 40));
 
         derivativeMetricsValidRangesTable.enableComponents(tablePanel, MetricsService.isControlValidRanges());
-
-//        controlValidRanges.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent evt) {
-//                derivativeMetricsValidRangesTable.enableComponents(tablePanel, controlValidRanges.isSelected());
-//            }
-//        });
     }
 }

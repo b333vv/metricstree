@@ -1,0 +1,90 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number Of Parameters To Method</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Number Of Parameters To Method</h3>
+<p class="main">
+    This metric measures the number of parameters of a method or constructor. A method (or constructor) that uses
+    a high number of formal parameters makes maintenance more difficult:
+</p>
+<ul>
+    <li>
+        It is difficult to write a call to the method, because the programmer must know how to supply
+        an appropriate value for each parameter.
+    </li>
+    <li>
+        It is externally difficult to understand, because calls to the method are longer than a single line of code.
+    </li>
+    <li>
+        It can be internally difficult to understand, because it has so many dependencies.
+    </li>
+</ul>
+<p class="main">
+    Robert C. Martin, in [1], writes (page 40):
+</p>
+<p class="values">
+    The ideal number of arguments for a function is zero (niladic).
+    Next comes one (monadic), followed closely by two (dyadic).
+    Three arguments (triadic) should be avoided where possible.
+    More than three (polyadic) requires very special justification - and then shouldn't be used anyway.
+</p>
+<p class="main">
+    Restrict the number of formal parameters for a method, according to the reason for the high number:
+</p>
+<ul>
+    <li>
+        Several of the parameters are logically related, but are passed into the method separately.
+        The parameters that are logically related should be grouped together
+        (see the 'Introduce Parameter Object' refactoring on pp. 238-242 of [2]).
+    </li>
+    <li>
+        The method has too many responsibilities. It should be broken into multiple methods
+        (see the 'Extract Method' refactoring on pp. 89-95 of [2]),
+        and each new method should be passed a subset of the original parameters.
+    </li>
+    <li>
+        The method has redundant parameters that are not used. The two main reasons for this are:
+        (1) parameters were added for future extensibility but are never used;
+        (2) the body of the method was changed so that it no longer uses certain parameters,
+        but the method signature was not correspondingly updated. In both cases, the theoretically correct
+        solution is to delete the unused parameters (see the 'Remove Parameter' refactoring on pp. 223-225 of [2]),
+        although you must do this cautiously if the method is part of a published interface.
+    </li>
+</ul>
+<p class="main">
+    When a method is part of a published interface, one possible solution is to add a new, wrapper method to the
+    interface that has a tidier signature. Alternatively, you can publish a new version of the interface that
+    has a better design. Clearly, however, neither of these solutions is ideal, so you should take care to design
+    interfaces the right way from the start.
+    The practice of adding parameters for future extensibility is especially bad. It is confusing to other programmers,
+    who are uncertain what values they should pass in for these unnecessary parameters,
+    and it adds unused code that is potentially difficult to remove later.
+</p>
+<p class="sources">
+    1. Robert C. Martin. Clean Code: A Handbook of Agile Software Craftsmanship. Prentice Hall, 2008.
+</p>
+<p class="sources">
+    2. Martin Fowler. Refactoring. Addison-Wesley, 1999.
+</p>
+</body>
+</html>

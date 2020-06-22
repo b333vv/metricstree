@@ -37,6 +37,10 @@ public abstract class MetricTreeBuilder {
         this.javaCode = javaCode;
     }
 
+    public JavaCode getJavaCode() {
+        return javaCode;
+    }
+
     public abstract DefaultTreeModel createMetricTreeModel();
 
     protected void addSubClasses(ClassNode parentClassNode) {
@@ -107,6 +111,8 @@ public abstract class MetricTreeBuilder {
         MetricsTreeFilter metricsTreeFilter = getMetricsTreeFilter();
         return metricsTreeFilter.isChidamberKemererMetricsSetVisible() && type.set() == MetricSet.CHIDAMBER_KEMERER
                 || metricsTreeFilter.isLorenzKiddMetricsSetVisible() && type.set() == MetricSet.LORENZ_KIDD
-                || metricsTreeFilter.isLiHenryMetricsSetVisible() && type.set() == MetricSet.LI_HENRY;
+                || metricsTreeFilter.isLiHenryMetricsSetVisible() && type.set() == MetricSet.LI_HENRY
+                || type.set() == MetricSet.BIEMAN_KANG
+                || type.set() == MetricSet.LANZA_MARINESCU;
     }
 }

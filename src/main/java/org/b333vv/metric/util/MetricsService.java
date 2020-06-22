@@ -32,11 +32,12 @@ import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.b333vv.metric.model.metric.MetricType.CBO;
+import static org.b333vv.metric.model.metric.MetricType.*;
 
-public class MetricsService {
+public final class MetricsService {
     private static BasicMetricsValidRangesSettings basicMetricsValidRangesSettings;
     private static DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings;
     private static ClassMetricsTreeSettings classMetricsTreeSettings;
@@ -89,15 +90,7 @@ public class MetricsService {
     public static Stream<JavaRecursiveElementVisitor> classVisitorsForProjectMetricsTree() {
         return projectMetricsTreeSettings.getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .filter(m -> m.getType() != CBO)
-                .map(m -> m.getType().visitor())
-                .filter(m -> m instanceof JavaClassVisitor);
-    }
-
-    public static Stream<JavaRecursiveElementVisitor> deferredClassVisitorsForProjectMetricsTree() {
-        return projectMetricsTreeSettings.getMetricsList().stream()
-                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .filter(m -> m.getType() == CBO)
+                .filter(m -> (!getDeferredMetricTypes().contains(m.getType())))
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
@@ -137,5 +130,15 @@ public class MetricsService {
     }
     public static DependenciesBuilder getDependenciesBuilder() {
         return dependenciesBuilder;
+    }
+
+    public static Set<MetricType> getDeferredMetricTypes() {
+        return Set.of(CBO, ATFD, TCC, LAA, FDP, NOAV, CINT, CDISP, MND, NOPA, NOAC, WOC);
+//        return Set.of(CBO);
+    }
+
+    public static boolean isLongValueMetricType(MetricType metricType) {
+        Set<MetricType> doubleValueMetricTypes = Set.of(TCC, I, A, D, MHF, AHF, MIF, AIF, CF, PF, LAA, CDISP, WOC);
+        return !doubleValueMetricTypes.contains(metricType);
     }
 }
