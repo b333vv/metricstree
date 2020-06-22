@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_CLASS_METRICS_TREE = "Class Metrics Tree";
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics Tree";
+    public static final String TAB_PROFILES = "Anti-Patterns";
     public static final String TAB_METRICS_CHART = "Metrics Charts";
     public static final String TAB_LOGS = "Log";
 
@@ -57,6 +58,15 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(chartContent);
     }
 
+    private static void addMetricsProfilesTab(Project project, ToolWindow toolWindow) {
+        MetricsProfilePanel metricsChartPanel = new MetricsProfilePanel(project);
+        Content chartContent = toolWindow.getContentManager().getFactory()
+                .createContent(
+                        metricsChartPanel, TAB_PROFILES, false);
+        toolWindow.getContentManager().addDataProvider(metricsChartPanel);
+        toolWindow.getContentManager().addContent(chartContent);
+    }
+
     private static void addLogTab(Project project, ToolWindow toolWindow) {
         Content logContent = toolWindow.getContentManager().getFactory()
                 .createContent(
@@ -69,6 +79,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         MetricsService.init(project);
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
+        addMetricsProfilesTab(project, toolWindow);
         addMetricsChartTab(project, toolWindow);
         addLogTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);

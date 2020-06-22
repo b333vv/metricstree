@@ -191,7 +191,7 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void clearProjectMetricsTree() {
+        public void clearChartsPanel() {
             clear();
         }
     }

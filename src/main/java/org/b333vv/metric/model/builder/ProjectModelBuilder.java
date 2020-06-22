@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.b333vv.metric.model.metric.MetricType.ATFD;
 import static org.b333vv.metric.model.metric.MetricType.CBO;
 
 public class ProjectModelBuilder extends ModelBuilder {
@@ -110,6 +111,8 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     public void calculateDeferredMetrics() {
-        javaProject.allClasses().forEach(c -> c.accept(CBO.visitor()));
+        javaProject.allClasses().forEach(c -> {
+            MetricsService.getDeferredMetricTypes().forEach(t -> c.accept(t.visitor()));
+        });
     }
 }

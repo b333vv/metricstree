@@ -43,7 +43,8 @@ public class ClassesByMetricsValuesCounter {
         numberOfClasses = javaProject.allClasses().count();
         return javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
-                        .filter(metric -> MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
+                        .filter(metric -> MetricsService.isLongValueMetricType(metric.getType())
+                                && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()
                         .stream())

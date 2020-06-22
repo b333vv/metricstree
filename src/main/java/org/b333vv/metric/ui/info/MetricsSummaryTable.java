@@ -38,8 +38,10 @@ public class MetricsSummaryTable {
     private final Model model;
     private final JBScrollPane panel;
     private final JBTable table;
+    private final boolean withBorder;
 
-    public MetricsSummaryTable() {
+    public MetricsSummaryTable(boolean withBorder) {
+        this.withBorder = withBorder;
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
@@ -52,7 +54,7 @@ public class MetricsSummaryTable {
 
         table.getColumnModel().getColumn(0).setMaxWidth(30);
         table.getColumnModel().getColumn(1).setMaxWidth(50);
-        table.getColumnModel().getColumn(2).setMaxWidth(140);
+        table.getColumnModel().getColumn(2).setMaxWidth(250);
         table.getColumnModel().getColumn(4).setMaxWidth(130);
         table.getColumnModel().getColumn(5).setMaxWidth(200);
 
@@ -66,7 +68,7 @@ public class MetricsSummaryTable {
             table.getColumnModel().getColumn(0).setMaxWidth(30);
 
             table.getColumnModel().getColumn(5).setWidth(200);
-            table.getColumnModel().getColumn(5).setMinWidth(200);
+//            table.getColumnModel().getColumn(5).setMinWidth(200);
             table.getColumnModel().getColumn(5).setMaxWidth(200);
         } else {
             table.getColumnModel().getColumn(0).setWidth(0);
@@ -84,28 +86,33 @@ public class MetricsSummaryTable {
     }
 
     public void clear() {
-        panel.setBorder(IdeBorderFactory.createTitledBorder(""));
+        if (withBorder) {
+            panel.setBorder(IdeBorderFactory.createTitledBorder(""));
+        }
         model.set(List.of());
     }
 
     public void set(JavaCode javaCode) {
-        String prefix = "";
-        if (javaCode instanceof JavaProject) {
-            prefix = "Project: ";
-        } else if (javaCode instanceof JavaPackage) {
-            prefix = "Package: ";
-        } else if (javaCode instanceof JavaClass) {
-            prefix = "Class: ";
-        } else if (javaCode instanceof JavaMethod) {
-            prefix = "Method: ";
+        if (withBorder) {
+            String prefix = "";
+            if (javaCode instanceof JavaProject) {
+                prefix = "Project: ";
+            } else if (javaCode instanceof JavaPackage) {
+                prefix = "Package: ";
+            } else if (javaCode instanceof JavaClass) {
+                prefix = "Class: ";
+            } else if (javaCode instanceof JavaMethod) {
+                prefix = "Method: ";
+            }
+            Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
+            panel.setBorder(b);
         }
-        Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
-        panel.setBorder(b);
         List<Metric> sortedMetrics = javaCode.metrics()
                 .sorted(Comparator.comparing(Metric::getType))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);
         hideOrShowValidValuesColumn(MetricsService.isControlValidRanges());
+        model.fireTableDataChanged();
     }
 
     private static class Model extends AbstractTableModel {

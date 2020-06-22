@@ -19,6 +19,7 @@ package org.b333vv.metric.model.metric;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import org.b333vv.metric.model.visitor.method.*;
 import org.b333vv.metric.model.visitor.type.*;
+import org.jetbrains.annotations.NotNull;
 
 import static org.b333vv.metric.model.metric.MetricLevel.*;
 import static org.b333vv.metric.model.metric.MetricSet.*;
@@ -30,6 +31,13 @@ public enum MetricType {
     CC("McCabe Cyclomatic Complexity", UNDEFINED, METHOD, new McCabeCyclomaticComplexityVisitor()),
     NOL("Number Of Loops", UNDEFINED, METHOD, new NumberOfLoopsVisitor()),
     LOC("Lines Of Code", UNDEFINED, METHOD, new LinesOfCodeVisitor()),
+    NOPM("Number Of Parameters", UNDEFINED, METHOD, new NumberOfParametersVisitor()),
+    LAA("Locality Of Attribute Accesses", LANZA_MARINESCU, METHOD, new LocalityOfAttributeAccessesVisitor()),
+    FDP("Foreign Data Providers", LANZA_MARINESCU, METHOD, new ForeignDataProvidersVisitor()),
+    NOAV("Number Of Accessed Variables", LANZA_MARINESCU, METHOD, new NumberOfAccessedVariablesVisitor()),
+    MND("Maximum Nesting Depth", LANZA_MARINESCU, METHOD, new MaximumNestingDepthVisitor()),
+    CINT("Coupling Intensity", LANZA_MARINESCU, METHOD, new CouplingIntensityVisitor()),
+    CDISP("Coupling Dispersion", LANZA_MARINESCU, METHOD, new CouplingDispersionVisitor()),
 
     //Chidamber-Kemerer metrics set
     WMC("Weighted Methods Per Class", CHIDAMBER_KEMERER, CLASS, new WeightedMethodCountVisitor()),
@@ -50,6 +58,15 @@ public enum MetricType {
     NOM("Number Of Methods", LI_HENRY, CLASS, new NumberOfMethodsVisitor()),
     MPC("Message Passing Coupling", LI_HENRY, CLASS, new MessagePassingCouplingVisitor()),
     DAC("Data Abstraction Coupling", LI_HENRY, CLASS, new DataAbstractionCouplingVisitor()),
+
+    //Lanza-Marinescu metrics set
+    ATFD("Access To Foreign Data", LANZA_MARINESCU, CLASS, new AccessToForeignDataVisitor()),
+    NOPA("Number Of Public Attributes", LANZA_MARINESCU, CLASS, new NumberOfPublicAttributesVisitor()),
+    NOAC("Number Of Accessor Methods", LANZA_MARINESCU, CLASS, new NumberOfAccessorMethodsVisitor()),
+    WOC("Weight Of A Class", LANZA_MARINESCU, CLASS, new WeightOfAClassVisitor()),
+
+    //Bieman-Kang metrics set
+    TCC("Tight Class Cohesion", BIEMAN_KANG, CLASS, new TightClassCohesionVisitor()),
 
     //Robert C. Martin metrics set
     Ce("Efferent Coupling", R_MARTIN, PACKAGE, null),

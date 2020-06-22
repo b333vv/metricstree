@@ -1,0 +1,264 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tight Class Cohesion</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Tight Class Cohesion (TCC)</h3>
+<p class="main">
+    The Tight Class Cohesion metric measures the cohesion between the public methods of a class.
+    That is the relative number of method pairs of a class that access in common at least one attribute
+    of the measured class.
+    Classes having a low cohesion indicate errors in the design.
+</p>
+<p class="main">
+    Proposed by J. M. Bieman and B. Kang,
+    see
+</p>
+<p class="sources">
+    J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system,
+    Proceedings of the 1995 Symposium on Software reusability,
+    Seattle, Washington, United States, pp. 259-262, 1995.
+</p>
+<p class="main">
+    According to
+</p>
+<p class="sources">
+    M. Lanza, R. Marinescu. Object-Oriented Metrics in Practice. Using Software Metrics to Characterize,
+    Evaluate, and Improve the Design of Object-Oriented Systems. Springer-Verlag Berlin Heidelberg, 2006.
+</p>
+<p class="values">
+    the desirable value of this metric is greater than 0.33.
+</p>
+<dl>
+    <dt><strong>Highly Related Software Quality Properties</strong></dt>
+
+    <dd>
+        <dl>
+            <dt><strong>Reliability</strong></dt>
+            <dd>
+                is positively influenced by cohesion.
+                <dl>
+                    <dt><strong>Maturity</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to maturity, since a
+                        mature system ought to have high cohesion values.
+
+                        <p>Maturity increases with increasing TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Re-Usability</strong></dt>
+
+            <dd>
+                is negatively influenced by coupling.
+
+                <dl>
+                    <dt><strong>Understandability for
+                        Reuse:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to understandability for
+                        reuse, since they implement only one concept.
+
+                        <p>Understandability increases with increasing
+                            TCC.</p>
+                    </dd>
+
+                    <dt><strong>Attractiveness:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to attractiveness for
+                        reuse, since they implement only one concept.
+
+                        <p>Attractiveness increases with increasing
+                            TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Maintainability</strong></dt>
+
+            <dd>
+                increases with increasing TCC.
+
+                <dl>
+                    <dt><strong>Analyzability:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to analyzability, since
+                        they implement only one concept.
+
+                        <p>Analyzability increases with increasing
+                            TCC.</p>
+                    </dd>
+
+                    <dt><strong>Changeability:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to changeability, since
+                        they implement only one concept.
+
+                        <p>Changeability increases with increasing
+                            TCC.</p>
+                    </dd>
+
+                    <dt><strong>Stability:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to stability, since they
+                        implement only one concept.
+
+                        <p>Stability increases with increasing TCC.</p>
+                    </dd>
+
+                    <dt><strong>Testability:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to testability, since
+                        they implement only one concept.
+
+                        <p>Testability increases with increasing TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Portability</strong></dt>
+
+            <dd>
+                increases with increasing TCC.
+
+                <dl>
+                    <dt><strong>Adaptability:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to adaptability, since
+                        they implement only one concept.
+
+                        <p>Adaptability increases with increasing
+                            TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+
+    <dt><strong>Related Software Quality
+        Properties</strong></dt>
+
+    <dd>
+        <dl>
+            <dt><strong>Re-Usability</strong></dt>
+
+            <dd>
+                might decrease with increasing TCC.
+
+                <dl>
+                    <dt><strong>Learnability for Reuse:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to learnability, since
+                        they implement only one concept.
+
+                        <p>Learnability might decrease with increasing
+                            TCC.</p>
+                    </dd>
+
+                    <dt><strong>Operability for Reuse -
+                        Programmability:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        highly directly related to programmability, since
+                        they implement only one concept.
+
+                        <p>Programmability might decrease with increasing
+                            TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Efficiency</strong></dt>
+
+            <dd>
+                might decrease with increasing TCC.
+
+                <dl>
+                    <dt><strong>Time Behavior:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        directly related to time behavior, since they
+                        implement only one concept, and do not do any
+                        unrelated time consuming tasks.
+
+                        <p>Time behavior might get worse with increasing
+                            TCC.</p>
+                    </dd>
+
+                    <dt><strong>Resource Utilization:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        directly related to resource utilization, since
+                        they implement only one concept, and do not do
+                        any unrelated resource utilization.
+
+                        <p>Resource utilization might get worse with
+                            increasing TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+
+            <dt><strong>Portability</strong></dt>
+
+            <dd>
+                increases with increasing TCC.
+
+                <dl>
+                    <dt><strong>Replaceablity:</strong></dt>
+
+                    <dd>
+                        Parts of a system showing a high cohesion may be
+                        directly related to replaceability, since they
+                        implement only one concept.
+
+                        <p>Replaceablity might increases with increasing
+                            TCC.</p>
+                    </dd>
+                </dl>
+            </dd>
+        </dl>
+    </dd>
+</dl>
+</body>
+</html>

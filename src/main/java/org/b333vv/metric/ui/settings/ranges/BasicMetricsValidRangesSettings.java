@@ -72,8 +72,18 @@ public final class BasicMetricsValidRangesSettings implements PersistentStateCom
         //Methods metrics set
         putToControlledMetricsMap(LOC, 11, 31, 47);
         putToControlledMetricsMap(CC, 3, 5, 7);
-        putToUnControlledMetricsMap(CND, 2, 3, 4);
-        putToUnControlledMetricsMap(LND, 2, 3, 4);
+        putToControlledMetricsMap(CND, 2, 3, 4);
+        putToControlledMetricsMap(LND, 2, 3, 4);
+        putToControlledMetricsMap(NOPM, 3, 4, 5);
+        putToControlledMetricsMap(FDP, 3, 5, 7);
+        putToControlledMetricsMap(NOAV, 3, 5, 7);
+        putToControlledMetricsMap(MND, 3, 5, 7);
+        putToControlledMetricsMap(CINT, 7, 11, 15);
+
+        //Lanza-Marinescu metrics set
+        putToControlledMetricsMap(ATFD, 6, 8, 10);
+        putToControlledMetricsMap(NOPA, 3, 5, 12);
+        putToControlledMetricsMap(NOAC, 4, 7, 13);
 
         //--UNCONTROLLED-------------------------------------------------
         //Chidamber-Kemerer metrics set
@@ -86,7 +96,6 @@ public final class BasicMetricsValidRangesSettings implements PersistentStateCom
 
         //Li-Henry metrics set
         putToUnControlledMetricsMap(SIZE2, 131, 161, 181);
-
         putToUnControlledMetricsMap(MPC, 11, 15, 20);
         putToUnControlledMetricsMap(DAC, 16, 22, 34);
 

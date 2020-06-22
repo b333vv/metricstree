@@ -35,26 +35,44 @@ It supports the most common metric sets.
         - MPC: Message Passing Coupling
         - DAC: Data Abstraction Coupling
         - NOM: Number of Methods
+    - Lanza-Marinescu metrics set [7]:
+        - ATFD: Access To Foreign Data
+        - NOPA: Number Of Public Attributes
+        - Number Of Accessor Methods
+        - WOC: Weight Of A Class
+    - Bieman-Kang metrics set [8]:
+        - TCC: Tight Class Cohesion
 4. Method level:
     - LOC: Lines Of Code
     - CC: McCabe Cyclomatic Complexity
+    - Maximum Nesting Depth
     - Loop Nesting Depth
     - Condition Nesting Depth
     - Number Of Loops
+    - LAA: Locality Of Attribute Accesses
+    - FDP: Foreign Data Providers
+    - NOAV: NumberOfAccessedVariables
+    - CINT: Coupling Intensity
+    - CDISP: Coupling Dispersion
 > 1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
 > 2. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
 > 3. Martin, R. C. Agile Software Development: Principles, Patterns, and Practices. Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002.
 > 4. S. R. Chidamber and C. F. Kemerer. A Metrics Suite for Object Oriented Design. In IEEE Transactions on Software Engineering, volume 20 (6), pages 476-493, June 1994.
 > 5. M. Lorenz, J. Kidd. Object Oriented Software Metrics, Prentice Hall, NJ, 1994.
 > 6. W. Li and S. Henry. Object-oriented metrics that predict maintainability. Journal of Systems and Software, Volume 23, Issue 2, pages 111-122, November 1993.
+> 7. M. Lanza, R. Marinescu. Object-Oriented Metrics in Practice. Using Software Metrics to Characterize, Evaluate, and Improve the Design of Object-Oriented Systems. Springer-Verlag Berlin Heidelberg, 2006.
+> 8. J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system, Proceedings of the 1995 Symposium on Software reusability, Seattle, Washington, United States, pp. 259-262, 1995.
 # Featutes   
  - Represents metrics calculation results as a tree view
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
+ - Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
+ - Displays classes distributions by their metrics values in charts 
  - Shows class metrics values evolution based on 'git log'
- - Displays classes distributions by their metrics values
+ 
 ![Image of MetricsTree](metricstree-light-sample.png)
 ![Image of MetricsTree](metricstree-darcula-sample.png)
+![Image of MetricsTree](metricstree-darcula-anti-patterns-sample.png)
 ![Image of MetricsTree](pie-chart-darcula-sample.png)
 # Installation
 The plugin can be installed from the JetBrains plugin repository within your IDE with 

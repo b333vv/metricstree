@@ -133,7 +133,8 @@ public class BasicMetricsRange implements Range {
             case VERY_HIGH:
                 return "[" + getVeryHighFrom() + ".." + getVeryHighTo() + ")";
             case EXTREME:
-                return "[" + getExtremeFrom() + ".." + getExtremeTo() + ")";
+                return "[" + getExtremeFrom() + "..\u221E)";
+//                return "[" + getExtremeFrom() + ".." + getExtremeTo() + ")";
             default:
                 return "";
         }

@@ -179,4 +179,64 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
+
+    public void testAccessToForeignDataVisitor() {
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        AccessToForeignDataVisitor accessToForeignDataVisitor = new AccessToForeignDataVisitor();
+        javaClass.accept(accessToForeignDataVisitor);
+
+        Metric metric = Metric.of(ATFD, 0);
+
+        assertEquals(metric, javaClass.metrics().findFirst().get());
+    }
+
+    public void testNumberOfPublicAttributesVisitor() {
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        NumberOfPublicAttributesVisitor numberOfPublicAttributesVisitor = new NumberOfPublicAttributesVisitor();
+        javaClass.accept(numberOfPublicAttributesVisitor);
+
+        Metric metric = Metric.of(NOPA, 0);
+
+        assertEquals(metric, javaClass.metrics().findFirst().get());
+    }
+
+    public void testNumberOfAccessorMethodsVisitor() {
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        NumberOfAccessorMethodsVisitor numberOfAccessorMethodsVisitor = new NumberOfAccessorMethodsVisitor();
+        javaClass.accept(numberOfAccessorMethodsVisitor);
+
+        Metric metric = Metric.of(NOAC, 0);
+
+        assertEquals(metric, javaClass.metrics().findFirst().get());
+    }
+
+    public void testTightClassCohesionVisitor() {
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        TightClassCohesionVisitor tightClassCohesionVisitor = new TightClassCohesionVisitor();
+        javaClass.accept(tightClassCohesionVisitor);
+
+        Metric metric = Metric.of(TCC, 0.277);
+
+        assertEquals(metric.getValue().toString(), javaClass.metrics().findFirst().get().getValue().toString());
+    }
+
+    public void testWeightOfAClassVisitor() {
+        PsiClass psiClass = myFixture.findClass("java.util.HashMap");
+        JavaClass javaClass = new JavaClass(psiClass);
+
+        WeightOfAClassVisitor weightOfAClassVisitor = new WeightOfAClassVisitor();
+        javaClass.accept(weightOfAClassVisitor);
+
+        Metric metric = Metric.of(WOC, 1.0);
+
+        assertEquals(metric, javaClass.metrics().findFirst().get());
+    }
 }

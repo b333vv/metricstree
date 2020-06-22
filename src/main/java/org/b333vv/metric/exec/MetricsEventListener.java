@@ -20,6 +20,7 @@ import com.intellij.util.messages.Topic;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
@@ -52,6 +53,12 @@ public interface MetricsEventListener {
     default void clearProjectMetricsTree() {
     }
 
+    default void clearChartsPanel() {
+    }
+
+    default void clearProfilesPanel() {
+    }
+
     default void clearClassMetricsValuesEvolutionTree() {
     }
 
@@ -70,4 +77,12 @@ public interface MetricsEventListener {
     default void cancelMetricsValuesEvolutionCalculation() {
     }
 
+    default void metricsProfileBuilt(@NotNull Map<MetricProfile, Set<JavaClass>> distribution) {
+    }
+
+    default void metricsProfileSelected(MetricProfile profile) {
+    }
+
+    default void javaClassSelected(JavaClass javaClass) {
+    }
 }

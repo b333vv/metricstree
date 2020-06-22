@@ -95,7 +95,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricPanel.getVerticalScrollBar().setUnitIncrement(10);
 
-        metricsSummaryTable = new MetricsSummaryTable();
+        metricsSummaryTable = new MetricsSummaryTable(true);
         scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricsSummaryTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
