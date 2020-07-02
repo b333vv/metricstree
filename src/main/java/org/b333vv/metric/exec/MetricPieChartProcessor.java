@@ -17,31 +17,30 @@
 package org.b333vv.metric.exec;
 
 import com.intellij.analysis.AnalysisScope;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.calculator.ClassAndMethodsMetricsCalculator;
+import org.b333vv.metric.model.calculator.DependenciesCalculator;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.b333vv.metric.exec.ClassesByMetricsValuesDistributor.classesByMetricsValuesDistribution;
-import static org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder.*;
+import static org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder.PieChartStructure;
 
 public class MetricPieChartProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
-    private final Runnable calculate;
-    private final Runnable postCalculate;
+    private final Runnable calculateDependencies;
+    private final Runnable calculateMetrics;
     private final Runnable buildChart;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
@@ -58,12 +57,13 @@ public class MetricPieChartProcessor {
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
-        ClassAndMethodsMetricsCalculator calculator =
-                new ClassAndMethodsMetricsCalculator(scope, dependenciesBuilder, javaProject);
+        DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
 
-        calculate = calculator::calculate;
+        calculateDependencies = dependenciesCalculator::calculateDependencies;
 
-        postCalculate = () -> ReadAction.run(calculator::postCalculate);
+        ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
+
+        calculateMetrics = metricsCalculator::calculateMetrics;
 
         buildChart = () -> {
             Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject);
@@ -84,9 +84,13 @@ public class MetricPieChartProcessor {
     }
 
     public final void execute() {
+        MetricsBackgroundableTask dependenciesTask = new MetricsBackgroundableTask(project,
+                "Calculating Dependencies...", true, calculateDependencies, null,
+                cancel, null);
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculate, postCalculate,
-                cancel, buildChart);
+                "Calculating Metrics...", true, calculateMetrics, buildChart,
+                cancel, null);
+        queue.run(dependenciesTask);
         queue.run(classMetricsTask);
     }
 }

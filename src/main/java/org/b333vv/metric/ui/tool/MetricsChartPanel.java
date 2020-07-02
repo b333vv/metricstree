@@ -32,26 +32,28 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.ui.chart.builder.ProjectMetricXYChartBuilder;
 import org.b333vv.metric.ui.info.BottomPanel;
 import org.b333vv.metric.ui.info.ClassesByRangesTable;
 import org.b333vv.metric.ui.info.MetricsRangesTable;
+import org.b333vv.metric.ui.info.PackageMetricsTable;
 import org.b333vv.metric.util.CurrentFileController;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.internal.chartpart.Chart;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 import static org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder.PieChartStructure;
@@ -62,6 +64,7 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
     private JBPanel<?> rightPanel;
     private JPanel mainPanel;
     private JPanel chartPanel;
+    private PackageMetricsTable packageMetricsTable;
 
     private final Project project;
     private Map<Integer, JBTabbedPane> rightPanelMap = new HashMap<>();
@@ -139,6 +142,21 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
         rightPanel.add(rightPanelMap.get(0));
     }
 
+    private void showResults(XYChart xyChart, Map<String, Double> instability, Map<String, Double> abstractness) {
+        chartPanel = new XChartPanel<>(xyChart);
+        CoordinateListener mouseListener = new CoordinateListener(xyChart);
+        chartPanel.addMouseListener(mouseListener);
+        mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
+        packageMetricsTable = new PackageMetricsTable(instability, abstractness);
+        JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
+                packageMetricsTable.getComponent(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
+        scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        rightPanel.add(scrollableTablePanel);
+    }
+
     @NotNull
     private JBTabbedPane getJbTabbedPane(Map<JavaClass, Metric> classesByMetric) {
         JBTabbedPane classesByRanges = new JBTabbedPane();
@@ -191,8 +209,26 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
         }
 
         @Override
+        public void projectMetricsChartBuilt(@NotNull XYChart xyChart, Map<String, Double> instability,
+                                             Map<String, Double> abstractness) {
+            showResults(xyChart, instability, abstractness);
+        }
+
+        @Override
         public void clearChartsPanel() {
             clear();
+        }
+    }
+
+    public class CoordinateListener extends MouseAdapter {
+        private XYChart chart;
+        public CoordinateListener(XYChart chart) {
+            this.chart = chart;
+        }
+        public void mousePressed(MouseEvent e) {
+            double chartX = chart.getChartXFromCoordinate(e.getX());
+            double chartY = chart.getChartYFromCoordinate(e.getY());
+            packageMetricsTable.updateSelection(chartX, chartY);
         }
     }
 }

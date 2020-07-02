@@ -89,7 +89,7 @@ public class MetricProfileItemTable {
     }
 
     private void addEntry() {
-        AddMetricProfileItemDialog dialog = new AddMetricProfileItemDialog(MetricsUtils.getProject(), getMetricTypeList);
+        AddMetricProfileItemDialog dialog = new AddMetricProfileItemDialog(MetricsUtils.getCurrentProject(), getMetricTypeList);
         if (dialog.showAndGet()) {
             MetricProfileItem item = dialog.getMetricProfileItem();
             if (item != null) {
@@ -99,7 +99,7 @@ public class MetricProfileItemTable {
     }
 
     private void editEntry() {
-        EditMetricProfileItemDialog dialog = new EditMetricProfileItemDialog(MetricsUtils.getProject(), currentProfile);
+        EditMetricProfileItemDialog dialog = new EditMetricProfileItemDialog(MetricsUtils.getCurrentProject(), currentProfile);
         if (dialog.showAndGet()) {
             MetricProfileItem item = dialog.getMetricProfileItem();
             if (item != null) {

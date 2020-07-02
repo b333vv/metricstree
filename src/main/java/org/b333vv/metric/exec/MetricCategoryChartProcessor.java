@@ -22,11 +22,11 @@ import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.calculator.ClassAndMethodsMetricsCalculator;
+import org.b333vv.metric.model.calculator.DependenciesCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.ui.chart.builder.MetricCategoryChartBuilder;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsUtils;
 import org.knowm.xchart.CategoryChart;
 
@@ -38,8 +38,8 @@ public class MetricCategoryChartProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
-    private final Runnable calculate;
-    private final Runnable postCalculate;
+    private final Runnable calculateDependencies;
+    private final Runnable calculateMetrics;
     private final Runnable buildChart;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
@@ -56,12 +56,13 @@ public class MetricCategoryChartProcessor {
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
-        ClassAndMethodsMetricsCalculator calculator =
-                new ClassAndMethodsMetricsCalculator(scope, dependenciesBuilder, javaProject);
+        DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
 
-        calculate = calculator::calculate;
+        calculateDependencies = dependenciesCalculator::calculateDependencies;
 
-        postCalculate = () -> ReadAction.run(calculator::postCalculate);
+        ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
+
+        calculateMetrics = metricsCalculator::calculateMetrics;
 
         buildChart = () -> {
             Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject);
@@ -82,9 +83,13 @@ public class MetricCategoryChartProcessor {
     }
 
     public final void execute() {
+        MetricsBackgroundableTask dependenciesTask = new MetricsBackgroundableTask(project,
+                "Calculating Dependencies...", true, calculateDependencies, null,
+                cancel, null);
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculate, postCalculate,
-                cancel, buildChart);
+                "Calculating Metrics...", true, calculateMetrics, buildChart,
+                cancel, null);
+        queue.run(dependenciesTask);
         queue.run(classMetricsTask);
     }
 }

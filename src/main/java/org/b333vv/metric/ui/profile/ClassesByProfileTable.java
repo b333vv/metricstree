@@ -25,7 +25,6 @@ import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.exec.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.util.ClassUtils;
-import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 
@@ -52,7 +51,7 @@ public class ClassesByProfileTable {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
                 openInEditor(javaClass.getPsiClass());
-                MetricsUtils.getProject().getMessageBus()
+                MetricsUtils.getCurrentProject().getMessageBus()
                         .syncPublisher(MetricsEventListener.TOPIC).javaClassSelected(javaClass);
             }
         });
@@ -73,7 +72,7 @@ public class ClassesByProfileTable {
     }
 
     private void openInEditor(PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(MetricsUtils.getProject());
+        final EditorController caretMover = new EditorController(MetricsUtils.getCurrentProject());
         if (psiElement != null) {
             Editor editor = caretMover.openInEditor(psiElement);
             if (editor != null) {

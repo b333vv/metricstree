@@ -58,6 +58,10 @@ public class JavaProject extends JavaCode {
         allPackages.put(name, javaPackage);
     }
 
+    public void removeFromAllPackages(@NotNull String name) {
+        allPackages.remove(name);
+    }
+
     public JavaPackage getFromAllPackages(@NotNull String name) {
         return allPackages.get(name);
     }

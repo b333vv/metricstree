@@ -40,6 +40,7 @@ public class MetricsIcons {
   public static final Icon CALCULATE_PROJECT_METRICS = IconLoader.getIcon("/images/calculateProjectMetrics.svg");
   public static final Icon BAR_CHART = IconLoader.getIcon("/images/chartBar.svg");
   public static final Icon PIE_CHART = IconLoader.getIcon("/images/chartPie.svg");
+  public static final Icon XY_CHART = IconLoader.getIcon("/images/chartXY.svg");
   public static final Icon REGULAR_COLOR = IconLoader.getIcon("/images/regularColor.svg");
   public static final Icon HIGH_COLOR = IconLoader.getIcon("/images/highColor.svg");
   public static final Icon VERY_HIGH_COLOR = IconLoader.getIcon("/images/veryHighColor.svg");

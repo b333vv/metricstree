@@ -24,6 +24,7 @@ import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.XYChart;
 
 import javax.swing.tree.DefaultTreeModel;
 import java.util.List;
@@ -42,6 +43,9 @@ public interface MetricsEventListener {
     }
 
     default void metricsChartBuilt(Set<MetricType> metricTypes, @NotNull CategoryChart categoryChart) {
+    }
+
+    default void projectMetricsChartBuilt(@NotNull XYChart xyChart, Map<String, Double> instability, Map<String, Double> abstractness) {
     }
 
     default void metricsByMetricTypesChartBuilt(@NotNull List<PieChartStructure> chartList, Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes) {

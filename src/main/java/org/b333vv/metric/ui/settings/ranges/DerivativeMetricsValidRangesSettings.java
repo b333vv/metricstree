@@ -65,7 +65,7 @@ public final class DerivativeMetricsValidRangesSettings implements PersistentSta
         //Robert C. Martin metrics set
         putToControlledMetricsMap(I, 0.00, 1.00);
         putToControlledMetricsMap(A, 0.00, 1.00);
-        putToControlledMetricsMap(D, 0.00, 0.70);
+        putToControlledMetricsMap(D, 0.00, 0.50);
 
         //MOOD metrics set
         putToControlledMetricsMap(MHF, 0.095, 0.369);

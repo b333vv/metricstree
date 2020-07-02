@@ -18,7 +18,6 @@ package org.b333vv.metric.ui.info;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -27,10 +26,6 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -73,7 +68,7 @@ public class ClassesByRangesTable {
     }
 
     private void openInEditor(PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(MetricsUtils.getProject());
+        final EditorController caretMover = new EditorController(MetricsUtils.getCurrentProject());
         if (psiElement != null) {
             Editor editor = caretMover.openInEditor(psiElement);
             if (editor != null) {

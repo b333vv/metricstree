@@ -25,7 +25,6 @@ import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.Map;
@@ -45,8 +44,7 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setProject(getProject());
-        MetricsService.init(getProject());
+        MetricsUtils.setCurrentProject(getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         projectName = FilenameUtils.getBaseName(psiJavaFile.getName());

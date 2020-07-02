@@ -18,7 +18,7 @@ package org.b333vv.metric.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -41,101 +41,107 @@ import java.util.*;
 
 public final class MetricsUtils {
 
-    private static final Logger LOG = Logger.getInstance(MetricsUtils.class);
-    private static Project project;
-    private static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
-    private static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
-    private static boolean autoScrollable = true;
-    private static boolean classMetricsTreeExists = false;
-    private static boolean projectMetricsTreeExists = false;
-    private static boolean projectMetricsCalculationPerforming = false;
-    private static boolean classMetricsValuesEvolutionCalculationPerforming = false;
-    private static boolean classMetricsValuesEvolutionAdded = false;
+    private Project currentProject;
+    private final MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
+    private final MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
+    private boolean autoScrollable = true;
+    private boolean classMetricsTreeExists = false;
+    private boolean projectMetricsTreeExists = false;
+    private boolean projectMetricsCalculationPerforming = false;
+    private boolean classMetricsValuesEvolutionCalculationPerforming = false;
+    private boolean classMetricsValuesEvolutionAdded = false;
 
 
     private MetricsUtils() {
         // Utility class
     }
 
+    public static MetricsUtils instance() {
+        return ServiceManager.getService(MetricsUtils.class);
+    }
+
     public static synchronized MetricsConsole getConsole() {
-        return get(project, MetricsConsole.class);
+        return getForProject(MetricsConsole.class);
     }
 
     public static boolean isProjectMetricsCalculationPerforming() {
-        return projectMetricsCalculationPerforming;
+        return instance().projectMetricsCalculationPerforming;
     }
 
     public static void setProjectMetricsCalculationPerforming(boolean projectMetricsCalculationPerforming) {
-        MetricsUtils.projectMetricsCalculationPerforming = projectMetricsCalculationPerforming;
+        instance().projectMetricsCalculationPerforming = projectMetricsCalculationPerforming;
     }
 
     public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean classMetricsValuesEvolutionCalculationPerforming) {
-        MetricsUtils.classMetricsValuesEvolutionCalculationPerforming = classMetricsValuesEvolutionCalculationPerforming;
+        instance().classMetricsValuesEvolutionCalculationPerforming = classMetricsValuesEvolutionCalculationPerforming;
     }
 
     public static boolean isClassMetricsValuesEvolutionAdded() {
-        return classMetricsValuesEvolutionAdded;
+        return instance().classMetricsValuesEvolutionAdded;
     }
 
     public static void setClassMetricsValuesEvolutionAdded(boolean classMetricsValuesEvolutionAdded) {
-        MetricsUtils.classMetricsValuesEvolutionAdded = classMetricsValuesEvolutionAdded;
+        instance().classMetricsValuesEvolutionAdded = classMetricsValuesEvolutionAdded;
     }
 
-    public static Project getProject() {
-        return project;
+    public static Project getCurrentProject() {
+        return instance().currentProject;
     }
 
-    public static void setProject(Project value) {
-        project = value;
+    public static void setCurrentProject(Project value) {
+        instance().currentProject = value;
     }
 
     public static DumbService getDumbService() {
-        return DumbServiceImpl.getInstance(project);
+        return DumbServiceImpl.getInstance(instance().currentProject);
     }
 
     public static MetricsTreeFilter getClassMetricsTreeFilter() {
-        return classMetricsTreeFilter;
+        return instance().classMetricsTreeFilter;
     }
 
     public static MetricsTreeFilter getProjectMetricsTreeFilter() {
-        return projectMetricsTreeFilter;
+        return instance().projectMetricsTreeFilter;
     }
 
     public static boolean isAutoScrollable() {
-        return autoScrollable;
+        return instance().autoScrollable;
     }
 
     public static void setAutoScrollable(boolean autoScrollable) {
-        MetricsUtils.autoScrollable = autoScrollable;
+        instance().autoScrollable = autoScrollable;
     }
 
     public static boolean isClassMetricsTreeExists() {
-        return classMetricsTreeExists;
+        return instance().classMetricsTreeExists;
     }
 
     public static boolean isProjectMetricsTreeExists() {
-        return projectMetricsTreeExists;
+        return instance().projectMetricsTreeExists;
     }
 
     public static void setClassMetricsTreeExists(boolean classMetricsTreeExists) {
-        MetricsUtils.classMetricsTreeExists = classMetricsTreeExists;
+        instance().classMetricsTreeExists = classMetricsTreeExists;
     }
 
     public static void setProjectMetricsTreeExists(boolean projectMetricsTreeExists) {
-        MetricsUtils.projectMetricsTreeExists = projectMetricsTreeExists;
+        instance().projectMetricsTreeExists = projectMetricsTreeExists;
     }
 
     public static boolean isMetricsEvolutionCalculationPerforming() {
-        return classMetricsValuesEvolutionCalculationPerforming;
+        return instance().classMetricsValuesEvolutionCalculationPerforming;
     }
 
     public static <T> T get(ComponentManager container, Class<T> clazz) {
         T t = container.getComponent(clazz);
         if (t == null) {
-            LOG.error("Could not find class in the container: " + clazz.getName());
             throw new IllegalArgumentException("Class not found: " + clazz.getName());
         }
         return t;
+    }
+
+    public static <T> T getForProject(Class<T> clazz) {
+        return instance().currentProject.getComponent(clazz);
     }
 
     public static <T> T get(Class<T> clazz) {

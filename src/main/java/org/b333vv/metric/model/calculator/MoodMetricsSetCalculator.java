@@ -247,7 +247,6 @@ public class MoodMetricsSetCalculator {
         }
 
         private void processCouplingFactor(PsiClass psiClass) {
-//            final DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
             final Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             totalCoupling += dependencies.stream()
                     .filter(c -> !psiClass.isInheritor(c, true))

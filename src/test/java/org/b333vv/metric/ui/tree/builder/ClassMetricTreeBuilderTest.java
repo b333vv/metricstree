@@ -22,7 +22,6 @@ import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.tree.node.ClassNode;
-import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -36,8 +35,7 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setProject(getProject());
-        MetricsService.init(getProject());
+        MetricsUtils.setCurrentProject(getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();

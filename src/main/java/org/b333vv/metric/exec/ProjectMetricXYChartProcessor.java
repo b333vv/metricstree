@@ -20,36 +20,36 @@ import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
-import org.b333vv.metric.model.calculator.ClassAndMethodsMetricsCalculator;
 import org.b333vv.metric.model.calculator.DependenciesCalculator;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.calculator.PackagesCalculator;
+import org.b333vv.metric.model.calculator.RobertMartinMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.chart.builder.ProjectMetricXYChartBuilder;
 import org.b333vv.metric.util.MetricsUtils;
+import org.knowm.xchart.XYChart;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeMap;
 
-import static org.b333vv.metric.exec.ClassesByMetricsProfileDistributor.classesByMetricsProfileDistribution;
-
-public class MetricProfileProcessor {
+public class ProjectMetricXYChartProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
     private final Runnable calculateDependencies;
-    private final Runnable calculateMetrics;
-    private final Runnable searchAntiPatterns;
+    private final Runnable calculatePackagesStructure;
+    private final Runnable calculatePackageMetrics;
+    private final Runnable buildChart;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
 
-    public MetricProfileProcessor(Project project) {
+    public ProjectMetricXYChartProcessor(Project project) {
         this.project = project;
         javaProject = new JavaProject(project.getName());
         DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
         AnalysisScope scope = new AnalysisScope(project);
         scope.setIncludeTestSource(false);
 
-        MetricsUtils.getConsole().info("Searching anti-patterns for project " + project.getName()
+        MetricsUtils.getConsole().info("Building package level metrics distribution chart for project " + project.getName()
                 + " started: processing " + scope.getFileCount() + " java files");
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
@@ -58,22 +58,32 @@ public class MetricProfileProcessor {
 
         calculateDependencies = dependenciesCalculator::calculateDependencies;
 
-        ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
+        PackagesCalculator packagesCalculator = new PackagesCalculator(scope, javaProject);
 
-        calculateMetrics = metricsCalculator::calculateMetrics;
+        calculatePackagesStructure = packagesCalculator::calculatePackagesStructure;
 
-        searchAntiPatterns = () -> {
-            Map<MetricProfile, Set<JavaClass>> classesByMetricProfile = classesByMetricsProfileDistribution(javaProject);
-            if (!classesByMetricProfile.isEmpty()) {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricsProfileBuilt(classesByMetricProfile);
-                MetricsUtils.getConsole().info("Searching anti-patterns for project " + project.getName() + " finished");
+        RobertMartinMetricsSetCalculator packageMetricsCalculator = new RobertMartinMetricsSetCalculator(scope, dependenciesBuilder, javaProject);
+
+        calculatePackageMetrics = packageMetricsCalculator::calculate;
+
+        buildChart = () -> {
+            Map<String, Double> instability = new TreeMap<>();
+            Map<String, Double> abstractness = new TreeMap<>();
+
+            ProjectMetricXYChartDataBuilder.build(javaProject, instability, abstractness);
+            ProjectMetricXYChartBuilder builder = new ProjectMetricXYChartBuilder();
+            XYChart xyChart = builder.createChart(instability, abstractness);
+
+            if (xyChart != null) {
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsChartBuilt(xyChart, instability, abstractness);
+                MetricsUtils.getConsole().info("Building package level metrics distribution chart for project " + project.getName() + " finished");
             }
             MetricsUtils.setProjectMetricsCalculationPerforming(false);
         };
 
         cancel = () -> {
             queue.clear();
-            MetricsUtils.getConsole().info("Searching anti-patterns for project " + project.getName() + " canceled");
+            MetricsUtils.getConsole().info("Building package level metrics distribution chart for project  " + project.getName() + " canceled");
             MetricsUtils.setProjectMetricsCalculationPerforming(false);
         };
     }
@@ -83,9 +93,13 @@ public class MetricProfileProcessor {
                 "Calculating Dependencies...", true, calculateDependencies, null,
                 cancel, null);
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculateMetrics, searchAntiPatterns,
+                "Building Package Structure...", true, calculatePackagesStructure, null,
+                cancel, null);
+        MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
+                "Calculating Package Metrics...", true, calculatePackageMetrics, buildChart,
                 cancel, null);
         queue.run(dependenciesTask);
         queue.run(classMetricsTask);
+        queue.run(packageMetricsTask);
     }
 }

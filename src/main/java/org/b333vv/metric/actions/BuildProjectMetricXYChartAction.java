@@ -14,33 +14,35 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.actions.treefilters.projecttree;
+package org.b333vv.metric.actions;
 
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
-import icons.MetricsIcons;
 import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.exec.ProjectMetricXYChartProcessor;
+import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectTreeShowClassMetrics extends ToggleAction {
-
-    public ProjectTreeShowClassMetrics() {
-        super("Show Class Metrics", "Show or dont show class metrics", MetricsIcons.CLASS_METRIC);
-    }
-
+public class BuildProjectMetricXYChartAction extends AnAction {
     @Override
-    public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getProjectMetricsTreeFilter().isClassMetricsVisible();
-    }
-
-    @Override
-    public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getProjectMetricsTreeFilter().setClassMetricsVisible(state);
+    public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).buildProjectMetricsTree();
+            ProjectMetricXYChartProcessor processor = new ProjectMetricXYChartProcessor(project);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+        }
+    }
+
+    @Override
+    public void update (AnActionEvent e) {
+        Project project = e.getProject();
+        if (project != null) {
+            e.getPresentation().setEnabled(
+                    MetricsService.isControlValidRanges()
+                    && !MetricsUtils.isProjectMetricsCalculationPerforming());
         }
     }
 }

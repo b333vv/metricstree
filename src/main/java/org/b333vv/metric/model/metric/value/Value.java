@@ -316,5 +316,12 @@ public class Value implements Comparable<Value> {
         format.setMinimumFractionDigits(4);
         return format.format(value);
     }
+
+    public double doubleValue() {
+        if (value instanceof LargeInteger) {
+            throw new UnsupportedOperationException("Value is not of type double");
+        }
+        return value.doubleValue();
+    }
 }
 

@@ -31,7 +31,6 @@ import git4idea.util.GitFileUtils;
 import org.b333vv.metric.model.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.metric.util.Bag;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -60,8 +59,8 @@ public class ClassMetricsValuesEvolutionProcessor {
         classModelBuilder = new ClassModelBuilder();
 
         MetricsEventListener metricsEventListener = new ClassMetricsEvolutionEventListener();
-        MetricsUtils.getProject().getMessageBus()
-                .connect(MetricsUtils.getProject()).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
+        MetricsUtils.getCurrentProject().getMessageBus()
+                .connect(MetricsUtils.getCurrentProject()).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
 
         queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics Values Evolution");
 

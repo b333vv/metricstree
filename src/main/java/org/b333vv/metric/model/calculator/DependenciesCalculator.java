@@ -35,29 +35,27 @@ import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.function.Consumer;
 
-public class ClassAndMethodsMetricsCalculator {
+public class DependenciesCalculator {
 
     private final AnalysisScope scope;
-    private final ProjectModelBuilder projectModelBuilder;
-    private final JavaProject javaProject;
+    private final DependenciesBuilder dependenciesBuilder;
 
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
 
-    public ClassAndMethodsMetricsCalculator(AnalysisScope scope, JavaProject javaProject) {
+    public DependenciesCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder) {
         this.scope = scope;
-        this.javaProject = javaProject;
-        projectModelBuilder = new ProjectModelBuilder(javaProject);
+        this.dependenciesBuilder = dependenciesBuilder;
     }
 
-    public void calculateMetrics() {
+    public void calculateDependencies() {
         MetricsUtils.setProjectMetricsCalculationPerforming(true);
         indicator = ProgressManager.getInstance().getProgressIndicator();
-        indicator.setText("Initializing");
         filesCount = scope.getFileCount();
-        indicator.setText("Calculating metrics");
+        indicator.setText("Calculating dependencies");
         scope.accept(new PsiJavaFileVisitor());
+        MetricsService.setDependenciesBuilder(dependenciesBuilder);
     }
 
     private class PsiJavaFileVisitor extends PsiElementVisitor {
@@ -79,10 +77,10 @@ public class ClassAndMethodsMetricsCalculator {
                 return;
             }
             final String fileName = psiFile.getName();
-            indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
+            indicator.setText("Calculating dependencies: processing file " + fileName + "...");
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+            dependenciesBuilder.build(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }

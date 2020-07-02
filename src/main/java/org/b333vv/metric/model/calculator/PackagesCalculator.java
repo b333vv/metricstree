@@ -27,36 +27,33 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import org.b333vv.metric.model.builder.DependenciesBuilder;
+import org.b333vv.metric.model.builder.PackagesModelBuilder;
 import org.b333vv.metric.model.builder.ProjectModelBuilder;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
-import java.util.function.Consumer;
-
-public class ClassAndMethodsMetricsCalculator {
+public class PackagesCalculator {
 
     private final AnalysisScope scope;
-    private final ProjectModelBuilder projectModelBuilder;
+    private final PackagesModelBuilder packagesModelBuilder;
     private final JavaProject javaProject;
 
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
 
-    public ClassAndMethodsMetricsCalculator(AnalysisScope scope, JavaProject javaProject) {
+    public PackagesCalculator(AnalysisScope scope, JavaProject javaProject) {
         this.scope = scope;
         this.javaProject = javaProject;
-        projectModelBuilder = new ProjectModelBuilder(javaProject);
+        packagesModelBuilder = new PackagesModelBuilder(javaProject);
     }
 
-    public void calculateMetrics() {
+    public void calculatePackagesStructure() {
         MetricsUtils.setProjectMetricsCalculationPerforming(true);
         indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();
-        indicator.setText("Calculating metrics");
+        indicator.setText("Building packages structure");
         scope.accept(new PsiJavaFileVisitor());
     }
 
@@ -79,10 +76,10 @@ public class ClassAndMethodsMetricsCalculator {
                 return;
             }
             final String fileName = psiFile.getName();
-            indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
+            indicator.setText("Building packages structure: processing file " + fileName + "...");
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+            packagesModelBuilder.addJavaFileToJavaProject(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }

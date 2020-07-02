@@ -99,6 +99,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MetricsTree" anchor="bottom" icon="/images/metricsTree.svg"
                     factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
+        <applicationService serviceImplementation="org.b333vv.metric.util.MetricsUtils"/>
+        <projectService serviceImplementation="org.b333vv.metric.util.MetricsService"/>
     </extensions>
 
     <project-components>
@@ -198,6 +200,13 @@
                 text="Build Metrics Distribution Chart By Type"
                 description="Build metrics distribution chart by type"
                 icon="MetricsIcons.PIE_CHART">
+        </action>
+
+        <action id="Metrics.BuildProjectMetricXYChart"
+                class="org.b333vv.metric.actions.BuildProjectMetricXYChartAction"
+                text="Build Abstractness By Instability Distribution"
+                description="Build abstractness By instability distribution"
+                icon="MetricsIcons.XY_CHART">
         </action>
 
         <action id="Metrics.BuildByProfileDistribution"
@@ -356,6 +365,7 @@
         <group id="Metrics.MetricsChartToolbar">
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
             <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
+            <reference id="Metrics.BuildProjectMetricXYChart"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>

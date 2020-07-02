@@ -80,7 +80,7 @@ public class ClassesByMetricsProfileDistributor {
 
 
     private static Set<MetricProfile> metricProfiles() {
-        MetricProfileSettings metricProfileSettings = MetricsUtils.get(MetricsUtils.getProject(),
+        MetricProfileSettings metricProfileSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
                 MetricProfileSettings.class);
         Map<String, List<MetricProfileItem>> savedProfiles = metricProfileSettings.getProfiles();
         Set<MetricProfile> profiles = new HashSet<>();

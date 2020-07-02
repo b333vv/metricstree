@@ -76,7 +76,6 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull final ToolWindow toolWindow) {
-        MetricsService.init(project);
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
         addMetricsProfilesTab(project, toolWindow);

@@ -61,10 +61,10 @@ public class DerivativeMetricsRange implements Range {
         if (value == Value.UNDEFINED) {
             return RangeType.UNDEFINED;
         }
-        if (value.isEqualsOrGreaterThan(to) || value.isLessThan(from)) {
+        if (value.isGreaterThan(to) || value.isLessThan(from)) {
             return HIGH;
         }
-        if (value.isEqualsOrGreaterThan(from) && value.isLessThan(to)) {
+        if (value.isEqualsOrGreaterThan(from) && value.isEqualsOrLessThan(to)) {
             return REGULAR;
         }
         return RangeType.UNDEFINED;
@@ -112,13 +112,13 @@ public class DerivativeMetricsRange implements Range {
 
     @Override
     public String toString() {
-        return "[" + getRegularFrom() + ".." + getRegularTo() + ")";
+        return "[" + getRegularFrom() + ".." + getRegularTo() + "]";
     }
 
     @Override
     public String getRangeByRangeType(RangeType rangeType) {
         if (rangeType == REGULAR) {
-            return "[" + getRegularFrom() + ".." + getRegularTo() + ")";
+            return "[" + getRegularFrom() + ".." + getRegularTo() + "]";
         }
         return "";
     }

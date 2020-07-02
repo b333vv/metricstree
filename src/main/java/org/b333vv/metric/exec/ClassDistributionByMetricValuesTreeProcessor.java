@@ -22,6 +22,7 @@ import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
 import org.b333vv.metric.model.calculator.ClassAndMethodsMetricsCalculator;
+import org.b333vv.metric.model.calculator.DependenciesCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.SortedByMetricsValuesClassesTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
@@ -32,8 +33,8 @@ public class ClassDistributionByMetricValuesTreeProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
-    private final Runnable calculate;
-    private final Runnable postCalculate;
+    private final Runnable calculateDependencies;
+    private final Runnable calculateMetrics;
     private final Runnable buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
@@ -50,13 +51,13 @@ public class ClassDistributionByMetricValuesTreeProcessor {
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
-        ClassAndMethodsMetricsCalculator calculator =
-                new ClassAndMethodsMetricsCalculator(scope, dependenciesBuilder, javaProject);
+        DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
 
-        calculate = calculator::calculate;
+        calculateDependencies = dependenciesCalculator::calculateDependencies;
 
-        postCalculate = () -> ReadAction.run(calculator::postCalculate);
+        ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
 
+        calculateMetrics = metricsCalculator::calculateMetrics;
 
         buildTree = () -> {
             SortedByMetricsValuesClassesTreeBuilder builder = new SortedByMetricsValuesClassesTreeBuilder();
@@ -78,9 +79,13 @@ public class ClassDistributionByMetricValuesTreeProcessor {
     }
 
     public final void execute() {
+        MetricsBackgroundableTask dependenciesTask = new MetricsBackgroundableTask(project,
+                "Calculating Dependencies...", true, calculateDependencies, null,
+                cancel, null);
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculate, postCalculate,
-                cancel, buildTree);
+                "Calculating Metrics...", true, calculateMetrics, buildTree,
+                cancel, null);
+        queue.run(dependenciesTask);
         queue.run(classMetricsTask);
     }
 }

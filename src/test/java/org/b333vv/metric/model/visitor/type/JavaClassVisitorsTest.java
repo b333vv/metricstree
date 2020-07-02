@@ -2,11 +2,9 @@ package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.MetricsUtils;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.util.MetricsService;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
@@ -14,8 +12,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setProject(this.getProject());
-        MetricsService.init(this.getProject());
+        MetricsUtils.setCurrentProject(this.getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
     }
 

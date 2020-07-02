@@ -45,7 +45,7 @@ public class CurrentFileController {
     }
 
     public void update() {
-        MetricsUtils.setProject(project);
+        MetricsUtils.setCurrentProject(project);
         PsiJavaFile psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
         if (psiJavaFile != null) {
             panel.update(psiJavaFile);

@@ -96,8 +96,6 @@ public class RobertMartinMetricsSetCalculator {
                 return;
             }
 
-//            DependenciesBuilder dependenciesBuilder = ProjectMetricsProcessor.getDependenciesBuilder();
-
             dependents.computeIfAbsent(psiPackage, k -> new HashSet<>())
                     .addAll(dependenciesBuilder.getDependentsSet(psiClass, psiPackage));
 

@@ -18,21 +18,11 @@ package org.b333vv.metric.exec;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.progress.BackgroundTaskQueue;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiCompiledElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.builder.DependenciesBuilder;
-import org.b333vv.metric.model.builder.ProjectModelBuilder;
 import org.b333vv.metric.model.calculator.ClassAndMethodsMetricsCalculator;
+import org.b333vv.metric.model.calculator.DependenciesCalculator;
 import org.b333vv.metric.model.calculator.MoodMetricsSetCalculator;
 import org.b333vv.metric.model.calculator.RobertMartinMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
@@ -48,8 +38,8 @@ public class ProjectMetricsProcessor {
 
     private final Project project;
     private final JavaProject javaProject;
-    private final Runnable calculate;
-    private final Runnable postCalculate;
+    private final Runnable dependenciesCalculating;
+    private final Runnable classAndMethodsMetricsCalculate;
     private final Runnable martinMetricSetCalculating;
     private final Runnable moodMetricSetCalculating;
     private final Runnable buildTree;
@@ -68,11 +58,13 @@ public class ProjectMetricsProcessor {
         MetricsUtils.getConsole().info("Building metrics tree for project " + javaProject.getName()
                 + " started: processing " + scope.getFileCount() + " java files");
 
-        ClassAndMethodsMetricsCalculator calculator =
-                new ClassAndMethodsMetricsCalculator(scope, dependenciesBuilder, javaProject);
-        calculate = calculator::calculate;
+        DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
 
-        postCalculate = () -> ReadAction.run(calculator::postCalculate);
+        dependenciesCalculating = dependenciesCalculator::calculateDependencies;
+
+        ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
+
+        classAndMethodsMetricsCalculate = metricsCalculator::calculateMetrics;
 
         martinMetricSetCalculating = () -> {
             RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope, dependenciesBuilder, javaProject);
@@ -87,6 +79,7 @@ public class ProjectMetricsProcessor {
         buildTree = () -> {
             ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
             DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
+//            DefaultTreeModel metricsTreeModel = MetricsService.getProjectTree(javaProject);
 
             if (metricsTreeModel != null) {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -107,11 +100,11 @@ public class ProjectMetricsProcessor {
 
     public final void execute() {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Metrics...", true, calculate, null,
+                "Calculating Metrics...", true, dependenciesCalculating, null,
                 cancel, null);
 
         MetricsBackgroundableTask classDeferredMetricsTask = new MetricsBackgroundableTask(project,
-                "Calculating Deferred Metrics...", true, postCalculate, null,
+                "Calculating Deferred Metrics...", true, classAndMethodsMetricsCalculate, null,
                 cancel, null);
 
         if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
@@ -154,81 +147,4 @@ public class ProjectMetricsProcessor {
                 cancel, null);
         queue.run(projectMetricsTask);
     }
-
-//    private class DependenciesVisitor extends PsiElementVisitor {
-//        @Override
-//        public void visitFile(PsiFile psiFile) {
-//            super.visitFile(psiFile);
-//            indicator.checkCanceled();
-//            if (psiFile instanceof PsiCompiledElement) {
-//                return;
-//            }
-//            final FileType fileType = psiFile.getFileType();
-//            if (!fileType.getName().equals("JAVA") || fileType.isBinary()) {
-//                return;
-//            }
-//            final VirtualFile virtualFile = psiFile.getVirtualFile();
-//            final ProjectRootManager rootManager = ProjectRootManager.getInstance(psiFile.getProject());
-//            final ProjectFileIndex fileIndex = rootManager.getFileIndex();
-//            if (fileIndex.isExcluded(virtualFile) || !fileIndex.isInContent(virtualFile)) {
-//                return;
-//            }
-//            final String fileName = psiFile.getName();
-//            indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
-//            progress++;
-//            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-//            dependenciesBuilder.build(psiJavaFile);
-//            indicator.setIndeterminate(false);
-//            indicator.setFraction((double) progress / (double) filesCount);
-//        }
-//    }
-//
-//    private class PsiJavaFileVisitor extends PsiElementVisitor {
-//        private final boolean calculateClassesAndMethodMetrics;
-//        private final boolean calculatePackageMethodMetrics;
-//        private final boolean calculateProjectdMetrics;
-//
-//        public PsiJavaFileVisitor(boolean calculateClassesAndMethodMetrics, boolean calculatePackageMethodMetrics,
-//                                  boolean calculateProjectdMetrics) {
-//            this.calculateClassesAndMethodMetrics = calculateClassesAndMethodMetrics;
-//            this.calculatePackageMethodMetrics = calculatePackageMethodMetrics;
-//            this.calculateProjectdMetrics = calculateProjectdMetrics;
-//        }
-//        @Override
-//        public void visitFile(PsiFile psiFile) {
-//            super.visitFile(psiFile);
-//            indicator.checkCanceled();
-//            if (psiFile instanceof PsiCompiledElement) {
-//                return;
-//            }
-//            final FileType fileType = psiFile.getFileType();
-//            if (!fileType.getName().equals("JAVA") || fileType.isBinary()) {
-//                return;
-//            }
-//            final VirtualFile virtualFile = psiFile.getVirtualFile();
-//            final ProjectRootManager rootManager = ProjectRootManager.getInstance(psiFile.getProject());
-//            final ProjectFileIndex fileIndex = rootManager.getFileIndex();
-//            if (fileIndex.isExcluded(virtualFile) || !fileIndex.isInContent(virtualFile)) {
-//                return;
-//            }
-//            final String fileName = psiFile.getName();
-//            indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
-//            progress++;
-//
-//            if (calculateClassesAndMethodMetrics) {
-//                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-//                projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
-//            }
-//
-//            if (calculatePackageMethodMetrics) {
-//
-//            }
-//
-//            if (calculateProjectdMetrics) {
-//
-//            }
-//            indicator.setIndeterminate(false);
-//            indicator.setFraction((double) progress / (double) filesCount);
-//        }
-//    }
 }

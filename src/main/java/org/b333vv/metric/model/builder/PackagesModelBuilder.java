@@ -17,9 +17,11 @@
 package org.b333vv.metric.model.builder;
 
 import com.intellij.psi.JavaRecursiveElementVisitor;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.util.ClassUtils;
@@ -31,14 +33,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.b333vv.metric.model.metric.MetricType.ATFD;
-import static org.b333vv.metric.model.metric.MetricType.CBO;
-
-public class ProjectModelBuilder extends ModelBuilder {
+public class PackagesModelBuilder extends ModelBuilder {
 
     private final JavaProject javaProject;
 
-    public ProjectModelBuilder(JavaProject javaProject) {
+    public PackagesModelBuilder(JavaProject javaProject) {
         this.javaProject = javaProject;
     }
 
@@ -82,13 +81,17 @@ public class ProjectModelBuilder extends ModelBuilder {
         Iterator<PsiPackage> psiPackageIterator = packageList.iterator();
         PsiPackage firstPsiPackage = psiPackageIterator.next();
         JavaPackage firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
-        javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+        if (firstJavaPackage.getPsiPackage() != null && firstJavaPackage.getPsiPackage().getClasses().length > 0) {
+            javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+        }
         javaProject.addPackage(firstJavaPackage);
         JavaPackage currentJavaPackage = firstJavaPackage;
         while (psiPackageIterator.hasNext()) {
             PsiPackage aPsiPackage = psiPackageIterator.next();
             JavaPackage aJavaPackage = new JavaPackage(aPsiPackage.getName(), aPsiPackage);
-            javaProject.putToAllPackages(aJavaPackage.getPsiPackage().getQualifiedName(), aJavaPackage);
+            if (aJavaPackage.getPsiPackage() != null && aJavaPackage.getPsiPackage().getClasses().length > 0) {
+                javaProject.putToAllPackages(aJavaPackage.getPsiPackage().getQualifiedName(), aJavaPackage);
+            }
             currentJavaPackage.addPackage(aJavaPackage);
             currentJavaPackage = aJavaPackage;
         }
@@ -96,23 +99,26 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     @Override
-    protected void addToAllClasses(@NotNull JavaClass javaClass) {
-        javaProject.addToAllClasses(javaClass);
+    protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
+        JavaFile javaFile = new JavaFile(psiJavaFile.getName());
+        for (PsiClass psiClass : psiJavaFile.getClasses()) {
+            JavaClass javaClass = new JavaClass(psiClass);
+            javaFile.addClass(javaClass);
+        }
+        return javaFile;
+    }
+
+    @Override
+    protected void addToAllClasses(JavaClass javaClass) {
     }
 
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
-        return MetricsService.classVisitorsForProjectMetricsTree();
+        return null;
     }
 
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
-        return MetricsService.methodsVisitorsForProjectMetricsTree();
+        return null;
     }
-
-//    public void calculateDeferredMetrics() {
-//        javaProject.allClasses().forEach(c -> {
-//            MetricsService.getDeferredMetricTypes().forEach(t -> c.accept(t.visitor()));
-//        });
-//    }
 }

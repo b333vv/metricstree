@@ -3,11 +3,9 @@ package org.b333vv.metric.model.visitor.method;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.MetricsUtils;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.util.MetricsService;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
@@ -16,8 +14,7 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setProject(getProject());
-        MetricsService.init(getProject());
+        MetricsUtils.setCurrentProject(getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
     }
 
