@@ -33,6 +33,7 @@ import org.knowm.xchart.style.markers.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Stream;
@@ -40,7 +41,6 @@ import java.util.stream.Stream;
 import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class ProjectMetricXYChartBuilder {
-
     public XYChart createChart(Map<String, Double> instability, Map<String, Double> abstractness) {
 
         XYChart chart = new XYChartBuilder()

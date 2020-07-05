@@ -45,6 +45,8 @@ public class MetricsIcons {
   public static final Icon HIGH_COLOR = IconLoader.getIcon("/images/highColor.svg");
   public static final Icon VERY_HIGH_COLOR = IconLoader.getIcon("/images/veryHighColor.svg");
   public static final Icon EXTREME_COLOR = IconLoader.getIcon("/images/extremeColor.svg");
+  public static final Icon CSV = IconLoader.getIcon("/images/csv.svg");
+  public static final Icon XML = IconLoader.getIcon("/images/xml.svg");
 
   private MetricsIcons() {
     // only static

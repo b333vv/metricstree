@@ -48,22 +48,20 @@ public class ProjectMetricsProcessor {
 
     public ProjectMetricsProcessor(Project project) {
         this.project = project;
-        javaProject = new JavaProject(project.getName());
-        dependenciesBuilder = new DependenciesBuilder();
         AnalysisScope scope = new AnalysisScope(project);
         scope.setIncludeTestSource(false);
 
         queue = new BackgroundTaskQueue(project, "Calculating Metrics");
 
-        MetricsUtils.getConsole().info("Building metrics tree for project " + javaProject.getName()
+        MetricsUtils.getConsole().info("Building metrics tree for project " + project.getName()
                 + " started: processing " + scope.getFileCount() + " java files");
 
+        dependenciesBuilder = new DependenciesBuilder();
         DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
-
         dependenciesCalculating = dependenciesCalculator::calculateDependencies;
 
+        javaProject = new JavaProject(project.getName());
         ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
-
         classAndMethodsMetricsCalculate = metricsCalculator::calculateMetrics;
 
         martinMetricSetCalculating = () -> {
@@ -99,18 +97,18 @@ public class ProjectMetricsProcessor {
     }
 
     public final void execute() {
-        MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(project,
+        MetricsBackgroundableTask dependenciesTask = new MetricsBackgroundableTask(project,
                 "Calculating Metrics...", true, dependenciesCalculating, null,
                 cancel, null);
 
-        MetricsBackgroundableTask classDeferredMetricsTask = new MetricsBackgroundableTask(project,
+        MetricsBackgroundableTask classAndMethodsMetricsTask = new MetricsBackgroundableTask(project,
                 "Calculating Deferred Metrics...", true, classAndMethodsMetricsCalculate, null,
                 cancel, null);
 
         if (!MetricsService.isNeedToConsiderProjectMetrics() && !MetricsService.isNeedToConsiderPackageMetrics()) {
-            classDeferredMetricsTask.setOnSuccess(buildTree);
-            queue.run(classMetricsTask);
-            queue.run(classDeferredMetricsTask);
+            classAndMethodsMetricsTask.setOnSuccess(buildTree);
+            queue.run(dependenciesTask);
+            queue.run(classAndMethodsMetricsTask);
             return;
         }
         if (!MetricsService.isNeedToConsiderProjectMetrics()) {
@@ -118,8 +116,8 @@ public class ProjectMetricsProcessor {
                     "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                     true, martinMetricSetCalculating, buildTree,
                     cancel, null);
-            queue.run(classMetricsTask);
-            queue.run(classDeferredMetricsTask);
+            queue.run(dependenciesTask);
+            queue.run(classAndMethodsMetricsTask);
             queue.run(packageMetricsTask);
             return;
         }
@@ -128,13 +126,13 @@ public class ProjectMetricsProcessor {
                     "Project Level Metrics: MOOD Metrics Set Calculating...",
                     true, moodMetricSetCalculating, buildTree,
                     cancel, null);
-            queue.run(classMetricsTask);
-            queue.run(classDeferredMetricsTask);
+            queue.run(dependenciesTask);
+            queue.run(classAndMethodsMetricsTask);
             queue.run(projectMetricsTask);
             return;
         }
-        queue.run(classMetricsTask);
-        queue.run(classDeferredMetricsTask);
+        queue.run(dependenciesTask);
+        queue.run(classAndMethodsMetricsTask);
         MetricsBackgroundableTask packageMetricsTask = new MetricsBackgroundableTask(project,
                 "Package Level Metrics: Robert C. Martin Metrics Set Calculating...",
                 true, martinMetricSetCalculating, null,

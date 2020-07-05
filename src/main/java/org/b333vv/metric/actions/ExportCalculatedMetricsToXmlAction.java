@@ -22,13 +22,14 @@ import org.b333vv.metric.exec.MetricExportProcessor;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ExportCalculatedMetricsAction extends AbstractAction {
+public class ExportCalculatedMetricsToXmlAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
             MetricExportProcessor processor = new MetricExportProcessor(project);
-            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+//            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+            MetricsUtils.getDumbService().runWhenSmart(processor::exportToXml);
         }
     }
 

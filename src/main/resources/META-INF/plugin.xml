@@ -216,11 +216,18 @@
                 icon="AllIcons.Actions.RunAll">
         </action>
 
-        <action id="Metrics.ExportMetrics"
-                class="org.b333vv.metric.actions.ExportCalculatedMetricsAction"
-                text="Export Calculated Metrics To File"
-                description="Export calculated metrics to file"
-                icon="AllIcons.ToolbarDecorator.Export">
+        <action id="Metrics.ExportMetricsToCsv"
+                class="org.b333vv.metric.actions.ExportCalculatedMetricsToCsvAction"
+                text="Export Class Level Metrics To CSV File"
+                description="Export class level metrics to CSV file"
+                icon="MetricsIcons.CSV">
+        </action>
+
+        <action id="Metrics.ExportMetricsToXml"
+                class="org.b333vv.metric.actions.ExportCalculatedMetricsToXmlAction"
+                text="Export All Levels Metrics To XML File"
+                description="Export all levels metrics to XML file"
+                icon="MetricsIcons.XML">
         </action>
 
         <action id="Metrics.ShowProjectMetrics"
@@ -357,7 +364,8 @@
             <separator/>
             <reference id="Metrics.Autoscroll"/>
             <separator/>
-            <reference id="Metrics.ExportMetrics"/>
+            <reference id="Metrics.ExportMetricsToCsv"/>
+            <reference id="Metrics.ExportMetricsToXml"/>
             <separator/>
             <reference id="Metrics.Configure"/>
         </group>

@@ -16,19 +16,18 @@
 
 package org.b333vv.metric.exec;
 
+import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.project.Project;
-import org.apache.commons.io.FilenameUtils;
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
 import org.b333vv.metric.export.CsvExporter;
 import org.b333vv.metric.export.Exporter;
 import org.b333vv.metric.export.XmlExporter;
 import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
-import org.b333vv.metric.util.MetricsUtils;
-
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileSystemView;
-import java.io.File;
 
 public class MetricExportProcessor {
 
@@ -39,34 +38,32 @@ public class MetricExportProcessor {
         this.project = project;
     }
 
-    public final void execute() {
-        JFileChooser jFileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        jFileChooser.setDialogTitle("Choose a file name:");
-        jFileChooser.setSelectedFile(new File(project.getName()));
-        FileNameExtensionFilter csvFilter = new FileNameExtensionFilter(".csv (classes metrics)", "csv");
-        FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter(".xml (all metrics)", "xml");
-        jFileChooser.addChoosableFileFilter(csvFilter);
-        jFileChooser.addChoosableFileFilter(xmlFilter);
-        jFileChooser.setAcceptAllFileFilterUsed(false);
-        int returnValue = jFileChooser.showSaveDialog(null);
-        if (returnValue != JFileChooser.APPROVE_OPTION) {
-            return;
+    public void exportToCsv() {
+        String fileName = getFileName("csv");
+        if (fileName != null) {
+            Exporter exporter = new CsvExporter();
+            exporter.export(fileName, project.getComponent(ProjectMetricsPanel.class).getJavaProject());
         }
-        File selectedFile = jFileChooser.getSelectedFile();
-        final FileFilter filter = jFileChooser.getFileFilter();
-        Exporter exporter;
-        if (filter.equals(csvFilter)) {
-            if (!FilenameUtils.getExtension(selectedFile.getName()).equalsIgnoreCase("csv")) {
-                selectedFile = new File(selectedFile.getParentFile(), FilenameUtils.getBaseName(selectedFile.getName()) + ".csv");
-            }
-            exporter = new CsvExporter();
-        } else {
-            if (!FilenameUtils.getExtension(selectedFile.getName()).equalsIgnoreCase("xml")) {
-                selectedFile = new File(selectedFile.getParentFile(), FilenameUtils.getBaseName(selectedFile.getName()) + ".xml");
-            }
-            exporter = new XmlExporter();
+    }
+
+    public void exportToXml() {
+        String fileName = getFileName("xml");
+        if (fileName != null) {
+            Exporter exporter = new XmlExporter();
+            exporter.export(fileName, project.getComponent(ProjectMetricsPanel.class).getJavaProject());
         }
-        String fileName = selectedFile.getAbsolutePath();
-        exporter.export(fileName, project.getComponent(ProjectMetricsPanel.class).getJavaProject());
+    }
+
+    private String getFileName(String extension) {
+        FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor("Choose A File Name:",
+                "Choose a file name to export metrics data", extension);
+        FileSaverDialog fileSaverDialog = FileChooserFactory.getInstance().createSaveFileDialog(fileSaverDescriptor, project);
+        VirtualFile outputDir = VfsUtil.getUserHomeDir();
+        String fileName = project.getName() + (SystemInfo.isMac ? "." + extension : "");
+        VirtualFileWrapper fileWrapper = fileSaverDialog.save(outputDir, fileName);
+        if (fileWrapper != null) {
+            return fileWrapper.getFile().getAbsolutePath();
+        }
+        return null;
     }
 }
