@@ -20,11 +20,11 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.EditorController;
-import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +39,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     public static ProjectMetricsPanel newInstance(Project project) {
-        ProjectMetricsPanel projectMetricsPanel = new ProjectMetricsPanel(project);
-        return projectMetricsPanel;
+        return new ProjectMetricsPanel(project);
     }
 
     @Override
@@ -61,17 +60,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     private class ProjectMetricsEventListener implements MetricsEventListener {
-        @Override
-        public void projectMetricsCalculated(@NotNull ProjectMetricTreeBuilder projectMetricTreeBuilder,
-                                             @NotNull DefaultTreeModel metricsTreeModel) {
-            metricTreeBuilder = projectMetricTreeBuilder;
-            showResults(metricsTreeModel);
-        }
-
-        @Override
-        public void classesSortedByMetricsValues(@NotNull DefaultTreeModel metricsTreeModel) {
-            showResults(metricsTreeModel);
-        }
 
         @Override
         public void buildProjectMetricsTree() {
@@ -81,6 +69,17 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void clearProjectMetricsTree() {
             clear();
+        }
+
+        @Override
+        public void projectMetricsTreeIsReady() {
+            metricTreeBuilder = MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER);
+            showResults(MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_TREE));
+        }
+
+        @Override
+        public void classByMetricTreeIsReady() {
+            showResults(MetricTaskCache.instance().getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE));
         }
     }
 

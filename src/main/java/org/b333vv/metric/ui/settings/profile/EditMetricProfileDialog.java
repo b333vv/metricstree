@@ -41,7 +41,7 @@ public class EditMetricProfileDialog extends DialogWrapper {
 
     public EditMetricProfileDialog(Project project, Map.Entry<String, List<MetricProfileItem>> profile, Function<String, Boolean> profileNameIsDuplicated) {
         super(project, false);
-        setTitle("Edit Anti-Pattern Metric Profile");
+        setTitle("Edit Metric Profile");
 
         this.profile = Objects.requireNonNullElseGet(profile, () -> Map.entry("Metric Profile Name", new ArrayList<>()));
 
@@ -50,7 +50,7 @@ public class EditMetricProfileDialog extends DialogWrapper {
         metricProfileItemTable.setProfileItems(this.profile.getValue());
 
         panel = new JPanel(new GridBagLayout());
-        JLabel profileNameLabel = new JLabel("Anti-Pattern Name");
+        JLabel profileNameLabel = new JLabel("Metric Profile Name");
         if (profile == null) {
             profileName = new JFormattedTextField("");
         } else {

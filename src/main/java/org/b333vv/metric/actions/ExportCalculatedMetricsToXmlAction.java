@@ -18,23 +18,26 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricExportProcessor;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.task.ExportToXmlTask;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
+
+import static org.b333vv.metric.task.MetricTaskManager.getFileName;
 
 public class ExportCalculatedMetricsToXmlAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            MetricExportProcessor processor = new MetricExportProcessor(project);
-//            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
-            MetricsUtils.getDumbService().runWhenSmart(processor::exportToXml);
+            String fileName = getFileName("xml", project);
+            ExportToXmlTask exportToXmlTask = new ExportToXmlTask(fileName);
+            MetricTaskCache.getQueue().run(exportToXmlTask);
         }
     }
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricsUtils.isProjectMetricsTreeExists());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

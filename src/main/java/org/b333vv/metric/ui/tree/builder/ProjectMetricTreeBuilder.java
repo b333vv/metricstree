@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
+import com.intellij.icons.AllIcons;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaPackage;
@@ -40,7 +41,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
             JavaProject javaProject = (JavaProject) javaCode;
-            ProjectNode projectNode = new ProjectNode(javaProject, "whole project metrics");
+            ProjectNode projectNode = new ProjectNode(javaProject, "whole project metrics", AllIcons.Nodes.Project);
             model = new DefaultTreeModel(projectNode);
             model.setRoot(projectNode);
             if (getMetricsTreeFilter().isProjectMetricsVisible()

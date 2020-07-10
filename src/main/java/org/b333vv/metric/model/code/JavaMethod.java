@@ -21,7 +21,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.MethodSignature;
-import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
+import org.b333vv.metric.visitor.method.JavaMethodVisitor;
 
 import java.util.Arrays;
 import java.util.Objects;

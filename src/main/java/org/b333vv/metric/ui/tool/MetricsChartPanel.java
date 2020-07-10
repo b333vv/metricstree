@@ -23,39 +23,36 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
+import com.intellij.ui.JBSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTabbedPane;
 import icons.MetricsIcons;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.ui.chart.builder.ProjectMetricXYChartBuilder;
+import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.info.BottomPanel;
 import org.b333vv.metric.ui.info.ClassesByRangesTable;
 import org.b333vv.metric.ui.info.MetricsRangesTable;
 import org.b333vv.metric.ui.info.PackageMetricsTable;
-import org.b333vv.metric.util.CurrentFileController;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
-import org.knowm.xchart.internal.chartpart.Chart;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder.PieChartStructure;
 
 public class MetricsChartPanel extends SimpleToolWindowPanel {
@@ -69,13 +66,11 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
     private final Project project;
     private Map<Integer, JBTabbedPane> rightPanelMap = new HashMap<>();
 
-    protected final CurrentFileController scope;
 
     public MetricsChartPanel(Project project) {
         super(false, true);
         this.project = project;
         createUIComponents();
-        scope = new CurrentFileController(project);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction("Metrics.MetricsChartToolbar"), false);
@@ -97,7 +92,7 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
         float savedProportion = PropertiesComponent.getInstance(project)
                 .getFloat(MetricsChartPanel.SPLIT_PROPORTION_PROPERTY, (float) 0.65);
 
-        final Splitter splitter = new Splitter(false);
+        final JBSplitter splitter = new JBSplitter(false);
         splitter.setFirstComponent(c1);
         splitter.setSecondComponent(c2);
         splitter.setProportion(savedProportion);
@@ -197,20 +192,28 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
     private class MetricsChartEventListener implements MetricsEventListener {
 
         @Override
-        public void metricsChartBuilt(Set<MetricType> metricTypes,
-                                      @NotNull CategoryChart categoryChart) {
-            showResults(metricTypes, categoryChart);
+        public void pieChartIsReady() {
+            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES);
+            List<MetricPieChartBuilder.PieChartStructure> pieChartList = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.PIE_CHART_LIST);
+            showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
         }
 
         @Override
-        public void metricsByMetricTypesChartBuilt(@NotNull List<PieChartStructure> chartList,
-                                                   Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes) {
-            showResults(classesByMetricTypes, chartList);
+        public void categoryChartIsReady() {
+            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+            CategoryChart categoryChart = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.CATEGORY_CHART);
+            showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
         }
 
         @Override
-        public void projectMetricsChartBuilt(@NotNull XYChart xyChart, Map<String, Double> instability,
-                                             Map<String, Double> abstractness) {
+        public void xyChartIsReady() {
+            Map<String, Double> instability = MetricTaskCache.instance().getUserData(MetricTaskCache.INSTABILITY);
+            Map<String, Double> abstractness = MetricTaskCache.instance().getUserData(MetricTaskCache.ABSTRACTNESS);
+            XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.XY_CHART);
             showResults(xyChart, instability, abstractness);
         }
 

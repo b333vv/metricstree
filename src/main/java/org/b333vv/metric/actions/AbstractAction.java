@@ -19,10 +19,22 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.util.MetricsUtils;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractAction extends AnAction {
     public AbstractAction() {
         super();
+    }
+
+    @Override
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        Project project = event.getProject();
+        if (check(project)) {
+            MetricsUtils.setCurrentProject(project);
+        }
     }
 
     @Override

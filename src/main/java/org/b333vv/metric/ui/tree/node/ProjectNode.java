@@ -16,19 +16,22 @@
 
 package org.b333vv.metric.ui.tree.node;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ui.SimpleTextAttributes;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
+
+import javax.swing.*;
 
 public class ProjectNode extends AbstractNode {
 
     private final JavaProject javaProject;
     private final String description;
+    private final Icon icon;
 
-    public ProjectNode(JavaProject javaProject, String description) {
+    public ProjectNode(JavaProject javaProject, String description, Icon icon) {
         this.javaProject = javaProject;
         this.description = description;
+        this.icon = icon;
     }
 
     public JavaProject getJavaProject() {
@@ -37,7 +40,8 @@ public class ProjectNode extends AbstractNode {
 
     @Override
     public void render(TreeCellRenderer renderer) {
-        renderer.setIcon(AllIcons.General.ProjectStructure);
+//        renderer.setIcon(AllIcons.General.ProjectStructure);
+        renderer.setIcon(icon);
         renderer.append(javaProject.getName());
         renderer.append(" (" + description + ")", SimpleTextAttributes.GRAY_SMALL_ATTRIBUTES);
     }

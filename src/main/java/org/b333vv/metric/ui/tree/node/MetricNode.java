@@ -71,19 +71,19 @@ public class MetricNode extends AbstractNode {
                 renderer.append(getMetricValue());
             } else if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                 renderer.setIconToolTip("This metric has very-high value");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.VERY_HIGH_VALUE));
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.VERY_HIGH_COLOR));
                 renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
             } else if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                 renderer.setIconToolTip("This metric has extreme value");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.EXTREME_VALUE));
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.EXTREME_COLOR));
                 renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
             } else if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                 renderer.setIconToolTip("This metric has high value");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.HIGH_VALUE));
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.HIGH_COLOR));
                 renderer.append(getMetricValue());
             } else if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 renderer.setIconToolTip("This metric has regular value");
-                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.REGULAR_VALUE));
+                renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.REGULAR_COLOR));
                 renderer.append(getMetricValue());
             } else if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
                 renderer.setIconToolTip("The desired value range is not set for this metric");

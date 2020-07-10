@@ -18,7 +18,7 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,6 +26,8 @@ public class RefreshMetricsTreeAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
+        super.actionPerformed(e);
+        Project project = e.getProject();
         e.getPresentation().setEnabled(MetricsUtils.isClassMetricsTreeExists());
     }
 

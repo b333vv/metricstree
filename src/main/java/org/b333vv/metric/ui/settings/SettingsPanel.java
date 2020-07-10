@@ -72,8 +72,8 @@ public class SettingsPanel {
                 "Configure class metrics tree composition", 2);
         tabs.insertTab("Project Metrics Tree Composition", null, projectMetricsTreeSettingsPanel.getComponent(),
                 "Configure project metrics tree composition", 3);
-        tabs.insertTab("Anti-Patterns", null, metricProfilePanel.getComponent(),
-                "Configure anti-patterns", 4);
+        tabs.insertTab("Metrics Profiles", null, metricProfilePanel.getComponent(),
+                "Configure metric profiles", 4);
 
         root.add(tabs, BorderLayout.CENTER);
     }

@@ -67,13 +67,15 @@ It supports the most common metric sets.
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
  - Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
- - Displays classes distributions by their metrics values in charts 
+ - Displays classes and packages distributions by their metrics values in charts 
  - Shows class metrics values evolution based on 'git log'
  
-![Image of MetricsTree](metricstree-light-sample.png)
-![Image of MetricsTree](metricstree-darcula-sample.png)
-![Image of MetricsTree](metricstree-darcula-anti-patterns-sample.png)
-![Image of MetricsTree](pie-chart-darcula-sample.png)
+![Image of MetricsTree](project_metrics_tree.png)
+![Image of MetricsTree](pie_chart.png)
+![Image of MetricsTree](metric_profiles.png)
+![Image of MetricsTree](xy_chart.png)
+![Image of MetricsTree](metrics_distribution.png)
+![Image of MetricsTree](category_chart.png)
 # Installation
 The plugin can be installed from the JetBrains plugin repository within your IDE with 
 Preferences | Plugins | Market Place and searching for MetricsTree. 

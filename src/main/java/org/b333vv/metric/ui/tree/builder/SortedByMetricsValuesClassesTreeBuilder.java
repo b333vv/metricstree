@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.Map;
 
-import static org.b333vv.metric.exec.ClassesByMetricsValuesDistributor.classesByMetricsValuesDistribution;
+import static org.b333vv.metric.builder.ClassesByMetricsValuesDistributor.classesByMetricsValuesDistribution;
 
 public class SortedByMetricsValuesClassesTreeBuilder {
 
@@ -40,7 +40,7 @@ public class SortedByMetricsValuesClassesTreeBuilder {
     public DefaultTreeModel createMetricTreeModel(JavaProject javaProject) {
         Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject);
 
-        ProjectNode projectNode = new ProjectNode(javaProject, "class distribution by metric values");
+        ProjectNode projectNode = new ProjectNode(javaProject, "class distribution by metric values", MetricsIcons.SORT_BY_VALUES);
         DefaultTreeModel model = new DefaultTreeModel(projectNode);
         model.setRoot(projectNode);
 
@@ -49,9 +49,9 @@ public class SortedByMetricsValuesClassesTreeBuilder {
                     .anyMatch(m -> MetricsService.getRangeForMetric(m.getType()).getRangeType(m.getValue()) != RangeType.REGULAR)) {
                 MetricTypeNode metricTypeNode = new MetricTypeNode(key);
                 projectNode.add(metricTypeNode);
-                GrouppingNode high = new GrouppingNode("high", MetricsIcons.HIGH_VALUE);
-                GrouppingNode veryHigh = new GrouppingNode("very-high", MetricsIcons.VERY_HIGH_VALUE);
-                GrouppingNode extreme = new GrouppingNode("extreme", MetricsIcons.EXTREME_VALUE);
+                GrouppingNode high = new GrouppingNode("high", MetricsIcons.HIGH_COLOR);
+                GrouppingNode veryHigh = new GrouppingNode("very-high", MetricsIcons.VERY_HIGH_COLOR);
+                GrouppingNode extreme = new GrouppingNode("extreme", MetricsIcons.EXTREME_COLOR);
                 metricTypeNode.add(high);
                 metricTypeNode.add(veryHigh);
                 metricTypeNode.add(extreme);

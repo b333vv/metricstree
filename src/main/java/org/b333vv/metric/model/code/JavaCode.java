@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,18 +63,26 @@ public abstract class JavaCode {
         return Objects.hashCode(getName());
     }
 
-    public void addMetric(Metric metric) {
+    public void addMetric(@NotNull Metric metric) {
         metrics.put(metric.getType(), metric);
     }
 
-    protected void addChild(JavaCode child) {
+    public void replaceMetric(@NotNull Metric metric) {
+        metrics.replace(metric.getType(), metric);
+    }
+
+    public void removeMetric(@NotNull MetricType metricType) {
+        metrics.remove(metricType);
+    }
+
+    protected void addChild(@NotNull JavaCode child) {
         children.add(child);
     }
 
-    protected void accept(PsiElementVisitor visitor) {}
+    protected void accept(@NotNull PsiElementVisitor visitor) {}
 
     @Nullable
-    public Metric metric(MetricType metricType) {
+    public Metric metric(@NotNull MetricType metricType) {
         return metrics.get(metricType);
     }
 }

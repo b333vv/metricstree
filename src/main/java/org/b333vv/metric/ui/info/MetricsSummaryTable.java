@@ -52,7 +52,7 @@ public class MetricsSummaryTable {
         table.getTableHeader().setReorderingAllowed(true);
         table.setAutoCreateRowSorter(true);
 
-        table.getColumnModel().getColumn(0).setMaxWidth(30);
+        table.getColumnModel().getColumn(0).setMaxWidth(15);
         table.getColumnModel().getColumn(1).setMaxWidth(50);
         table.getColumnModel().getColumn(2).setMaxWidth(250);
         table.getColumnModel().getColumn(4).setMaxWidth(130);
@@ -63,9 +63,9 @@ public class MetricsSummaryTable {
 
     private void hideOrShowValidValuesColumn(boolean controlValidRanges) {
         if (controlValidRanges) {
-            table.getColumnModel().getColumn(0).setWidth(30);
-            table.getColumnModel().getColumn(0).setMinWidth(30);
-            table.getColumnModel().getColumn(0).setMaxWidth(30);
+            table.getColumnModel().getColumn(0).setWidth(15);
+            table.getColumnModel().getColumn(0).setMinWidth(15);
+            table.getColumnModel().getColumn(0).setMaxWidth(15);
 
             table.getColumnModel().getColumn(5).setWidth(200);
 //            table.getColumnModel().getColumn(5).setMinWidth(200);
@@ -196,16 +196,16 @@ public class MetricsSummaryTable {
 
         private Icon getRowIcon(Metric metric) {
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
-                return MetricsIcons.REGULAR_VALUE;
+                return MetricsIcons.REGULAR_COLOR;
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
-                return MetricsIcons.HIGH_VALUE;
+                return MetricsIcons.HIGH_COLOR;
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
-                return MetricsIcons.VERY_HIGH_VALUE;
+                return MetricsIcons.VERY_HIGH_COLOR;
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
-                return MetricsIcons.EXTREME_VALUE;
+                return MetricsIcons.EXTREME_COLOR;
             }
             return MetricsIcons.NOT_TRACKED;
         }

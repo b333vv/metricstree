@@ -16,24 +16,25 @@
 
 package org.b333vv.metric.actions;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricPieChartProcessor;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.task.PieChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class BuildMetricsPieChartAction extends AnAction {
+public class BuildMetricsPieChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            MetricPieChartProcessor processor = new MetricPieChartProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
-            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+            PieChartTask pieChartTask = new PieChartTask();
+            MetricTaskCache.getQueue().run(pieChartTask);
         }
     }
 
@@ -47,7 +48,7 @@ public class BuildMetricsPieChartAction extends AnAction {
                     MetricsService.isControlValidRanges()
                     && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level"))
-                    && !MetricsUtils.isProjectMetricsCalculationPerforming());
+                    && MetricTaskCache.getQueue().isEmpty());
         }
     }
 }

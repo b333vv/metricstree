@@ -26,18 +26,18 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
+import com.intellij.ui.JBSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.info.BottomPanel;
-import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.info.MetricsDescriptionPanel;
+import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.tree.MetricsTree;
 import org.b333vv.metric.ui.tree.builder.MetricTreeBuilder;
 import org.b333vv.metric.ui.tree.node.*;
-import org.b333vv.metric.util.CurrentFileController;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +58,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     private JPanel mainPanel;
     private JScrollPane scrollableTablePanel;
 
-    protected final CurrentFileController scope;
     protected final Project project;
 
     protected MetricTreeBuilder metricTreeBuilder;
@@ -68,7 +67,6 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         super(false, true);
         this.project = project;
         createUIComponents();
-        scope = new CurrentFileController(project);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction(actionId), false);
@@ -111,7 +109,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         float savedProportion = PropertiesComponent.getInstance(project)
                 .getFloat(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY, (float) 0.65);
 
-        final Splitter splitter = new Splitter(false);
+        final JBSplitter splitter = new JBSplitter(false);
         splitter.setFirstComponent(c1);
         splitter.setSecondComponent(c2);
         splitter.setProportion(savedProportion);

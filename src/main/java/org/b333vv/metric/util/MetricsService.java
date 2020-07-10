@@ -16,25 +16,16 @@
 
 package org.b333vv.metric.util;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.ModificationTracker;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
-import com.intellij.psi.util.CachedValue;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
-import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.model.builder.DependenciesBuilder;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.BasicMetricsRange;
 import org.b333vv.metric.model.metric.value.DerivativeMetricsRange;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
-import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
+import org.b333vv.metric.visitor.method.JavaMethodVisitor;
+import org.b333vv.metric.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
@@ -42,26 +33,15 @@ import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
-import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 
-import javax.swing.tree.DefaultTreeModel;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 public final class MetricsService {
-    private DependenciesBuilder dependenciesBuilder;
 
-    private CachedValue<DefaultTreeModel> projectTree;
-
-
-    private MetricsService() {
-        // Utility class
-    }
-
-    public static MetricsService instance() {
-        return ServiceManager.getService(MetricsUtils.getCurrentProject(), MetricsService.class);
+    private MetricsService(Project project) {
     }
 
     public static Range getRangeForMetric(MetricType type) {
@@ -123,20 +103,13 @@ public final class MetricsService {
     }
 
     public static boolean isShowClassMetricsTree() {
-       return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
+        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
     }
 
     public static void setShowClassMetricsTree(boolean showClassMetricsTree) {
         MetricsUtils.getForProject(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);
         MetricsUtils.getCurrentProject()
                 .getMessageBus().syncPublisher(MetricsEventListener.TOPIC).showClassMetricsTree(showClassMetricsTree);
-    }
-
-    public static void setDependenciesBuilder(DependenciesBuilder dependenciesBuilder) {
-        MetricsService.instance().dependenciesBuilder = dependenciesBuilder;
-    }
-    public static DependenciesBuilder getDependenciesBuilder() {
-        return MetricsService.instance().dependenciesBuilder;
     }
 
     public static Set<MetricType> getDeferredMetricTypes() {
@@ -147,25 +120,5 @@ public final class MetricsService {
     public static boolean isLongValueMetricType(MetricType metricType) {
         Set<MetricType> doubleValueMetricTypes = Set.of(TCC, I, A, D, MHF, AHF, MIF, AIF, CF, PF, LAA, CDISP, WOC);
         return !doubleValueMetricTypes.contains(metricType);
-    }
-
-    public static DefaultTreeModel getProjectTree(JavaProject javaProject) {
-        final CachedValuesManager manager = CachedValuesManager.getManager(MetricsUtils.getCurrentProject());
-        final Object[] dependencies = {PsiModificationTracker.MODIFICATION_COUNT, ModificationTracker.EVER_CHANGED,
-                ProjectRootManager.getInstance(MetricsUtils.getCurrentProject())};
-        if (instance().projectTree == null || instance().projectTree.getValue() == null) {
-            MetricsUtils.getConsole().info("Building cache");
-            instance().projectTree = manager.createCachedValue(new CachedValueProvider<DefaultTreeModel>() {
-                public Result<DefaultTreeModel> compute() {
-                    ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
-                    DefaultTreeModel metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-                    return Result.create(metricsTreeModel, dependencies);
-                }
-            }, false);
-        } else {
-            MetricsUtils.getConsole().info("Getting from cache");
-        }
-//        project.getUserData()
-        return instance().projectTree.getValue();
     }
 }

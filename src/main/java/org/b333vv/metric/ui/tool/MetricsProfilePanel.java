@@ -23,14 +23,15 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
+import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBPanel;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.profile.ClassesByProfileTable;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.profile.MetricProfileList;
-import org.b333vv.metric.util.CurrentFileController;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -51,13 +52,10 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     private final Project project;
     private Map<MetricProfile, Set<JavaClass>> distribution;
 
-    protected final CurrentFileController scope;
-
     public MetricsProfilePanel(Project project) {
         super(false, true);
         this.project = project;
         createUIComponents();
-        scope = new CurrentFileController(project);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction("Metrics.MetricsProfileToolbar"), false);
@@ -87,7 +85,7 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         float savedProportion = PropertiesComponent.getInstance(project)
                 .getFloat(MetricsProfilePanel.SPLIT_PROPORTION_PROPERTY, (float) 0.35);
 
-        final Splitter splitter = new Splitter(false);
+        final JBSplitter splitter = new JBSplitter(false);
         splitter.setFirstComponent(c1);
         splitter.setSecondComponent(c2);
         splitter.setProportion(savedProportion);
@@ -127,7 +125,8 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     private class MetricsChartEventListener implements MetricsEventListener {
 
         @Override
-        public void metricsProfileBuilt(@NotNull Map<MetricProfile, Set<JavaClass>> distribution) {
+        public void metricProfilesIsReady() {
+            Map<MetricProfile, Set<JavaClass>> distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
             setDistribution(distribution);
             showProfiles(distribution);
         }

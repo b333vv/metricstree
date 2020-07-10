@@ -20,35 +20,25 @@ import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 
-public class MetricsIcons {
-
-  public static final Icon PROJECT_METRIC = IconLoader.getIcon("/images/projectMetric.svg");
-  public static final Icon PACKAGE_METRIC = IconLoader.getIcon("/images/packageMetric.svg");
-  public static final Icon CLASS_METRIC = IconLoader.getIcon("/images/classMetric.svg");
-  public static final Icon METHOD_METRIC = IconLoader.getIcon("/images/methodMetric.svg");
-  public static final Icon CONSTRUCTOR = IconLoader.getIcon("/images/constructor.svg");
-  public static final Icon NA = IconLoader.getIcon("/images/na.svg");
-  public static final Icon INCREASED = IconLoader.getIcon("/images/increased.svg");
-  public static final Icon DECREASED = IconLoader.getIcon("/images/decreased.svg");
-  public static final Icon EQUAL = IconLoader.getIcon("/images/equal.svg");
-  public static final Icon NOT_TRACKED = IconLoader.getIcon("/images/notTracked.svg");
-  public static final Icon REGULAR_VALUE = IconLoader.getIcon("/images/regularValue.svg");
-  public static final Icon HIGH_VALUE = IconLoader.getIcon("/images/highValue.svg");
-  public static final Icon VERY_HIGH_VALUE = IconLoader.getIcon("/images/veryHighValue.svg");
-  public static final Icon EXTREME_VALUE = IconLoader.getIcon("/images/extremeValue.svg");
-  public static final Icon SORT_BY_VALUES = IconLoader.getIcon("/images/sortByValues.svg");
-  public static final Icon CALCULATE_PROJECT_METRICS = IconLoader.getIcon("/images/calculateProjectMetrics.svg");
-  public static final Icon BAR_CHART = IconLoader.getIcon("/images/chartBar.svg");
-  public static final Icon PIE_CHART = IconLoader.getIcon("/images/chartPie.svg");
-  public static final Icon XY_CHART = IconLoader.getIcon("/images/chartXY.svg");
-  public static final Icon REGULAR_COLOR = IconLoader.getIcon("/images/regularColor.svg");
-  public static final Icon HIGH_COLOR = IconLoader.getIcon("/images/highColor.svg");
-  public static final Icon VERY_HIGH_COLOR = IconLoader.getIcon("/images/veryHighColor.svg");
-  public static final Icon EXTREME_COLOR = IconLoader.getIcon("/images/extremeColor.svg");
-  public static final Icon CSV = IconLoader.getIcon("/images/csv.svg");
-  public static final Icon XML = IconLoader.getIcon("/images/xml.svg");
-
-  private MetricsIcons() {
-    // only static
-  }
+public interface MetricsIcons {
+    Icon PROJECT_METRIC = IconLoader.getIcon("/icons/projectMetric.svg");
+    Icon PACKAGE_METRIC = IconLoader.getIcon("/icons/packageMetric.svg");
+    Icon CLASS_METRIC = IconLoader.getIcon("/icons/classMetric.svg");
+    Icon METHOD_METRIC = IconLoader.getIcon("/icons/methodMetric.svg");
+    Icon CONSTRUCTOR = IconLoader.getIcon("/icons/constructor.svg");
+    Icon NA = IconLoader.getIcon("/icons/na.svg");
+    Icon INCREASED = IconLoader.getIcon("/icons/increased.svg");
+    Icon DECREASED = IconLoader.getIcon("/icons/decreased.svg");
+    Icon EQUAL = IconLoader.getIcon("/icons/equal.svg");
+    Icon NOT_TRACKED = IconLoader.getIcon("/icons/notTracked.svg");
+    Icon SORT_BY_VALUES = IconLoader.getIcon("/icons/sortByValues.svg");
+    Icon BAR_CHART = IconLoader.getIcon("/icons/chartBar.svg");
+    Icon PIE_CHART = IconLoader.getIcon("/icons/chartPie.svg");
+    Icon XY_CHART = IconLoader.getIcon("/icons/chartXY.svg");
+    Icon REGULAR_COLOR = IconLoader.getIcon("/icons/regularColor.svg");
+    Icon HIGH_COLOR = IconLoader.getIcon("/icons/highColor.svg");
+    Icon VERY_HIGH_COLOR = IconLoader.getIcon("/icons/veryHighColor.svg");
+    Icon EXTREME_COLOR = IconLoader.getIcon("/icons/extremeColor.svg");
+    Icon CSV = IconLoader.getIcon("/icons/csv.svg");
+    Icon XML = IconLoader.getIcon("/icons/xml.svg");
 }

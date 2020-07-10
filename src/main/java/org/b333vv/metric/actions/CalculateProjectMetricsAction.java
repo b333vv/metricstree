@@ -18,25 +18,26 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.exec.ProjectMetricsProcessor;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.task.ProjectTreeTask;
 import org.jetbrains.annotations.NotNull;
 
 public class CalculateProjectMetricsAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            ProjectMetricsProcessor projectMetricsProcessor = new ProjectMetricsProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            MetricsUtils.getDumbService().runWhenSmart(projectMetricsProcessor::execute);
+            ProjectTreeTask projectTreeTask = new ProjectTreeTask();
+            MetricTaskCache.getQueue().run(projectTreeTask);
         }
     }
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(!MetricsUtils.isProjectMetricsCalculationPerforming());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

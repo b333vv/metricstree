@@ -19,20 +19,21 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.exec.ProjectMetricXYChartProcessor;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.task.XyChartTask;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class BuildProjectMetricXYChartAction extends AnAction {
+public class BuildProjectMetricXYChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            ProjectMetricXYChartProcessor processor = new ProjectMetricXYChartProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
-            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+            XyChartTask xyChartTask = new XyChartTask();
+            MetricTaskCache.getQueue().run(xyChartTask);
         }
     }
 
@@ -42,7 +43,7 @@ public class BuildProjectMetricXYChartAction extends AnAction {
         if (project != null) {
             e.getPresentation().setEnabled(
                     MetricsService.isControlValidRanges()
-                    && !MetricsUtils.isProjectMetricsCalculationPerforming());
+                    && MetricTaskCache.getQueue().isEmpty());
         }
     }
 }

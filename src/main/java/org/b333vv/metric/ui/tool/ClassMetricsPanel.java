@@ -16,10 +16,18 @@
 
 package org.b333vv.metric.ui.tool;
 
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiCompiledElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.model.builder.ClassModelBuilder;
+import com.intellij.psi.PsiManager;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsService;
@@ -29,17 +37,17 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
-
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar");
         MetricsEventListener metricsEventListener = new ClassMetricsEventListener();
         project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
+
+        EditorChangeListener editorChangeListener = new EditorChangeListener();
+        project.getMessageBus().connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorChangeListener);
     }
 
     public static ClassMetricsPanel newInstance(Project project) {
-        ClassMetricsPanel classMetricsPanel = new ClassMetricsPanel(project);
-        classMetricsPanel.scope.setPanel(classMetricsPanel);
-        return classMetricsPanel;
+        return new ClassMetricsPanel(project);
     }
 
     @Override
@@ -53,7 +61,9 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     public void refresh() {
-        scope.update();
+        if (psiJavaFile != null) {
+            update(psiJavaFile);
+        }
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
@@ -91,6 +101,41 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         @Override
         public void classMetricsValuesEvolutionCalculated(@NotNull DefaultTreeModel metricsTreeModel) {
             showResults(metricsTreeModel);
+        }
+    }
+
+    private class EditorChangeListener implements FileEditorManagerListener {
+
+        @Override
+        public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+            psiJavaFile = null;
+            clear();
+        }
+
+        @Override
+        public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+            psiJavaFile = null;
+            clear();
+            VirtualFile selectedFile = event.getNewFile();
+            MetricsUtils.setCurrentProject(event.getManager().getProject());
+            if (selectedFile == null) {
+                return;
+            }
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
+            if (psiFile == null) {
+                return;
+            }
+            if (psiFile instanceof PsiCompiledElement) {
+                return;
+            }
+            final FileType fileType = psiFile.getFileType();
+            if (fileType.isBinary()) {
+                return;
+            }
+            if (!fileType.getName().equals("JAVA")) {
+                return;
+            }
+            update((PsiJavaFile) psiFile);
         }
     }
 }

@@ -20,8 +20,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
-import org.b333vv.metric.exec.ClassMetricsValuesEvolutionProcessor;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +30,7 @@ public class CalculateClassMetricsEvolutionAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
             if (psiJavaFile != null) {

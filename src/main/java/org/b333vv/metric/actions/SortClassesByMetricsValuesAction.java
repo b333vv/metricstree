@@ -18,21 +18,22 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.ClassDistributionByMetricValuesTreeProcessor;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.ClassByMetricsTreeTask;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class SortClassesByMetricsValuesAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            ClassDistributionByMetricValuesTreeProcessor processor = new ClassDistributionByMetricValuesTreeProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+            ClassByMetricsTreeTask classByMetricsTreeTask = new ClassByMetricsTreeTask();
+            MetricTaskCache.getQueue().run(classByMetricsTreeTask);
         }
     }
 
@@ -43,7 +44,7 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
             e.getPresentation().setEnabled(false);
         } else {
             e.getPresentation().setEnabled(project.getComponent(BasicMetricsValidRangesSettings.class).isControlValidRanges()
-                    && !MetricsUtils.isProjectMetricsCalculationPerforming());
+                    && MetricTaskCache.getQueue().isEmpty());
         }
     }
 }

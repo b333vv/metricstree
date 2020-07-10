@@ -18,8 +18,9 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricCategoryChartProcessor;
-import org.b333vv.metric.exec.MetricsEventListener;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.CategoryChartTask;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
@@ -28,11 +29,12 @@ import org.jetbrains.annotations.NotNull;
 public class BuildMetricsCategoryChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            MetricCategoryChartProcessor processor = new MetricCategoryChartProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
-            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+            CategoryChartTask categoryChartTask = new CategoryChartTask();
+            MetricTaskCache.getQueue().run(categoryChartTask);
         }
     }
 
@@ -46,7 +48,7 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
                     MetricsService.isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level"))
-                            && !MetricsUtils.isProjectMetricsCalculationPerforming());
+                            && MetricTaskCache.getQueue().isEmpty());
         }
     }
 }

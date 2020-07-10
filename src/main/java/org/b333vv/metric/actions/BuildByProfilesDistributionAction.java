@@ -18,27 +18,25 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.exec.MetricCategoryChartProcessor;
-import org.b333vv.metric.exec.MetricProfileProcessor;
-import org.b333vv.metric.exec.MetricsEventListener;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.MetricProfilesTask;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildByProfilesDistributionAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            MetricProfileProcessor processor = new MetricProfileProcessor(project);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilesPanel();
-            MetricsUtils.getDumbService().runWhenSmart(processor::execute);
+            MetricProfilesTask metricProfilesTask = new MetricProfilesTask();
+            MetricTaskCache.getQueue().run(metricProfilesTask);
         }
     }
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(!MetricsUtils.isProjectMetricsCalculationPerforming());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

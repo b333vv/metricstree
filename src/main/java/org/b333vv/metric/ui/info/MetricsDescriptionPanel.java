@@ -120,16 +120,16 @@ public class MetricsDescriptionPanel {
 
         if (MetricsService.isControlValidRanges()) {
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
-                currentValue.setIcon(MetricsIcons.REGULAR_VALUE);
+                currentValue.setIcon(MetricsIcons.REGULAR_COLOR);
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
-                currentValue.setIcon(MetricsIcons.HIGH_VALUE);
+                currentValue.setIcon(MetricsIcons.HIGH_COLOR);
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
-                currentValue.setIcon(MetricsIcons.VERY_HIGH_VALUE);
+                currentValue.setIcon(MetricsIcons.VERY_HIGH_COLOR);
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
-                currentValue.setIcon(MetricsIcons.EXTREME_VALUE);
+                currentValue.setIcon(MetricsIcons.EXTREME_COLOR);
             }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
                 currentValue.setIcon(MetricsIcons.NOT_TRACKED);

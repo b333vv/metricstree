@@ -24,13 +24,12 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.project.impl.ProjectLifecycleListener;
 import com.intellij.openapi.util.Disposer;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 
 public class MetricsConsole implements ProjectLifecycleListener {
 
@@ -42,6 +41,8 @@ public class MetricsConsole implements ProjectLifecycleListener {
         consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
         ProjectCloseListener projectCloseListener = new ProjectCloseListener();
         project.getMessageBus().connect(project).subscribe(ProjectManager.TOPIC, projectCloseListener);
+        MetricsEventListener metricsEventListener = new MetricsConsoleEventListener();
+        project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
     }
 
     private class ProjectCloseListener implements ProjectManagerListener {
@@ -53,28 +54,28 @@ public class MetricsConsole implements ProjectLifecycleListener {
         }
     }
 
-    public void debug(String msg) {
-        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    public void debug(String message) {
+        getConsoleView().print(LocalTime.now() + ": " + message + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
-    public void info(String msg) {
-        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    public void info(String message) {
+        getConsoleView().print(LocalTime.now() + ": " + message + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
-    public void firstPart(String msg) {
-        getConsoleView().print(LocalTime.now() + ": " + msg, ConsoleViewContentType.NORMAL_OUTPUT);
+    public void firstPart(String message) {
+        getConsoleView().print(LocalTime.now() + ": " + message, ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
-    public void lastPart(String msg) {
-        getConsoleView().print(msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    public void lastPart(String message) {
+        getConsoleView().print(message + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
-    public void error(String msg) {
-        getConsoleView().print(LocalTime.now() + ": " + msg + "\n", ConsoleViewContentType.ERROR_OUTPUT);
+    public void error(String message) {
+        getConsoleView().print(LocalTime.now() + ": " + message + "\n", ConsoleViewContentType.ERROR_OUTPUT);
     }
 
-    public void error(String msg, Throwable t) {
-        error(msg);
+    public void error(String message, Throwable t) {
+        error(message);
         StringWriter errors = new StringWriter();
         t.printStackTrace(new PrintWriter(errors));
         error(errors.toString());
@@ -86,5 +87,13 @@ public class MetricsConsole implements ProjectLifecycleListener {
 
     public ConsoleView getConsoleView() {
         return this.consoleView;
+    }
+
+    private class MetricsConsoleEventListener implements MetricsEventListener {
+
+        @Override
+        public void printInfo(String info) {
+            info(info);
+        }
     }
 }

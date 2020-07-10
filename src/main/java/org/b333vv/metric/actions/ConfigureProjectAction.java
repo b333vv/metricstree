@@ -28,6 +28,7 @@ public class ConfigureProjectAction extends AbstractAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
             MetricsConfigurable metricsConfigurable = new MetricsConfigurable(project);

@@ -16,6 +16,11 @@
 
 package org.b333vv.metric.util;
 
+import com.intellij.ide.DataManager;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -41,13 +46,13 @@ import java.util.*;
 
 public final class MetricsUtils {
 
-    private Project currentProject;
+    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("MetricsTree Info", NotificationDisplayType.BALLOON, true);
     private final MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private final MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
+
+    private Project currentProject;
     private boolean autoScrollable = true;
     private boolean classMetricsTreeExists = false;
-    private boolean projectMetricsTreeExists = false;
-    private boolean projectMetricsCalculationPerforming = false;
     private boolean classMetricsValuesEvolutionCalculationPerforming = false;
     private boolean classMetricsValuesEvolutionAdded = false;
 
@@ -62,14 +67,6 @@ public final class MetricsUtils {
 
     public static synchronized MetricsConsole getConsole() {
         return getForProject(MetricsConsole.class);
-    }
-
-    public static boolean isProjectMetricsCalculationPerforming() {
-        return instance().projectMetricsCalculationPerforming;
-    }
-
-    public static void setProjectMetricsCalculationPerforming(boolean projectMetricsCalculationPerforming) {
-        instance().projectMetricsCalculationPerforming = projectMetricsCalculationPerforming;
     }
 
     public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean classMetricsValuesEvolutionCalculationPerforming) {
@@ -116,16 +113,8 @@ public final class MetricsUtils {
         return instance().classMetricsTreeExists;
     }
 
-    public static boolean isProjectMetricsTreeExists() {
-        return instance().projectMetricsTreeExists;
-    }
-
     public static void setClassMetricsTreeExists(boolean classMetricsTreeExists) {
         instance().classMetricsTreeExists = classMetricsTreeExists;
-    }
-
-    public static void setProjectMetricsTreeExists(boolean projectMetricsTreeExists) {
-        instance().projectMetricsTreeExists = projectMetricsTreeExists;
     }
 
     public static boolean isMetricsEvolutionCalculationPerforming() {
@@ -242,5 +231,10 @@ public final class MetricsUtils {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
+    }
+
+    public void notify(String content, Project project) {
+        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
+        notification.notify(project);
     }
 }

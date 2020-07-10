@@ -19,6 +19,7 @@ package org.b333vv.metric.ui.chart.builder;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
+import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.b333vv.metric.exec.ClassesByMetricsValuesCounter.classesByMetricsValuesDistribution;
 import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class MetricPieChartBuilder {
@@ -38,7 +38,9 @@ public class MetricPieChartBuilder {
     public List<PieChartStructure> createChart(JavaProject javaProject) {
         List<PieChartStructure> pieCharts = new ArrayList<>();
 
-        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject);
+        ClassesByMetricsValuesCounter classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter();
+        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes =
+                classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
 
         classesByMetricTypes.forEach((k, v) -> {
             PieChart chart = new PieChartBuilder()

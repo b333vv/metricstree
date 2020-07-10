@@ -19,6 +19,7 @@ package org.b333vv.metric.model.builder;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.apache.commons.io.FilenameUtils;
+import org.b333vv.metric.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;

@@ -17,9 +17,8 @@
 package org.b333vv.metric.model.metric;
 
 import com.intellij.psi.JavaRecursiveElementVisitor;
-import org.b333vv.metric.model.visitor.method.*;
-import org.b333vv.metric.model.visitor.type.*;
-import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.visitor.method.*;
+import org.b333vv.metric.visitor.type.*;
 
 import static org.b333vv.metric.model.metric.MetricLevel.*;
 import static org.b333vv.metric.model.metric.MetricSet.*;
