@@ -166,7 +166,8 @@
                 class="org.b333vv.metric.actions.CalculateProjectMetricsAction"
                 text="Calculate Project Metrics"
                 description="Calculate project metrics"
-                icon="AllIcons.Nodes.Project">
+                icon="MetricsIcons.PROJECT_TREE">
+<!--                icon="AllIcons.Nodes.Project">-->
         </action>
 
         <action id="Metrics.SortClassesByMetricsValues"
@@ -213,16 +214,30 @@
 
         <action id="Metrics.BuildProjectMetricXYChart"
                 class="org.b333vv.metric.actions.BuildProjectMetricXYChartAction"
-                text="Build Abstractness By Instability Distribution"
+                text="Build Abstractness By Instability Distribution Chart"
                 description="Build abstractness By instability distribution"
                 icon="MetricsIcons.XY_CHART">
+        </action>
+
+        <action id="Metrics.BuildMetricProfileBoxChart"
+                class="org.b333vv.metric.actions.BuildProfileBoxChartAction"
+                text="Build Metrics Values By Metric Profiles Distribution Charts"
+                description="Build metrics values by metric profiles distribution charts"
+                icon="MetricsIcons.BOX_CHART">
+        </action>
+
+        <action id="Metrics.BuildMetricProfileHeatMapChart"
+                class="org.b333vv.metric.actions.BuildProfileHeatMapChartAction"
+                text="Build Distribution Chart Of Normalized Invalid Metrics Values Numbers By Metric Profiles"
+                description="Build distribution chart of normalized invalid metrics values numbers by metric profiles"
+                icon="MetricsIcons.HEAT_MAP_CHART">
         </action>
 
         <action id="Metrics.BuildByProfileDistribution"
                 class="org.b333vv.metric.actions.BuildByProfilesDistributionAction"
                 text="Build Classes Distribution By Metrics Profile"
                 description="Build classes distribution By metrics profile"
-                icon="AllIcons.Actions.RunAll">
+                icon="MetricsIcons.PROFILE_TABLE">
         </action>
 
         <action id="Metrics.ExportMetricsToCsv"
@@ -383,6 +398,8 @@
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
             <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
             <reference id="Metrics.BuildProjectMetricXYChart"/>
+            <reference id="Metrics.BuildMetricProfileBoxChart"/>
+            <reference id="Metrics.BuildMetricProfileHeatMapChart"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>

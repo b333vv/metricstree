@@ -35,12 +35,14 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
+import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.HeatMapChart;
 import org.knowm.xchart.XYChart;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -65,6 +67,8 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<JavaProject> PACKAGE_ONLY_METRICS = Key.create("PACKAGE_WITHOUT_CLASSES_METRICS");
     public static final Key<DefaultTreeModel> CLASSES_BY_METRIC_TREE = Key.create("CLASSES_BY_METRIC_TREE");
     public static final Key<Map<MetricProfile, Set<JavaClass>>> METRIC_PROFILES = Key.create("METRIC_PROFILES");
+    public static final Key<List<ProfileBoxChartBuilder.BoxChartStructure>> BOX_CHARTS = Key.create("BOX_CHARTS");
+    public static final Key<HeatMapChart> HEAT_MAP_CHART = Key.create("HEAT_MAP_CHART");
 
     private final UserDataHolder myUserDataHolder = new UserDataHolderBase();
     private final BackgroundTaskQueue queue = new BackgroundTaskQueue(MetricsUtils.getCurrentProject(), "MetricsTree Queue");
@@ -130,6 +134,8 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         putUserData(MetricTaskCache.PACKAGE_ONLY_METRICS, null);
         putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, null);
         putUserData(MetricTaskCache.METRIC_PROFILES, null);
+        putUserData(MetricTaskCache.BOX_CHARTS, null);
+        putUserData(MetricTaskCache.HEAT_MAP_CHART, null);
     }
 
     private class MyAsyncVfsListener implements AsyncFileListener {

@@ -31,17 +31,17 @@ import icons.MetricsIcons;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
-import org.b333vv.metric.ui.info.BottomPanel;
-import org.b333vv.metric.ui.info.ClassesByRangesTable;
-import org.b333vv.metric.ui.info.MetricsRangesTable;
-import org.b333vv.metric.ui.info.PackageMetricsTable;
+import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
+import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.HeatMapChart;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 
@@ -51,6 +51,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder.PieChartStructure;
@@ -65,6 +66,7 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
 
     private final Project project;
     private Map<Integer, JBTabbedPane> rightPanelMap = new HashMap<>();
+    private List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList;
 
 
     public MetricsChartPanel(Project project) {
@@ -152,6 +154,51 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
         rightPanel.add(scrollableTablePanel);
     }
 
+    private void showResults(List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList) {
+        this.boxChartList = boxChartList;
+        List<MetricType> metricTypes = Arrays.stream(MetricType.values())
+                .filter(mt -> mt.level() == MetricLevel.CLASS)
+                .collect(Collectors.toList());
+        MetricTypeTable metricTypeTable = new MetricTypeTable(metricTypes);
+        JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
+                metricTypeTable.getComponent(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
+        scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        rightPanel.add(scrollableTablePanel);
+        updateMetricTypeForBoxCharts(metricTypes.get(0));
+    }
+
+    private void updateMetricTypeForBoxCharts(@NotNull MetricType metricType) {
+        mainPanel.remove(0);
+        updateUI();
+        chartPanel = new XChartPanel<>(boxChartList.stream()
+                .filter(b -> b.getMetricType() == metricType)
+                .findFirst()
+                .get()
+                .getBoxChart());
+        JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
+                chartPanel,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        mainPanel.add(scrollablePanel);
+//        mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
+    }
+
+    private void showResults(HeatMapChart heatMapChart) {
+        clear();
+        chartPanel = new XChartPanel<>(heatMapChart);
+        JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
+                chartPanel,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        mainPanel.add(scrollablePanel);
+        super.setContent(mainPanel);
+    }
+
     @NotNull
     private JBTabbedPane getJbTabbedPane(Map<JavaClass, Metric> classesByMetric) {
         JBTabbedPane classesByRanges = new JBTabbedPane();
@@ -218,8 +265,26 @@ public class MetricsChartPanel extends SimpleToolWindowPanel {
         }
 
         @Override
+        public void profilesBoxChartIsReady() {
+            List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.BOX_CHARTS);
+            showResults(Objects.requireNonNull(boxChartList));
+        }
+
+        @Override
+        public void profilesHeatMapChartIsReady() {
+            HeatMapChart heatMapChart = MetricTaskCache.instance().getUserData(MetricTaskCache.HEAT_MAP_CHART);
+            showResults(Objects.requireNonNull(heatMapChart));
+        }
+
+        @Override
         public void clearChartsPanel() {
             clear();
+        }
+
+        @Override
+        public void currentMetricType(MetricType metricType) {
+            updateMetricTypeForBoxCharts(metricType);
         }
     }
 

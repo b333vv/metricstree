@@ -319,7 +319,8 @@ public class Value implements Comparable<Value> {
 
     public double doubleValue() {
         if (value instanceof LargeInteger) {
-            throw new UnsupportedOperationException("Value is not of type double");
+            return (double) value.longValue();
+//            throw new UnsupportedOperationException("Value is not of type double");
         }
         return value.doubleValue();
     }

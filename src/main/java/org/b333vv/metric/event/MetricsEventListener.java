@@ -18,6 +18,7 @@ package org.b333vv.metric.event;
 
 import com.intellij.util.messages.Topic;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,5 +83,14 @@ public interface MetricsEventListener {
     }
 
     default void metricProfilesIsReady() {
+    }
+
+    default void profilesBoxChartIsReady() {
+    }
+
+    default void currentMetricType(MetricType metricType) {
+    }
+
+    default void profilesHeatMapChartIsReady() {
     }
 }

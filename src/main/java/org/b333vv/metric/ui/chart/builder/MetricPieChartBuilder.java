@@ -23,7 +23,9 @@ import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.knowm.xchart.*;
+import org.knowm.xchart.PieChart;
+import org.knowm.xchart.PieChartBuilder;
+import org.knowm.xchart.PieSeries;
 import org.knowm.xchart.style.PieStyler;
 
 import java.awt.*;
@@ -39,12 +41,12 @@ public class MetricPieChartBuilder {
         List<PieChartStructure> pieCharts = new ArrayList<>();
 
         ClassesByMetricsValuesCounter classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter();
-        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes =
+        Map<MetricType, Map<RangeType, Double>> valuesByMetricTypes =
                 classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
 
-        classesByMetricTypes.forEach((k, v) -> {
+        for (Map.Entry<MetricType, Map<RangeType, Double>> valuesByMetricType : valuesByMetricTypes.entrySet()) {
             PieChart chart = new PieChartBuilder()
-                    .title('"' + k.description() + '"' + " Metric Values Distribution")
+                    .title('"' + valuesByMetricType.getKey().description() + '"' + " Metric Values Distribution")
                     .width(50)
                     .height(50)
                     .build();
@@ -73,14 +75,14 @@ public class MetricPieChartBuilder {
 
             chart.getStyler().setSeriesColors(sliceColors);
 
-            chart.addSeries("Regular", v.getOrDefault(REGULAR, 0.0));
-            chart.addSeries("High", v.getOrDefault(HIGH, 0.0));
-            chart.addSeries("Very-high", v.getOrDefault(VERY_HIGH, 0.0));
-            chart.addSeries("Extreme", v.getOrDefault(EXTREME, 0.0));
+            chart.addSeries("Regular", valuesByMetricType.getValue().getOrDefault(REGULAR, 0.0));
+            chart.addSeries("High", valuesByMetricType.getValue().getOrDefault(HIGH, 0.0));
+            chart.addSeries("Very-high", valuesByMetricType.getValue().getOrDefault(VERY_HIGH, 0.0));
+            chart.addSeries("Extreme", valuesByMetricType.getValue().getOrDefault(EXTREME, 0.0));
 
-            PieChartStructure pieChartStructure = new PieChartStructure(k, chart);
+            PieChartStructure pieChartStructure = new PieChartStructure(valuesByMetricType.getKey(), chart);
             pieCharts.add(pieChartStructure);
-        });
+        }
 
         return pieCharts;
     }

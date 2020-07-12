@@ -26,10 +26,15 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
+import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.ui.profile.MetricProfile;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+import java.util.Set;
 
 public class MetricTaskManager {
 
@@ -89,6 +94,16 @@ public class MetricTaskManager {
             javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS);
         }
         return javaProject;
+    }
+
+    public static Map<MetricProfile, Set<JavaClass>> getMetricProfilesDistribution(@NotNull ProgressIndicator indicator) {
+        Map<MetricProfile, Set<JavaClass>> classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+        if (classesByMetricProfile == null) {
+            MetricProfilesTask metricProfilesTask = new MetricProfilesTask();
+            metricProfilesTask.run(indicator);
+            classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+        }
+        return classesByMetricProfile;
     }
 
     public static String getFileName(String extension, Project project) {

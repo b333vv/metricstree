@@ -35,10 +35,14 @@ public interface MetricsIcons {
     Icon BAR_CHART = IconLoader.getIcon("/icons/chartBar.svg");
     Icon PIE_CHART = IconLoader.getIcon("/icons/chartPie.svg");
     Icon XY_CHART = IconLoader.getIcon("/icons/chartXY.svg");
+    Icon BOX_CHART = IconLoader.getIcon("/icons/chartBox.svg");
+    Icon HEAT_MAP_CHART = IconLoader.getIcon("/icons/chartHeatMap.svg");
     Icon REGULAR_COLOR = IconLoader.getIcon("/icons/regularColor.svg");
     Icon HIGH_COLOR = IconLoader.getIcon("/icons/highColor.svg");
     Icon VERY_HIGH_COLOR = IconLoader.getIcon("/icons/veryHighColor.svg");
     Icon EXTREME_COLOR = IconLoader.getIcon("/icons/extremeColor.svg");
     Icon CSV = IconLoader.getIcon("/icons/csv.svg");
     Icon XML = IconLoader.getIcon("/icons/xml.svg");
+    Icon PROFILE_TABLE = IconLoader.getIcon("/icons/profileTable.svg");
+    Icon PROJECT_TREE = IconLoader.getIcon("/icons/metricsTree_dark.svg");
 }
