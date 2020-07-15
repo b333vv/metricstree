@@ -24,10 +24,7 @@ import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -39,14 +36,14 @@ import static java.util.stream.Collectors.mapping;
 
 public class ClassesByMetricsValuesDistributor {
     public static Map<MetricType, Map<JavaClass, Metric>> classesByMetricsValuesDistribution(JavaProject javaProject) {
-        return javaProject.allClasses().flatMap(
+        return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> MetricsService.isLongValueMetricType(metric.getType())
                                 && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()
                         .stream())
-                .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, new SortedByMetricsValuesClassesCollector())));
+                .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, new SortedByMetricsValuesClassesCollector()))));
     }
 
     private static class SortedByMetricsValuesClassesCollector

@@ -105,7 +105,7 @@
     <idea-version since-build="193.1316"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree.svg"
+        <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree13.svg"
                     factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
         <applicationService serviceImplementation="org.b333vv.metric.util.MetricsUtils"/>
         <projectService serviceImplementation="org.b333vv.metric.util.MetricsService"/>
@@ -167,7 +167,6 @@
                 text="Calculate Project Metrics"
                 description="Calculate project metrics"
                 icon="MetricsIcons.PROJECT_TREE">
-<!--                icon="AllIcons.Nodes.Project">-->
         </action>
 
         <action id="Metrics.SortClassesByMetricsValues"
@@ -219,6 +218,13 @@
                 icon="MetricsIcons.XY_CHART">
         </action>
 
+        <action id="Metrics.BuildProfileCategoryChart"
+                class="org.b333vv.metric.actions.BuildProfilesCategoryChartAction"
+                text="Build Distribution Of Classes By Metric Profiles Chart"
+                description="Build distribution of classes by metric profiles chart"
+                icon="MetricsIcons.BAR_CHART">
+        </action>
+
         <action id="Metrics.BuildMetricProfileBoxChart"
                 class="org.b333vv.metric.actions.BuildProfileBoxChartAction"
                 text="Build Metrics Values By Metric Profiles Distribution Charts"
@@ -228,9 +234,23 @@
 
         <action id="Metrics.BuildMetricProfileHeatMapChart"
                 class="org.b333vv.metric.actions.BuildProfileHeatMapChartAction"
-                text="Build Distribution Chart Of Normalized Invalid Metrics Values Numbers By Metric Profiles"
-                description="Build distribution chart of normalized invalid metrics values numbers by metric profiles"
+                text="Build Metric Profiles Correlation Chart"
+                description="Build metric profiles correlation chart"
                 icon="MetricsIcons.HEAT_MAP_CHART">
+        </action>
+
+        <action id="Metrics.BuildMetricProfileRadarChart"
+                class="org.b333vv.metric.actions.BuildProfileRadarChartAction"
+                text="Build Invalid Metrics Values And Metric Profiles Correlation Chart"
+                description="Build invalid metrics values and metric profiles correlation chart"
+                icon="MetricsIcons.RADAR_CHART">
+        </action>
+
+        <action id="Metrics.BuildTreeMapAction"
+                class="org.b333vv.metric.actions.BuildTreeMapAction"
+                text="Build Treemap"
+                description="Build treemap"
+                icon="MetricsIcons.TREE_MAP">
         </action>
 
         <action id="Metrics.BuildByProfileDistribution"
@@ -386,20 +406,20 @@
             <reference id="Metrics.CalculateProjectMetrics"/>
             <reference id="Metrics.SortClassesByMetricsValues"/>
             <separator/>
-            <reference id="Metrics.Autoscroll"/>
+            <reference id="Metrics.BuildProjectMetricXYChart"/>
+            <reference id="Metrics.BuildAllMetricsDistributionChart"/>
+            <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
             <separator/>
             <reference id="Metrics.ExportMetricsToCsv"/>
             <reference id="Metrics.ExportMetricsToXml"/>
+            <separator/>
+            <reference id="Metrics.Autoscroll"/>
             <separator/>
             <reference id="Metrics.Configure"/>
         </group>
 
         <group id="Metrics.MetricsChartToolbar">
-            <reference id="Metrics.BuildAllMetricsDistributionChart"/>
-            <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
-            <reference id="Metrics.BuildProjectMetricXYChart"/>
-            <reference id="Metrics.BuildMetricProfileBoxChart"/>
-            <reference id="Metrics.BuildMetricProfileHeatMapChart"/>
+            <reference id="Metrics.BuildTreeMapAction"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>
@@ -407,6 +427,11 @@
 
         <group id="Metrics.MetricsProfileToolbar">
             <reference id="Metrics.BuildByProfileDistribution"/>
+            <separator/>
+            <reference id="Metrics.BuildProfileCategoryChart"/>
+            <reference id="Metrics.BuildMetricProfileRadarChart"/>
+            <reference id="Metrics.BuildMetricProfileHeatMapChart"/>
+            <reference id="Metrics.BuildMetricProfileBoxChart"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>

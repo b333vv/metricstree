@@ -24,6 +24,7 @@ import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
+import org.b333vv.metric.model.util.CommonUtils;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
@@ -36,10 +37,9 @@ import org.knowm.xchart.HeatMapSeries;
 import org.knowm.xchart.style.Styler;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProfileHeatMapChartBuilder {
     private Map<MetricProfile, Set<JavaClass>> classesByMetricProfile;
@@ -47,44 +47,46 @@ public class ProfileHeatMapChartBuilder {
     public HeatMapChart createChart(Map<MetricProfile, Set<JavaClass>> classesByMetricProfile) {
         this.classesByMetricProfile = classesByMetricProfile;
         HeatMapChart chart = new HeatMapChartBuilder()
-                .title("Correlation Between Invalid Metrics Values And Metric Profiles")
+                .title("Correlation Between Metric Profiles")
                 .width(50)
                 .height(50)
                 .build();
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                BasicMetricsValidRangesSettings.class);
-        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                DerivativeMetricsValidRangesSettings.class);
-        List<String> xData = new ArrayList<>();
-        for (MetricType mt : MetricType.values()) {
-            if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings.getControlledMetricsList().stream()
-                    .anyMatch(stub -> stub.getName().equals(mt.name()))
-                    || derivativeMetricsValidRangesSettings.getControlledMetricsList().stream()
-                    .anyMatch(stub -> stub.getName().equals(mt.name())))) {
-                xData.add(mt.name());
-            }
-        }
-        List<String> yData = new ArrayList<>();
+
+        Set<MetricProfile> profiles = new TreeSet<>();
+
         for (Map.Entry<MetricProfile, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
             if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty()) {
-                yData.add(profileEntry.getKey().getName());
+                profiles.add(profileEntry.getKey());
             }
         }
+
         List<Number[]> heatData = new ArrayList<>();
-        for (int i = 0; i < xData.size(); i++) {
-            for (int j = 0; j < yData.size(); j++) {
+
+        int i = 0;
+        int j = 0;
+        for (MetricProfile metricProfile1 : profiles) {
+            for (MetricProfile metricProfile2 : profiles) {
                 Number[] numbers = {
                         i,
                         j,
-                        getHeatData(xData.get(i), yData.get(j))
+                        getHeatData(metricProfile1, metricProfile2)
                 };
                 heatData.add(numbers);
+                j++;
             }
+            j = 0;
+            i++;
         }
 
+        List<String> xData = profiles.stream()
+                .map(MetricProfile::getName)
+                .collect(Collectors.toList());
+        List<String> yData = profiles.stream()
+                .map(MetricProfile::getName)
+                .collect(Collectors.toList());
 
-        HeatMapSeries heatMapSeries = chart.addSeries("Classes With Invalid Metric Values To All Classes For", xData, yData, heatData);
-
+        HeatMapSeries heatMapSeries = chart.addSeries("Classes Normalized Intersection In",
+                xData, yData, heatData);
 
         Color annotationColor = EditorColorsManager.getInstance().getGlobalScheme().getDefaultForeground();
         Color backgroundColor = UIUtil.getPanelBackground();
@@ -102,6 +104,7 @@ public class ProfileHeatMapChartBuilder {
         chart.getStyler().setChartFontColor(annotationColor);
 
         chart.getStyler().setAxisTickLabelsColor(annotationColor);
+        chart.getStyler().setXAxisTicksVisible(false);
 
         chart.getStyler().setToolTipsEnabled(true);
         chart.getStyler().setToolTipBackgroundColor(backgroundColor);
@@ -123,27 +126,14 @@ public class ProfileHeatMapChartBuilder {
         return chart;
     }
 
-    private Number getHeatData(String metricName, String profileName) {
-        MetricType metricType = MetricType.valueOf(metricName);
+    private Number getHeatData(MetricProfile profile1, MetricProfile profile2) {
+        Set<JavaClass> classesInProfile1 = new HashSet<>(classesByMetricProfile.get(profile1));
+        Set<JavaClass> classesInProfile2 = new HashSet<>(classesByMetricProfile.get(profile2));
+        int intersectSize = CommonUtils.sizeOfIntersection(classesInProfile1, classesInProfile2);
+        classesInProfile1.addAll(classesInProfile2);
+        int unionSize = classesInProfile1.size();
 
-        long classesNumber = classesByMetricProfile.entrySet().stream()
-                .filter(e -> e.getKey().getName().equals(profileName))
-                .findFirst()
-                .get().getValue().stream()
-                .flatMap(JavaClass::metrics)
-                .filter(m -> m.getType() == metricType)
-                .count();
-        long invalidMetricValueClassesNumber = classesByMetricProfile.entrySet().stream()
-                .filter(e -> e.getKey().getName().equals(profileName))
-                .findFirst()
-                .get().getValue().stream()
-                .flatMap(JavaClass::metrics)
-                .filter(m -> m.getType() == metricType)
-                .filter(metric -> MetricsService.getRangeForMetric(metric.getType())
-                        .getRangeType(metric.getValue()) != RangeType.REGULAR)
-                .count();
-
-        return Math.floor((double) invalidMetricValueClassesNumber / (double) classesNumber * 100) / 100;
+        return Math.floor((double) intersectSize / (double) unionSize * 100) / 100;
     }
 
 }

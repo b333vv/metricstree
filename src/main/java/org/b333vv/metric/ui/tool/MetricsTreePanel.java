@@ -53,12 +53,13 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     private MetricsTree metricsTree;
     private BottomPanel bottomPanel;
     private MetricsDescriptionPanel metricsDescriptionPanel;
-    private JBPanel<?> rightPanel;
+
     private MetricsSummaryTable metricsSummaryTable;
-    private JPanel mainPanel;
     private JScrollPane scrollableTablePanel;
 
     protected final Project project;
+    protected JBPanel<?> rightPanel;
+    protected JPanel mainPanel;
 
     protected MetricTreeBuilder metricTreeBuilder;
     protected PsiJavaFile psiJavaFile;
@@ -105,7 +106,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         rightPanel.add(scrollableTablePanel);
     }
 
-    private JComponent createSplitter(JComponent c1, JComponent c2) {
+    JComponent createSplitter(JComponent c1, JComponent c2) {
         float savedProportion = PropertiesComponent.getInstance(project)
                 .getFloat(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY, (float) 0.65);
 

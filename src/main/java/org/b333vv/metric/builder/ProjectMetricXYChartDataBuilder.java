@@ -30,7 +30,6 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class ProjectMetricXYChartDataBuilder {
     public static void build(JavaProject javaProject, Map<String, Double> instability, Map<String, Double> abstractness) {
-
         Map<String, Double> myInstability = javaProject.allPackages()
             .flatMap(
                 inner -> inner.metrics()

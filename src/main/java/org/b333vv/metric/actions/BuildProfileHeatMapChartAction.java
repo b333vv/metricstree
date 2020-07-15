@@ -37,16 +37,6 @@ public class BuildProfileHeatMapChartAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        Project project = e.getProject();
-//        if (project != null) {
-//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(e.getProject(),
-//                BasicMetricsValidRangesSettings.class);
-//            e.getPresentation().setEnabled(
-//                    MetricsService.isControlValidRanges()
-//                    && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
-//                            .anyMatch(s -> s.getLevel().equals("Class Level"))
-//                    && MetricTaskCache.getQueue().isEmpty());
-//        }
         e.getPresentation().setEnabled(MetricTaskCache.getQueue().isEmpty());
     }
 }

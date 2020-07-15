@@ -30,6 +30,7 @@ import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.settings.profile.MetricProfileItem;
 import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
 import org.b333vv.metric.util.MetricsUtils;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
@@ -46,7 +47,7 @@ public class ClassesByMetricsProfileDistributor {
                     });
             profileSetMap.put(profile, classes);
         }
-        return profileSetMap;
+        return Collections.unmodifiableMap(profileSetMap);
     }
 
     private static boolean checkClass(JavaClass javaClass, MetricProfile profile) {

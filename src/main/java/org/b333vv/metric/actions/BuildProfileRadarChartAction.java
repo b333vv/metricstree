@@ -20,22 +20,19 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
-import org.b333vv.metric.task.PieChartTask;
-import org.b333vv.metric.task.ProfilesBoxChartTask;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.task.ProfilesHeatMapChartTask;
+import org.b333vv.metric.task.ProfilesRadarChartTask;
 import org.jetbrains.annotations.NotNull;
 
-public class BuildProfileBoxChartAction extends AbstractAction {
+public class BuildProfileRadarChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
-            ProfilesBoxChartTask boxChartTask = new ProfilesBoxChartTask();
-            MetricTaskCache.getQueue().run(boxChartTask);
+            ProfilesRadarChartTask radarChartTask = new ProfilesRadarChartTask();
+            MetricTaskCache.getQueue().run(radarChartTask);
         }
     }
 

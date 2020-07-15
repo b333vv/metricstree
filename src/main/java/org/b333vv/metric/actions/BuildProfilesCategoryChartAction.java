@@ -19,23 +19,23 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.task.CategoryChartTask;
 import org.b333vv.metric.task.MetricTaskCache;
-import org.b333vv.metric.task.PieChartTask;
-import org.b333vv.metric.task.ProfilesBoxChartTask;
+import org.b333vv.metric.task.ProfilesCategoryChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class BuildProfileBoxChartAction extends AbstractAction {
+public class BuildProfilesCategoryChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
-            ProfilesBoxChartTask boxChartTask = new ProfilesBoxChartTask();
-            MetricTaskCache.getQueue().run(boxChartTask);
+            ProfilesCategoryChartTask categoryChartTask = new ProfilesCategoryChartTask();
+            MetricTaskCache.getQueue().run(categoryChartTask);
         }
     }
 

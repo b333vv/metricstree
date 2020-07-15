@@ -37,6 +37,7 @@ public interface MetricsIcons {
     Icon XY_CHART = IconLoader.getIcon("/icons/chartXY.svg");
     Icon BOX_CHART = IconLoader.getIcon("/icons/chartBox.svg");
     Icon HEAT_MAP_CHART = IconLoader.getIcon("/icons/chartHeatMap.svg");
+    Icon RADAR_CHART = IconLoader.getIcon("/icons/chartRadar.svg");
     Icon REGULAR_COLOR = IconLoader.getIcon("/icons/regularColor.svg");
     Icon HIGH_COLOR = IconLoader.getIcon("/icons/highColor.svg");
     Icon VERY_HIGH_COLOR = IconLoader.getIcon("/icons/veryHighColor.svg");
@@ -45,4 +46,5 @@ public interface MetricsIcons {
     Icon XML = IconLoader.getIcon("/icons/xml.svg");
     Icon PROFILE_TABLE = IconLoader.getIcon("/icons/profileTable.svg");
     Icon PROJECT_TREE = IconLoader.getIcon("/icons/metricsTree_dark.svg");
+    Icon TREE_MAP = IconLoader.getIcon("/icons/treeMap.svg");
 }

@@ -20,17 +20,47 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
+import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBTabbedPane;
+import icons.MetricsIcons;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
+import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
+import org.b333vv.metric.ui.info.BottomPanel;
+import org.b333vv.metric.ui.info.ClassesByRangesTable;
+import org.b333vv.metric.ui.info.MetricsRangesTable;
+import org.b333vv.metric.ui.info.PackageMetricsTable;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.EditorController;
+import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChart;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.*;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public class ProjectMetricsPanel extends MetricsTreePanel {
+    private PackageMetricsTable packageMetricsTable;
+    private JPanel chartPanel;
+    private Map<Integer, JBTabbedPane> rightPanelMap = new HashMap<>();
+    private List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList;
 
     private ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar");
@@ -55,9 +85,97 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
     }
 
-    public JavaProject getJavaProject() {
-        return (JavaProject) metricTreeBuilder.getJavaCode();
+    private void createChartUIComponents() {
+        BottomPanel bottomPanel = new BottomPanel();
+        mainPanel = new JBPanel<>(new BorderLayout());
+        mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
+        rightPanel = new JBPanel<>(new BorderLayout());
+        super.setContent(createSplitter(mainPanel, rightPanel));
     }
+
+    private void showResults(Set<MetricType> metricTypes, CategoryChart categoryChart) {
+        chartPanel = new XChartPanel<>(categoryChart);
+        mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
+        MetricsRangesTable metricsRangesTable = new MetricsRangesTable(metricTypes);
+        JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
+                metricsRangesTable.getComponent(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
+        scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        rightPanel.add(scrollableTablePanel);
+    }
+
+    private void showResults(Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes, List<MetricPieChartBuilder.PieChartStructure> chartList) {
+
+        JBTabbedPane tabs = new JBTabbedPane();
+        for (MetricPieChartBuilder.PieChartStructure chartStructure : chartList) {
+            chartPanel = new XChartPanel<>(chartStructure.getPieChart());
+            tabs.insertTab(chartStructure.getMetricType().name(), null, chartPanel,
+                    chartStructure.getMetricType().description(), chartList.indexOf(chartStructure));
+            Map<JavaClass, Metric> classesByMetric = classesByMetricTypes.get(chartStructure.getMetricType());
+            JBTabbedPane classesByRanges = getJbTabbedPane(classesByMetric);
+            rightPanelMap.put(chartList.indexOf(chartStructure), classesByRanges);
+        }
+
+        tabs.addChangeListener(e -> {
+            rightPanel.removeAll();
+            rightPanel.add(rightPanelMap.get(tabs.getSelectedIndex()));
+            rightPanel.revalidate();
+            rightPanel.repaint();
+        });
+        mainPanel.add(ScrollPaneFactory.createScrollPane(tabs), BorderLayout.CENTER);
+        rightPanel.add(rightPanelMap.get(0));
+    }
+
+    private void showResults(XYChart xyChart, Map<String, Double> instability, Map<String, Double> abstractness) {
+        clear();
+        chartPanel = new XChartPanel<>(xyChart);
+        CoordinateListener mouseListener = new CoordinateListener(xyChart);
+        chartPanel.addMouseListener(mouseListener);
+        mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
+        packageMetricsTable = new PackageMetricsTable(instability, abstractness);
+        JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
+                packageMetricsTable.getComponent(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
+        scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        rightPanel.add(scrollableTablePanel);
+    }
+
+    @NotNull
+    private JBTabbedPane getJbTabbedPane(Map<JavaClass, Metric> classesByMetric) {
+        JBTabbedPane classesByRanges = new JBTabbedPane();
+        JBPanel<?> highRangePanel = getJbPanel(classesByMetric, RangeType.HIGH);
+        classesByRanges.insertTab("High", MetricsIcons.HIGH_COLOR, highRangePanel,
+                "Classes with high metric values", 0);
+        JBPanel<?> veryHighRangePanel = getJbPanel(classesByMetric, RangeType.VERY_HIGH);
+        classesByRanges.insertTab("Very-high", MetricsIcons.VERY_HIGH_COLOR, veryHighRangePanel,
+                "Classes with very-high metric values", 1);
+        JBPanel<?> extremeRangePanel = getJbPanel(classesByMetric, RangeType.EXTREME);
+        classesByRanges.insertTab("Extreme", MetricsIcons.EXTREME_COLOR, extremeRangePanel,
+                "Classes with extreme metric values", 2);
+        return classesByRanges;
+    }
+
+    @NotNull
+    private JBPanel<?> getJbPanel(Map<JavaClass, Metric> classesByMetric, RangeType rangeType) {
+        List<ClassesByRangesTable.ClassByRange> classesByRanges = classesByMetric.entrySet().stream()
+                .filter(e -> MetricsService.getRangeForMetric(e.getValue().getType())
+                        .getRangeType(e.getValue().getValue()) == rangeType)
+                .map(e -> new ClassesByRangesTable.ClassByRange(e.getKey(),
+                        MetricsService.getRangeForMetric(e.getValue().getType()).getRangeByRangeType(rangeType),
+                        e.getValue().getValue()))
+                .collect(toList());
+        ClassesByRangesTable classesByRangesTable = new ClassesByRangesTable(classesByRanges);
+        JBPanel<?> jbPanel = new JBPanel<>(new BorderLayout());
+        jbPanel.add(classesByRangesTable.getComponent());
+        return jbPanel;
+    }
+
+    @Override
+    public void update(@NotNull PsiJavaFile file) {}
 
     private class ProjectMetricsEventListener implements MetricsEventListener {
 
@@ -81,8 +199,50 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         public void classByMetricTreeIsReady() {
             showResults(MetricTaskCache.instance().getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE));
         }
+
+        @Override
+        public void pieChartIsReady() {
+            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES);
+            List<MetricPieChartBuilder.PieChartStructure> pieChartList = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.PIE_CHART_LIST);
+            showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
+        }
+
+        @Override
+        public void categoryChartIsReady() {
+            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+            CategoryChart categoryChart = MetricTaskCache.instance()
+                    .getUserData(MetricTaskCache.CATEGORY_CHART);
+            showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
+        }
+
+        @Override
+        public void xyChartIsReady() {
+            Map<String, Double> instability = MetricTaskCache.instance().getUserData(MetricTaskCache.INSTABILITY);
+            Map<String, Double> abstractness = MetricTaskCache.instance().getUserData(MetricTaskCache.ABSTRACTNESS);
+            XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.XY_CHART);
+            showResults(xyChart, instability, abstractness);
+        }
+
+        @Override
+        public void clearChartsPanel() {
+            clear();
+            createChartUIComponents();
+        }
     }
 
-    @Override
-    public void update(@NotNull PsiJavaFile file) {}
+    public class CoordinateListener extends MouseAdapter {
+        private XYChart chart;
+        public CoordinateListener(XYChart chart) {
+            this.chart = chart;
+        }
+        public void mousePressed(MouseEvent e) {
+            double chartX = chart.getChartXFromCoordinate(e.getX());
+            double chartY = chart.getChartYFromCoordinate(e.getY());
+            packageMetricsTable.updateSelection(chartX, chartY);
+        }
+    }
+
 }

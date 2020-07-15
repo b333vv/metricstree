@@ -23,17 +23,14 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.content.Content;
 import org.b333vv.metric.ui.log.MetricsLogPanel;
-import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.management.MemoryUsage;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_CLASS_METRICS_TREE = "Class Metrics Tree";
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics Tree";
     public static final String TAB_PROFILES = "Metrics Profiles";
-    public static final String TAB_METRICS_CHART = "Metrics Charts";
+    public static final String TAB_METRICS_CHART = "Metrics Treemap";
     public static final String TAB_LOGS = "Log";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
@@ -58,11 +55,11 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     }
 
     private static void addMetricsChartTab(Project project, ToolWindow toolWindow) {
-        MetricsChartPanel metricsChartPanel = new MetricsChartPanel(project);
+        MetricsTreemapPanel metricsTreemapPanel = new MetricsTreemapPanel(project);
         Content chartContent = toolWindow.getContentManager().getFactory()
                 .createContent(
-                        metricsChartPanel, TAB_METRICS_CHART, false);
-        toolWindow.getContentManager().addDataProvider(metricsChartPanel);
+                        metricsTreemapPanel, TAB_METRICS_CHART, false);
+        toolWindow.getContentManager().addDataProvider(metricsTreemapPanel);
         toolWindow.getContentManager().addContent(chartContent);
     }
 

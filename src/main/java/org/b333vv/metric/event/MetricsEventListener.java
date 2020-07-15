@@ -93,4 +93,13 @@ public interface MetricsEventListener {
 
     default void profilesHeatMapChartIsReady() {
     }
+
+    default void profilesRadarChartIsReady(){
+    }
+
+    default void profilesCategoryChartIsReady() {
+    }
+
+    default void currentMetricProfile(MetricProfile metricProfile) {
+    }
 }

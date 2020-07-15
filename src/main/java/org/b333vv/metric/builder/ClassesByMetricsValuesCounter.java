@@ -37,14 +37,14 @@ public class ClassesByMetricsValuesCounter {
     private long numberOfClasses;
     public Map<MetricType, Map<RangeType, Double>> classesByMetricsValuesDistribution(JavaProject javaProject) {
         numberOfClasses = javaProject.allClasses().count();
-        return javaProject.allClasses().flatMap(
+        return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> MetricsService.isLongValueMetricType(metric.getType())
                                 && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()
                         .stream())
-                .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, new ClassesByRangeTypeDistributionCollector())));
+                .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, new ClassesByRangeTypeDistributionCollector()))));
     }
 
     private class ClassesByRangeTypeDistributionCollector
