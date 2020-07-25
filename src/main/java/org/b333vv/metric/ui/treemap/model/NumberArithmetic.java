@@ -18,9 +18,9 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface NumberArithmetic<T extends Number> {
 
-	T zero();
+    T zero();
 
-	T add(T op1, T op2);
+    T add(T op1, T op2);
 
-	T sub(T op1, T op2);
+    T sub(T op1, T op2);
 }

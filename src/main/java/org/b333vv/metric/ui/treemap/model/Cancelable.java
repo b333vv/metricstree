@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface Cancelable {
 
-	boolean isCanceled();
+    boolean isCanceled();
 
 }

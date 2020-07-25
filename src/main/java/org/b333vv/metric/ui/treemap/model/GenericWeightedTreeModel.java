@@ -18,8 +18,8 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface GenericWeightedTreeModel<N, T extends Number> extends TreeModel<N> {
 
-	T getWeight(N node);
+    T getWeight(N node);
 
-	NumberArithmetic<T> getArithmetic();
+    NumberArithmetic<T> getArithmetic();
 
 }

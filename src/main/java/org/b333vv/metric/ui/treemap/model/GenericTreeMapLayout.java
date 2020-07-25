@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface GenericTreeMapLayout<N, T extends Number> extends TreeMapLayout<N> {
 
-	TreeModel<Rectangle<N>> layout(GenericWeightedTreeModel<N, T> treeModel, N startingNode, int width, int height, Cancelable cancelable);
+    TreeModel<Rectangle<N>> layout(GenericWeightedTreeModel<N, T> treeModel, N startingNode, int width, int height, Cancelable cancelable);
 
 }

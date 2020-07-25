@@ -20,6 +20,6 @@ import java.util.Iterator;
 
 public interface IteratorSize<E> extends Iterator<E> {
 
-	int size();
+    int size();
 
 }

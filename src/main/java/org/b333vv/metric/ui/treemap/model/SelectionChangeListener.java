@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface SelectionChangeListener<N> {
 
-	void selectionChanged(TreeModel<Rectangle<N>> model, Rectangle<N> rectangle, String label);
+    void selectionChanged(TreeModel<Rectangle<N>> model, Rectangle<N> rectangle, String label);
 
 }

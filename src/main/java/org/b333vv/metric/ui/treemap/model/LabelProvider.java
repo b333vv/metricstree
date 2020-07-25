@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface LabelProvider<N> {
 
-	String getLabel(TreeModel<Rectangle<N>> model, Rectangle<N> rectangle);
+    String getLabel(TreeModel<Rectangle<N>> model, Rectangle<N> rectangle);
 
 }

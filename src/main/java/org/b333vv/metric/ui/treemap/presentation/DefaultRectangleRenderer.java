@@ -23,26 +23,26 @@ import java.awt.*;
 
 public class DefaultRectangleRenderer<N> implements RectangleRenderer<N, Graphics2D, Color> {
 
-	private static final RectangleRenderer<Object, Graphics2D, Color> DEFAULT = new DefaultRectangleRenderer<>();
-	@SuppressWarnings("unchecked")
-	public static final <R> RectangleRenderer<R, Graphics2D, Color> defaultInstance() {
-		return (RectangleRenderer<R, Graphics2D, Color>) DEFAULT;
-	}
+    private static final RectangleRenderer<Object, Graphics2D, Color> DEFAULT = new DefaultRectangleRenderer<>();
+    @SuppressWarnings("unchecked")
+    public static final <R> RectangleRenderer<R, Graphics2D, Color> defaultInstance() {
+        return (RectangleRenderer<R, Graphics2D, Color>) DEFAULT;
+    }
 
-	@Override
-	public void render(final Graphics2D graphics, final TreeModel<Rectangle<N>> model,
-					   final Rectangle<N> rectangle, final ColorProvider<N, Color> colorProvider,
-					   final LabelProvider<N> labelProvider) {
-		graphics.setColor(colorProvider.getColor(model, rectangle));
-		graphics.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
-	}
+    @Override
+    public void render(final Graphics2D graphics, final TreeModel<Rectangle<N>> model,
+                       final Rectangle<N> rectangle, final ColorProvider<N, Color> colorProvider,
+                       final LabelProvider<N> labelProvider) {
+        graphics.setColor(colorProvider.getColor(model, rectangle));
+        graphics.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
+    }
 
-	@Override
-	public void highlight(final Graphics2D graphics, final TreeModel<Rectangle<N>> model,
-						  final Rectangle<N> rectangle, final ColorProvider<N, Color> colorProvider,
-						  final LabelProvider<N> labelProvider) {
-		graphics.setColor(Color.WHITE);
-		graphics.drawRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
-	}
+    @Override
+    public void highlight(final Graphics2D graphics, final TreeModel<Rectangle<N>> model,
+                          final Rectangle<N> rectangle, final ColorProvider<N, Color> colorProvider,
+                          final LabelProvider<N> labelProvider) {
+        graphics.setColor(Color.WHITE);
+        graphics.drawRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
+    }
 
 }

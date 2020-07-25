@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface WeightedTreeModel<N> extends TreeModel<N> {
 
-	long getWeight(N node);
+    long getWeight(N node);
 
 }

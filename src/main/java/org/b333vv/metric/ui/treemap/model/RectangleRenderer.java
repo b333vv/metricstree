@@ -18,8 +18,8 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface RectangleRenderer<N, G, C> {
 
-	void render(G graphics, TreeModel<Rectangle<N>> model, Rectangle<N> rectangle, ColorProvider<N, C> colorProvider, LabelProvider<N> labelProvider);
+    void render(G graphics, TreeModel<Rectangle<N>> model, Rectangle<N> rectangle, ColorProvider<N, C> colorProvider, LabelProvider<N> labelProvider);
 
-	void highlight(G graphics, TreeModel<Rectangle<N>> model, Rectangle<N> rectangle, ColorProvider<N, C> colorProvider, LabelProvider<N> labelProvider);
+    void highlight(G graphics, TreeModel<Rectangle<N>> model, Rectangle<N> rectangle, ColorProvider<N, C> colorProvider, LabelProvider<N> labelProvider);
 
 }

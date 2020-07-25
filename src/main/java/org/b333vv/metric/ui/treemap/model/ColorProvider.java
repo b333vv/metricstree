@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface ColorProvider<N, C> {
 
-	C getColor(TreeModel<Rectangle<N>> model, Rectangle<N> rectangle);
+    C getColor(TreeModel<Rectangle<N>> model, Rectangle<N> rectangle);
 
 }

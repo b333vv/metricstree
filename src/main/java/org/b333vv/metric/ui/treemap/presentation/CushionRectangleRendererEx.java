@@ -25,24 +25,24 @@ import java.awt.*;
 
 public class CushionRectangleRendererEx<N> extends CushionRectangleRenderer<N> {
 
-	public CushionRectangleRendererEx(final int colorRangeSize) {
-		super(colorRangeSize);
-	}
+    public CushionRectangleRendererEx(final int colorRangeSize) {
+        super(colorRangeSize);
+    }
 
-	protected void highlightParents(final Graphics2D graphics, final TreeModel<Rectangle<N>> model, final Rectangle<N> rectangle, final ColorProvider<N, Color> colorProvider, final LabelProvider<N> labelProvider) {
-		graphics.setColor(Color.RED);
-		graphics.drawRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth()-1, rectangle.getHeight()-1);
+    protected void highlightParents(final Graphics2D graphics, final TreeModel<Rectangle<N>> model, final Rectangle<N> rectangle, final ColorProvider<N, Color> colorProvider, final LabelProvider<N> labelProvider) {
+        graphics.setColor(Color.RED);
+        graphics.drawRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth()-1, rectangle.getHeight()-1);
 
-		final Rectangle<N> root = model.getRoot();
-		Rectangle<N> runner = rectangle, last;
-		do {
-			last = runner;
-			runner = model.getParent(runner);
-		} while (runner != root && runner != null);
-		if (last != root) {
-			graphics.setColor(Color.YELLOW);
-			graphics.drawRect(last.getX(), last.getY(), last.getWidth()-1, last.getHeight()-1);
-		}
-	}
+        final Rectangle<N> root = model.getRoot();
+        Rectangle<N> runner = rectangle, last;
+        do {
+            last = runner;
+            runner = model.getParent(runner);
+        } while (runner != root && runner != null);
+        if (last != root) {
+            graphics.setColor(Color.YELLOW);
+            graphics.drawRect(last.getX(), last.getY(), last.getWidth()-1, last.getHeight()-1);
+        }
+    }
 
 }

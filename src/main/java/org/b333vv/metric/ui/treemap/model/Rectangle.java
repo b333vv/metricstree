@@ -18,16 +18,16 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface Rectangle<N> {
 
-	int getX();
+    int getX();
 
-	int getY();
+    int getY();
 
-	int getWidth();
+    int getWidth();
 
-	int getHeight();
+    int getHeight();
 
-	boolean contains(int x, int y);
+    boolean contains(int x, int y);
 
-	N getNode();
+    N getNode();
 
 }

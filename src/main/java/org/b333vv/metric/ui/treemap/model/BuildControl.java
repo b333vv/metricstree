@@ -18,19 +18,19 @@ package org.b333vv.metric.ui.treemap.model;
 
 public class BuildControl implements Cancelable {
 
-	private volatile boolean flag;
+    private volatile boolean flag;
 
-	public BuildControl() {
-		flag = false;
-	}
+    public BuildControl() {
+        flag = false;
+    }
 
-	@Override
-	public boolean isCanceled() {
-		return flag;
-	}
+    @Override
+    public boolean isCanceled() {
+        return flag;
+    }
 
-	public void cancel() {
-		flag = true;
-	}
+    public void cancel() {
+        flag = true;
+    }
 
 }

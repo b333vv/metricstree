@@ -18,6 +18,6 @@ package org.b333vv.metric.ui.treemap.model;
 
 public interface TreeMapLayout<N> {
 
-	TreeModel<Rectangle<N>> layout(WeightedTreeModel<N> treeModel, N startingNode, int width, int height, Cancelable cancelable);
+    TreeModel<Rectangle<N>> layout(WeightedTreeModel<N> treeModel, N startingNode, int width, int height, Cancelable cancelable);
 
 }

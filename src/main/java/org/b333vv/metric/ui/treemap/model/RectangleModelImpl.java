@@ -20,78 +20,78 @@ import java.util.*;
 
 public class RectangleModelImpl<N> implements TreeModel<Rectangle<N>> {
 
-	private static final RectangleModelImpl<?> EMPTY = new RectangleModelImpl<>() {
-		void addChild(final Rectangle<Object> parent, final Rectangle<Object> child) {}
-	};
+    private static final RectangleModelImpl<?> EMPTY = new RectangleModelImpl<>() {
+        void addChild(final Rectangle<Object> parent, final Rectangle<Object> child) {}
+    };
 
-	protected final Map<N, List<Rectangle<N>>> children;
-	protected final Map<N, Rectangle<N>> childToParent;
+    protected final Map<N, List<Rectangle<N>>> children;
+    protected final Map<N, Rectangle<N>> childToParent;
 
-	@SuppressWarnings("unchecked")
-	protected static <T> RectangleModelImpl<T> emptyModel() {
-		return (RectangleModelImpl<T>) EMPTY;
-	}
+    @SuppressWarnings("unchecked")
+    protected static <T> RectangleModelImpl<T> emptyModel() {
+        return (RectangleModelImpl<T>) EMPTY;
+    }
 
-	public RectangleModelImpl() {
-		children = new HashMap<>(64, 1);
-		childToParent = new HashMap<>(64, 1);
-	}
+    public RectangleModelImpl() {
+        children = new HashMap<>(64, 1);
+        childToParent = new HashMap<>(64, 1);
+    }
 
-	public RectangleModelImpl(final Rectangle<N> root) {
-		this();
-		addChild(null, root);
-	}
+    public RectangleModelImpl(final Rectangle<N> root) {
+        this();
+        addChild(null, root);
+    }
 
-	void addChild(final Rectangle<N> parent, final Rectangle<N> child) {
-		if (parent != null) {
-			childToParent.put(child.getNode(), parent);
-			final N key = parent.getNode();
-			List<Rectangle<N>> list = children.computeIfAbsent(key, k -> new ArrayList<>(5));
-			list.add(child);
-		} else {
-			childToParent.put(null, child);
-		}
-	}
+    void addChild(final Rectangle<N> parent, final Rectangle<N> child) {
+        if (parent != null) {
+            childToParent.put(child.getNode(), parent);
+            final N key = parent.getNode();
+            List<Rectangle<N>> list = children.computeIfAbsent(key, k -> new ArrayList<>(5));
+            list.add(child);
+        } else {
+            childToParent.put(null, child);
+        }
+    }
 
-	@Override
-	public Iterator<Rectangle<N>> getChildren(final Rectangle<N> node) {
-		final List<Rectangle<N>> result = children.get(node.getNode());
-		return result != null ? result.iterator(): Collections.emptyIterator();
-	}
+    @Override
+    public Iterator<Rectangle<N>> getChildren(final Rectangle<N> node) {
+        final List<Rectangle<N>> result = children.get(node.getNode());
+        return result != null ? result.iterator(): Collections.emptyIterator();
+    }
 
-	@Override
-	public Rectangle<N> getParent(final Rectangle<N> node) {
-		return childToParent.get(node.getNode());
-	}
+    @Override
+    public Rectangle<N> getParent(final Rectangle<N> node) {
+        return childToParent.get(node.getNode());
+    }
 
-	@Override
-	public Rectangle<N> getRoot() {
-		return childToParent.get(null);
-	}
+    @Override
+    public Rectangle<N> getRoot() {
+        return childToParent.get(null);
+    }
 
-	@Override
-	public boolean hasChildren(final Rectangle<N> node) {
-		return children.containsKey(node.getNode());
-	}
+    @Override
+    public boolean hasChildren(final Rectangle<N> node) {
+        return children.containsKey(node.getNode());
+    }
 
-	public List<Rectangle<N>> toList() {
-		final List<Rectangle<N>> list = new ArrayList<>(16);
-		final List<Rectangle<N>> stack = new LinkedList<>();
-		stack.add(getRoot());
-		while (!stack.isEmpty()) {
-			final Rectangle<N> node = stack.remove(0);
-			list.add(node);
-			if (hasChildren(node)) {
-				for (final Iterator<Rectangle<N>> i = getChildren(node); i.hasNext(); ) {
-					stack.add(i.next());
-				}
-			}
-		}
-		return list;
-	}
+    public List<Rectangle<N>> toList() {
+        final List<Rectangle<N>> list = new ArrayList<>(16);
+        final List<Rectangle<N>> stack = new LinkedList<>();
+        stack.add(getRoot());
+        while (!stack.isEmpty()) {
+            final Rectangle<N> node = stack.remove(0);
+            list.add(node);
+            if (hasChildren(node)) {
+                for (final Iterator<Rectangle<N>> i = getChildren(node); i.hasNext(); ) {
+                    stack.add(i.next());
+                }
+            }
+        }
+        return list;
+    }
 
-	public String toString() {
-		return toList().toString();
-	}
+    public String toString() {
+        return toList().toString();
+    }
 
 }

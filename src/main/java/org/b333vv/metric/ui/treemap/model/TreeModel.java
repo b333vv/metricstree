@@ -20,12 +20,12 @@ import java.util.Iterator;
 
 public interface TreeModel<N> {
 
-	N getRoot();
+    N getRoot();
 
-	N getParent(N node);
+    N getParent(N node);
 
-	Iterator<N> getChildren(N node);
+    Iterator<N> getChildren(N node);
 
-	boolean hasChildren(N node);
+    boolean hasChildren(N node);
 
 }
