@@ -53,7 +53,7 @@ public class ClassesByRangesTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
             JavaClass javaClass = (JavaClass) selectedCell;
-            openInEditor(javaClass.getPsiClass());
+            MetricsUtils.openInEditor(javaClass.getPsiClass());
         });
 
         panel = new JBScrollPane(table);
@@ -65,16 +65,6 @@ public class ClassesByRangesTable {
 
     public void clear() {
         model.set(List.of());
-    }
-
-    private void openInEditor(PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(MetricsUtils.getCurrentProject());
-        if (psiElement != null) {
-            Editor editor = caretMover.openInEditor(psiElement);
-            if (editor != null) {
-                caretMover.moveEditorCaret(psiElement);
-            }
-        }
     }
 
     private class Model extends AbstractTableModel {

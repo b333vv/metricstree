@@ -65,8 +65,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     private void addPackages(PackageNode parentNode) {
-        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().subPackages()
-                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().subPackages().collect(Collectors.toList());
         for (JavaPackage javaPackage : sortedPackages) {
             PackageNode packageNode = new PackageNode(javaPackage);
             parentNode.add(packageNode);

@@ -19,8 +19,6 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
-import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,12 +37,15 @@ public abstract class AbstractAction extends AnAction {
 
     @Override
     public void update(AnActionEvent e) {
-        Project p = e.getProject();
+        Project project = e.getProject();
         e.getPresentation().setVisible(true);
-        e.getPresentation().setEnabled(check(p));
+        e.getPresentation().setEnabled(check(project));
+        if (check(project)) {
+            MetricsUtils.setCurrentProject(project);
+        }
     }
 
-    private boolean check(Project p) {
-        return !(p == null || !p.isInitialized() || p.isDisposed());
+    private boolean check(Project project) {
+        return !(project == null || !project.isInitialized() || project.isDisposed());
     }
 }

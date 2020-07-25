@@ -67,7 +67,7 @@ public class ClassesForProfileTable {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
-                openInEditor(javaClass.getPsiClass());
+                MetricsUtils.openInEditor(javaClass.getPsiClass());
             }
         });
         panel = new JBScrollPane(table);
@@ -75,16 +75,6 @@ public class ClassesForProfileTable {
 
     public JBScrollPane getComponent() {
         return panel;
-    }
-
-    private void openInEditor(PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(MetricsUtils.getCurrentProject());
-        if (psiElement != null) {
-            Editor editor = caretMover.openInEditor(psiElement);
-            if (editor != null) {
-                caretMover.moveEditorCaret(psiElement);
-            }
-        }
     }
 
     private class Model extends AbstractTableModel {

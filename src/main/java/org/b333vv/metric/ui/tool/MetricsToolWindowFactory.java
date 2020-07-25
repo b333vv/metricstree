@@ -27,10 +27,9 @@ import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {
-    public static final String TAB_CLASS_METRICS_TREE = "Class Metrics Tree";
-    public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics Tree";
-    public static final String TAB_PROFILES = "Metrics Profiles";
-    public static final String TAB_METRICS_CHART = "Metrics Treemap";
+    public static final String TAB_CLASS_METRICS_TREE = "Class Metrics";
+    public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics";
+    public static final String TAB_PROFILES = "Metric Profiles";
     public static final String TAB_LOGS = "Log";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
@@ -52,15 +51,6 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
                         projectMetricsPanel, TAB_PROJECT_METRICS_TREE, false);
         toolWindow.getContentManager().addDataProvider(projectMetricsPanel);
         toolWindow.getContentManager().addContent(treeContent);
-    }
-
-    private static void addMetricsChartTab(Project project, ToolWindow toolWindow) {
-        MetricsTreemapPanel metricsTreemapPanel = new MetricsTreemapPanel(project);
-        Content chartContent = toolWindow.getContentManager().getFactory()
-                .createContent(
-                        metricsTreemapPanel, TAB_METRICS_CHART, false);
-        toolWindow.getContentManager().addDataProvider(metricsTreemapPanel);
-        toolWindow.getContentManager().addContent(chartContent);
     }
 
     private static void addMetricsProfilesTab(Project project, ToolWindow toolWindow) {
@@ -85,7 +75,6 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
         addMetricsProfilesTab(project, toolWindow);
-        addMetricsChartTab(project, toolWindow);
         addLogTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);
     }

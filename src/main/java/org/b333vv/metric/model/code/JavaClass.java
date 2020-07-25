@@ -18,7 +18,7 @@ package org.b333vv.metric.model.code;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementVisitor;
-import org.b333vv.metric.visitor.type.JavaClassVisitor;
+import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;

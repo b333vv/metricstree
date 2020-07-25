@@ -28,7 +28,8 @@ public class ShowDisallowedValueMetrics extends ToggleAction {
 
 
     public ShowDisallowedValueMetrics() {
-        super("Show Metrics with Disallowed Values", "Show or dont show metrics with disallowed values",
+        super("Show Metrics With Not Regular Values",
+                "Show or dont show metrics with not regular values",
                 AllIcons.General.BalloonError);
     }
 

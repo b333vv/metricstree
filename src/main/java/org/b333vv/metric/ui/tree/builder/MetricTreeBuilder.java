@@ -100,6 +100,7 @@ public abstract class MetricTreeBuilder {
                 || metricsTreeFilter.isDisallowedValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
                     && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
+                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED
                 || metricsTreeFilter.isNotSetValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
                     && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
@@ -113,6 +114,7 @@ public abstract class MetricTreeBuilder {
                 || metricsTreeFilter.isLorenzKiddMetricsSetVisible() && type.set() == MetricSet.LORENZ_KIDD
                 || metricsTreeFilter.isLiHenryMetricsSetVisible() && type.set() == MetricSet.LI_HENRY
                 || type.set() == MetricSet.BIEMAN_KANG
-                || type.set() == MetricSet.LANZA_MARINESCU;
+                || metricsTreeFilter.isLanzaMarinescuMetricsSetVisible() && type.set() == MetricSet.LANZA_MARINESCU
+                || type.set() == MetricSet.CLEMENS_LEE;
     }
 }

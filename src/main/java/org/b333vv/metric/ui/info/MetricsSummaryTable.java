@@ -25,6 +25,7 @@ import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.value.RangeType;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.MetricsService;
 
 import javax.swing.*;
@@ -61,6 +62,12 @@ public class MetricsSummaryTable {
         panel = new JBScrollPane(table);
     }
 
+    public void hideColumn(int index) {
+        table.getColumnModel().getColumn(index).setWidth(0);;
+        table.getColumnModel().getColumn(index).setMinWidth(0);;
+        table.getColumnModel().getColumn(index).setMaxWidth(0);;
+    }
+
     private void hideOrShowValidValuesColumn(boolean controlValidRanges) {
         if (controlValidRanges) {
             table.getColumnModel().getColumn(0).setWidth(15);
@@ -68,7 +75,6 @@ public class MetricsSummaryTable {
             table.getColumnModel().getColumn(0).setMaxWidth(15);
 
             table.getColumnModel().getColumn(5).setWidth(200);
-//            table.getColumnModel().getColumn(5).setMinWidth(200);
             table.getColumnModel().getColumn(5).setMaxWidth(200);
         } else {
             table.getColumnModel().getColumn(0).setWidth(0);
@@ -195,6 +201,9 @@ public class MetricsSummaryTable {
         }
 
         private Icon getRowIcon(Metric metric) {
+            if (metric.getValue() == Value.UNDEFINED) {
+                return MetricsIcons.NA;
+            }
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }

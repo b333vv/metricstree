@@ -324,5 +324,14 @@ public class Value implements Comparable<Value> {
         }
         return value.doubleValue();
     }
+
+    public long longValue() {
+//        if (value instanceof LargeInteger) {
+//            return value.longValue();
+//        } else {
+//            return (long) value.doubleValue();
+//        }
+        return value.longValue();
+    }
 }
 

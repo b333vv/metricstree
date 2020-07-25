@@ -17,8 +17,8 @@
 package org.b333vv.metric.model.metric;
 
 import com.intellij.psi.JavaRecursiveElementVisitor;
-import org.b333vv.metric.visitor.method.*;
-import org.b333vv.metric.visitor.type.*;
+import org.b333vv.metric.model.visitor.method.*;
+import org.b333vv.metric.model.visitor.type.*;
 
 import static org.b333vv.metric.model.metric.MetricLevel.*;
 import static org.b333vv.metric.model.metric.MetricSet.*;
@@ -66,6 +66,9 @@ public enum MetricType {
 
     //Bieman-Kang metrics set
     TCC("Tight Class Cohesion", BIEMAN_KANG, CLASS, new TightClassCohesionVisitor()),
+
+    //Chr. Clemens Lee metrics set
+    NCSS("Non-Commenting Source Statements", CLEMENS_LEE, CLASS, new NonCommentingSourceStatementsVisitor()),
 
     //Robert C. Martin metrics set
     Ce("Efferent Coupling", R_MARTIN, PACKAGE, null),

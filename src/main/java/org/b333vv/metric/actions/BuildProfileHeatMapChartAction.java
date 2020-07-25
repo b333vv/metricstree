@@ -29,7 +29,7 @@ public class BuildProfileHeatMapChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
             ProfilesHeatMapChartTask heatMapChartTask = new ProfilesHeatMapChartTask();
             MetricTaskCache.getQueue().run(heatMapChartTask);
         }
@@ -37,6 +37,6 @@ public class BuildProfileHeatMapChartAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

@@ -39,7 +39,7 @@
             <h3>Features</h3>
             <ul>
                 <li>
-                    Represents metrics calculation results as a tree view
+                    Represents metrics calculation results in forms of trees and treemaps
                 </li>
                 <li>
                     Builds trees with metrics for class open in the editor or for the entire project
@@ -51,7 +51,7 @@
                     Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
                 </li>
                 <li>
-                    Displays classes and packages distributions by their metrics values in charts
+                    Displays various metrics properties (distributions, correlations) in charts
                 </li>
                 <li>
                     Shows class metrics values evolution based on 'git log'
@@ -62,6 +62,16 @@
     </description>
 
     <change-notes><![CDATA[
+        <ul>
+            <li>2020.1.7:
+                <ul>
+                    <li>Added treemaps with metric values and profiles distributions, displaying classes proportionally
+                    "Non-Commenting Source Statements" metric value.</li>
+                    <li>Several charts displaying distribution and correlation of metric values and metric
+                    profiles added.</li>
+                </ul>
+            </li>
+        </ul>
         <ul>
             <li>2020.1.6:
                 <ul>
@@ -94,7 +104,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.6</version>
+    <version>2020.1.7</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -176,8 +186,15 @@
                 icon="MetricsIcons.SORT_BY_VALUES">
         </action>
 
-        <action id="Metrics.Autoscroll"
-                class="org.b333vv.metric.actions.SetAutoScrollableAction"
+        <action id="Metrics.ProjectAutoscroll"
+                class="org.b333vv.metric.actions.SetProjectAutoScrollableAction"
+                text="Auto Scroll To Source In Editor"
+                description="Auto scroll to source in editor"
+                icon="AllIcons.General.AutoscrollToSource">
+        </action>
+
+        <action id="Metrics.ProfileAutoscroll"
+                class="org.b333vv.metric.actions.SetProfileAutoScrollableAction"
                 text="Auto Scroll To Source In Editor"
                 description="Auto scroll to source in editor"
                 icon="AllIcons.General.AutoscrollToSource">
@@ -246,10 +263,17 @@
                 icon="MetricsIcons.RADAR_CHART">
         </action>
 
-        <action id="Metrics.BuildTreeMapAction"
-                class="org.b333vv.metric.actions.BuildTreeMapAction"
-                text="Build Treemap"
-                description="Build treemap"
+        <action id="Metrics.BuildMetricTreeMapAction"
+                class="org.b333vv.metric.actions.BuildMetricTreeMapAction"
+                text="Build Treemap With Metrics Values Distribution"
+                description="Build treemap with metrics values distribution"
+                icon="MetricsIcons.TREE_MAP">
+        </action>
+
+        <action id="Metrics.BuildProfileTreeMapAction"
+                class="org.b333vv.metric.actions.BuildProfileTreeMapAction"
+                text="Build Treemap With Profiles Distribution"
+                description="Build treemap with profiles distribution"
                 icon="MetricsIcons.TREE_MAP">
         </action>
 
@@ -343,6 +367,9 @@
         <action id="Metrics.ProjectTreeShowLiHenryMetrics"
                 class="org.b333vv.metric.actions.treefilters.projecttree.ProjectTreeShowLiHenryMetrics">
         </action>
+        <action id="Metrics.ProjectTreeShowLanzaMarinescuMetrics"
+                class="org.b333vv.metric.actions.treefilters.projecttree.ProjectTreeShowLanzaMarinescuMetrics">
+        </action>
         <action id="Metrics.ProjectTreeShowRobertMartinrMetrics"
                 class="org.b333vv.metric.actions.treefilters.projecttree.ProjectTreeShowRobertMartinMetrics">
         </action>
@@ -387,6 +414,7 @@
             <reference id="Metrics.ProjectTreeShowChidamberKemererMetrics"/>
             <reference id="Metrics.ProjectTreeShowLorenzKiddMetrics"/>
             <reference id="Metrics.ProjectTreeShowLiHenryMetrics"/>
+            <reference id="Metrics.ProjectTreeShowLanzaMarinescuMetrics"/>
         </group>
 
         <group id="Metrics.ClassMetricsToolbar">
@@ -404,6 +432,7 @@
             <reference id="Metrics.FilterProjectMetricsTree"/>
             <separator/>
             <reference id="Metrics.CalculateProjectMetrics"/>
+            <reference id="Metrics.BuildMetricTreeMapAction"/>
             <reference id="Metrics.SortClassesByMetricsValues"/>
             <separator/>
             <reference id="Metrics.BuildProjectMetricXYChart"/>
@@ -413,25 +442,21 @@
             <reference id="Metrics.ExportMetricsToCsv"/>
             <reference id="Metrics.ExportMetricsToXml"/>
             <separator/>
-            <reference id="Metrics.Autoscroll"/>
+            <reference id="Metrics.ProjectAutoscroll"/>
             <separator/>
             <reference id="Metrics.Configure"/>
-        </group>
-
-        <group id="Metrics.MetricsChartToolbar">
-            <reference id="Metrics.BuildTreeMapAction"/>
-            <separator/>
-            <reference id="Metrics.Configure"/>
-            <separator/>
         </group>
 
         <group id="Metrics.MetricsProfileToolbar">
             <reference id="Metrics.BuildByProfileDistribution"/>
+            <reference id="Metrics.BuildProfileTreeMapAction"/>
             <separator/>
             <reference id="Metrics.BuildProfileCategoryChart"/>
             <reference id="Metrics.BuildMetricProfileRadarChart"/>
             <reference id="Metrics.BuildMetricProfileHeatMapChart"/>
             <reference id="Metrics.BuildMetricProfileBoxChart"/>
+            <separator/>
+            <reference id="Metrics.ProfileAutoscroll"/>
             <separator/>
             <reference id="Metrics.Configure"/>
             <separator/>

@@ -75,8 +75,7 @@ public class XmlExporter implements Exporter {
             addMetricsForNode(javaProject, projectElement, doc);
             Element packagesElement = doc.createElement("Packages");
             projectElement.appendChild(packagesElement);
-            List<JavaPackage> sortedPackages = javaProject.packages()
-                    .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+            List<JavaPackage> sortedPackages = javaProject.packages().collect(Collectors.toList());
             for (JavaPackage packageNode : sortedPackages) {
                 Element packageElement = doc.createElement("Package");
                 packageElement.setAttribute("name", packageNode.getName());
@@ -91,8 +90,7 @@ public class XmlExporter implements Exporter {
     }
 
     private void addPackages(JavaPackage parentNode, Element parentElement, Document doc) {
-        List<JavaPackage> sortedPackages = parentNode.subPackages()
-                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+        List<JavaPackage> sortedPackages = parentNode.subPackages().collect(Collectors.toList());
         for (JavaPackage javaPackage : sortedPackages) {
             Element packageElement = doc.createElement("Package");
             packageElement.setAttribute("name", javaPackage.getName());
@@ -104,15 +102,13 @@ public class XmlExporter implements Exporter {
     }
 
     private void addJavaFiles(JavaPackage parentNode, Element parentElement, Document doc) {
-        List<JavaFile> sortedFiles = parentNode.files()
-                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+        List<JavaFile> sortedFiles = parentNode.files().collect(Collectors.toList());
         for (JavaFile f : sortedFiles) {
             if (f.classes().count() > 1) {
                 Element fileElement = doc.createElement("File");
                 fileElement.setAttribute("name", f.getName());
                 parentElement.appendChild(fileElement);
-                List<JavaClass> sortedClasses = f.classes()
-                        .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+                List<JavaClass> sortedClasses = f.classes().collect(Collectors.toList());
                 addClasses(doc, fileElement, sortedClasses);
             } else if (f.classes().findFirst().isPresent()) {
                 JavaClass javaClass = f.classes().findFirst().get();
@@ -138,14 +134,12 @@ public class XmlExporter implements Exporter {
     }
 
     private void addSubClasses(JavaClass parentClass, Element parentElement, Document doc) {
-        List<JavaClass> sortedClasses = parentClass.innerClasses()
-                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+        List<JavaClass> sortedClasses = parentClass.innerClasses().collect(Collectors.toList());
         addClasses(doc, parentElement, sortedClasses);
     }
 
     private void addMethods(JavaClass javaClass, Element parentElement, Document doc) {
-        List<JavaMethod> sortedMethods = javaClass.methods()
-                .sorted(Comparator.comparing(JavaCode::getName)).collect(Collectors.toList());
+        List<JavaMethod> sortedMethods = javaClass.methods().collect(Collectors.toList());
         for (JavaMethod m : sortedMethods) {
             Element methodElement = doc.createElement("Method");
             methodElement.setAttribute("name", m.getName());
@@ -156,9 +150,7 @@ public class XmlExporter implements Exporter {
 
     private void addMetricsForNode(JavaCode node, Node parentElement, Document doc) {
         Element metricsContainer = doc.createElement("Metrics");
-        List<Metric> sortedMetrics = node.metrics()
-                .sorted((m1, m2) -> m1.getType().description().compareTo(m2.getType().description()))
-                .collect(Collectors.toList());
+        List<Metric> sortedMetrics = node.metrics().collect(Collectors.toList());
         for (Metric metric : sortedMetrics) {
             Element metricsElement = doc.createElement("Metric");
             metricsElement.setAttribute("name", metric.getType().name());

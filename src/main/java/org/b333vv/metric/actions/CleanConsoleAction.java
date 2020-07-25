@@ -24,10 +24,6 @@ public class CleanConsoleAction extends AbstractAction {
     public CleanConsoleAction() {
     }
 
-//    public CleanConsoleAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
-//        super(text, description, icon);
-//    }
-
     @Override
     public void actionPerformed(AnActionEvent e) {
         super.actionPerformed(e);

@@ -42,6 +42,8 @@ It supports the most common metric sets.
         - WOC: Weight Of A Class
     - Bieman-Kang metrics set [8]:
         - TCC: Tight Class Cohesion
+    - Chr. Clemens Lee metrics set:
+            - NCSS: Non-Commenting Source Statements
 4. Method level:
     - LOC: Lines Of Code
     - CC: McCabe Cyclomatic Complexity
@@ -63,19 +65,21 @@ It supports the most common metric sets.
 > 7. M. Lanza, R. Marinescu. Object-Oriented Metrics in Practice. Using Software Metrics to Characterize, Evaluate, and Improve the Design of Object-Oriented Systems. Springer-Verlag Berlin Heidelberg, 2006.
 > 8. J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system, Proceedings of the 1995 Symposium on Software reusability, Seattle, Washington, United States, pp. 259-262, 1995.
 # Featutes   
- - Represents metrics calculation results as a tree view
+ - Represents metrics calculation results in forms of trees and treemaps
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
  - Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
- - Displays classes and packages distributions by their metrics values in charts 
+ - Displays various metrics properties (distributions, correlations) in charts
  - Shows class metrics values evolution based on 'git log'
  
 ![Image of MetricsTree](project_metrics_tree.png)
+![Image of MetricsTree](metrics_treemap.png)
+![Image of MetricsTree](xy_chart.png)
 ![Image of MetricsTree](pie_chart.png)
 ![Image of MetricsTree](metric_profiles.png)
-![Image of MetricsTree](xy_chart.png)
-![Image of MetricsTree](metrics_distribution.png)
-![Image of MetricsTree](category_chart.png)
+![Image of MetricsTree](profiles_metrics_correlation.png)
+![Image of MetricsTree](profiles_correlation.png)
+
 # Installation
 The plugin can be installed from the JetBrains plugin repository within your IDE with 
 Preferences | Plugins | Market Place and searching for MetricsTree. 

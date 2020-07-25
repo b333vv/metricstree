@@ -27,10 +27,12 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;

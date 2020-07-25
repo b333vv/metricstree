@@ -31,13 +31,15 @@ public class ExportCalculatedMetricsToXmlAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             String fileName = getFileName("xml", project);
-            ExportToXmlTask exportToXmlTask = new ExportToXmlTask(fileName);
-            MetricTaskCache.getQueue().run(exportToXmlTask);
+            if (fileName != null && !fileName.isBlank()) {
+                ExportToXmlTask exportToXmlTask = new ExportToXmlTask(fileName);
+                MetricTaskCache.getQueue().run(exportToXmlTask);
+            }
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

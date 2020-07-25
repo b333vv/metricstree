@@ -32,7 +32,7 @@ public class BuildMetricsPieChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             PieChartTask pieChartTask = new PieChartTask();
             MetricTaskCache.getQueue().run(pieChartTask);
         }

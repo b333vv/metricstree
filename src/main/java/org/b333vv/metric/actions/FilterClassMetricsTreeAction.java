@@ -37,7 +37,6 @@ public class FilterClassMetricsTreeAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        Project project = e.getProject();
         e.getPresentation().setEnabled(MetricsUtils.isClassMetricsTreeExists());
     }
 

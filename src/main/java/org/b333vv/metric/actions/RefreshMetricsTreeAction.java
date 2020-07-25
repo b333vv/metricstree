@@ -27,7 +27,6 @@ public class RefreshMetricsTreeAction extends AbstractAction {
     @Override
     public void update (AnActionEvent e) {
         super.actionPerformed(e);
-        Project project = e.getProject();
         e.getPresentation().setEnabled(MetricsUtils.isClassMetricsTreeExists());
     }
 

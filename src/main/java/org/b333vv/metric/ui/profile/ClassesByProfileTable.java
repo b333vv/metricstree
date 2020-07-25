@@ -16,8 +16,6 @@
 
 package org.b333vv.metric.ui.profile;
 
-import com.intellij.openapi.editor.Editor;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -25,7 +23,6 @@ import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.util.ClassUtils;
-import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.table.AbstractTableModel;
@@ -50,7 +47,9 @@ public class ClassesByProfileTable {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
-                openInEditor(javaClass.getPsiClass());
+                if (MetricsUtils.isProfileAutoScrollable()) {
+                    MetricsUtils.openInEditor(javaClass.getPsiClass());
+                }
                 MetricsUtils.getCurrentProject().getMessageBus()
                         .syncPublisher(MetricsEventListener.TOPIC).javaClassSelected(javaClass);
             }
@@ -69,16 +68,6 @@ public class ClassesByProfileTable {
 
     public void clear() {
         model.set(List.of());
-    }
-
-    private void openInEditor(PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(MetricsUtils.getCurrentProject());
-        if (psiElement != null) {
-            Editor editor = caretMover.openInEditor(psiElement);
-            if (editor != null) {
-                caretMover.moveEditorCaret(psiElement);
-            }
-        }
     }
 
     private static class Model extends AbstractTableModel {

@@ -67,10 +67,6 @@ public abstract class JavaCode {
         metrics.put(metric.getType(), metric);
     }
 
-    public void replaceMetric(@NotNull Metric metric) {
-        metrics.replace(metric.getType(), metric);
-    }
-
     public void removeMetric(@NotNull MetricType metricType) {
         metrics.remove(metricType);
     }
@@ -81,7 +77,7 @@ public abstract class JavaCode {
 
     protected void accept(@NotNull PsiElementVisitor visitor) {}
 
-    @Nullable
+//    @Nullable
     public Metric metric(@NotNull MetricType metricType) {
         return metrics.get(metricType);
     }

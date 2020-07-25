@@ -29,14 +29,14 @@ public class BuildByProfilesDistributionAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilesPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
             MetricProfilesTask metricProfilesTask = new MetricProfilesTask();
             MetricTaskCache.getQueue().run(metricProfilesTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

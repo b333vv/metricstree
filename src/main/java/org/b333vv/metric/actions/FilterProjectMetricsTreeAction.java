@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.ui.tool.ProjectMetricsPanel;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,10 +37,11 @@ public class FilterProjectMetricsTreeAction extends AbstractAction {
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         Project project = e.getProject();
-        e.getPresentation().setEnabled(project != null &&
-                MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER) != null);
+        e.getPresentation().setEnabled(project != null
+                && MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER) != null
+                && MetricsUtils.isProjectTreeActive());
     }
 
     private void showPopup(@NotNull AnActionEvent e) {

@@ -19,12 +19,8 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.CategoryChartTask;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.task.ProfilesCategoryChartTask;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildProfilesCategoryChartAction extends AbstractAction {
@@ -33,14 +29,14 @@ public class BuildProfilesCategoryChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
             ProfilesCategoryChartTask categoryChartTask = new ProfilesCategoryChartTask();
             MetricTaskCache.getQueue().run(categoryChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricTaskCache.getQueue().isEmpty());
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

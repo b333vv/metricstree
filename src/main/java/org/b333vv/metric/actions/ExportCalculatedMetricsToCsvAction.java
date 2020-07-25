@@ -31,13 +31,15 @@ public class ExportCalculatedMetricsToCsvAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             String fileName = getFileName("csv", project);
-            ExportToCsvTask exportToCsvTask = new ExportToCsvTask(fileName);
-            MetricTaskCache.getQueue().run(exportToCsvTask);
+            if (fileName != null && !fileName.isBlank()) {
+                ExportToCsvTask exportToCsvTask = new ExportToCsvTask(fileName);
+                MetricTaskCache.getQueue().run(exportToCsvTask);
+            }
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

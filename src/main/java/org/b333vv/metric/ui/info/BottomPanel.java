@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
+import static javax.swing.text.StyleConstants.Bold;
+
 public class BottomPanel {
     private final JPanel panel;
     private JTextPane metricDescription;
@@ -90,6 +92,10 @@ public class BottomPanel {
 
     public void setData(@NotNull JavaMethod javaMethod) {
         updateDescription("Method: " + javaMethod.getName());
+    }
+
+    public void setData(String text) {
+        updateDescription(text);
     }
 
     private void updateDescription(String text) {

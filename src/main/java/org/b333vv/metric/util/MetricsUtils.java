@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.util;
 
-import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -51,8 +50,10 @@ public final class MetricsUtils {
     private final MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
 
     private Project currentProject;
-    private boolean autoScrollable = true;
+    private boolean projectAutoScrollable = true;
+    private boolean profileAutoScrollable = true;
     private boolean classMetricsTreeExists = false;
+    private boolean projectMetricsTreeActive = false;
     private boolean classMetricsValuesEvolutionCalculationPerforming = false;
     private boolean classMetricsValuesEvolutionAdded = false;
 
@@ -101,12 +102,20 @@ public final class MetricsUtils {
         return instance().projectMetricsTreeFilter;
     }
 
-    public static boolean isAutoScrollable() {
-        return instance().autoScrollable;
+    public static boolean isProjectAutoScrollable() {
+        return instance().projectAutoScrollable;
     }
 
-    public static void setAutoScrollable(boolean autoScrollable) {
-        instance().autoScrollable = autoScrollable;
+    public static void setProjectAutoScrollable(boolean autoScrollable) {
+        instance().projectAutoScrollable = autoScrollable;
+    }
+
+    public static boolean isProfileAutoScrollable() {
+        return instance().profileAutoScrollable;
+    }
+
+    public static void setProfileAutoScrollable(boolean autoScrollable) {
+        instance().profileAutoScrollable = autoScrollable;
     }
 
     public static boolean isClassMetricsTreeExists() {
@@ -222,6 +231,16 @@ public final class MetricsUtils {
         return editor;
     }
 
+    public static void openInEditor(PsiElement psiElement) {
+        final EditorController caretMover = new EditorController(getCurrentProject());
+        if (psiElement != null) {
+            Editor editor = caretMover.openInEditor(psiElement);
+            if (editor != null) {
+                caretMover.moveEditorCaret(psiElement);
+            }
+        }
+    }
+
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValueReversed(Map<K, V> map) {
         List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
         list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
@@ -231,6 +250,14 @@ public final class MetricsUtils {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
+    }
+
+    public static boolean isProjectTreeActive() {
+        return instance().projectMetricsTreeActive;
+    }
+
+    public static boolean setProjectTreeActive(boolean projectMetricsTreeActive) {
+        return instance().projectMetricsTreeActive = projectMetricsTreeActive;
     }
 
     public void notify(String content, Project project) {

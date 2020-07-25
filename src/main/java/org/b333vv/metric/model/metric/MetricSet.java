@@ -23,6 +23,7 @@ public enum MetricSet {
     LI_HENRY("Li-Henry Metrics Set"),
     LANZA_MARINESCU("Lanza-Marinescu Metrics Set"),
     BIEMAN_KANG("Bieman-Kang Metrics Set"),
+    CLEMENS_LEE("Chr. Clemens Lee Metrics Set"),
     R_MARTIN("Robert C. Martin Metrics Set"),
     MOOD("MOOD Metrics Set");
 

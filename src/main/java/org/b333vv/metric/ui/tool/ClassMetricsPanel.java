@@ -37,8 +37,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
+    private static final String SPLIT_PROPORTION_PROPERTY = "CLASS_PANEL_SPLIT_PROPORTION";
+
     private ClassMetricsPanel(Project project) {
-        super(project, "Metrics.ClassMetricsToolbar");
+        super(project, "Metrics.ClassMetricsToolbar", SPLIT_PROPORTION_PROPERTY);
         MetricsEventListener metricsEventListener = new ClassMetricsEventListener();
         project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
 
@@ -88,7 +90,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
             if (!showClassMetricsTree) {
                 clear();
             } else {
-                createUIComponents();
+                createUIComponents(SPLIT_PROPORTION_PROPERTY);
                 refresh();
             }
         }

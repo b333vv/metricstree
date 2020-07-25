@@ -18,6 +18,7 @@ package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.psi.PsiClass;
+import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
@@ -77,7 +78,8 @@ public class ProfileRadarChartBuilder {
                     .height(200)
                     .build();
             chart.setVariableLabels(metrics.stream().map(MetricType::name).toArray(String[]::new));
-            chart.addSeries(profile.getName(), numbers);
+            RadarSeries series = chart.addSeries(profile.getName(), numbers);
+            series.setLineColor(new JBColor(new Color(0xf9c784), new Color(0xf9c784)));
             Color annotationColor = EditorColorsManager.getInstance().getGlobalScheme().getDefaultForeground();
             Color backgroundColor = UIUtil.getPanelBackground();
             chart.getStyler().setAnnotationsFontColor(annotationColor);

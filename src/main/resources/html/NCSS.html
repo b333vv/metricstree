@@ -1,0 +1,40 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Non-Commenting Source Statements</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Non-Commenting Source Statements (NCSS)</h3>
+<p class="main">
+    Determines complexity of classes by counting the Non Commenting Source Statements.
+    The NCSS is calculated by counting the source lines which are not comments, nearly equivalent to counting
+    the semicolons and opening curly braces. Comments and empty statements are ignored.
+    Too large classes are hard to read and costly to maintain. A large NCSS number often means that a class
+    has too many responsibilities and/or functionalities which should be decomposed into smaller units.
+</p>
+<p class="main">
+    Described and implemented by Chr. Clemens Lee in JavaNCSS-Tool.
+</p>
+<p class="values">
+    The regular value of NCSS metric is less than 1000 by default.
+</p>
+</body>
+</html>

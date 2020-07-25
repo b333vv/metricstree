@@ -32,7 +32,7 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             CategoryChartTask categoryChartTask = new CategoryChartTask();
             MetricTaskCache.getQueue().run(categoryChartTask);
         }

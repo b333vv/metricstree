@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.profile;
 
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -38,11 +39,12 @@ import java.util.stream.Collectors;
 public class MetricProfileList {
     private final Model model;
     private final JBScrollPane panel;
+    private final JBTable table;
     private Map<MetricProfile, Integer> byProfileFoundedClassesCount;
 
     public MetricProfileList() {
         model = new Model();
-        JBTable table = new JBTable(model);
+        table = new JBTable(model);
         table.setShowGrid(false);
         table.setIntercellSpacing(JBUI.emptySize());
         table.getEmptyText().setText("");
@@ -62,6 +64,16 @@ public class MetricProfileList {
         });
 
         panel = new JBScrollPane(table);
+    }
+
+    public void hideColumn(int index) {
+        table.getColumnModel().getColumn(index).setWidth(0);
+        table.getColumnModel().getColumn(index).setMinWidth(0);
+        table.getColumnModel().getColumn(index).setMaxWidth(0);
+    }
+
+    public void setBorder(String text) {
+        panel.setBorder(IdeBorderFactory.createTitledBorder(text));
     }
 
     public void setProfiles(Map<MetricProfile, Set<JavaClass>> distribution) {
@@ -104,7 +116,7 @@ public class MetricProfileList {
                 case 0:
                     return "";
                 case 1:
-                    return "Name";
+                    return "Profile Name";
                 case 2:
                     return "Metric Profile";
                 default:

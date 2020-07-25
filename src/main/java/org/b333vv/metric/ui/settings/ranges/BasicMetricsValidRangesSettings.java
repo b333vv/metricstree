@@ -85,6 +85,9 @@ public final class BasicMetricsValidRangesSettings implements PersistentStateCom
         putToControlledMetricsMap(NOPA, 3, 5, 12);
         putToControlledMetricsMap(NOAC, 4, 7, 13);
 
+        //Chr. Clemens Lee metrics set
+        putToControlledMetricsMap(NCSS, 1000, 1500, 2000);
+
         //--UNCONTROLLED-------------------------------------------------
         //Chidamber-Kemerer metrics set
 

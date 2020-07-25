@@ -20,7 +20,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
-import org.b333vv.metric.task.ProfilesHeatMapChartTask;
 import org.b333vv.metric.task.ProfilesRadarChartTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,14 +29,14 @@ public class BuildProfileRadarChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
             ProfilesRadarChartTask radarChartTask = new ProfilesRadarChartTask();
             MetricTaskCache.getQueue().run(radarChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricTaskCache.getQueue().isEmpty());
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

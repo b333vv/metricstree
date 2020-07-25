@@ -64,7 +64,7 @@ public class ClassModelBuilderTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testClassMetricsCount() {
-        assertEquals(13, classMetrics.size());
+        assertEquals(14, classMetrics.size());
     }
 
     public void testDepthOfInheritanceTreeMetricValue() {

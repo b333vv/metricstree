@@ -69,7 +69,6 @@ public class EditorController {
 
     @Nullable
     public Editor openInEditor(PsiElement element) {
-
         final PsiFile psiFile;
         final int i;
         if (element instanceof PsiFile) {
@@ -82,8 +81,7 @@ public class EditorController {
         if (psiFile == null) {
             return null;
         }
-        final OpenFileDescriptor fileDesc =
-                new OpenFileDescriptor(project, psiFile.getVirtualFile(), i);
+        final OpenFileDescriptor fileDesc = new OpenFileDescriptor(project, psiFile.getVirtualFile(), i);
         disableMovementOneTime();
         final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         return fileEditorManager.openTextEditor(fileDesc, false);

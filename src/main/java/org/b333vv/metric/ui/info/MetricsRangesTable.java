@@ -19,11 +19,14 @@ package org.b333vv.metric.ui.info;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
+import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -38,12 +41,13 @@ public class MetricsRangesTable {
     private final Model model;
     private final JBScrollPane panel;
     private final Set<MetricType> metricTypes;
+    private final JBTable table;
 
     public MetricsRangesTable(Set<MetricType> metricTypes) {
         this.metricTypes = metricTypes;
 
         model = new Model();
-        JBTable table = new JBTable(model);
+        table = new JBTable(model);
         table.setShowGrid(false);
         table.setIntercellSpacing(JBUI.emptySize());
         table.getEmptyText().setText("");
@@ -53,7 +57,8 @@ public class MetricsRangesTable {
         table.setAutoCreateRowSorter(true);
 
         table.getColumnModel().getColumn(0).setMaxWidth(50);
-        table.getColumnModel().getColumn(2).setMaxWidth(100);
+        table.getColumnModel().getColumn(1).setMaxWidth(300);
+        table.getColumnModel().getColumn(2).setMaxWidth(200);
         table.getColumnModel().getColumn(3).setMaxWidth(100);
         table.getColumnModel().getColumn(4).setMaxWidth(100);
         table.getColumnModel().getColumn(5).setMaxWidth(100);
@@ -151,7 +156,7 @@ public class MetricsRangesTable {
             MetricTypeRange metricTypeRange = rows.get(row);
             switch (column) {
                 case 0:
-                    return metricTypeRange.getMetricType().name();
+                    return metricTypeRange.getMetricType();
                 case 1:
                     return metricTypeRange.getMetricType().description();
                 case 2:
@@ -168,6 +173,14 @@ public class MetricsRangesTable {
                 default:
                     return "";
             }
+        }
+
+        @Override
+        public Class<?> getColumnClass(int column) {
+            if (column == 0) {
+                return MetricType.class;
+            }
+            return String.class;
         }
     }
     private static class MetricTypeRange {

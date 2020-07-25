@@ -34,10 +34,7 @@ public interface MetricsEventListener {
     default void clearProjectMetricsTree() {
     }
 
-    default void clearChartsPanel() {
-    }
-
-    default void clearProfilesPanel() {
+    default void clearProfilePanel() {
     }
 
     default void clearClassMetricsValuesEvolutionTree() {
@@ -101,5 +98,27 @@ public interface MetricsEventListener {
     }
 
     default void currentMetricProfile(MetricProfile metricProfile) {
+    }
+
+    default void metricTreeMapIsReady() {
+    }
+
+    default void setProjectPanelBottomText(String text) {
+    }
+
+    default void setProfilePanelBottomText(String text) {
+    }
+
+    default void projectTreeMapCellClicked(JavaClass javaClass) {
+    }
+
+    default void profileTreeMapCellClicked(JavaClass javaClass) {
+    }
+
+    default void profileTreeMapIsReady() {
+
+    }
+
+    default void clearProjectPanel() {
     }
 }

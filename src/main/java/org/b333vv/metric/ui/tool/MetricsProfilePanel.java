@@ -28,6 +28,7 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.task.MetricTaskCache;
@@ -37,6 +38,10 @@ import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.profile.ClassesByProfileTable;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.profile.MetricProfileList;
+import org.b333vv.metric.ui.settings.profile.MetricProfilePanel;
+import org.b333vv.metric.ui.treemap.builder.ProfileColorProvider;
+import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.HeatMapChart;
@@ -44,13 +49,11 @@ import org.knowm.xchart.XChartPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MetricsProfilePanel extends SimpleToolWindowPanel {
-    private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
-
     private JBPanel<?> profilesPanel;
     private JBPanel<?> classesPanel;
     private JBPanel<?> metricsPanel;
@@ -69,10 +72,13 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     private List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList;
     private List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts;
 
+    private MetricsTrimmedSummaryTable metricsTrimmedSummaryTable;
+    private BottomPanel treeMapBottomPanel;
+    private MetricTreeMap<JavaCode> treeMap;
+
     public MetricsProfilePanel(Project project) {
         super(false, true);
         this.project = project;
-//        createProfileUIComponents();
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction("Metrics.MetricsProfileToolbar"), false);
@@ -95,37 +101,20 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         metricsSummaryTable = new MetricsSummaryTable(false);
         metricsPanel.add(metricsSummaryTable.getComponent());
 
-        super.setContent(createSplitter(profilesPanel, createSplitter(classesPanel, metricsPanel)));
+        super.setContent(createSplitter(profilesPanel, createSplitter(classesPanel, metricsPanel, "PROFILE_2"),
+                "PROFILE_1"));
     }
 
-    private void createChartUIComponents() {
-        BottomPanel bottomPanel = new BottomPanel();
-        mainPanel = new JBPanel<>(new BorderLayout());
-        mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
-        rightPanel = new JBPanel<>(new BorderLayout());
-        super.setContent(createSplitter(mainPanel, rightPanel));
-    }
-
-    private void createRadarChartUIComponents() {
-        BottomPanel bottomPanel = new BottomPanel();
-        leftPanel = new JBPanel<>(new BorderLayout());
-        mainPanel = new JBPanel<>(new BorderLayout());
-        mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
-        rightPanel = new JBPanel<>(new BorderLayout());
-        super.setContent(createSplitter(createSplitter(leftPanel, mainPanel), rightPanel));
-    }
-
-    private JComponent createSplitter(JComponent c1, JComponent c2) {
+    private JComponent createSplitter(JComponent c1, JComponent c2, String splitProportionProperty) {
         float savedProportion = PropertiesComponent.getInstance(project)
-                .getFloat(MetricsProfilePanel.SPLIT_PROPORTION_PROPERTY, (float) 0.35);
-
+                .getFloat(splitProportionProperty, (float) 0.35);
         final JBSplitter splitter = new JBSplitter(false);
         splitter.setFirstComponent(c1);
         splitter.setSecondComponent(c2);
         splitter.setProportion(savedProportion);
         splitter.setHonorComponentsMinimumSize(true);
         splitter.addPropertyChangeListener(Splitter.PROP_PROPORTION,
-                evt -> PropertiesComponent.getInstance(project).setValue(MetricsProfilePanel.SPLIT_PROPORTION_PROPERTY,
+                evt -> PropertiesComponent.getInstance(project).setValue(splitProportionProperty,
                         Float.toString(splitter.getProportion())));
         return splitter;
     }
@@ -134,7 +123,7 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         this.distribution = distribution;
     }
 
-    private void showProfiles(Map<MetricProfile, Set<JavaClass>> distribution) {
+    private void showProfiles() {
         metricProfileList.setProfiles(new TreeMap<>(distribution));
     }
 
@@ -147,14 +136,15 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         metricsSummaryTable.set(javaClass);
     }
 
-    private void clear() {
-        distribution = null;
+    private void clearPanels() {
+//        distribution = null;
         boxChartList = null;
         if (profilesPanel != null) {
             profilesPanel.removeAll();
         }
         if (classesPanel != null) {
             classesPanel.removeAll();
+            classesPanel = null;
         }
         if (metricsPanel != null) {
             metricsPanel.removeAll();
@@ -172,8 +162,10 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     }
 
     private void showBoxCharts(@NotNull List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList) {
-        clear();
-        createChartUIComponents();
+        mainPanel = new JBPanel<>(new BorderLayout());
+        rightPanel = new JBPanel<>(new BorderLayout());
+        super.setContent(createSplitter(mainPanel, rightPanel, "PROFILE_BOX_CHART"));
+
         this.boxChartList = boxChartList;
         List<MetricType> metricTypes = Arrays.stream(MetricType.values())
                 .filter(mt -> mt.level() == MetricLevel.CLASS)
@@ -207,8 +199,10 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
 
     private void showRadarCharts(@NotNull List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts) {
         this.radarCharts = radarCharts;
-        clear();
-        createRadarChartUIComponents();
+        mainPanel = new JBPanel<>(new BorderLayout());
+        rightPanel = new JBPanel<>(new BorderLayout());
+        leftPanel = new JBPanel<>(new BorderLayout());
+
         List<MetricProfile> profiles = radarCharts.stream()
                 .map(ProfileRadarChartBuilder.RadarChartStructure::getMetricProfile).collect(Collectors.toList());
         MetricByProfileTable metricByProfileTable = new MetricByProfileTable(profiles);
@@ -219,6 +213,8 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         scrollablePanel.getVerticalScrollBar().setUnitIncrement(10);
         scrollablePanel.getHorizontalScrollBar().setUnitIncrement(10);
         leftPanel.add(scrollablePanel);
+        super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_RADAR_CHART_1"), rightPanel,
+                "PROFILE_RADAR_CHART_2"));
         updateMetricProfileForRadarCharts(profiles.get(0));
     }
 
@@ -226,6 +222,7 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         mainPanel.removeAll();
         rightPanel.removeAll();
         updateUI();
+
         ProfileRadarChartBuilder.RadarChartStructure chartStructure = radarCharts.stream()
                 .filter(b -> b.getMetricProfile() == metricProfile)
                 .findFirst()
@@ -251,8 +248,6 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     }
 
     private void showResults(@NotNull CategoryChart categoryChart) {
-        clear();
-        createChartUIComponents();
         chartPanel = new XChartPanel<>(categoryChart);
         JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
                 chartPanel,
@@ -264,8 +259,10 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     }
 
     private void showResults(@NotNull HeatMapChart heatMapChart) {
-        clear();
-        createChartUIComponents();
+        mainPanel = new JBPanel<>(new BorderLayout());
+        rightPanel = new JBPanel<>(new BorderLayout());
+        super.setContent(createSplitter(mainPanel, rightPanel, "PROFILE_HEAT_MAP"));
+
         chartPanel = new XChartPanel<>(heatMapChart);
         JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
                 chartPanel,
@@ -276,20 +273,64 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         super.setContent(mainPanel);
     }
 
+    private void showTreeMap() {
+        treeMapBottomPanel = new BottomPanel();
+        leftPanel = new JBPanel<>(new BorderLayout());
+        mainPanel = new JBPanel<>(new BorderLayout());
+        mainPanel.add(treeMapBottomPanel.getPanel(), BorderLayout.NORTH);
+        rightPanel = new JBPanel<>(new BorderLayout());
+
+        super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_TREE_MAP_1"), rightPanel,
+                "PROFILE_TREE_MAP_2"));
+
+        metricProfileList = new MetricProfileList();
+        metricProfileList.hideColumn(2);
+        metricProfileList.setBorder("Select Profile");
+        metricProfileList.setProfiles(new TreeMap<>(distribution));
+        leftPanel.add(metricProfileList.getComponent());
+
+        JScrollPane scrollableTreeMapPanel = ScrollPaneFactory.createScrollPane(
+                treeMap,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTreeMapPanel.getHorizontalScrollBar().setUnitIncrement(10);
+        mainPanel.add(scrollableTreeMapPanel);
+
+        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable();
+        JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
+                metricsTrimmedSummaryTable.getComponent(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
+        scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
+        rightPanel.add(scrollableTablePanel);
+    }
+
+    private void updateTreeMap(MetricProfile profile) {
+        treeMap.setColorProvider(new ProfileColorProvider(distribution.getOrDefault(profile, Set.of())));
+        treeMap.updateUI();
+        treeMap.refresh();
+        treeMapBottomPanel.setData("Metric Profile: " + profile.getName());
+    }
+
     private class MetricsChartEventListener implements MetricsEventListener {
 
         @Override
         public void metricProfilesIsReady() {
-            clear();
             createProfileUIComponents();
-            Map<MetricProfile, Set<JavaClass>> distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
-            setDistribution(distribution);
-            showProfiles(distribution);
+            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+            if (distribution != null) {
+                showProfiles();
+            }
         }
 
         @Override
         public void metricsProfileSelected(MetricProfile profile) {
-            showClasses(profile);
+            if (classesPanel != null) {
+                showClasses(profile);
+            } else {
+                updateTreeMap(profile);
+            }
         }
 
         @Override
@@ -298,8 +339,8 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void clearProfilesPanel() {
-            clear();
+        public void clearProfilePanel() {
+            clearPanels();
         }
 
         @Override
@@ -335,6 +376,28 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         @Override
         public void currentMetricProfile(MetricProfile metricProfile) {
             updateMetricProfileForRadarCharts(metricProfile);
+        }
+
+        @Override
+        public void profileTreeMapIsReady() {
+            treeMap = MetricTaskCache.instance().getUserData(MetricTaskCache.PROFILE_TREE_MAP);
+            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+            if (treeMap != null && distribution != null) {
+                showTreeMap();
+            }
+        }
+
+        @Override
+        public void setProfilePanelBottomText(String text) {
+            treeMapBottomPanel.setData(text);
+        }
+
+        @Override
+        public void profileTreeMapCellClicked(JavaClass javaClass) {
+            if (MetricsUtils.isProfileAutoScrollable()) {
+                MetricsUtils.openInEditor(javaClass.getPsiClass());
+            }
+            metricsTrimmedSummaryTable.set(javaClass);
         }
     }
 }

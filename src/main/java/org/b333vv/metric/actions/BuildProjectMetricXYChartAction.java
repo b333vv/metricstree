@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.actions;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
@@ -31,7 +30,7 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             XyChartTask xyChartTask = new XyChartTask();
             MetricTaskCache.getQueue().run(xyChartTask);
         }

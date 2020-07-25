@@ -29,6 +29,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.events.*;
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -39,12 +40,12 @@ import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.HeatMapChart;
-import org.knowm.xchart.RadarChart;
 import org.knowm.xchart.XYChart;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -73,6 +74,8 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<HeatMapChart> HEAT_MAP_CHART = Key.create("HEAT_MAP_CHART");
     public static final Key<List<ProfileRadarChartBuilder.RadarChartStructure>> RADAR_CHART = Key.create("RADAR_CHART");
     public static final Key<CategoryChart> PROFILE_CATEGORY_CHART = Key.create("PROFILE_CATEGORY_CHART");
+    public static final Key<MetricTreeMap<JavaCode>> METRIC_TREE_MAP = Key.create("METRIC_TREE_MAP");
+    public static final Key<MetricTreeMap<JavaCode>> PROFILE_TREE_MAP = Key.create("PROFILE_TREE_MAP");
 
     private final UserDataHolder myUserDataHolder = new UserDataHolderBase();
     private final BackgroundTaskQueue queue = new BackgroundTaskQueue(MetricsUtils.getCurrentProject(), "MetricsTree Queue");
@@ -141,6 +144,8 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         putUserData(MetricTaskCache.BOX_CHARTS, null);
         putUserData(MetricTaskCache.HEAT_MAP_CHART, null);
         putUserData(MetricTaskCache.PROFILE_CATEGORY_CHART, null);
+        putUserData(MetricTaskCache.METRIC_TREE_MAP, null);
+        putUserData(MetricTaskCache.PROFILE_TREE_MAP, null);
     }
 
     private class MyAsyncVfsListener implements AsyncFileListener {

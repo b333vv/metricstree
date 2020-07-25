@@ -20,11 +20,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
-import org.b333vv.metric.task.PieChartTask;
 import org.b333vv.metric.task.ProfilesBoxChartTask;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildProfileBoxChartAction extends AbstractAction {
@@ -33,7 +29,7 @@ public class BuildProfileBoxChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearChartsPanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
             ProfilesBoxChartTask boxChartTask = new ProfilesBoxChartTask();
             MetricTaskCache.getQueue().run(boxChartTask);
         }
@@ -41,6 +37,6 @@ public class BuildProfileBoxChartAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

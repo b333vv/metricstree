@@ -48,8 +48,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 
 public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
-    private static final String SPLIT_PROPORTION_PROPERTY = "SPLIT_PROPORTION";
-
+    private final String splitProportionProperty;
     private MetricsTree metricsTree;
     private BottomPanel bottomPanel;
     private MetricsDescriptionPanel metricsDescriptionPanel;
@@ -64,10 +63,11 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     protected MetricTreeBuilder metricTreeBuilder;
     protected PsiJavaFile psiJavaFile;
 
-    public MetricsTreePanel(Project project, String actionId) {
+    public MetricsTreePanel(Project project, String actionId, String splitProportionProperty) {
         super(false, true);
         this.project = project;
-        createUIComponents();
+        this.splitProportionProperty = splitProportionProperty;
+        createUIComponents(splitProportionProperty);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction(actionId), false);
@@ -75,7 +75,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         setToolbar(actionToolbar.getComponent());
     }
 
-    final protected void createUIComponents() {
+    final protected void createUIComponents(String proportion) {
         metricsTree = new MetricsTree(null);
         metricsTree.addTreeSelectionListener(e -> treeSelectionChanged());
         bottomPanel = new BottomPanel();
@@ -83,7 +83,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         mainPanel.add(ScrollPaneFactory.createScrollPane(metricsTree), BorderLayout.CENTER);
         mainPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
         createRightPanels();
-        super.setContent(createSplitter(mainPanel, rightPanel));
+        super.setContent(createSplitter(mainPanel, rightPanel, proportion));
     }
 
     private void createRightPanels() {
@@ -106,9 +106,9 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         rightPanel.add(scrollableTablePanel);
     }
 
-    JComponent createSplitter(JComponent c1, JComponent c2) {
+    JComponent createSplitter(JComponent c1, JComponent c2, String proportion) {
         float savedProportion = PropertiesComponent.getInstance(project)
-                .getFloat(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY, (float) 0.65);
+                .getFloat(proportion, (float) 0.65);
 
         final JBSplitter splitter = new JBSplitter(false);
         splitter.setFirstComponent(c1);
@@ -116,7 +116,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         splitter.setProportion(savedProportion);
         splitter.setHonorComponentsMinimumSize(true);
         splitter.addPropertyChangeListener(Splitter.PROP_PROPORTION,
-                evt -> PropertiesComponent.getInstance(project).setValue(MetricsTreePanel.SPLIT_PROPORTION_PROPERTY,
+                evt -> PropertiesComponent.getInstance(project).setValue(proportion,
                         Float.toString(splitter.getProportion())));
         return splitter;
     }
@@ -212,7 +212,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         rightPanel.removeAll();
         mainPanel.removeAll();
         updateUI();
-        createUIComponents();
+        createUIComponents(splitProportionProperty);
     }
 
     abstract public void update(@NotNull PsiJavaFile file);
