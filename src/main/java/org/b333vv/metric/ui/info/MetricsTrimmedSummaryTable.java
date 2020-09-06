@@ -148,6 +148,9 @@ public class MetricsTrimmedSummaryTable {
         }
 
         private String getExcess(Metric metric) {
+            if (metric.getValue() == Value.UNDEFINED) {
+                return "-";
+            }
             Value to = MetricsService.getRangeForMetric(metric.getType()).getRegularTo();
             Value from = MetricsService.getRangeForMetric(metric.getType()).getRegularFrom();
             if (to == Value.UNDEFINED || from == Value.UNDEFINED) {
