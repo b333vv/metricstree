@@ -84,7 +84,15 @@ public enum MetricType {
     MIF("Method Inheritance Factor", MOOD, PROJECT, null),
     AIF( "Attribute Inheritance Factor", MOOD, PROJECT, null),
     CF("Coupling Factor", MOOD, PROJECT, null),
-    PF("Polymorphism Factor", MOOD, PROJECT, null);
+    PF("Polymorphism Factor", MOOD, PROJECT, null),
+
+    //Project/package statistics
+    PNOCC("Number Of Concrete Classes", STATISTIC, PACKAGE, null),
+    PNOAC("Number Of Abstract Classes", STATISTIC, PACKAGE, null),
+    PNOSC("Number Of Static Classes", STATISTIC, PACKAGE, null),
+    PNOI("Number Of Interfaces", STATISTIC, PACKAGE, null),
+    PNCSS("Non-Commenting Source Statements", STATISTIC, PACKAGE, null),
+    PLOC("Lines Of Code", STATISTIC, PACKAGE, null);
 
     private final String description;
     private final String url;

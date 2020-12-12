@@ -37,9 +37,8 @@ public class JavaPackage extends JavaCode {
     }
 
     public Stream<JavaClass> classes() {
-        return children.stream()
-                .filter(c -> c instanceof JavaClass)
-                .map(c -> (JavaClass) c)
+        return files()
+                .flatMap(JavaFile::classes)
                 .sorted(Comparator.comparing(JavaCode::getName));
     }
 

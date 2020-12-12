@@ -17,16 +17,22 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.analysis.AnalysisScope;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.*;
+import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.util.BucketedCount;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.model.util.MethodUtils;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
-public class RobertMartinMetricsSetCalculator {
+public class PackageMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
     private final JavaProject javaProject;
@@ -44,7 +50,7 @@ public class RobertMartinMetricsSetCalculator {
     private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
     private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
-    public RobertMartinMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
+    public PackageMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
         this.javaProject = javaProject;
@@ -52,10 +58,10 @@ public class RobertMartinMetricsSetCalculator {
 
     public void calculate() {
         scope.accept(new Visitor());
-        javaProject.allPackages().forEach(this::handle);
+        javaProject.allPackages().forEach(this::handlePackage);
     }
 
-    private void handle(@NotNull JavaPackage p) {
+    private void handlePackage(@NotNull JavaPackage p) {
         int afferentCoupling = dependents.getOrDefault(p.getPsiPackage(), new HashSet<>()).size();
         int efferentCoupling = externalDependenciesPerPackageNumber.getBucketValue(p.getPsiPackage());
         Value instability = (afferentCoupling + efferentCoupling) == 0 ? Value.of(1.0) :
@@ -73,7 +79,57 @@ public class RobertMartinMetricsSetCalculator {
 
         Value distance = Value.of(1.0).minus(instability).minus(abstractness).abs();
         p.addMetric(Metric.of(D, distance));
+
+        ApplicationManager.getApplication().runReadAction(() -> addStatisticMetrics(p));
     }
+
+    private void addStatisticMetrics(JavaPackage p) {
+        List<PsiClass> psiClasses = p.classes().map(JavaClass::getPsiClass).collect(Collectors.toList());
+        long concreteClassesNumber = 0;
+        long abstractClassesNumber = 0;
+        long staticClassesNumber = 0;
+        long interfacesNumber = 0;
+
+        for (PsiClass psiClass: psiClasses) {
+            if (ClassUtils.isConcreteClass(psiClass)) {
+                concreteClassesNumber++;
+            }
+            if (ClassUtils.isAbstractClass(psiClass)) {
+                abstractClassesNumber++;
+            }
+            if (ClassUtils.isStaticClass(psiClass)) {
+                staticClassesNumber++;
+            }
+            if (psiClass.isInterface()) {
+                interfacesNumber++;
+            }
+        }
+
+        long nonCommentingSourceStatements = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == NCSS)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        long linesOfCode = p
+                .classes()
+                .flatMap(JavaClass::methods)
+                .map(javaMethod -> javaMethod.metric(LOC).getValue())
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        p.addMetric(Metric.of(PNCSS, nonCommentingSourceStatements));
+        p.addMetric(Metric.of(PLOC, linesOfCode));
+        p.addMetric(Metric.of(PNOCC, concreteClassesNumber));
+        p.addMetric(Metric.of(PNOAC, abstractClassesNumber));
+        p.addMetric(Metric.of(PNOSC, staticClassesNumber));
+        p.addMetric(Metric.of(PNOI, interfacesNumber));
+    }
+
 
     private class Visitor extends JavaRecursiveElementVisitor {
         @Override

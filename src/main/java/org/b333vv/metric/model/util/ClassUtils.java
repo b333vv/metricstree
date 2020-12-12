@@ -31,11 +31,23 @@ public final class ClassUtils {
     }
 
     public static boolean isConcrete(PsiClass psiClass) {
-    return !(psiClass.isInterface() ||
+        return !(psiClass.isInterface() ||
             psiClass.isEnum() ||
             psiClass instanceof PsiAnonymousClass ||
             psiClass instanceof PsiTypeParameter ||
             psiClass.getParent() instanceof PsiDeclarationStatement);
+    }
+
+    public static boolean isAbstractClass(PsiClass aClass) {
+        return !aClass.isInterface() && aClass.hasModifierProperty(PsiModifier.ABSTRACT);
+    }
+
+    public static boolean isStaticClass(PsiClass aClass) {
+        return aClass.hasModifierProperty(PsiModifier.STATIC);
+    }
+
+    public static boolean isConcreteClass(PsiClass aClass) {
+        return !aClass.isInterface() && !aClass.isEnum() && !aClass.hasModifierProperty(PsiModifier.ABSTRACT);
     }
 
     public static boolean isAnonymous(PsiClass aClass) {

@@ -4,19 +4,33 @@ MetricsTree is an IDE extension that helps you evaluate quantitative properties 
 MetricsTree calculates metrics on project, package, class and method levels. 
 It supports the most common metric sets.
 # Metrics
-1. Project level - MOOD metrics set [1]:  
-    - MHF: Method Hiding Factor
-    - AHF: Attribute Hiding Factor
-    - MIF: Method Inheritance Factor
-    - AIF: Attribute Inheritance Factor
-    - PF: Polymorphism Factor
-    - CF: Coupling Factor
-2. Package level - Robert C. Martin metrics set [2, 3]:
-    - Ce: Efferent Coupling
-    - Ca: Afferent Coupling
-    - I: Instability
-    - A: Abstractness
-    - D: Normalized Distance from Main Sequence
+1. Project level:
+    - Non-Commenting Source Statements
+    - Lines Of Code
+    - Number Of Concrete Classes
+    - Number Of Abstract Classes
+    - Number Of Static Classes
+    - Number Of Interfaces
+    - MOOD metrics set [1]:  
+        - MHF: Method Hiding Factor
+        - AHF: Attribute Hiding Factor
+        - MIF: Method Inheritance Factor
+        - AIF: Attribute Inheritance Factor
+        - PF: Polymorphism Factor
+        - CF: Coupling Factor
+2. Package level
+    - Non-Commenting Source Statements
+    - Lines Of Code
+    - Number Of Concrete Classes
+    - Number Of Abstract Classes
+    - Number Of Static Classes
+    - Number Of Interfaces
+    - Robert C. Martin metrics set [2, 3]:
+        - Ce: Efferent Coupling
+        - Ca: Afferent Coupling
+        - I: Instability
+        - A: Abstractness
+        - D: Normalized Distance from Main Sequence
 3. Class level
     - Chidamber-Kemerer metrics set [4]:
         - WMC: Weighted methods per class

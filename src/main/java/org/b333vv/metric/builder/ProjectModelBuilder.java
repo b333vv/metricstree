@@ -20,6 +20,9 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
+import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
@@ -29,6 +32,7 @@ import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -131,14 +135,30 @@ public class ProjectModelBuilder extends ModelBuilder {
         javaProject.addToAllClasses(javaClass);
     }
 
+//    @Override
+//    protected Stream<JavaRecursiveElementVisitor> classVisitors() {
+//        return MetricsService.classVisitorsForProjectMetricsTree();
+//    }
+
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
-        return MetricsService.classVisitorsForProjectMetricsTree();
+        return Arrays.stream(MetricType.values())
+                .map(MetricType::visitor)
+                .filter(m -> m instanceof JavaClassVisitor);
     }
+
+//
+
+//    @Override
+//    protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
+//        return MetricsService.methodsVisitorsForProjectMetricsTree();
+//    }
 
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
-        return MetricsService.methodsVisitorsForProjectMetricsTree();
+        return Arrays.stream(MetricType.values())
+                .map(MetricType::visitor)
+                .filter(m -> m instanceof JavaMethodVisitor);
     }
 
 //    public void calculateDeferredMetrics() {

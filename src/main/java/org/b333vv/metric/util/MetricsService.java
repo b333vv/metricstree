@@ -28,7 +28,6 @@ import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
-import org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
@@ -72,29 +71,6 @@ public final class MetricsService {
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaMethodVisitor);
-    }
-
-    public static Stream<JavaRecursiveElementVisitor> classVisitorsForProjectMetricsTree() {
-        return MetricsUtils.getForProject(ProjectMetricsTreeSettings.class).getMetricsList().stream()
-                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-//                .filter(m -> (!getDeferredMetricTypes().contains(m.getType())))
-                .map(m -> m.getType().visitor())
-                .filter(m -> m instanceof JavaClassVisitor);
-    }
-
-    public static Stream<JavaRecursiveElementVisitor> methodsVisitorsForProjectMetricsTree() {
-        return MetricsUtils.getForProject(ProjectMetricsTreeSettings.class).getMetricsList().stream()
-                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> m.getType().visitor())
-                .filter(m -> m instanceof JavaMethodVisitor);
-    }
-
-    public static boolean isNeedToConsiderProjectMetrics() {
-        return MetricsUtils.getForProject(ProjectMetricsTreeSettings.class).isNeedToConsiderProjectMetrics();
-    }
-
-    public static boolean isNeedToConsiderPackageMetrics() {
-        return MetricsUtils.getForProject(ProjectMetricsTreeSettings.class).isNeedToConsiderPackageMetrics();
     }
 
     public static boolean isControlValidRanges() {

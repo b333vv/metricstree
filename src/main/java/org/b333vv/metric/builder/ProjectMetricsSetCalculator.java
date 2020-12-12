@@ -23,18 +23,21 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
+import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.model.util.MethodUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
-public class MoodMetricsSetCalculator {
+public class ProjectMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
     private final JavaProject javaProject;
@@ -65,7 +68,12 @@ public class MoodMetricsSetCalculator {
     private int overridingMethodsNumber = 0;
     private int overridePotentialsNumber = 0;
 
-    public MoodMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
+    private long concreteClassesNumber = 0;
+    private long abstractClassesNumber = 0;
+    private long staticClassesNumber = 0;
+    private long interfacesNumber = 0;
+
+    public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
         this.javaProject = javaProject;
@@ -86,6 +94,37 @@ public class MoodMetricsSetCalculator {
         addMethodHidingFactor();
         addMethodInheritanceFactor();
         addPolymorphismFactor();
+
+        addClassesCounters();
+        addClassesNonCommentingSourceStatements();
+        addLinesOfCode();
+    }
+
+    private void addClassesNonCommentingSourceStatements() {
+        long nonCommentingSourceStatements = javaProject.allClasses().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == NCSS)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+        javaProject.addMetric(Metric.of(PNCSS, nonCommentingSourceStatements));
+    }
+
+    private void addLinesOfCode() {
+        long linesOfCode = javaProject.allClasses()
+                .flatMap(JavaClass::methods)
+                .map(javaMethod -> javaMethod.metric(LOC).getValue())
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+        javaProject.addMetric(Metric.of(PLOC, linesOfCode));
+    }
+
+    private void addClassesCounters() {
+        javaProject.addMetric(Metric.of(PNOCC, concreteClassesNumber));
+        javaProject.addMetric(Metric.of(PNOAC, abstractClassesNumber));
+        javaProject.addMetric(Metric.of(PNOSC, staticClassesNumber));
+        javaProject.addMetric(Metric.of(PNOI, interfacesNumber));
     }
 
     private void addPolymorphismFactor() {
@@ -172,10 +211,27 @@ public class MoodMetricsSetCalculator {
             processMethodInheritanceFactor(aClass);
             processPolymorphismFactor(aClass);
 
+            processStatisticMetrics(aClass);
+
             indicator.setText("Calculating metrics on project level: processing class " + aClass.getName() + "...");
             progress++;
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
+        }
+
+        private void processStatisticMetrics(@NotNull PsiClass psiClass) {
+            if (ClassUtils.isConcreteClass(psiClass)) {
+                concreteClassesNumber++;
+            }
+            if (ClassUtils.isAbstractClass(psiClass)) {
+                abstractClassesNumber++;
+            }
+            if (ClassUtils.isStaticClass(psiClass)) {
+                staticClassesNumber++;
+            }
+            if (psiClass.isInterface()) {
+                interfacesNumber++;
+            }
         }
 
         private void processPolymorphismFactor(@NotNull PsiClass psiClass) {

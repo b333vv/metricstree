@@ -63,6 +63,17 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2020.1.8: The following set of metrics:
+                <ul>
+                    <li>Lines Of Code</li>
+                    <li>Non-Commenting Source Statements</li>
+                    <li>Number Of Concrete Classes</li>
+                    <li>Number Of Abstract Classes</li>
+                    <li>Number Of Static Classes</li>
+                    <li>Number Of Interfaces</li>
+                </ul>
+                at both package and project levels implemented.
+            </li>
             <li>2020.1.7:
                 <ul>
                     <li>Added treemaps with metric values and profiles distributions, displaying classes proportionally
@@ -104,7 +115,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.7</version>
+    <version>2020.1.8</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -131,9 +142,6 @@
         </component>
         <component>
             <implementation-class>org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.b333vv.metric.ui.settings.composition.ProjectMetricsTreeSettings</implementation-class>
         </component>
         <component>
             <implementation-class>org.b333vv.metric.ui.log.MetricsConsole</implementation-class>

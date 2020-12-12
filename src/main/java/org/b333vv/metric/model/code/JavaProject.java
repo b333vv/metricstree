@@ -31,7 +31,7 @@ public class JavaProject extends JavaCode {
     public JavaProject(@NotNull String name) {
         super(name);
         allPackages = new ConcurrentHashMap<>();
-        allClasses = new ConcurrentHashMap<JavaClass, Boolean>().keySet(true);;
+        allClasses = new ConcurrentHashMap<JavaClass, Boolean>().keySet(true);
     }
 
     public Stream<JavaPackage> packages() {

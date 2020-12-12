@@ -20,7 +20,7 @@ import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.builder.MoodMetricsSetCalculator;
+import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -46,9 +46,9 @@ public class ProjectMetricTask extends Task.Backgroundable {
             javaProject = getPackageModel(indicator);
             AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
             scope.setIncludeTestSource(false);
-            MoodMetricsSetCalculator moodMetricsSetCalculator = new MoodMetricsSetCalculator(scope,
+            ProjectMetricsSetCalculator projectMetricsSetCalculator = new ProjectMetricsSetCalculator(scope,
                     MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
-            moodMetricsSetCalculator.calculate();
+            projectMetricsSetCalculator.calculate();
             MetricTaskCache.instance().putUserData(MetricTaskCache.PROJECT_METRICS, javaProject);
         }
     }

@@ -63,9 +63,9 @@ public class MetricsSummaryTable {
     }
 
     public void hideColumn(int index) {
-        table.getColumnModel().getColumn(index).setWidth(0);;
-        table.getColumnModel().getColumn(index).setMinWidth(0);;
-        table.getColumnModel().getColumn(index).setMaxWidth(0);;
+        table.getColumnModel().getColumn(index).setWidth(0);
+        table.getColumnModel().getColumn(index).setMinWidth(0);
+        table.getColumnModel().getColumn(index).setMaxWidth(0);
     }
 
     private void hideOrShowValidValuesColumn(boolean controlValidRanges) {

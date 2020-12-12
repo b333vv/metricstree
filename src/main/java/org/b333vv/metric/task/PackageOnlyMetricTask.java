@@ -19,9 +19,9 @@ package org.b333vv.metric.task;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.PackagesCalculator;
-import org.b333vv.metric.builder.RobertMartinMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -49,9 +49,9 @@ public class PackageOnlyMetricTask extends Task.Backgroundable {
             scope.setIncludeTestSource(false);
             PackagesCalculator packagesCalculator = new PackagesCalculator(scope);
             javaProject = packagesCalculator.calculatePackagesStructure();
-            RobertMartinMetricsSetCalculator robertMartinMetricsSetCalculator = new RobertMartinMetricsSetCalculator(scope,
+            PackageMetricsSetCalculator packageMetricsSetCalculator = new PackageMetricsSetCalculator(scope,
                     MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
-            robertMartinMetricsSetCalculator.calculate();
+            packageMetricsSetCalculator.calculate();
             MetricTaskCache.instance().putUserData(MetricTaskCache.PACKAGE_ONLY_METRICS, javaProject);
         }
     }
