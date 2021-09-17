@@ -21,16 +21,24 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricLevel;
+import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static icons.MetricsIcons.CLASS_METRIC;
+import static icons.MetricsIcons.PROJECT_METRIC;
 
 public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 
@@ -41,16 +49,35 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
             JavaProject javaProject = (JavaProject) javaCode;
-            ProjectNode projectNode = new ProjectNode(javaProject, "whole project metrics", AllIcons.Nodes.Project);
+            ProjectNode projectNode = new ProjectNode(javaProject, "Project Metrics", AllIcons.Nodes.Project);
             model = new DefaultTreeModel(projectNode);
             model.setRoot(projectNode);
-            if (getMetricsTreeFilter().isProjectMetricsVisible()
-                    && getMetricsTreeFilter().isMoodMetricsSetVisible()) {
-                javaProject.metrics()
-                        .filter(this::mustBeShown)
-                        .map(ProjectMetricNode::new)
-                        .forEach(projectNode::add);
+            if (getMetricsTreeFilter().isProjectMetricsVisible()) {
+                if (getMetricsTreeFilter().isMetricsGroupedByMetricSets()) {
+                    for (MetricSet metricSet : MetricSet.values()) {
+                        if (!getMetricsTreeFilter().isMoodMetricsSetVisible() && metricSet == MetricSet.MOOD) {
+                            continue;
+                        }
+                        if (metricSet.level() == MetricLevel.PROJECT || metricSet.level() == MetricLevel.PROJECT_PACKAGE) {
+                            MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, PROJECT_METRIC);
+                            projectNode.add(metricsSetNode);
+                            addMetrics(javaProject.metrics()
+                                            .filter(m -> m.getType().set() == metricSet),
+                                    metricsSetNode,
+                                    PROJECT_METRIC);
+                        }
+                    }
+                } else {
+                    if (getMetricsTreeFilter().isMoodMetricsSetVisible()) {
+                        addMetrics(javaProject.metrics(), projectNode, PROJECT_METRIC);
+                    }
+                    else {
+                        addMetrics(javaProject.metrics()
+                                .filter(m -> m.getType().set() == MetricSet.STATISTIC), projectNode, PROJECT_METRIC);
+                    }
+                }
             }
+ 
             if (getMetricsTreeFilter().isPackageMetricsVisible()
                     || getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
@@ -62,6 +89,13 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         });
             }
             return model;
+    }
+
+    private void addMetrics(Stream<Metric> metrics, AbstractNode node, Icon icon) {
+                metrics
+                    .filter(this::mustBeShown)
+                    .map(m -> new MetricNode(m, icon))
+                    .forEach(node::add);
     }
 
     private void addPackages(PackageNode parentNode) {
@@ -77,12 +111,32 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 
     private void addPackageMetrics(PackageNode packageNode) {
         if (getMetricsTreeFilter().isPackageMetricsVisible()
-                && getMetricsTreeFilter().isRobertMartinMetricsSetVisible()
                 && !packageNode.getJavaPackage().files().collect(Collectors.toSet()).isEmpty()) {
-            packageNode.getJavaPackage().metrics()
-                    .filter(this::mustBeShown)
-                    .map(PackageMetricNode::new)
-                    .forEach(packageNode::add);
+            if (getMetricsTreeFilter().isMetricsGroupedByMetricSets()) {
+                for (MetricSet metricSet : MetricSet.values()) {
+                    if (!getMetricsTreeFilter().isRobertMartinMetricsSetVisible() && metricSet == MetricSet.R_MARTIN) {
+                        continue;
+                    }
+                    if (metricSet.level() == MetricLevel.PACKAGE || metricSet.level() == MetricLevel.PROJECT_PACKAGE) {
+                        MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, PROJECT_METRIC);
+                        packageNode.add(metricsSetNode);
+                        packageNode.getJavaPackage().metrics()
+                                .filter(m -> m.getType().set() == metricSet)
+                                .filter(this::mustBeShown)
+                                .map(ProjectMetricNode::new)
+                                .forEach(metricsSetNode::add);
+                    }
+                }
+            }
+            else {
+                if (getMetricsTreeFilter().isRobertMartinMetricsSetVisible()) {
+                    addMetrics(packageNode.getJavaPackage().metrics(), packageNode, PROJECT_METRIC);
+                }
+                else {
+                    addMetrics(packageNode.getJavaPackage().metrics()
+                            .filter(m -> m.getType().set() == MetricSet.STATISTIC), packageNode, PROJECT_METRIC);
+                }
+            }
         }
     }
 
@@ -99,17 +153,74 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                                     .forEach(c -> {
                                         fileNode.add(c);
                                         addSubClasses(c);
-                                        addTypeMetricsAndMethodNodes(c);
+                                        addMethodNodes(c);
+                                        addTypeMetrics(c);
                                     });
                         } else if (f.classes().findFirst().isPresent()) {
                             JavaClass javaClass = f.classes().findFirst().get();
                             ClassNode classNode = new ClassNode(javaClass);
                             parentNode.add(classNode);
                             addSubClasses(classNode);
-                            addTypeMetricsAndMethodNodes(classNode);
+                            addTypeMetrics(classNode);
+                            addMethodNodes(classNode);
                         }
                     });
         }
+    }
+
+
+    private void addMethodNodes(ClassNode classNode) {
+        if (getMetricsTreeFilter().isMethodMetricsVisible()) {
+            classNode.getJavaClass().methods()
+                    .map(MethodNode::new)
+                    .forEach(m -> {
+                        classNode.add(m);
+                        if (getMetricsTreeFilter().isMethodMetricsVisible()) {
+                            addMethodMetricsNodes(m);
+                        }});
+        }
+
+    }
+
+    private void addTypeMetrics(ClassNode classNode) {
+        if (getMetricsTreeFilter().isClassMetricsVisible()) {
+            if (getMetricsTreeFilter().isMetricsGroupedByMetricSets()) {
+                for (MetricSet metricSet : MetricSet.values()) {
+                    if (metricSet.level() == MetricLevel.CLASS) {
+                        MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, CLASS_METRIC);
+                        classNode.add(metricsSetNode);
+                        classNode.getJavaClass().metrics()
+                                .filter(m -> m.getType().set() == metricSet)
+                                .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
+                                .map(ClassMetricNode::new)
+                                .forEach(m -> {
+                                    metricsSetNode.add(m);
+                                    storeMetric(classNode, m);
+                                });
+                    }
+                }
+            }
+            else {
+                classNode.getJavaClass().metrics()
+                        .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
+                        .map(ClassMetricNode::new)
+                        .forEach(m -> {
+                            classNode.add(m);
+                            storeMetric(classNode, m);
+                        });
+            }
+        }
+    }
+
+    @Override
+    protected void addMethodMetricsNodes(MethodNode methodNode) {
+        methodNode.getJavaMethod().metrics()
+                .filter(this::mustBeShown)
+                .map(MethodMetricNode::new)
+                .forEach(m -> {
+                    methodNode.add(m);
+                    storeMetric(methodNode, m);
+                });
     }
 
     @Override

@@ -146,7 +146,7 @@ public class MetricsSummaryTable {
                 case 1:
                     return "Metric";
                 case 2:
-                    return "Metric Set";
+                    return "Metrics Set";
                 case 3:
                     return "Description";
                 case 4:

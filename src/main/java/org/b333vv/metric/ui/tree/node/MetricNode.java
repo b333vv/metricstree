@@ -34,13 +34,20 @@ import javax.swing.*;
 public class MetricNode extends AbstractNode {
 
     protected final Metric metric;
+    protected final Icon icon;
+
+    public MetricNode(Metric metric, Icon icon) {
+        this.metric = metric;
+        this.icon = icon;
+    }
 
     public MetricNode(Metric metric) {
         this.metric = metric;
+        this.icon = AllIcons.Nodes.Artifact;
     }
 
     protected Icon getIcon() {
-        return AllIcons.Nodes.Artifact;
+        return icon;
     }
 
     protected String getMetricName() {

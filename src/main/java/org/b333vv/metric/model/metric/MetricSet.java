@@ -17,24 +17,29 @@
 package org.b333vv.metric.model.metric;
 
 public enum MetricSet {
-    UNDEFINED(""),
-    CHIDAMBER_KEMERER("Chidamber-Kemerer Metrics Set"),
-    LORENZ_KIDD("Lorenz-Kidd Metrics Set"),
-    LI_HENRY("Li-Henry Metrics Set"),
-    LANZA_MARINESCU("Lanza-Marinescu Metrics Set"),
-    BIEMAN_KANG("Bieman-Kang Metrics Set"),
-    CLEMENS_LEE("Chr. Clemens Lee Metrics Set"),
-    R_MARTIN("Robert C. Martin Metrics Set"),
-    MOOD("MOOD Metrics Set"),
-    STATISTIC("Project Statistic");
+    UNDEFINED("", MetricLevel.UNDEFINED),
+    CHIDAMBER_KEMERER("Chidamber-Kemerer Metrics Set", MetricLevel.CLASS),
+    LORENZ_KIDD("Lorenz-Kidd Metrics Set", MetricLevel.CLASS),
+    LI_HENRY("Li-Henry Metrics Set", MetricLevel.CLASS),
+    LANZA_MARINESCU("Lanza-Marinescu Metrics Set", MetricLevel.CLASS),
+    BIEMAN_KANG("Bieman-Kang Metrics Set", MetricLevel.CLASS),
+    CLEMENS_LEE("Chr. Clemens Lee Metrics Set", MetricLevel.CLASS),
+    R_MARTIN("Robert C. Martin Metrics Set", MetricLevel.PACKAGE),
+    MOOD("MOOD Metrics Set", MetricLevel.PROJECT),
+    STATISTIC("Statistics", MetricLevel.PROJECT_PACKAGE);
 
     private final String set;
+    private final MetricLevel level;
 
-    MetricSet(String set) {
+    MetricSet(String set, MetricLevel level) {
         this.set = set;
+        this.level = level;
     }
 
     public String set() {
         return set;
+    }
+    public MetricLevel level() {
+        return level;
     }
 }

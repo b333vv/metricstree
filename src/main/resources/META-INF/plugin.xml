@@ -63,6 +63,13 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2020.1.9:
+                <ul>
+                    <li>Added ability to group metrics by its sets
+                    (Chidamber-Kemerer, Robert C. Martin etc.) on project metrics tree.</li>
+                    <li>A minor bug fixed.</li>
+                </ul>
+            </li>
             <li>2020.1.8: The following set of metrics:
                 <ul>
                     <li>Lines Of Code</li>
@@ -115,7 +122,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.8</version>
+    <version>2020.1.9</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -341,6 +348,9 @@
                 class="org.b333vv.metric.actions.treefilters.classtree.ShowLiHenryMetrics">
         </action>
 
+        <action id="Metrics.ProjectTreeGroupMetricsByMetricsSets"
+                class="org.b333vv.metric.actions.treefilters.projecttree.ProjectTreeGroupMetricsByMetricSets">
+        </action>
         <action id="Metrics.ProjectTreeShowProjectMetrics"
                 class="org.b333vv.metric.actions.treefilters.projecttree.ProjectTreeShowProjectMetrics">
         </action>
@@ -407,6 +417,8 @@
         </group>
 
         <group id="Metrics.FilterProjectMetricsTreeGroup">
+            <reference id="Metrics.ProjectTreeGroupMetricsByMetricsSets"/>
+            <separator/>
             <reference id="Metrics.ProjectTreeShowProjectMetrics"/>
             <reference id="Metrics.ProjectTreeShowPackageMetrics"/>
             <reference id="Metrics.ProjectTreeShowClassMetrics"/>

@@ -139,7 +139,13 @@ public final class MetricsUtils {
     }
 
     public static <T> T getForProject(Class<T> clazz) {
-        return instance().currentProject.getComponent(clazz);
+        Project project = instance().currentProject;
+        if (project != null) {
+            return instance().currentProject.getComponent(clazz);
+        }
+        else {
+            return get(clazz);
+        }
     }
 
     public static <T> T get(Class<T> clazz) {

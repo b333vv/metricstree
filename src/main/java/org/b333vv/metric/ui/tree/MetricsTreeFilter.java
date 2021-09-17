@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.tree;
 
 public class MetricsTreeFilter {
+    private boolean metricsGroupedByMetricSets;
     private boolean projectMetricsVisible;
     private boolean packageMetricsVisible;
     private boolean classMetricsVisible;
@@ -33,6 +34,7 @@ public class MetricsTreeFilter {
     private boolean lanzaMarinescuMetricsSetVisible;
 
     public MetricsTreeFilter() {
+        this.metricsGroupedByMetricSets = true;
         this.projectMetricsVisible = true;
         this.packageMetricsVisible = true;
         this.classMetricsVisible = true;
@@ -47,6 +49,14 @@ public class MetricsTreeFilter {
         this.moodMetricsSetVisible = true;
         this.liHenryMetricsSetVisible = true;
         this.lanzaMarinescuMetricsSetVisible = true;
+    }
+
+    public boolean isMetricsGroupedByMetricSets() {
+        return metricsGroupedByMetricSets;
+    }
+
+    public void setMetricsGroupedByMetricSets(boolean metricsGroupedByMetricSets) {
+        this.metricsGroupedByMetricSets = metricsGroupedByMetricSets;
     }
 
     public boolean isProjectMetricsVisible() {

@@ -17,10 +17,12 @@
 package org.b333vv.metric.model.metric;
 
 public enum MetricLevel {
+    UNDEFINED("Undefined"),
     CLASS("Class Level"),
     METHOD("Method Level"),
     PACKAGE("Package Level"),
-    PROJECT("Project Level");
+    PROJECT("Project Level"),
+    PROJECT_PACKAGE("Project and Package Levels");
 
     private final String level;
 
