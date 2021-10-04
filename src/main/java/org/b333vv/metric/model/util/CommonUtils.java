@@ -39,8 +39,9 @@ public final class CommonUtils {
     }
 
     static long countLines(String text) {
-        if(text == null)
+        if (text == null || text.isBlank()) {
             return 0;
+        }
         
         long lines = 0;
         boolean onEmptyLine = true;
