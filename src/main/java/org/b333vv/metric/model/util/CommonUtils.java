@@ -39,6 +39,9 @@ public final class CommonUtils {
     }
 
     static long countLines(String text) {
+        if(text == null)
+            return 0;
+        
         long lines = 0;
         boolean onEmptyLine = true;
         final char[] chars = text.toCharArray();
