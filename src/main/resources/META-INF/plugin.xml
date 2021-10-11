@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2020.1.10:
+                <ul>
+                    <li>Fixed bug with NPE.</li>
+                </ul>
+            </li>
             <li>2020.1.9:
                 <ul>
                     <li>Added ability to group metrics by its sets
