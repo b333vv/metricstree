@@ -248,6 +248,7 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     }
 
     private void showResults(@NotNull CategoryChart categoryChart) {
+        mainPanel = new JBPanel<>(new BorderLayout());
         chartPanel = new XChartPanel<>(categoryChart);
         JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
                 chartPanel,
