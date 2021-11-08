@@ -58,7 +58,7 @@ public class XmlExporter implements Exporter {
             MetricsUtils.getConsole().error(e.getMessage());
         }
         if (xmlOutputFile.exists()) {
-            MetricsUtils.getConsole().info("Project, packages, classes and methods metrics was exported in "
+            MetricsUtils.getConsole().info("Project, packages, classes and methods metrics have been exported in "
                     + xmlOutputFile.getAbsolutePath());
         }
     }

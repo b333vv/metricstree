@@ -1,0 +1,68 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Robert C. Martin Metrics Set</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Robert C. Martin Metrics Set</h3>
+<p class="main">
+    The set of package level metrics proposed for the first time by Robert Cecil Martin in [1]
+    and then described in his 2002 book Agile software development: principles, patterns, and practices [2].
+</p>
+<p class="values">
+    Afferent couplings (Ca):
+</p>
+<p class="main">
+    The number of classes in other packages that depend upon classes within the package is an indicator of the package's responsibility. Afferent couplings signal inward.
+</p>
+<p class="values">
+    Efferent couplings (Ce):
+</p>
+<p class="main">
+    The number of classes in other packages that the classes in a package depend upon is an indicator of the package's dependence on externalities. Efferent couplings signal outward.
+</p>
+<p class="values">
+    Abstractness (A):
+</p>
+<p class="main">
+    The ratio of the number of abstract classes (and interfaces) in the analyzed package to the total number of classes in the analyzed package. The range for this metric is 0 to 1, with A=0 indicating a completely concrete package and A=1 indicating a completely abstract package.
+</p>
+<p class="values">
+    Instability (I):
+</p>
+<p class="main">
+    The ratio of efferent coupling (Ce) to total coupling (Ce + Ca) such that I = Ce / (Ce + Ca). This metric is an indicator of the package's resilience to change. The range for this metric is 0 to 1, with I=0 indicating a completely stable package and I=1 indicating a completely unstable package.
+</p>
+<p class="values">
+    Distance from the main sequence (D):
+</p>
+<p class="main">
+    The perpendicular distance of a package from the idealized line A + I = 1. D is calculated as D = | A + I - 1 |. This metric is an indicator of the package's balance between abstractness and stability. A package squarely on the main sequence is optimally balanced with respect to its abstractness and stability. Ideal packages are either completely abstract and stable (I=0, A=1) or completely concrete and unstable (I=1, A=0). The range for this metric is 0 to 1, with D=0 indicating a package that is coincident with the main sequence and D=1 indicating a package that is as far from the main sequence as possible.
+</p>
+<p class="sources">
+    [1] Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
+</p>
+<p class="sources">
+    [2] Martin, R. C. Agile Software Development: Principles, Patterns, and Practices.
+    Alant Apt Series. Prentice Hall, Upper Saddle River, NJ, USA 2002
+</p>
+</body>
+</html>

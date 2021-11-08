@@ -91,7 +91,7 @@ public final class MetricsUtils {
     }
 
     public static DumbService getDumbService() {
-        return DumbServiceImpl.getInstance(instance().currentProject);
+        return DumbService.getInstance(instance().currentProject);
     }
 
     public static MetricsTreeFilter getClassMetricsTreeFilter() {

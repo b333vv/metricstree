@@ -27,14 +27,18 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.util.MethodUtils;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static org.b333vv.metric.model.metric.MetricLevel.PROJECT;
+import static org.b333vv.metric.model.metric.MetricSet.QMOOD;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class ProjectMetricsSetCalculator {
@@ -73,6 +77,7 @@ public class ProjectMetricsSetCalculator {
     private long staticClassesNumber = 0;
     private long interfacesNumber = 0;
 
+
     public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
@@ -88,16 +93,166 @@ public class ProjectMetricsSetCalculator {
 
         indicator.setText("Calculating metrics");
 
+        calculateMood();
+
+        calculateStatistics();
+
+        calculateQmood();
+    }
+
+    private void calculateQmood() {
+        double zCoupling = calculateZCoupling();
+        double zCohesion = calculateZCohesion();
+        double zMessaging = calculateZMessaging();
+        double zDesignSize = calculateZDesignSize();
+        double zEncapsulation = 1.0;
+        double zComposition = calculateZComposition();
+        double zPolymorphism = calculateZPolymorphism();
+        double zAbstraction = calculateZAbstraction();
+        double zComplexity = calculateZComplexity();
+        double zHierarchies = calculateZHierarchies();
+        double zInheritance = calculateZInheritance();
+
+        double Reusability = -0.25 * zCoupling + 0.25 * zCohesion + 0.5 * zMessaging + 0.5 * zDesignSize;
+        double Flexibility = 0.25 * zEncapsulation -0.25 * zCoupling + 0.5 * zComposition + 0.5 * zPolymorphism;
+        double Understandability = -0.33 * zAbstraction + 0.33 * zEncapsulation - 0.33 * zCoupling
+                + 0.33 * zCohesion - 0.33 * zPolymorphism - 0.33 * zComplexity - 0.33 * zDesignSize;
+        double Functionality = 0.12 * zCohesion + 0.22 * zPolymorphism + 0.22 * zMessaging + 0.22 * zDesignSize
+                + 0.22 * zHierarchies;
+        double Extendibility = 0.5 * zAbstraction - 0.5 * zCoupling + 0.5 * zInheritance + 0.5 * zPolymorphism;
+        double Effectiveness = 0.2 * zAbstraction + 0.2 * zEncapsulation + 0.2 * zComposition
+                + 0.2 * zInheritance + 0.2 * zPolymorphism;
+
+        javaProject.addMetric(Metric.of(MetricType.Reusability, Reusability));
+        javaProject.addMetric(Metric.of(MetricType.Flexibility, Flexibility));
+        javaProject.addMetric(Metric.of(MetricType.Understandability, Understandability));
+        javaProject.addMetric(Metric.of(MetricType.Functionality, Functionality));
+        javaProject.addMetric(Metric.of(MetricType.Extendibility, Extendibility));
+        javaProject.addMetric(Metric.of(MetricType.Effectiveness, Effectiveness));
+    }
+
+    private void calculateStatistics() {
+        addClassesCounters();
+        addClassesNonCommentingSourceStatements();
+        addLinesOfCode();
+    }
+
+    private void calculateMood() {
         addAttributeHidingFactor();
         addAttributeInheritanceFactor();
         addCouplingFactor();
         addMethodHidingFactor();
         addMethodInheritanceFactor();
         addPolymorphismFactor();
+    }
 
-        addClassesCounters();
-        addClassesNonCommentingSourceStatements();
-        addLinesOfCode();
+    private double calculateZCoupling() {
+        return calculateZScore(
+                javaProject.allPackages().flatMap(JavaCode::metrics)
+                    .filter(metric -> metric.getType() == Ce)
+                    .map(Metric::getValue)
+                    .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZCohesion() {
+        return 1.0/calculateZScore(
+                javaProject.allClasses().flatMap(JavaCode::metrics)
+                    .filter(metric -> metric.getType() == LCOM)
+                    .map(Metric::getValue)
+                    .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZMessaging() {
+        return calculateZScore(
+                javaProject.allClasses().flatMap(JavaCode::metrics)
+                    .filter(metric -> metric.getType() == NOM)
+                    .map(Metric::getValue)
+                    .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZDesignSize() {
+        return calculateZScore(
+                javaProject.allPackages().flatMap(JavaCode::metrics)
+                        .filter(metric -> metric.getType() == PNOCC)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZComposition() {
+            return calculateZScore(
+                    javaProject.allClasses().flatMap(JavaCode::metrics)
+                            .filter(metric -> metric.getType() == NOA)
+                            .map(Metric::getValue)
+                            .collect(Collectors.toUnmodifiableList())
+            );
+    }
+
+    private double calculateZPolymorphism() {
+        return calculateZScore(
+                javaProject.allClasses().flatMap(JavaCode::metrics)
+                        .filter(metric -> metric.getType() == NOOM)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZAbstraction() {
+        return calculateZScore(
+                javaProject.allPackages().flatMap(JavaCode::metrics)
+                        .filter(metric -> metric.getType() == A)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZComplexity() {
+        return calculateZScore(
+                javaProject.allClasses().flatMap(JavaCode::metrics)
+                        .filter(metric -> metric.getType() == WMC)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZHierarchies() {
+        return calculateZScore(
+                javaProject.allClasses().flatMap(JavaCode::metrics)
+                        .filter(metric -> metric.getType() == DIT)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
+        );
+    }
+
+    private double calculateZInheritance() {
+        List<JavaCode> classes = javaProject.allClasses()
+                .collect(Collectors.toUnmodifiableList());
+        double zInheritance = 0.0;
+        for (JavaCode aClass : classes) {
+            Value nom = aClass.metric(NOM).getValue();
+            Value noom = aClass.metric(NOOM).getValue();
+            if (nom.isGreaterThan(Value.of(0))) {
+                zInheritance = zInheritance + (noom.divide(nom.times(Value.of(100)))).doubleValue();
+            }
+        }
+        return zInheritance;
+    }
+
+    private double calculateZScore(List<Value> source) {
+        Value max = source.stream().max(Value::compareTo).orElse(Value.ZERO);
+        Value avg = source.stream().reduce(Value::plus).orElse(Value.ZERO)
+                .divide(Value.of(source.size()));
+        Value dispersion = source.stream()
+                .map(v -> v.minus(avg).pow(2))
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .divide(Value.of(source.size()));
+        Value std = Value.of(Math.sqrt(dispersion.doubleValue()));
+        Value zScore = max.minus(avg).divide(std);
+        return zScore.doubleValue();
     }
 
     private void addClassesNonCommentingSourceStatements() {

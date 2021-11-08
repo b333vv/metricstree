@@ -98,7 +98,6 @@ public class MetricsDescriptionPanel {
     public void setMetric(Metric metric) {
         Border b = IdeBorderFactory.createTitledBorder(metric.getType().description());
         rightMetricPanel.setBorder(b);
-
         metricLevel.setText(metric.getType().level().level());
         metricSet.setText(metric.getType().set().set());
         if (metric.getType().set() == MetricSet.MOOD) {
@@ -109,14 +108,7 @@ public class MetricsDescriptionPanel {
             currentValue.setText(metric.getValue().toString());
         }
 
-        try {
-            URL url = MetricsDescriptionPanel.class.getResource(metric.getType().url());
-            metricDescription.setPage(url);
-        } catch (Exception e) {
-            MetricsUtils.getConsole().error(e.getMessage());
-            metricDescription.setContentType("text/html");
-            metricDescription.setText("<html>Page not found.</html>");
-        }
+        showDescription(metric.getType().url());
 
         if (MetricsService.isControlValidRanges()) {
             if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
@@ -146,15 +138,30 @@ public class MetricsDescriptionPanel {
         metricLevel.setText(metricType.level().level());
         metricSet.setText(metricType.set().set());
 
+        showDescription(metricType.url());
+        allowableRangeValue.setText("");
+    }
+
+    public void setMetric(MetricSet metricsSet) {
+        Border b = IdeBorderFactory.createTitledBorder(metricsSet.set());
+        rightMetricPanel.setBorder(b);
+
+        metricLevel.setText(metricsSet.level().level());
+        metricSet.setText(metricsSet.set());
+
+        showDescription(metricsSet.url());
+        allowableRangeValue.setText("");
+    }
+
+    private void showDescription(String stringUrl) {
         try {
-            URL url = MetricsDescriptionPanel.class.getResource(metricType.url());
+            URL url = MetricsDescriptionPanel.class.getResource(stringUrl);
             metricDescription.setPage(url);
         } catch (Exception e) {
             MetricsUtils.getConsole().error(e.getMessage());
             metricDescription.setContentType("text/html");
             metricDescription.setText("<html>Page not found.</html>");
         }
-        allowableRangeValue.setText("");
     }
 
     public void clear() {

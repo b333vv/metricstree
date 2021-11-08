@@ -27,10 +27,10 @@
             <h3>Core metrics sets</h3>
             <ul>
                 <li>
-                   Project level: MOOD metrics set
+                   Project level: MOOD & QMOOD metrics sets, general statistics
                 </li>
                 <li>
-                   Package level: Robert C. Martin metrics set
+                   Package level: Robert C. Martin metrics set, general statistics
                 </li>
                 <li>
                    Class and method levels: Chidamber-Kemerer, Lorenz-Kidd, Li-Henry and Lanza-Marinescu metrics sets
@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2020.1.12:
+                <ul>
+                    <li>QMOOD metrics set added.</li>
+                </ul>
+            </li>
             <li>2020.1.11:
                 <ul>
                     <li>Fixed bug with displaying distribution of classes by metric profiles chart.</li>
@@ -132,7 +137,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.11</version>
+    <version>2020.1.12</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 

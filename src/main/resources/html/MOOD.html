@@ -1,0 +1,96 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MOOD</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>MOOD</h3>
+<p class="main">
+    The MOOD metric set [1] is used to measure the properties of the system in which the design of the system is
+    according to the concepts of Object-Oriented Design that is Encapsulation,
+    Coupling, Inheritance, Information Hiding, Polymorphism.
+    The set contains six main metrics to measure the design of the system.
+</p>
+<p class="values">
+    1.  Method Hiding Factor(MHF)  and Attribute Hiding  Factor(AHF)
+</p>
+<p class="main">
+    To measure how the attributes and methods of one class are encapsulated,
+    Method and Attribute hiding factors are being used. MHF and AHF show the average amount of how the members of a
+    class are hidden in the system. MHF and AHF are 100% of all the members hid, nut in the real world it
+    is next to impossible because a class should communicate with other classes to provide different
+    functionality of the system. It is not possible if the members are hidden Generally hiding the
+    increase in the following order. Public, Protected Friend, Friend, Protected Friend.
+    If we have low MHF, then the methods are visible to almost every class.
+    The methods are unprotected and can be subjected to changes by any class.
+    The methods have a high tendency of reusability. In another case, if we have high MHF,
+    then methods are not visible to many class and they can not understand the working of it.
+    These methods can be used only by the class containing it and it has less tendency of reusability.
+</p>
+<p class="values">
+    2. Method Inheritance Factor  (MIF) and Attribute Inheritance Factor(AIF)
+</p>
+<p class="main">
+    In Inheritance, the child or subclass inherits the properties (Attribute and Methods) of
+    the parent or superclass. The extent to which these methods and attributes are inherited is defined by
+    Method Inheritance Factor(MIF) and Attribute Inheritance Factor(AIF).
+    A child class that inherits a large number of methods and attributes from its parent class contains a
+    large value of MIF and AIF. As anything in a very small amount of very high amounts is harmful, the same case
+    is with MIF and AIF. These values should be in a reasonable range.
+    The low value of AHF shows that class should not inherit the attributes but rather the attributes
+    should be private to the class. The child class can make some changes (override)  in the inherited methods.
+</p>
+<p class="values">
+    3.  Polymorphism Factor (PF / POF)
+</p>
+<p class="main">
+    To measure the degree or extent of method overriding by the child class form the parent or superclass,
+    Polymorphism Factor (PF) is used. In polymorphism, the child class can implement the method in a different way.
+    The same method can be implemented in different ways in the child and parent class. It is defined by the ratio
+    of an actual number of method overrides and the maximum number of total method overrides.
+    To keep the code clean and clear and provide high quality we can use high PF but it increases the complexity
+    of the system. Polymorphism factor is associated with method overriding, it is not associated with method
+    overloading.
+</p>
+<p class="values">
+    4. Coupling Factor (CF / COF)
+</p>
+<p class="main">
+    If two or more clauses are related to each other by means of inheritance or aggregation or association then,
+    in that case, these classes are said to be coupled. Many functionalities of the system can be done with the
+    help of coupled classes. It is not advisable to have too many independent classes. The high value of Cf
+    shows that the classes of the system are more inter-connected and inter-dependent. This leads to the problem that
+    sometimes it is very hard to change or repair the system in case of any bugs or problem because the
+    functionality in which the bug is, could be implemented by more than two classes and we have to make changes
+    in all the related classes.
+    To measure the actual coupling between different classes Coupling Factor (CF) is used.
+    It is the ratio of Actual coupling between different classes and maximum possible coupling can happen
+    in the system. If a class can access the method and attributes of the second class then it is said that the
+    first class is coupled with the second class. Generally, coupling happening due to inheritance is not
+    considered while calculating the CF. The high value of coupling in the system leads to larger complexity.
+    So it is advisable to have a high value of cohesion and low value of coupling. Good design architecture should
+    contain less amount of coupling.
+</p>
+<p class="sources">
+    [1]  F. Abreu, M. Goulãoand, R. Esteves, Towardthe Design Quality Evaluation of Object-Oriented Software Systems, Proceedings of the 5th  International Conference on Software Quality,  Austin, Texas, USA, 1995.
+</p>
+</body>
+</html>

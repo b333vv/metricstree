@@ -26,14 +26,17 @@ public enum MetricSet {
     CLEMENS_LEE("Chr. Clemens Lee Metrics Set", MetricLevel.CLASS),
     R_MARTIN("Robert C. Martin Metrics Set", MetricLevel.PACKAGE),
     MOOD("MOOD Metrics Set", MetricLevel.PROJECT),
-    STATISTIC("Statistics", MetricLevel.PROJECT_PACKAGE);
+    STATISTIC("Statistics", MetricLevel.PROJECT_PACKAGE),
+    QMOOD("QMOOD Quality Attributes Set", MetricLevel.PROJECT);
 
     private final String set;
     private final MetricLevel level;
+    private final String url;
 
     MetricSet(String set, MetricLevel level) {
         this.set = set;
         this.level = level;
+        this.url = "/html/" + name() + ".html";
     }
 
     public String set() {
@@ -41,5 +44,8 @@ public enum MetricSet {
     }
     public MetricLevel level() {
         return level;
+    }
+    public String url() {
+        return url;
     }
 }

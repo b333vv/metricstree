@@ -33,6 +33,7 @@ import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.info.*;
+import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.util.MetricsService;

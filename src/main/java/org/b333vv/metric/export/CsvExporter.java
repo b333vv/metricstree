@@ -51,7 +51,7 @@ public class CsvExporter implements Exporter {
             MetricsUtils.getConsole().error(e.getMessage());
         }
         if (csvOutputFile.exists()) {
-            MetricsUtils.getConsole().info("Classes metrics was exported in " + csvOutputFile.getAbsolutePath());
+            MetricsUtils.getConsole().info("Classes metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }
     }
 

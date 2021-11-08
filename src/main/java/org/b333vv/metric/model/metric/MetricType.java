@@ -92,7 +92,16 @@ public enum MetricType {
     PNOSC("Number Of Static Classes", STATISTIC, PACKAGE, null),
     PNOI("Number Of Interfaces", STATISTIC, PACKAGE, null),
     PNCSS("Non-Commenting Source Statements", STATISTIC, PACKAGE, null),
-    PLOC("Lines Of Code", STATISTIC, PACKAGE, null);
+    PLOC("Lines Of Code", STATISTIC, PACKAGE, null),
+
+    //QMOOD quality attributes set
+    Reusability("Reusability", QMOOD, PROJECT, null),
+    Flexibility("Flexibility", QMOOD, PROJECT, null),
+    Understandability("Understandability", QMOOD, PROJECT, null),
+    Functionality( "Functionality", QMOOD, PROJECT, null),
+    Extendibility("Extendibility", QMOOD, PROJECT, null),
+    Effectiveness("Effectiveness", QMOOD, PROJECT, null);
+
 
     private final String description;
     private final String url;

@@ -49,6 +49,7 @@ import org.knowm.xchart.HeatMapChart;
 import org.knowm.xchart.XYChart;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.event.FocusEvent;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -163,6 +164,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
                     || event instanceof VFileMoveEvent;
         }
 
+
         @Nullable
         @Override
         public ChangeApplier prepareChange(@NotNull List<? extends VFileEvent> events) {
@@ -187,6 +189,9 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
                 @Override
                 public void beforeVfsChange() {
                     for (VFileEvent event : beforeEvents) {
+                        if (event.getFile() == null || !event.getFile().getFileType().getName().equals("JAVA")) {
+                            return;
+                        }
                         if (event instanceof VFileContentChangeEvent) {
                             invalidateCaches(event.getFile());
                         }
@@ -205,6 +210,9 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
                 @Override
                 public void afterVfsChange() {
                     for (VFileEvent event : afterEvents) {
+                        if (event.getFile() == null || !event.getFile().getFileType().getName().equals("JAVA")) {
+                            return;
+                        }
                         if (event instanceof VFileCreateEvent) {
                             invalidateCaches(event.getFile());
                         }

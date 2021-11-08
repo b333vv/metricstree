@@ -31,9 +31,11 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.info.BottomPanel;
 import org.b333vv.metric.ui.info.MetricsDescriptionPanel;
+import org.b333vv.metric.ui.info.MetricsSetDescriptionPanel;
 import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.tree.MetricsTree;
 import org.b333vv.metric.ui.tree.builder.MetricTreeBuilder;
@@ -52,6 +54,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     private MetricsTree metricsTree;
     private BottomPanel bottomPanel;
     private MetricsDescriptionPanel metricsDescriptionPanel;
+    private MetricsSetDescriptionPanel metricsSetDescriptionPanel;
 
     private MetricsSummaryTable metricsSummaryTable;
     private JScrollPane scrollableTablePanel;
@@ -93,6 +96,13 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricPanel.getVerticalScrollBar().setUnitIncrement(10);
+
+        metricsSetDescriptionPanel = new MetricsSetDescriptionPanel();
+        JScrollPane scrollableMetricSetPanel = ScrollPaneFactory.createScrollPane(
+                metricsSetDescriptionPanel.getPanel(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollableMetricSetPanel.getVerticalScrollBar().setUnitIncrement(10);
 
         metricsSummaryTable = new MetricsSummaryTable(true);
         scrollableTablePanel = ScrollPaneFactory.createScrollPane(
@@ -139,6 +149,16 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
             metricsSummaryTable.clear();
             rightPanel.remove(0);
             rightPanel.add(metricsDescriptionPanel.getPanel());
+            rightPanel.revalidate();
+            rightPanel.repaint();
+        } else if (node instanceof MetricsSetNode) {
+            MetricSet metricSet = ((MetricsSetNode) node).getMetricSet();
+            bottomPanel.setData(metricSet.set());
+            metricsSetDescriptionPanel.setMetric(metricSet);
+            metricsDescriptionPanel.clear();
+            metricsSummaryTable.clear();
+            rightPanel.remove(0);
+            rightPanel.add(metricsSetDescriptionPanel.getPanel());
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof MetricTypeNode) {
