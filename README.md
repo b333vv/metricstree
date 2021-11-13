@@ -18,7 +18,13 @@ It supports the most common metric sets.
         - AIF: Attribute Inheritance Factor
         - PF: Polymorphism Factor
         - CF: Coupling Factor
-   - QMOOD metrics set [2]:
+   - QMOOD quality attributes set [2]:
+        - Reusability 
+        - Flexibility
+        - Understandability
+        - Functionality
+        - Extendibility
+        - Effectiveness
 2. Package level
     - Non-Commenting Source Statements
     - Lines Of Code
