@@ -21,8 +21,8 @@
         <![CDATA[
         <html>
             <p>
-               MetricsTree is an IDE extension that helps you evaluate quantitative properties of java code.
-               It supports the most common metric sets on project, package, class and method levels.
+               MetricsTree is an IDE extension that helps to evaluate quantitative properties of java code.
+               It supports the most common sets of metrics at the project, package, class, and method levels.
             </p>
             <h3>Core metrics sets</h3>
             <ul>
@@ -63,9 +63,14 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2022.1.0:
+                <ul>
+                    <li>IDE compatibility boundaries have been changed.</li>
+                </ul>
+            </li>
             <li>2020.1.12:
                 <ul>
-                    <li>QMOOD metrics set added.</li>
+                    <li>QMOOD quality attributes set added.</li>
                 </ul>
             </li>
             <li>2020.1.11:
@@ -137,7 +142,7 @@
       ]]>
     </change-notes>
 
-    <version>2020.1.12</version>
+    <version>2022.1.0</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -145,7 +150,7 @@
     <depends>com.intellij.modules.java</depends>
     <depends>Git4Idea</depends>
 
-    <idea-version since-build="193.1316"/>
+    <idea-version since-build="203.8084"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree13.svg"
@@ -153,6 +158,7 @@
         <applicationService serviceImplementation="org.b333vv.metric.util.MetricsUtils"/>
         <projectService serviceImplementation="org.b333vv.metric.util.MetricsService"/>
         <projectService serviceImplementation="org.b333vv.metric.task.MetricTaskCache"/>
+        <notificationGroup id="MetricsTree Info" displayType="BALLOON"/>
     </extensions>
 
     <project-components>

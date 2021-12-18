@@ -16,9 +16,7 @@
 
 package org.b333vv.metric.util;
 
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
@@ -31,7 +29,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.project.DumbServiceImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -45,7 +42,7 @@ import java.util.*;
 
 public final class MetricsUtils {
 
-    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("MetricsTree Info", NotificationDisplayType.BALLOON, true);
+//    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("MetricsTree Info", NotificationDisplayType.BALLOON, true);
     private final MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private final MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
 
@@ -267,7 +264,11 @@ public final class MetricsUtils {
     }
 
     public void notify(String content, Project project) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
-        notification.notify(project);
+//        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
+//        notification.notify(project);
+
+        NotificationGroupManager.getInstance().getNotificationGroup("MetricsTree Info")
+                .createNotification(content, NotificationType.INFORMATION)
+                .notify(project);
     }
 }

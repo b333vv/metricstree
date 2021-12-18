@@ -34,7 +34,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 

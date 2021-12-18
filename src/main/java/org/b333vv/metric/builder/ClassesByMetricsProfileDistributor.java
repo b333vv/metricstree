@@ -30,7 +30,6 @@ import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.settings.profile.MetricProfileItem;
 import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
 import org.b333vv.metric.util.MetricsUtils;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
