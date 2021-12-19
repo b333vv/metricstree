@@ -16,8 +16,8 @@
 
 package org.b333vv.metric.util;
 
-import com.intellij.notification.NotificationGroupManager;
-import com.intellij.notification.NotificationType;
+//import com.intellij.notification.NotificationGroupManager;
+//import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -264,11 +264,14 @@ public final class MetricsUtils {
     }
 
     public void notify(String content, Project project) {
+//        Pre-2020.3
 //        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
 //        notification.notify(project);
 
-        NotificationGroupManager.getInstance().getNotificationGroup("MetricsTree Info")
-                .createNotification(content, NotificationType.INFORMATION)
-                .notify(project);
+//         2020.3 and later
+
+//        NotificationGroupManager.getInstance().getNotificationGroup("MetricsTree Info")
+//                .createNotification(content, NotificationType.INFORMATION)
+//                .notify(project);
     }
 }
