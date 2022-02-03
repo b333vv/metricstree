@@ -28,6 +28,7 @@ import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
+import org.b333vv.metric.ui.settings.other.OtherSettings;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
@@ -76,6 +77,11 @@ public final class MetricsService {
     public static boolean isControlValidRanges() {
         return MetricsUtils.getForProject(BasicMetricsValidRangesSettings.class)
                 .isControlValidRanges();
+    }
+
+    public static boolean isProjectMetricsStampStored() {
+        return MetricsUtils.getForProject(OtherSettings.class)
+                .isProjectMetricsStampStored();
     }
 
     public static boolean isShowClassMetricsTree() {

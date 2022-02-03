@@ -16,13 +16,20 @@
 
 package org.b333vv.metric.ui.tool;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.util.ui.JBInsets;
+import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
+import org.b333vv.metric.actions.ConfigureProjectAction;
+import org.b333vv.metric.event.ButtonsEventListener;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
@@ -33,7 +40,7 @@ import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.info.*;
-import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.b333vv.metric.ui.settings.MetricsConfigurable;
 import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.util.MetricsService;
@@ -42,14 +49,20 @@ import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
+import org.knowm.xchart.style.XYStyler;
 
 import javax.swing.*;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.NONE;
 import static java.util.stream.Collectors.toList;
 import static org.b333vv.metric.util.MetricsUtils.setProjectTreeActive;
 
@@ -63,11 +76,14 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     private JBPanel<?> leftPanel;
     private BottomPanel treeMapBottomPanel;
     private MetricTreeMap<JavaCode> treeMap;
+    private XChartPanel<XYChart> projectMetricsHistoryXyChartPanel;
 
     private ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar", SPLIT_PROPORTION_2PANELS);
         MetricsEventListener metricsEventListener = new ProjectMetricsEventListener();
+        ButtonsEventListener buttonsEventListener = new PressedButtonsEventListener();
         project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
+        project.getMessageBus().connect(project).subscribe(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC, buttonsEventListener);
     }
 
     public static ProjectMetricsPanel newInstance(Project project) {
@@ -147,6 +163,50 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
         scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
         rightPanel.add(scrollableTablePanel);
+    }
+
+    private void showResults(XYChart xyChart) {
+        mainPanel = new JBPanel<>(new BorderLayout());
+        rightPanel = new JBPanel<>(new BorderLayout());
+
+        JTextPane explanation = new JTextPane();
+        explanation.setContentType("text/html");
+        String explanationText = "<html><body style=\"font-family:'Open Sans', sans-serif;\">By default, each time project-level metrics values are calculated, " +
+                "they are saved in the file &lt;project folder&gt;/.idea/metrics/&lt;time stamp&gt;.json. " +
+                "You can control this behavior in the configuration form (Other Settings Tab) by clicking &nbsp</body></html>";
+        explanation.setText(explanationText);
+        explanation.setEditable(false);
+        JLabel showConfigurationForm = new JLabel("<html><body style=\"font-family:'Open Sans', sans-serif;\">" +
+                "<u>here.</u></body></html>");
+        showConfigurationForm.setAlignmentY(0.85f);
+        showConfigurationForm.setOpaque(false);
+        showConfigurationForm.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        showConfigurationForm.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() > 0) {
+                    MetricsConfigurable metricsConfigurable = new MetricsConfigurable(project);
+                    ShowSettingsUtil.getInstance().editConfigurable(project, metricsConfigurable);
+                }
+            }
+        });
+
+        explanation.insertComponent(showConfigurationForm);
+
+        JScrollPane scrollableMetricDescriptionPanel = ScrollPaneFactory.createScrollPane(
+                explanation,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableMetricDescriptionPanel.getVerticalScrollBar().setUnitIncrement(10);
+        rightPanel.add(scrollableMetricDescriptionPanel);
+
+        ProjectMetricsHistoryBottomPanel projectMetricsHistoryBottomPanel = new ProjectMetricsHistoryBottomPanel();
+
+        projectMetricsHistoryXyChartPanel = new XChartPanel<>(xyChart);
+        mainPanel.add(ScrollPaneFactory.createScrollPane(projectMetricsHistoryXyChartPanel), BorderLayout.CENTER);
+        mainPanel.add(projectMetricsHistoryBottomPanel.getPanel(), BorderLayout.SOUTH);
+
+        super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_XY_CHART"));
     }
 
     @NotNull
@@ -277,6 +337,12 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
+        public void projectMetricsHistoryXyChartIsReady() {
+            XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
+            showResults(xyChart);
+        }
+
+        @Override
         public void clearProjectPanel() {
             projectPanelClear();
             setProjectTreeActive(false);
@@ -303,11 +369,47 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
     }
 
+    public class PressedButtonsEventListener implements ButtonsEventListener {
+
+        @Override
+        public void plusButtonPressed(JButton plusButton, JButton minusButton) {
+            XYStyler styler = projectMetricsHistoryXyChartPanel.getChart().getStyler();
+            double current = styler.getPlotContentSize();
+            double newCurrent = current + 0.01;
+            if (newCurrent < 1.0) {
+                minusButton.setEnabled(true);
+                styler.setPlotContentSize(newCurrent);
+            } else {
+                plusButton.setEnabled(false);
+                styler.setPlotContentSize(0.99);
+            }
+            projectMetricsHistoryXyChartPanel.revalidate();
+            projectMetricsHistoryXyChartPanel.repaint();
+        }
+
+        @Override
+        public void minusButtonPressed(JButton plusButton, JButton minusButton) {
+            XYStyler styler = projectMetricsHistoryXyChartPanel.getChart().getStyler();
+            double current = styler.getPlotContentSize();
+            double newCurrent = current - 0.01;
+            if (newCurrent > 0.1) {
+                plusButton.setEnabled(true);
+                styler.setPlotContentSize(newCurrent);
+            } else {
+                minusButton.setEnabled(false);
+                styler.setPlotContentSize(0.1);
+            }
+            projectMetricsHistoryXyChartPanel.revalidate();
+            projectMetricsHistoryXyChartPanel.repaint();
+        }
+    }
+
     public class CoordinateListener extends MouseAdapter {
-        private XYChart chart;
+        private final XYChart chart;
         public CoordinateListener(XYChart chart) {
             this.chart = chart;
         }
+        @Override
         public void mousePressed(MouseEvent e) {
             double chartX = chart.getChartXFromCoordinate(e.getX());
             double chartY = chart.getChartYFromCoordinate(e.getY());

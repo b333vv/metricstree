@@ -138,6 +138,7 @@ tasks {
             exclude("org.javolution")
         }
         implementation ("org.knowm.xchart:xchart:3.6.3")
+        implementation ("org.json:json:20211205")
         testImplementation ("junit:junit:4.12")
         testImplementation ("org.assertj:assertj-core:3.6.2")
         testImplementation ("org.mockito:mockito-core:2.19.0")

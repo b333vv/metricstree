@@ -65,7 +65,7 @@
         <ul>
             <li>2022.1.0:
                 <ul>
-                    <li></li>
+                    <li>Added functions to show the evolution of metric values at project level.</li>
                 </ul>
             </li>
             <li>2020.1.12:
@@ -150,7 +150,8 @@
     <depends>com.intellij.modules.java</depends>
     <depends>Git4Idea</depends>
 
-    <idea-version since-build="203.8084"/>
+<!--    <idea-version since-build="203.8084"/>-->
+    <idea-version since-build="193.7288"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree13.svg"
@@ -181,7 +182,15 @@
         <component>
             <implementation-class>org.b333vv.metric.ui.settings.profile.MetricProfileSettings</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.b333vv.metric.ui.settings.other.OtherSettings</implementation-class>
+        </component>
     </project-components>
+
+<!--    <projectListeners>-->
+<!--        <listener class="org.b333vv.metric.event.PressedButtonsEventListener"-->
+<!--                  topic="org.b333vv.metric.event.ButtonsEventListener"/>-->
+<!--    </projectListeners>-->
 
     <actions>
         <action id="Metrics.FilterClassMetricsTree"
@@ -319,6 +328,13 @@
                 text="Build Classes Distribution By Metrics Profile"
                 description="Build classes distribution By metrics profile"
                 icon="MetricsIcons.PROFILE_TABLE">
+        </action>
+
+        <action id="Metrics.BuildProjectMetricsHistoryXYChart"
+                class="org.b333vv.metric.actions.BuildProjectMetricsHistoryXYChartAction"
+                text="Build Project Metrics History XY Chart"
+                description="Build project metrics history XY chart"
+                icon="MetricsIcons.BAR_LINE">
         </action>
 
         <action id="Metrics.ExportMetricsToCsv"
@@ -480,6 +496,8 @@
             <reference id="Metrics.BuildProjectMetricXYChart"/>
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
             <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
+            <separator/>
+            <reference id="Metrics.BuildProjectMetricsHistoryXYChart"/>
             <separator/>
             <reference id="Metrics.ExportMetricsToCsv"/>
             <reference id="Metrics.ExportMetricsToXml"/>

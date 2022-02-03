@@ -268,8 +268,7 @@ public final class MetricsUtils {
 //        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
 //        notification.notify(project);
 
-//         2020.3 and later
-
+//        2020.3 and later
 //        NotificationGroupManager.getInstance().getNotificationGroup("MetricsTree Info")
 //                .createNotification(content, NotificationType.INFORMATION)
 //                .notify(project);

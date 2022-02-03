@@ -49,7 +49,6 @@ import org.knowm.xchart.HeatMapChart;
 import org.knowm.xchart.XYChart;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.event.FocusEvent;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -68,6 +67,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<Map<String, Double>> INSTABILITY = Key.create("INSTABILITY");
     public static final Key<Map<String, Double>> ABSTRACTNESS = Key.create("ABSTRACTNESS");
     public static final Key<XYChart> XY_CHART = Key.create("XY_CHART");
+    public static final Key<XYChart> PROJECT_METRICS_HISTORY_XY_CHART = Key.create("PROJECT_METRICS_HISTORY_XY_CHART");
     public static final Key<JavaProject> PACKAGE_ONLY_METRICS = Key.create("PACKAGE_WITHOUT_CLASSES_METRICS");
     public static final Key<DefaultTreeModel> CLASSES_BY_METRIC_TREE = Key.create("CLASSES_BY_METRIC_TREE");
     public static final Key<Map<MetricProfile, Set<JavaClass>>> METRIC_PROFILES = Key.create("METRIC_PROFILES");
@@ -139,6 +139,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         putUserData(MetricTaskCache.INSTABILITY, null);
         putUserData(MetricTaskCache.ABSTRACTNESS, null);
         putUserData(MetricTaskCache.XY_CHART, null);
+        putUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART, null);
         putUserData(MetricTaskCache.PACKAGE_ONLY_METRICS, null);
         putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, null);
         putUserData(MetricTaskCache.METRIC_PROFILES, null);

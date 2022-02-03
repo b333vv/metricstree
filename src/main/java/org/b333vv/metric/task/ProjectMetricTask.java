@@ -19,13 +19,17 @@ package org.b333vv.metric.task;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.ProjectMetricsSet2Json;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.ZonedDateTime;
+
 import static org.b333vv.metric.task.MetricTaskManager.getPackageModel;
+import static org.b333vv.metric.util.MetricsService.isProjectMetricsStampStored;
 
 public class ProjectMetricTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to get project level metrics from cache";
@@ -49,6 +53,9 @@ public class ProjectMetricTask extends Task.Backgroundable {
             ProjectMetricsSetCalculator projectMetricsSetCalculator = new ProjectMetricsSetCalculator(scope,
                     MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
             projectMetricsSetCalculator.calculate();
+            if (isProjectMetricsStampStored()) {
+                ProjectMetricsSet2Json.takeProjectMetricsSnapshot(javaProject);
+            }
             MetricTaskCache.instance().putUserData(MetricTaskCache.PROJECT_METRICS, javaProject);
         }
     }

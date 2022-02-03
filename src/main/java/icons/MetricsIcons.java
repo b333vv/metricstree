@@ -33,6 +33,7 @@ public interface MetricsIcons {
     Icon NOT_TRACKED = IconLoader.getIcon("/icons/notTracked.svg", MetricsIcons.class);
     Icon SORT_BY_VALUES = IconLoader.getIcon("/icons/sortByValues.svg", MetricsIcons.class);
     Icon BAR_CHART = IconLoader.getIcon("/icons/chartBar.svg", MetricsIcons.class);
+    Icon BAR_LINE = IconLoader.getIcon("/icons/chartLine.svg", MetricsIcons.class);
     Icon PIE_CHART = IconLoader.getIcon("/icons/chartPie.svg", MetricsIcons.class);
     Icon XY_CHART = IconLoader.getIcon("/icons/chartXY.svg", MetricsIcons.class);
     Icon BOX_CHART = IconLoader.getIcon("/icons/chartBox.svg", MetricsIcons.class);

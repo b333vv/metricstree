@@ -20,6 +20,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettingsPanel;
+import org.b333vv.metric.ui.settings.other.OtherSettings;
+import org.b333vv.metric.ui.settings.other.OtherSettingsPanel;
 import org.b333vv.metric.ui.settings.profile.MetricProfilePanel;
 import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesPanel;
@@ -37,6 +39,7 @@ public class SettingsPanel {
     private final DerivativeMetricsValidRangesPanel derivativeMetricsValidRangesPanel;
     private final ClassMetricsTreeSettingsPanel classMetricsTreeSettingsPanel;
     private final MetricProfilePanel metricProfilePanel;
+    private final OtherSettingsPanel otherSettingsPanel;
     private final Project project;
 
     public SettingsPanel(Project project) {
@@ -52,11 +55,14 @@ public class SettingsPanel {
                 MetricsUtils.get(project, ClassMetricsTreeSettings.class);
         MetricProfileSettings metricProfileSettings =
                 MetricsUtils.get(project, MetricProfileSettings.class);
+        OtherSettings otherSettings =
+                MetricsUtils.get(project, OtherSettings.class);
 
         basicMetricsValidRangesPanel = new BasicMetricsValidRangesPanel(project, basicMetricsValidRangesSettings);
         derivativeMetricsValidRangesPanel = new DerivativeMetricsValidRangesPanel(project, derivativeMetricsValidRangesSettings);
         classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(classMetricsTreeSettings);
         metricProfilePanel = new MetricProfilePanel(project, metricProfileSettings);
+        otherSettingsPanel = new OtherSettingsPanel(project, otherSettings);
 
         tabs.insertTab("Basic Metrics Valid Values", null, basicMetricsValidRangesPanel.getComponent(),
                 "Configure valid values for basic metrics", 0);
@@ -66,6 +72,8 @@ public class SettingsPanel {
                 "Configure class metrics tree composition", 2);
         tabs.insertTab("Metrics Profiles", null, metricProfilePanel.getComponent(),
                 "Configure metric profiles", 3);
+        tabs.insertTab("Other Settings", null, otherSettingsPanel.getComponent(),
+                "Other settings", 4);
 
         root.add(tabs, BorderLayout.CENTER);
     }
@@ -95,6 +103,10 @@ public class SettingsPanel {
         return metricProfilePanel.isModified(metricProfileSettings);
     }
 
+    public boolean isModified(OtherSettings otherSettings) {
+        return otherSettingsPanel.isModified(otherSettings);
+    }
+
     public void save(BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
         basicMetricsValidRangesPanel.save(basicMetricsValidRangesSettings);
     }
@@ -109,5 +121,9 @@ public class SettingsPanel {
 
     public void save(MetricProfileSettings metricProfileSettings) {
         metricProfilePanel.save(metricProfileSettings);
+    }
+
+    public void save(OtherSettings otherSettings) {
+        otherSettingsPanel.save(otherSettings);
     }
 }

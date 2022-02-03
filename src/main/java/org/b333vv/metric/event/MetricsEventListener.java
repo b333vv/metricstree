@@ -20,6 +20,7 @@ import com.intellij.util.messages.Topic;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -120,5 +121,14 @@ public interface MetricsEventListener {
     }
 
     default void clearProjectPanel() {
+    }
+
+    default void projectMetricsHistoryXyChartIsReady() {
+    }
+
+    default void plusButtonPressed() {
+    }
+
+    default void minusButtonPressed() {
     }
 }
