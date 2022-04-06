@@ -20,17 +20,20 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.impl.file.PsiPackageImpl;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 public class PackagesModelBuilder extends ModelBuilder {
@@ -79,10 +82,15 @@ public class PackagesModelBuilder extends ModelBuilder {
     @NotNull
     private JavaPackage makeNewRootJavaPackage(@NotNull List<PsiPackage> packageList) {
         Iterator<PsiPackage> psiPackageIterator = packageList.iterator();
-        PsiPackage firstPsiPackage = psiPackageIterator.next();
-        JavaPackage firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
-        if (firstJavaPackage.getPsiPackage() != null && firstJavaPackage.getPsiPackage().getClasses().length > 0) {
-            javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+        JavaPackage firstJavaPackage;
+        if (!psiPackageIterator.hasNext()) {
+            firstJavaPackage = new JavaPackage("", new PsiPackageImpl(null, ""));
+        } else {
+            PsiPackage firstPsiPackage = psiPackageIterator.next();
+            firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
+            if (firstJavaPackage.getPsiPackage().getClasses().length > 0) {
+                javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+            }
         }
         javaProject.addPackage(firstJavaPackage);
         JavaPackage currentJavaPackage = firstJavaPackage;

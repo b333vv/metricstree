@@ -19,11 +19,9 @@ package org.b333vv.metric.ui.chart.builder;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.metric.MetricLevel;
-import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.MetricsUtils;
 import org.json.JSONObject;
-import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries;
@@ -43,8 +41,6 @@ public class ProjectMetricsHistoryXYChartBuilder {
         XYChart chart = new XYChartBuilder()
                 .width(150)
                 .height(150)
-//                .xAxisTitle("Metrics Values")
-//                .yAxisTitle("Date & Time")
                 .build();
 
         chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line);
@@ -53,7 +49,7 @@ public class ProjectMetricsHistoryXYChartBuilder {
         chart.getStyler().setPlotContentSize(.95);
         Color annotationColor = EditorColorsManager.getInstance().getGlobalScheme().getDefaultForeground();
         Color backgroundColor = UIUtil.getPanelBackground();
-//
+
         chart.getStyler().setAnnotationsFontColor(annotationColor);
         chart.getStyler().setPlotContentSize(.6);
         chart.getStyler().setChartFontColor(annotationColor);
@@ -66,8 +62,6 @@ public class ProjectMetricsHistoryXYChartBuilder {
         chart.getStyler().setPlotGridVerticalLinesVisible(true);
         chart.getStyler().setLegendVisible(true);
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
-//        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
-//        chart.getStyler().setLegendLayout(Styler.LegendLayout.Horizontal);
         chart.getStyler().setLegendLayout(Styler.LegendLayout.Vertical);
         chart.getStyler().setLegendBackgroundColor(backgroundColor);
         chart.getStyler().setToolTipsEnabled(true);
@@ -91,7 +85,6 @@ public class ProjectMetricsHistoryXYChartBuilder {
                             timeStampList,
                             metricsStampSet.stream()
                                     .map(jsonObject -> Double.valueOf(jsonObject.getString(mt.name()).replace(",", ".")))
-                                    .peek(m -> MetricsUtils.getConsole().info(mt.name() + " : " + m))
                                     .collect(Collectors.toList()));
                 } catch (Exception e) {
                     MetricsUtils.getConsole().error(e.getClass() + " " + mt.name() + " " + e.getMessage());

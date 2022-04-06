@@ -51,7 +51,6 @@ public class ProjectMetricsSet2Json {
         String snapshotTime = "" + epoch;
         long epoch1 = Long.parseLong(snapshotTime);
         LocalDateTime dateTime = Instant.ofEpochMilli(epoch1).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        MetricsUtils.getConsole().info("Date and Time = " + dateTime);
         Map<String, String> projectMetrics = javaProject.metrics()
                 .filter(m -> m.getType().level() == MetricLevel.PROJECT)
                 .collect(Collectors.toMap(m -> m.getType().name(), m -> m.getValue().toString()));
@@ -81,7 +80,7 @@ public class ProjectMetricsSet2Json {
 
     public static TreeSet<JSONObject> parseStoredMetricsSnapshots() {
         File directory = new File(directoryPath);
-        if (!directory.exists()){
+        if (!directory.exists() || Objects.requireNonNull(directory.listFiles()).length == 0){
             MetricsUtils.getConsole().error("There are no saved project metrics.");
             return null;
         }
@@ -89,9 +88,11 @@ public class ProjectMetricsSet2Json {
         File[] fileList = Objects.requireNonNull(directory.listFiles());
         TreeSet<JSONObject> metricsStampSet = new TreeSet<>(new ProjectMetricsStampComparator());
         for (File file: fileList) {
-            JSONObject metricsStamp = parseFile(file);
-            if (metricsStamp != null) {
-                metricsStampSet.add(metricsStamp);
+            if (file.isFile() && !file.isHidden()) {
+                JSONObject metricsStamp = parseFile(file);
+                if (metricsStamp != null) {
+                    metricsStampSet.add(metricsStamp);
+                }
             }
         }
         return metricsStampSet;

@@ -20,6 +20,7 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.impl.file.PsiPackageImpl;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
@@ -30,6 +31,7 @@ import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -115,9 +117,15 @@ public class ProjectModelBuilder extends ModelBuilder {
     @NotNull
     private JavaPackage makeNewRootJavaPackage(@NotNull List<PsiPackage> packageList) {
         Iterator<PsiPackage> psiPackageIterator = packageList.iterator();
-        PsiPackage firstPsiPackage = psiPackageIterator.next();
-        JavaPackage firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
-        javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+        JavaPackage firstJavaPackage;
+        if (!psiPackageIterator.hasNext()) {
+            firstJavaPackage = new JavaPackage("", new PsiPackageImpl(null, ""));
+            javaProject.putToAllPackages("", firstJavaPackage);
+        } else {
+            PsiPackage firstPsiPackage = psiPackageIterator.next();
+            firstJavaPackage = new JavaPackage(firstPsiPackage.getName(), firstPsiPackage);
+            javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+        }
         javaProject.addPackage(firstJavaPackage);
         JavaPackage currentJavaPackage = firstJavaPackage;
         while (psiPackageIterator.hasNext()) {
