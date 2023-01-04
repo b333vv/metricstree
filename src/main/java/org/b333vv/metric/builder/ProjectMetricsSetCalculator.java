@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricLevel.PROJECT;
+import static org.b333vv.metric.model.metric.MetricSet.HALSTEAD_PROJECT;
 import static org.b333vv.metric.model.metric.MetricSet.QMOOD;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
@@ -94,10 +95,9 @@ public class ProjectMetricsSetCalculator {
         indicator.setText("Calculating metrics");
 
         calculateMood();
-
         calculateStatistics();
-
         calculateQmood();
+        calculateHalstead();
     }
 
     private void calculateQmood() {
@@ -144,6 +144,64 @@ public class ProjectMetricsSetCalculator {
         addMethodHidingFactor();
         addMethodInheritanceFactor();
         addPolymorphismFactor();
+    }
+
+    private void calculateHalstead() {
+
+        double halsteadVolume = javaProject
+                .allPackages().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == PAHVL)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        double halsteadDifficulty = javaProject
+                .allPackages().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == PAHD)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        long halsteadLength = javaProject
+                .allPackages().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == PACHL)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double halsteadEffort = javaProject
+                .allPackages().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == PACHEF)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        long halsteadVocabulary = javaProject
+                .allPackages().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == PACHVC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double halsteadErrors = javaProject
+                .allPackages().flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == PACHER)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        javaProject.addMetric(Metric.of(PRHVL, halsteadVolume));
+        javaProject.addMetric(Metric.of(PRHD, halsteadDifficulty));
+        javaProject.addMetric(Metric.of(PRCHL, halsteadLength));
+        javaProject.addMetric(Metric.of(PRCHEF, halsteadEffort));
+        javaProject.addMetric(Metric.of(PRCHVC, halsteadVocabulary));
+        javaProject.addMetric(Metric.of(PRCHER, halsteadErrors));
     }
 
     private double calculateZCoupling() {

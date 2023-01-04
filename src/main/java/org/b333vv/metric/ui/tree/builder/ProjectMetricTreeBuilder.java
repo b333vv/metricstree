@@ -190,6 +190,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, CLASS_METRIC);
                         classNode.add(metricsSetNode);
                         classNode.getJavaClass().metrics()
+                                .peek(m -> MetricsUtils.getConsole().debug(m.getType().name()))
                                 .filter(m -> m.getType().set() == metricSet)
                                 .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
                                 .map(ClassMetricNode::new)

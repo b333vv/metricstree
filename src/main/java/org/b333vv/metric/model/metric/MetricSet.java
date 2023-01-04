@@ -18,6 +18,10 @@ package org.b333vv.metric.model.metric;
 
 public enum MetricSet {
     UNDEFINED("", MetricLevel.UNDEFINED),
+    HALSTEAD_METHOD("Halstead Metric Set", MetricLevel.METHOD),
+    HALSTEAD_CLASS("Halstead Metric Set", MetricLevel.CLASS),
+    HALSTEAD_PACKAGE("Halstead Metric Set", MetricLevel.PACKAGE),
+    HALSTEAD_PROJECT("Halstead Metric Set", MetricLevel.PROJECT),
     CHIDAMBER_KEMERER("Chidamber-Kemerer Metrics Set", MetricLevel.CLASS),
     LORENZ_KIDD("Lorenz-Kidd Metrics Set", MetricLevel.CLASS),
     LI_HENRY("Li-Henry Metrics Set", MetricLevel.CLASS),

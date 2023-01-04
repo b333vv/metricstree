@@ -27,13 +27,13 @@
             <h3>Core metrics sets</h3>
             <ul>
                 <li>
-                   Project level: MOOD & QMOOD metrics sets, general statistics
+                   Project level: MOOD & QMOOD metrics sets, general statistics, Halstead metrics set
                 </li>
                 <li>
-                   Package level: Robert C. Martin metrics set, general statistics
+                   Package level: Robert C. Martin metrics set, general statistics, Halstead metrics set
                 </li>
                 <li>
-                   Class and method levels: Chidamber-Kemerer, Lorenz-Kidd, Li-Henry and Lanza-Marinescu metrics sets
+                   Class and method levels: Chidamber-Kemerer, Lorenz-Kidd, Li-Henry and Lanza-Marinescu, Halstead metrics sets
                 </li>
             </ul>
             <h3>Features</h3>
@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2023.1.0:
+                <ul>
+                    <li>Halstead metric set added.</li>
+                </ul>
+            </li>
             <li>2022.1.2:
                 <ul>
                     <li>Fixed function to calculate LOC metrics for methods.</li>
@@ -152,7 +157,7 @@
       ]]>
     </change-notes>
 
-    <version>2022.1.2</version>
+    <version>2023.1.0</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 

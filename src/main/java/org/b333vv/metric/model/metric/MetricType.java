@@ -37,6 +37,20 @@ public enum MetricType {
     MND("Maximum Nesting Depth", LANZA_MARINESCU, METHOD, new MaximumNestingDepthVisitor()),
     CINT("Coupling Intensity", LANZA_MARINESCU, METHOD, new CouplingIntensityVisitor()),
     CDISP("Coupling Dispersion", LANZA_MARINESCU, METHOD, new CouplingDispersionVisitor()),
+    HVL("Halstead Volume", HALSTEAD_METHOD, METHOD, null),
+    HD("Halstead Difficulty", HALSTEAD_METHOD, METHOD, null),
+    HL("Halstead Length", HALSTEAD_METHOD, METHOD, null),
+    HEF("Halstead Effort", HALSTEAD_METHOD, METHOD, null),
+    HVC("Halstead Vocabulary", HALSTEAD_METHOD, METHOD, null),
+    HER("Halstead Errors", HALSTEAD_METHOD, METHOD, null),
+
+    //Halstead's metrics set
+    CHVL("Halstead Volume", HALSTEAD_CLASS, CLASS, null),
+    CHD("Halstead Difficulty", HALSTEAD_CLASS, CLASS, null),
+    CHL("Halstead Length", HALSTEAD_CLASS, CLASS, null),
+    CHEF("Halstead Effort", HALSTEAD_CLASS, CLASS, null),
+    CHVC("Halstead Vocabulary", HALSTEAD_CLASS, CLASS, null),
+    CHER("Halstead Errors", HALSTEAD_CLASS, CLASS, null),
 
     //Chidamber-Kemerer metrics set
     WMC("Weighted Methods Per Class", CHIDAMBER_KEMERER, CLASS, new WeightedMethodCountVisitor()),
@@ -77,6 +91,22 @@ public enum MetricType {
     A("Abstractness", R_MARTIN, PACKAGE, null),
     D("Normalized Distance From Main Sequence", R_MARTIN, PACKAGE, null),
 
+    //Halstead's metrics set
+    PAHVL("Halstead Volume", HALSTEAD_PACKAGE, PACKAGE, null),
+    PAHD("Halstead Difficulty", HALSTEAD_PACKAGE, PACKAGE, null),
+    PACHL("Halstead Length", HALSTEAD_PACKAGE, PACKAGE, null),
+    PACHEF("Halstead Effort", HALSTEAD_PACKAGE, PACKAGE, null),
+    PACHVC("Halstead Vocabulary", HALSTEAD_PACKAGE, PACKAGE, null),
+    PACHER("Halstead Errors", HALSTEAD_PACKAGE, PACKAGE, null),
+
+
+    //Halstead's metrics set
+    PRHVL("Halstead Volume", HALSTEAD_PROJECT, PROJECT, null),
+    PRHD("Halstead Difficulty", HALSTEAD_PROJECT, PROJECT, null),
+    PRCHL("Halstead Length", HALSTEAD_PROJECT, PROJECT, null),
+    PRCHEF("Halstead Effort", HALSTEAD_PROJECT, PROJECT, null),
+    PRCHVC("Halstead Vocabulary", HALSTEAD_PROJECT, PROJECT, null),
+    PRCHER("Halstead Errors", HALSTEAD_PROJECT, PROJECT, null),
 
     //MOOD metrics set
     MHF("Method Hiding Factor", MOOD, PROJECT, null),

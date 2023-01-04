@@ -24,6 +24,13 @@ It supports the most common sets of metrics at the project, package, class, and 
         - Functionality
         - Extendibility
         - Effectiveness
+   - Halstead metrics set [10]:
+      - Volume
+      - Difficulty
+      - Length
+      - Effort
+      - Vocabulary
+      - Errors
 2. Package level
     - Non-Commenting Source Statements
     - Lines Of Code
@@ -37,6 +44,13 @@ It supports the most common sets of metrics at the project, package, class, and 
         - I: Instability
         - A: Abstractness
         - D: Normalized Distance from Main Sequence
+   - Halstead metrics set [10]:
+     - Volume
+     - Difficulty
+     - Length
+     - Effort
+     - Vocabulary
+     - Errors
 3. Class level
     - Chidamber-Kemerer metrics set [5]:
         - WMC: Weighted methods per class
@@ -64,6 +78,13 @@ It supports the most common sets of metrics at the project, package, class, and 
         - TCC: Tight Class Cohesion
     - Chr. Clemens Lee metrics set:
             - NCSS: Non-Commenting Source Statements
+   - Halstead metrics set [10]:
+     - Volume
+     - Difficulty
+     - Length
+     - Effort
+     - Vocabulary
+     - Errors
 4. Method level:
     - LOC: Lines Of Code
     - CC: McCabe Cyclomatic Complexity
@@ -76,6 +97,13 @@ It supports the most common sets of metrics at the project, package, class, and 
     - NOAV: NumberOfAccessedVariables
     - CINT: Coupling Intensity
     - CDISP: Coupling Dispersion
+   - Halstead metrics set [10]:
+      - Volume
+      - Difficulty
+      - Length
+      - Effort
+      - Vocabulary
+      - Errors
 > 1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
 > 2. Jagdish Bansiya and Carl G. Davis, A hierarchical model for object-oriented design quality assessment. Software Engineering, IEEE Transactions on, 28(1):4–17, 2002.
 > 3. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
@@ -85,6 +113,7 @@ It supports the most common sets of metrics at the project, package, class, and 
 > 7. W. Li and S. Henry. Object-oriented metrics that predict maintainability. Journal of Systems and Software, Volume 23, Issue 2, pages 111-122, November 1993.
 > 8. M. Lanza, R. Marinescu. Object-Oriented Metrics in Practice. Using Software Metrics to Characterize, Evaluate, and Improve the Design of Object-Oriented Systems. Springer-Verlag Berlin Heidelberg, 2006.
 > 9. J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system, Proceedings of the 1995 Symposium on Software reusability, Seattle, Washington, United States, pp. 259-262, 1995.
+> 10. Halstead, Maurice H. Elements of Software Science. Amsterdam: Elsevier North-Holland, Inc. ISBN 0-444-00205-7.
 # Featutes   
  - Represents metrics calculation results in forms of trees and treemaps
  - Builds trees with metrics for class open in the editor or for the entire project

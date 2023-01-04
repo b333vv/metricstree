@@ -23,6 +23,8 @@ import com.intellij.psi.PsiMethod;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.visitor.method.HalsteadMethodVisitor;
+import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -34,6 +36,10 @@ public abstract class ModelBuilder {
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
             classVisitors().forEach(javaClass::accept);
+
+            HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
+            javaClass.accept(halsteadClassVisitor);
+
             javaFile.addClass(javaClass);
             buildConstructors(javaClass);
             buildMethods(javaClass);
@@ -48,6 +54,9 @@ public abstract class ModelBuilder {
             JavaMethod javaMethod = new JavaMethod(aConstructor);
             javaClass.addMethod(javaMethod);
             methodVisitors().forEach(javaMethod::accept);
+
+            HalsteadMethodVisitor halsteadMethodVisitor = new HalsteadMethodVisitor();
+            javaMethod.accept(halsteadMethodVisitor);
         }
     }
 
@@ -56,6 +65,9 @@ public abstract class ModelBuilder {
             JavaMethod javaMethod = new JavaMethod(aMethod);
             javaClass.addMethod(javaMethod);
             methodVisitors().forEach(javaMethod::accept);
+
+            HalsteadMethodVisitor halsteadMethodVisitor = new HalsteadMethodVisitor();
+            javaMethod.accept(halsteadMethodVisitor);
         }
     }
 
@@ -64,6 +76,10 @@ public abstract class ModelBuilder {
             JavaClass javaClass = new JavaClass(psiClass);
             parentClass.addClass(javaClass);
             classVisitors().forEach(javaClass::accept);
+
+            HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
+            javaClass.accept(halsteadClassVisitor);
+
             buildConstructors(javaClass);
             buildMethods(javaClass);
             addToAllClasses(javaClass);

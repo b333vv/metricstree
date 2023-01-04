@@ -23,6 +23,7 @@ import com.intellij.psi.PsiPackage;
 import com.intellij.psi.impl.file.PsiPackageImpl;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
+import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.model.code.JavaClass;
@@ -66,6 +67,10 @@ public class ProjectModelBuilder extends ModelBuilder {
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
             classVisitors().forEach(javaClass::accept);
+
+            HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
+            javaClass.accept(halsteadClassVisitor);
+
             javaFile.addClass(javaClass);
             buildConstructors(javaClass);
             buildMethods(javaClass);

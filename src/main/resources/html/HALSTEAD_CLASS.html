@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Halstead Metrics</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Halstead Metrics</h3>
+<p class="main">
+    The Halstead complexity metric is used to measure the complexity of a software program without running the program itself.
+    This metric is a static testing method where measurable software properties are identified and evaluated. The source code is analyzed and broken down to a sequence of tokens. The tokens are then classified and counted as operators or operands.
+    The operators and operands are classified and counted as follows:
+</p>
+<ul>
+    <li>Number of distinct operators: n1</li>
+    <li>Number of distinct operands: n2</li>
+    <li>Total number of operators: N1</li>
+    <li>Total number of operands: N2</li>
+    <li>Halstead Vocabulary: n = n1 + n2</li>
+    <li>Halstead Length: N = N1 + N2</li>
+    <li>Halstead Difficulty: D = (n1 / 2) * (N2 / n2)</li>
+    <li>Halstead Volume: V = N * log2(n)</li>
+    <li>Halstead Effort: E = V * D</li>
+    <li>Halstead Errors: Er = ( E ^ (2/3) ) / 3000</li>
+</ul>
+<p class="main">
+    Halstead complexity measures are software metrics introduced by Maurice Howard Halstead in 1977 as part of his treatise on establishing an empirical science of software development.
+</p>
+<p class="sources">
+    Halstead, Maurice H. Elements of Software Science. Amsterdam: Elsevier North-Holland, Inc. ISBN 0-444-00205-7.
+</p>
+</body>
+</html>

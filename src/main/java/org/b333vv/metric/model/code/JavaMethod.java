@@ -22,6 +22,7 @@ import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.MethodSignature;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -72,7 +73,7 @@ public class JavaMethod extends JavaCode {
     }
 
     @Override
-    public void accept(PsiElementVisitor visitor) {
+    public void accept(@NotNull PsiElementVisitor visitor) {
         if (visitor instanceof JavaMethodVisitor) {
             ((JavaMethodVisitor) visitor).visitJavaMethod(this);
         }

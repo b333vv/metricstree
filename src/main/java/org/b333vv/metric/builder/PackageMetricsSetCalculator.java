@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static org.b333vv.metric.model.metric.MetricLevel.PACKAGE;
+import static org.b333vv.metric.model.metric.MetricSet.HALSTEAD_PACKAGE;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class PackageMetricsSetCalculator {
@@ -122,12 +124,73 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
+        double halsteadVolume = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CHVL)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        double halsteadDifficulty = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CHD)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        long halsteadLength = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CHL)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double halsteadEffort = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CHEF)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
+        long halsteadVocabulary = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CHVC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double halsteadErrors = p
+                .classes()
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CHER)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+
         p.addMetric(Metric.of(PNCSS, nonCommentingSourceStatements));
         p.addMetric(Metric.of(PLOC, linesOfCode));
         p.addMetric(Metric.of(PNOCC, concreteClassesNumber));
         p.addMetric(Metric.of(PNOAC, abstractClassesNumber));
         p.addMetric(Metric.of(PNOSC, staticClassesNumber));
         p.addMetric(Metric.of(PNOI, interfacesNumber));
+
+        p.addMetric(Metric.of(PAHVL, halsteadVolume));
+        p.addMetric(Metric.of(PAHD, halsteadDifficulty));
+        p.addMetric(Metric.of(PACHL, halsteadLength));
+        p.addMetric(Metric.of(PACHEF, halsteadEffort));
+        p.addMetric(Metric.of(PACHVC, halsteadVocabulary));
+        p.addMetric(Metric.of(PACHER, halsteadErrors));
     }
 
 

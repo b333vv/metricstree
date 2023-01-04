@@ -19,9 +19,13 @@ package org.b333vv.metric.model.util;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.search.searches.SuperMethodsSearch;
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod;
+import com.intellij.psi.util.PsiFormatUtil;
 import com.intellij.util.Query;
+
+import static com.intellij.psi.util.PsiFormatUtilBase.*;
 
 public final class MethodUtils {
 
@@ -51,5 +55,11 @@ public final class MethodUtils {
     public static boolean isConcrete(PsiMethod psiMethod) {
         return psiMethod != null && !psiMethod.isConstructor() && !psiMethod.hasModifierProperty(PsiModifier.ABSTRACT) &&
                 !psiMethod.hasModifierProperty(PsiModifier.STATIC) && !psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
+    }
+
+    public static String calculateSignature(PsiMethod method) {
+        return PsiFormatUtil.formatMethod(method, PsiSubstitutor.EMPTY,
+                SHOW_NAME | SHOW_FQ_NAME | SHOW_CONTAINING_CLASS | SHOW_FQ_CLASS_NAMES | SHOW_PARAMETERS,
+                SHOW_TYPE);
     }
 }
