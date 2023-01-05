@@ -77,6 +77,8 @@ public class ProjectMetricsSetCalculator {
     private long abstractClassesNumber = 0;
     private long staticClassesNumber = 0;
     private long interfacesNumber = 0;
+    private long linesOfCode = 0;
+    double halsteadVolume = 0.0;
 
 
     public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
@@ -98,6 +100,7 @@ public class ProjectMetricsSetCalculator {
         calculateStatistics();
         calculateQmood();
         calculateHalstead();
+        calculateMaintainabilityIndex();
     }
 
     private void calculateQmood() {
@@ -146,9 +149,25 @@ public class ProjectMetricsSetCalculator {
         addPolymorphismFactor();
     }
 
+    private void calculateMaintainabilityIndex() {
+        long projectCC = javaProject
+                .allClasses().flatMap(JavaClass::methods)
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double operand1 = 171 - 5.2 * Math.log(halsteadVolume) - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode);
+        double operand2 = operand1 * 100 / 171;
+        double maintainabilityIndex = Math.max(0, operand2);
+
+        javaProject.addMetric(Metric.of(MetricType.MI, maintainabilityIndex));
+    }
     private void calculateHalstead() {
 
-        double halsteadVolume = javaProject
+        halsteadVolume = javaProject
                 .allPackages().flatMap(JavaCode::metrics)
                 .filter(metric -> metric.getType() == PAHVL)
                 .map(Metric::getValue)
@@ -324,7 +343,7 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void addLinesOfCode() {
-        long linesOfCode = javaProject.allClasses()
+        linesOfCode = javaProject.allClasses()
                 .flatMap(JavaClass::methods)
                 .map(javaMethod -> javaMethod.metric(LOC).getValue())
                 .reduce(Value::plus)

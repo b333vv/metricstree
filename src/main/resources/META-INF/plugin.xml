@@ -27,7 +27,7 @@
             <h3>Core metrics sets</h3>
             <ul>
                 <li>
-                   Project level: MOOD & QMOOD metrics sets, general statistics, Halstead metrics set
+                   Project level: MOOD & QMOOD metrics sets, general statistics, Halstead metrics set, Maintainability Index
                 </li>
                 <li>
                    Package level: Robert C. Martin metrics set, general statistics, Halstead metrics set
@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2023.2.0:
+                <ul>
+                    <li>Maintainability Index added.</li>
+                </ul>
+            </li>
             <li>2023.1.0:
                 <ul>
                     <li>Halstead metric set added.</li>

@@ -74,6 +74,8 @@ public final class DerivativeMetricsValidRangesSettings implements PersistentSta
         putToControlledMetricsMap(AIF, 0.374, 0.757);
         putToControlledMetricsMap(CF, 0.00, 0.243);
         putToControlledMetricsMap(PF, 0.017, 0.151);
+
+        putToControlledMetricsMap(MI, 0.00, 19.00);
     }
 
     private void putToControlledMetricsMap(MetricType type, double from, double to) {

@@ -31,6 +31,7 @@ It supports the most common sets of metrics at the project, package, class, and 
       - Effort
       - Vocabulary
       - Errors
+   - Maintainability Index [11]
 2. Package level
     - Non-Commenting Source Statements
     - Lines Of Code
@@ -114,6 +115,7 @@ It supports the most common sets of metrics at the project, package, class, and 
 > 8. M. Lanza, R. Marinescu. Object-Oriented Metrics in Practice. Using Software Metrics to Characterize, Evaluate, and Improve the Design of Object-Oriented Systems. Springer-Verlag Berlin Heidelberg, 2006.
 > 9. J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system, Proceedings of the 1995 Symposium on Software reusability, Seattle, Washington, United States, pp. 259-262, 1995.
 > 10. Halstead, Maurice H. Elements of Software Science. Amsterdam: Elsevier North-Holland, Inc. ISBN 0-444-00205-7.
+> 11. D. Coleman, D. Ash, B. Lowther, and P. Oman, “Using metrics to evaluate software system maintainability,” Computer, vol. 27, no. 8, pp. 44–49, 1994.
 # Featutes   
  - Represents metrics calculation results in forms of trees and treemaps
  - Builds trees with metrics for class open in the editor or for the entire project

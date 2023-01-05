@@ -130,7 +130,9 @@ public enum MetricType {
     Understandability("Understandability", QMOOD, PROJECT, null),
     Functionality( "Functionality", QMOOD, PROJECT, null),
     Extendibility("Extendibility", QMOOD, PROJECT, null),
-    Effectiveness("Effectiveness", QMOOD, PROJECT, null);
+    Effectiveness("Effectiveness", QMOOD, PROJECT, null),
+
+    MI ("Maintainability Index", MAINTAINABILITY_INDEX, PROJECT, null);
 
 
     private final String description;
