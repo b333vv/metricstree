@@ -32,7 +32,12 @@ public enum MetricSet {
     MOOD("MOOD Metrics Set", MetricLevel.PROJECT),
     STATISTIC("Statistics", MetricLevel.PROJECT_PACKAGE),
     QMOOD("QMOOD Quality Attributes Set", MetricLevel.PROJECT),
-    MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.PROJECT);
+
+    //MAINTAINABILITY_INDEX
+    METHOD_MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.METHOD),
+    CLASS_MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.CLASS),
+    PACKAGE_MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.PACKAGE),
+    PROJECT_MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.PROJECT);
 
     private final String set;
     private final MetricLevel level;

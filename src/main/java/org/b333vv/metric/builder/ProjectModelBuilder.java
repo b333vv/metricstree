@@ -75,6 +75,9 @@ public class ProjectModelBuilder extends ModelBuilder {
             buildConstructors(javaClass);
             buildMethods(javaClass);
             buildInnerClasses(psiClass, javaClass);
+
+            addMaintainabilityIndexForClass(javaClass);
+
             addToAllClasses(javaClass);
         }
         MetricTaskCache.instance().putJavaFile(psiJavaFile.getVirtualFile(), javaFile);

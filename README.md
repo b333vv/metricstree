@@ -52,6 +52,7 @@ It supports the most common sets of metrics at the project, package, class, and 
      - Effort
      - Vocabulary
      - Errors
+   - Maintainability Index [11]
 3. Class level
     - Chidamber-Kemerer metrics set [5]:
         - WMC: Weighted methods per class
@@ -86,6 +87,7 @@ It supports the most common sets of metrics at the project, package, class, and 
      - Effort
      - Vocabulary
      - Errors
+   - Maintainability Index [11]
 4. Method level:
     - LOC: Lines Of Code
     - CC: McCabe Cyclomatic Complexity
@@ -105,6 +107,7 @@ It supports the most common sets of metrics at the project, package, class, and 
       - Effort
       - Vocabulary
       - Errors
+   - Maintainability Index [11]
 > 1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
 > 2. Jagdish Bansiya and Carl G. Davis, A hierarchical model for object-oriented design quality assessment. Software Engineering, IEEE Transactions on, 28(1):4–17, 2002.
 > 3. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.

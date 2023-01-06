@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 
 import static icons.MetricsIcons.CLASS_METRIC;
 import static icons.MetricsIcons.PROJECT_METRIC;
+import static org.b333vv.metric.model.metric.MetricType.CMI;
 
 public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 

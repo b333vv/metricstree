@@ -31,15 +31,11 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.b333vv.metric.model.metric.MetricLevel.PROJECT;
-import static org.b333vv.metric.model.metric.MetricSet.HALSTEAD_PROJECT;
-import static org.b333vv.metric.model.metric.MetricSet.QMOOD;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class ProjectMetricsSetCalculator {
@@ -159,11 +155,13 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        double operand1 = 171 - 5.2 * Math.log(halsteadVolume) - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode);
-        double operand2 = operand1 * 100 / 171;
-        double maintainabilityIndex = Math.max(0, operand2);
+        double maintainabilityIndex = 0.0;
+        if (projectCC > 0L && linesOfCode > 0L) {
+            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
+                    - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
+        }
 
-        javaProject.addMetric(Metric.of(MetricType.MI, maintainabilityIndex));
+        javaProject.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
     }
     private void calculateHalstead() {
 

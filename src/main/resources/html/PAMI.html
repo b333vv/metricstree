@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maintainability Index</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Maintainability Index</h3>
+<p class="main">
+    The Maintainability Index first appeared in 1992 when it was proposed by Paul Oman and Jack Hagemeister
+    at the International Conference on Software Maintenance with the goal of establishing automated
+    software development metrics to guide “software related decision making”.
+    The Maintainability Index tries to give a holistic view of the relative maintenance burden for
+    different sections of a project by blending together a series of different metrics.
+</p>
+<p class="main">
+    Here we use a more modern adaptation of the original formula proposed in 2011 by Microsoft:
+</p>
+<p class="main">
+    <code>Maintainability Index = MAX(0,(171 - 5.2 * ln(Halstead Volume)
+    - 0.23 * (Cyclomatic Complexity) - 16.2 * ln(Lines of Code))*100 / 171)</code>
+</p>
+<p class="values">
+    Threshold Values: 0-9 = Good; 10-19 = Acceptable; 20-100 = Bad
+</p>
+<p class="sources">
+    D. Coleman, D. Ash, B. Lowther, and P. Oman, “Using metrics to evaluate software system maintainability,” Computer,
+    vol. 27, no. 8, pp. 44–49, 1994.
+</p>
+</body>
+</html>

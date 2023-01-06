@@ -24,6 +24,7 @@ import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.util.BucketedCount;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
@@ -191,6 +192,23 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(PACHEF, halsteadEffort));
         p.addMetric(Metric.of(PACHVC, halsteadVocabulary));
         p.addMetric(Metric.of(PACHER, halsteadErrors));
+
+        long packageCC = p
+                .classes().flatMap(JavaClass::methods)
+                .flatMap(JavaCode::metrics)
+                .filter(metric -> metric.getType() == CC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double maintainabilityIndex = 0.0;
+        if (packageCC > 0L && linesOfCode > 0L) {
+            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
+                    - 0.23 * Math.log(packageCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
+        }
+
+        p.addMetric(Metric.of(MetricType.PAMI, maintainabilityIndex));
     }
 
 

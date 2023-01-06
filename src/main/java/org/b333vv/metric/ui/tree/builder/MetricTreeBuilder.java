@@ -116,6 +116,7 @@ public abstract class MetricTreeBuilder {
                 || type.set() == MetricSet.BIEMAN_KANG
                 || metricsTreeFilter.isLanzaMarinescuMetricsSetVisible() && type.set() == MetricSet.LANZA_MARINESCU
                 || type.set() == MetricSet.CLEMENS_LEE
-                || type.set() == MetricSet.HALSTEAD_CLASS;
+                || type.set() == MetricSet.HALSTEAD_CLASS
+                || type.set() == MetricSet.CLASS_MAINTAINABILITY_INDEX;
     }
 }

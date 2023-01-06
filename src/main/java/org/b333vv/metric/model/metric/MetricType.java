@@ -132,7 +132,10 @@ public enum MetricType {
     Extendibility("Extendibility", QMOOD, PROJECT, null),
     Effectiveness("Effectiveness", QMOOD, PROJECT, null),
 
-    MI ("Maintainability Index", MAINTAINABILITY_INDEX, PROJECT, null);
+    PRMI("Maintainability Index", PROJECT_MAINTAINABILITY_INDEX, PROJECT, null),
+    PAMI("Maintainability Index",PACKAGE_MAINTAINABILITY_INDEX, PACKAGE, null),
+    CMI("Maintainability Index",CLASS_MAINTAINABILITY_INDEX, CLASS, null),
+    MMI ("Maintainability Index", METHOD_MAINTAINABILITY_INDEX, METHOD, null);
 
 
     private final String description;

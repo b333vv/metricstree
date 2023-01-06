@@ -63,9 +63,14 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2023.2.1:
+                <ul>
+                    <li>Maintainability Index added at the package, class and methods levels.</li>
+                </ul>
+            </li>
             <li>2023.2.0:
                 <ul>
-                    <li>Maintainability Index added.</li>
+                    <li>Maintainability Index added at the project level.</li>
                 </ul>
             </li>
             <li>2023.1.0:

@@ -21,13 +21,20 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.method.HalsteadMethodVisitor;
 import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
+
+import static org.b333vv.metric.model.metric.MetricType.*;
 
 public abstract class ModelBuilder {
 
@@ -44,6 +51,9 @@ public abstract class ModelBuilder {
             buildConstructors(javaClass);
             buildMethods(javaClass);
             buildInnerClasses(psiClass, javaClass);
+
+            addMaintainabilityIndexForClass(javaClass);
+
             addToAllClasses(javaClass);
         }
         return javaFile;
@@ -57,6 +67,8 @@ public abstract class ModelBuilder {
 
             HalsteadMethodVisitor halsteadMethodVisitor = new HalsteadMethodVisitor();
             javaMethod.accept(halsteadMethodVisitor);
+
+            addMaintainabilityIndexForMethod(javaMethod);
         }
     }
 
@@ -68,6 +80,8 @@ public abstract class ModelBuilder {
 
             HalsteadMethodVisitor halsteadMethodVisitor = new HalsteadMethodVisitor();
             javaMethod.accept(halsteadMethodVisitor);
+
+            addMaintainabilityIndexForMethod(javaMethod);
         }
     }
 
@@ -83,8 +97,69 @@ public abstract class ModelBuilder {
             buildConstructors(javaClass);
             buildMethods(javaClass);
             addToAllClasses(javaClass);
+
+            addMaintainabilityIndexForClass(javaClass);
+
             buildInnerClasses(psiClass, javaClass);
         }
+    }
+
+    void addMaintainabilityIndexForClass(JavaClass javaClass) {
+        long cyclomaticComplexity = javaClass.methods().flatMap(JavaMethod::metrics)
+                .filter(metric -> metric.getType() == CC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+        long linesOfCode = javaClass.methods().flatMap(JavaMethod::metrics)
+                .filter(metric -> metric.getType() == LOC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+        double halsteadVolume = javaClass.metrics()
+                .filter(metric -> metric.getType() == CHVL)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double maintainabilityIndex = 0.0;
+        if (cyclomaticComplexity > 0L && linesOfCode > 0L) {
+            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
+                    - 0.23 * Math.log(cyclomaticComplexity) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
+        }
+
+        javaClass.addMetric(Metric.of(MetricType.CMI, maintainabilityIndex));
+    }
+
+    private void addMaintainabilityIndexForMethod(JavaMethod javaMethod) {
+        long cyclomaticComplexity = javaMethod.metrics()
+                .filter(metric -> metric.getType() == CC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+        long linesOfCode = javaMethod.metrics()
+                .filter(metric -> metric.getType() == LOC)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+        double halsteadVolume = javaMethod.metrics()
+                .filter(metric -> metric.getType() == HVL)
+                .map(Metric::getValue)
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        double maintainabilityIndex = 0.0;
+        if (cyclomaticComplexity > 0L && linesOfCode > 0L) {
+            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
+                    - 0.23 * Math.log(cyclomaticComplexity) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
+        }
+
+        javaMethod.addMetric(Metric.of(MetricType.MMI, maintainabilityIndex));
     }
 
     abstract protected void addToAllClasses(JavaClass javaClass);
