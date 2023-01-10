@@ -63,9 +63,14 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2023.2.2:
+                <ul>
+                    <li>The range of compatible IDE versions is extended.</li>
+                </ul>
+            </li>
             <li>2023.2.1:
                 <ul>
-                    <li>Maintainability Index added at the package, class and methods levels.</li>
+                    <li>Maintainability Index added at the package, class and method level.</li>
                 </ul>
             </li>
             <li>2023.2.0:
@@ -167,7 +172,7 @@
       ]]>
     </change-notes>
 
-    <version>2023.1.0</version>
+    <version>2023.2.2</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -250,12 +255,12 @@
                 icon="MetricsIcons.PROJECT_TREE">
         </action>
 
-        <action id="Metrics.SortClassesByMetricsValues"
-                class="org.b333vv.metric.actions.SortClassesByMetricsValuesAction"
-                text="Sort Classes By Metrics Values"
-                description="Sort classes by metrics values"
-                icon="MetricsIcons.SORT_BY_VALUES">
-        </action>
+<!--        <action id="Metrics.SortClassesByMetricsValues"-->
+<!--                class="org.b333vv.metric.actions.SortClassesByMetricsValuesAction"-->
+<!--                text="Sort Classes By Metrics Values"-->
+<!--                description="Sort classes by metrics values"-->
+<!--                icon="MetricsIcons.SORT_BY_VALUES">-->
+<!--        </action>-->
 
         <action id="Metrics.ProjectAutoscroll"
                 class="org.b333vv.metric.actions.SetProjectAutoScrollableAction"
@@ -292,12 +297,12 @@
                 icon="MetricsIcons.BAR_CHART">
         </action>
 
-        <action id="Metrics.BuildByTypeMetricsDistributionChart"
-                class="org.b333vv.metric.actions.BuildMetricsPieChartAction"
-                text="Build Metrics Distribution Chart By Type"
-                description="Build metrics distribution chart by type"
-                icon="MetricsIcons.PIE_CHART">
-        </action>
+<!--        <action id="Metrics.BuildByTypeMetricsDistributionChart"-->
+<!--                class="org.b333vv.metric.actions.BuildMetricsPieChartAction"-->
+<!--                text="Build Metrics Distribution Chart By Type"-->
+<!--                description="Build metrics distribution chart by type"-->
+<!--                icon="MetricsIcons.PIE_CHART">-->
+<!--        </action>-->
 
         <action id="Metrics.BuildProjectMetricXYChart"
                 class="org.b333vv.metric.actions.BuildProjectMetricXYChartAction"
@@ -516,11 +521,11 @@
             <separator/>
             <reference id="Metrics.CalculateProjectMetrics"/>
             <reference id="Metrics.BuildMetricTreeMapAction"/>
-            <reference id="Metrics.SortClassesByMetricsValues"/>
+<!--            <reference id="Metrics.SortClassesByMetricsValues"/>-->
             <separator/>
             <reference id="Metrics.BuildProjectMetricXYChart"/>
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
-            <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
+<!--            <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>-->
             <separator/>
             <reference id="Metrics.BuildProjectMetricsHistoryXYChart"/>
             <separator/>
