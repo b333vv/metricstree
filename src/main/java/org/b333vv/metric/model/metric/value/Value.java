@@ -17,31 +17,24 @@
 package org.b333vv.metric.model.metric.value;
 
 import org.jetbrains.annotations.NotNull;
-import org.jscience.mathematics.number.LargeInteger;
-import org.jscience.mathematics.number.Number;
-import org.jscience.mathematics.number.Rational;
-import org.jscience.mathematics.number.Real;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Objects;
 
-public class Value implements Comparable<Value> {
+public class Value extends Number implements Comparable<Value> {
 
-    @SuppressWarnings("rawtypes")
     private final Number value;
 
-    public static final Value UNDEFINED = new Value(LargeInteger.ZERO) {
+    public static final Value UNDEFINED = new Value(0L) {
         @Override
         public String toString() {
             return "N/A";
         }
     };
-    public static final Value ZERO = new Value(LargeInteger.ZERO);
-    public static final Value ONE = new Value(LargeInteger.ONE);
-    public static final Value INFINITY = new Value(LargeInteger.ZERO) {
+    public static final Value ZERO = new Value(0L);
+    public static final Value ONE = new Value(1L);
+    public static final Value INFINITY = new Value(0L) {
         @Override
         public String toString() {
             return "Infinity";
@@ -70,68 +63,50 @@ public class Value implements Comparable<Value> {
 
     private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0###");
 
-    @SuppressWarnings("rawtypes")
-    private Value(@NotNull Number value) {
+    private Value(@NotNull Long value) {
+        this.value = value;
+    }
+
+    private Value(@NotNull Double value) {
         this.value = value;
     }
 
     public static Value of(long l) {
-        return new Value(LargeInteger.valueOf(l));
+        return new Value(l);
     }
 
     public static Value of(double d) {
-        return new Value(Real.valueOf(d));
+        return new Value(d);
     }
 
-    public static Value of(@NotNull BigInteger value) {
-        return new Value(LargeInteger.valueOf(value));
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static Value of(@NotNull Number n) {
-        return new Value(n);
-    }
+//    public static Value of(@NotNull Number n) {
+//        return new Value(n);
+//    }
 
     public Value plus(@NotNull Value that) {
-        @SuppressWarnings("rawtypes")
         Number other = that.value;
-        if (value instanceof LargeInteger) {
-            if (other instanceof LargeInteger) {
-                return new Value(((LargeInteger) value).plus((LargeInteger)other));
-            } else if (other instanceof Rational) {
-                return new Value(((Rational)other).plus(Converter.toRational((LargeInteger) value)));
-            } else if (other instanceof Real) {
-                return new Value(((Real)other).plus(Converter.toReal((LargeInteger) value)));
+        if (value instanceof Long) {
+            if (other instanceof Long) {
+                return new Value(value.longValue() + other.longValue());
             }
-        } else if (value instanceof Rational) {
-            if (other instanceof LargeInteger) {
-                return that.plus(this);
-            } else if (other instanceof Rational) {
-                return new Value(((Rational)other).plus((Rational) value));
-            } else if (other instanceof Real) {
-                return new Value(((Real)other).plus(Converter.toReal((Rational) value)));
-            }
-        } else if( value instanceof Real) {
-            if (other instanceof LargeInteger) {
-                return that.plus(this);
-            } else if (other instanceof Real) {
-                return new Value(((Real)other).plus((Real) value));
-            } else if (other instanceof Rational) {
-                return that.plus(this);
+            if (other instanceof Double) {
+                return new Value(value.doubleValue() + other.doubleValue());
             }
         }
-        throw new UnsupportedOperationException("Unable to add " + value.getClass() + " to " + value.getClass());
+        if (value instanceof Double) {
+            return new Value(value.doubleValue() + other.doubleValue());
+        }
+        return UNDEFINED;
     }
 
     public Value negate() {
-        if (value instanceof LargeInteger) {
-            return new Value(LargeInteger.ZERO.minus((LargeInteger) value));
-        } else if (value instanceof Rational) {
-            return new Value(Rational.ZERO.minus((Rational) value));
-        } else if(value instanceof Real) {
-            return new Value(Real.ZERO.minus((Real) value));
+        if (value instanceof Long) {
+            return new Value(-value.longValue());
         }
-        throw new UnsupportedOperationException("Unable to negate " + value.getClass());
+        if (value instanceof Double) {
+            return new Value(-value.doubleValue());
+        }
+        return UNDEFINED;
     }
 
     public Value minus(@NotNull Value that) {
@@ -139,69 +114,45 @@ public class Value implements Comparable<Value> {
     }
 
     public Value times(@NotNull Value that) {
-        @SuppressWarnings("rawtypes")
         Number other = that.value;
-        if(value instanceof LargeInteger) {
-            if (other instanceof LargeInteger) {
-                return new Value(((LargeInteger) value).times((LargeInteger) other));
-            } else if (other instanceof Rational) {
-                return new Value(((Rational) other).times(Converter.toRational((LargeInteger) value)));
-            } else if (other instanceof Real) {
-                return new Value(((Real) other).times(Converter.toReal((LargeInteger) value)));
+        if (value instanceof Long) {
+            if (other instanceof Long) {
+                return new Value(value.longValue() * other.longValue());
             }
-        } else if (value instanceof Rational) {
-            if (other instanceof LargeInteger) {
-                return that.times(this);
-            } else if (other instanceof Rational) {
-                return new Value(((Rational)other).times((Rational) value));
-            } else if (other instanceof Real) {
-                return new Value(((Real)other).times(Converter.toReal((Rational)value)));
-            }
-        } else if (value instanceof Real) {
-            if (other instanceof LargeInteger) {
-                return that.times(this);
-            } else if (other instanceof Real) {
-                return new Value(((Real)other).times((Real) value));
-            } else if (other instanceof Rational) {
-                return that.times(this);
+            if (other instanceof Double) {
+                return new Value(value.doubleValue() * other.doubleValue());
             }
         }
-        throw new UnsupportedOperationException("Unable to multiply " + value.getClass() + " to " + value.getClass());
+        if (value instanceof Double) {
+            return new Value(value.doubleValue() * other.doubleValue());
+        }
+        return UNDEFINED;
     }
 
     public Value divide(@NotNull Value that) {
-        @SuppressWarnings("rawtypes")
         Number other = that.value;
-        if (value instanceof LargeInteger) {
-            if (other instanceof LargeInteger) {
-                return new Value(Rational.valueOf((LargeInteger) value, (LargeInteger)other));
-            } else if (other instanceof Rational) {
-                return new Value(Converter.toRational((LargeInteger) value).divide((Rational)other));
-            } else if (other instanceof Real) {
-                return new Value(Converter.toReal((LargeInteger) value).divide((Real)other));
+        if (value instanceof Long) {
+            if (other instanceof Long) {
+                return new Value(value.longValue() / other.longValue());
             }
-        } else if (value instanceof Rational) {
-            if (other instanceof LargeInteger) {
-                return new Value(((Rational) value).divide(Converter.toRational((LargeInteger) other)));
-            } else if (other instanceof Rational) {
-                return new Value(((Rational) value).divide((Rational) other));
-            } else if (other instanceof Real) {
-                return new Value(Converter.toReal((Rational) value).divide((Real)other));
-            }
-        } else if (value instanceof Real) {
-            if (other instanceof LargeInteger) {
-                return new Value(((Real) value).divide(Converter.toReal((LargeInteger) other)));
-            } else if (other instanceof Rational) {
-                return new Value(((Real) value).divide(Converter.toReal((Rational) other)));
-            } else if (other instanceof Real) {
-                return new Value(((Real) value).divide((Real) other));
+            if (other instanceof Double) {
+                return new Value(value.doubleValue() / other.doubleValue());
             }
         }
-        throw new UnsupportedOperationException("Unable to divide " + value.getClass() + " to " + value.getClass());
+        if (value instanceof Double) {
+            return new Value(value.doubleValue() / other.doubleValue());
+        }
+        return UNDEFINED;
     }
 
     public Value pow(int exp) {
-        return new Value(value.pow(exp));
+        if (value instanceof Long) {
+            return new Value(Math.pow(value.longValue(), exp));
+        }
+        if (value instanceof Double) {
+            return new Value(Math.pow(value.doubleValue(), exp));
+        }
+        return UNDEFINED;
     }
 
     public Value abs() {
@@ -217,11 +168,19 @@ public class Value implements Comparable<Value> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Value v = (Value) o;
-        if (this.value instanceof Real && v.value instanceof Real) {
-            return ((Real) this.value).approximates((Real) v.value);
-        } else {
-            return Objects.equals(this.value, v.value);
+        Number other = ((Value) o).value;
+        if (this.value instanceof Long) {
+           if (other instanceof Long) {
+               return Objects.equals(this.value.longValue(), other.longValue());
+           }
+           if (other instanceof Double) {
+               return Objects.equals(this.value.doubleValue(), other.doubleValue());
+           }
         }
+        if (this.value instanceof Double) {
+            return Objects.equals(this.value.doubleValue(), other.doubleValue());
+        }
+        return false;
     }
 
     @Override
@@ -231,7 +190,7 @@ public class Value implements Comparable<Value> {
 
     @Override
     public String toString() {
-        if (value instanceof LargeInteger) {
+        if (value instanceof Long) {
             return value.toString();
         } else {
             return METRIC_VALUE_FORMAT.format(value.doubleValue());
@@ -240,47 +199,19 @@ public class Value implements Comparable<Value> {
 
     @Override
     public int compareTo(@NotNull Value that) {
-        @SuppressWarnings("rawtypes")
         Number other = that.value;
-        if (value instanceof LargeInteger) {
-            if (other instanceof LargeInteger) {
-                @SuppressWarnings("unchecked")
-                int i = value.compareTo(other);
-                return i;
-            } else if (other instanceof Rational) {
-                return Converter.toRational((LargeInteger) value).compareTo((Rational) other);
-            } else if (other instanceof Real) {
-                return compareReals(Converter.toReal((LargeInteger) value), (Real) other);
+        if (value instanceof Long) {
+            if (other instanceof Long) {
+                return ((Long) value).compareTo((Long) other);
             }
-        } else if (value instanceof Rational) {
-            if (other instanceof LargeInteger) {
-                return -that.compareTo(this);
-            } else if (other instanceof Rational) {
-                @SuppressWarnings("unchecked")
-                int i = value.compareTo(other);
-                return i;
-            } else if (other instanceof Real) {
-                return compareReals(Converter.toReal((Rational) value), (Real) other);
-            }
-        } else if (value instanceof Real) {
-            if (other instanceof LargeInteger) {
-                return -that.compareTo(this);
-            } else if (other instanceof Rational) {
-                return -that.compareTo(this);
-            } else if (other instanceof Real) {
-                return compareReals((Real) this.value, (Real) other);
+            if (other instanceof Double) {
+                return (Double.valueOf(value.longValue()).compareTo((Double) other));
             }
         }
-        throw new UnsupportedOperationException("Unable to compare " + value.getClass() + " to " + value.getClass());
-    }
-
-    private int compareReals(Real left, Real right) {
-        if (left.approximates(right)) {
-            return 0;
+        if (value instanceof Double) {
+            return ((Double) value).compareTo(other.doubleValue());
         }
-        else {
-            return left.compareTo(right);
-        }
+        throw new UnsupportedOperationException("Unable to compare: this = " + value + " that = " + other);
     }
 
     public boolean isGreaterThan(Value other) {
@@ -318,20 +249,23 @@ public class Value implements Comparable<Value> {
     }
 
     public double doubleValue() {
-        if (value instanceof LargeInteger) {
+        if (value instanceof Long) {
             return (double) value.longValue();
-//            throw new UnsupportedOperationException("Value is not of type double");
         }
         return value.doubleValue();
     }
 
+    @Override
+    public int intValue() {
+        return 0;
+    }
+
     public long longValue() {
-//        if (value instanceof LargeInteger) {
-//            return value.longValue();
-//        } else {
-//            return (long) value.doubleValue();
-//        }
         return value.longValue();
+    }
+    @Override
+    public float floatValue() {
+        return 0;
     }
 }
 

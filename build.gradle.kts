@@ -134,9 +134,6 @@ tasks {
 //    }
 
     dependencies {
-        api ("org.jscience:jscience:4.3.1") {
-            exclude("org.javolution")
-        }
         implementation ("org.knowm.xchart:xchart:3.6.3")
         implementation ("org.json:json:20211205")
         testImplementation ("junit:junit:4.12")

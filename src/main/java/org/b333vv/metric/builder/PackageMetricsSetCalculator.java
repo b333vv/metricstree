@@ -28,8 +28,6 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.util.BucketedCount;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.util.MethodUtils;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -39,8 +37,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static org.b333vv.metric.model.metric.MetricLevel.PACKAGE;
-import static org.b333vv.metric.model.metric.MetricSet.HALSTEAD_PACKAGE;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 public class PackageMetricsSetCalculator {
