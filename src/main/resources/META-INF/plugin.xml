@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2023.2.4:
+                <ul>
+                    <li>NPE fixed.</li>
+                </ul>
+            </li>
             <li>2023.2.3:
                 <ul>
                     <li>Calculation functions are optimized.</li>

@@ -37,11 +37,10 @@ public abstract class AbstractAction extends AnAction {
 
     @Override
     public void update(AnActionEvent e) {
-        Project project = e.getProject();
-        e.getPresentation().setVisible(true);
-        e.getPresentation().setEnabled(check(project));
-        if (check(project)) {
-            MetricsUtils.setCurrentProject(project);
+        if (check(e.getProject())) {
+            e.getPresentation().setVisible(true);
+            e.getPresentation().setEnabled(check(e.getProject()));
+            MetricsUtils.setCurrentProject(e.getProject());
         }
     }
 
