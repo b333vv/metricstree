@@ -18,13 +18,13 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.task.ExportToCsvTask;
+import org.b333vv.metric.task.ExportClassMetricsToCsvTask;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
 
 import static org.b333vv.metric.task.MetricTaskManager.getFileName;
 
-public class ExportCalculatedMetricsToCsvAction extends AbstractAction {
+public class ExportClassMetricsToCsvAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         super.actionPerformed(e);
@@ -32,7 +32,7 @@ public class ExportCalculatedMetricsToCsvAction extends AbstractAction {
         if (project != null) {
             String fileName = getFileName("csv", project);
             if (fileName != null && !fileName.isBlank()) {
-                ExportToCsvTask exportToCsvTask = new ExportToCsvTask(fileName);
+                ExportClassMetricsToCsvTask exportToCsvTask = new ExportClassMetricsToCsvTask(fileName);
                 MetricTaskCache.getQueue().run(exportToCsvTask);
             }
         }

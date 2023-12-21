@@ -30,10 +30,12 @@ import java.util.stream.Collectors;
 
 public class JavaMethod extends JavaCode {
     private final PsiMethod psiMethod;
+    private final JavaClass javaClass;
 
-    public JavaMethod(PsiMethod psiMethod) {
+    public JavaMethod(PsiMethod psiMethod, JavaClass javaClass) {
         super(signature(psiMethod));
         this.psiMethod = psiMethod;
+        this.javaClass = javaClass;
     }
 
     public static String signature(PsiMethod aMethod) {
@@ -51,6 +53,10 @@ public class JavaMethod extends JavaCode {
 
     public PsiMethod getPsiMethod() {
         return psiMethod;
+    }
+
+    public JavaClass getJavaClass() {
+        return javaClass;
     }
 
     @Override

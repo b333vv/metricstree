@@ -63,6 +63,17 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2023.3.0:
+                <ul>
+                    <li>Added ability to export package metrics to csv file.</li>
+                </ul>
+                <ul>
+                    <li>Added ability to export method metrics to csv file.</li>
+                </ul>
+                <ul>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
             <li>2023.2.4:
                 <ul>
                     <li>NPE fixed.</li>
@@ -182,7 +193,7 @@
       ]]>
     </change-notes>
 
-    <version>2023.2.3</version>
+    <version>2023.3.0</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -377,12 +388,29 @@
                 icon="MetricsIcons.BAR_LINE">
         </action>
 
-        <action id="Metrics.ExportMetricsToCsv"
-                class="org.b333vv.metric.actions.ExportCalculatedMetricsToCsvAction"
-                text="Export Class Level Metrics To CSV File"
-                description="Export class level metrics to CSV file"
+        <group
+                id="Metrics.ExportMetricsToCsv"
+                popup="true"
                 icon="MetricsIcons.CSV">
-        </action>
+            <action id="Metrics.ExportPackageMetricsToCsv"
+                class="org.b333vv.metric.actions.ExportPackageMetricsToCsvAction"
+                text="Export Package Level Metrics To CSV File"
+                description="Export package level metrics to CSV file"
+                icon="MetricsIcons.PACKAGE_METRIC">
+            </action>
+            <action id="Metrics.ExportClassMetricsToCsv"
+                    class="org.b333vv.metric.actions.ExportClassMetricsToCsvAction"
+                    text="Export Class Level Metrics To CSV File"
+                    description="Export class level metrics to CSV file"
+                    icon="MetricsIcons.CLASS_METRIC">
+            </action>
+            <action id="Metrics.ExportMethodMetricsToCsv"
+                    class="org.b333vv.metric.actions.ExportMethodMetricsToCsvAction"
+                    text="Export Method Level Metrics To CSV File"
+                    description="Export method level metrics to CSV file"
+                    icon="MetricsIcons.METHOD_METRIC">
+            </action>
+        </group>
 
         <action id="Metrics.ExportMetricsToXml"
                 class="org.b333vv.metric.actions.ExportCalculatedMetricsToXmlAction"

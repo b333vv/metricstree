@@ -61,7 +61,7 @@ public abstract class ModelBuilder {
 
     protected void buildConstructors(JavaClass javaClass) {
         for (PsiMethod aConstructor : javaClass.getPsiClass().getConstructors()) {
-            JavaMethod javaMethod = new JavaMethod(aConstructor);
+            JavaMethod javaMethod = new JavaMethod(aConstructor, javaClass);
             javaClass.addMethod(javaMethod);
             methodVisitors().forEach(javaMethod::accept);
 
@@ -74,7 +74,7 @@ public abstract class ModelBuilder {
 
     protected void buildMethods(JavaClass javaClass) {
         for (PsiMethod aMethod : javaClass.getPsiClass().getMethods()) {
-            JavaMethod javaMethod = new JavaMethod(aMethod);
+            JavaMethod javaMethod = new JavaMethod(aMethod, javaClass);
             javaClass.addMethod(javaMethod);
             methodVisitors().forEach(javaMethod::accept);
 

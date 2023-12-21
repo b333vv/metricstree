@@ -133,13 +133,22 @@ public class Value extends Number implements Comparable<Value> {
         Number other = that.value;
         if (value instanceof Long) {
             if (other instanceof Long) {
+                if (other.longValue() == 0L) {
+                    return UNDEFINED;
+                }
                 return new Value(value.longValue() / other.longValue());
             }
             if (other instanceof Double) {
+                if (other.doubleValue() == 0.0) {
+                    return UNDEFINED;
+                }
                 return new Value(value.doubleValue() / other.doubleValue());
             }
         }
         if (value instanceof Double) {
+            if (other.doubleValue() == 0.0) {
+                return UNDEFINED;
+            }
             return new Value(value.doubleValue() / other.doubleValue());
         }
         return UNDEFINED;

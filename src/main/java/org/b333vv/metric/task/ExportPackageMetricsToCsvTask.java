@@ -20,7 +20,8 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.export.CsvExporter;
+import org.b333vv.metric.export.CsvClassMetricsExporter;
+import org.b333vv.metric.export.CsvPackageMetricsExporter;
 import org.b333vv.metric.export.Exporter;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsUtils;
@@ -28,15 +29,15 @@ import org.jetbrains.annotations.NotNull;
 
 import static org.b333vv.metric.task.MetricTaskManager.getProjectModel;
 
-public class ExportToCsvTask extends Task.Backgroundable {
-    private static final String STARTED_MESSAGE = "Export class level metrics to .csv started";
-    private static final String FINISHED_MESSAGE = "Export class level metrics to .csv finished";
-    private static final String CANCELED_MESSAGE = "Export class level metrics to .csv canceled";
+public class ExportPackageMetricsToCsvTask extends Task.Backgroundable {
+    private static final String STARTED_MESSAGE = "Export package level metrics to .csv started";
+    private static final String FINISHED_MESSAGE = "Export package level metrics to .csv finished";
+    private static final String CANCELED_MESSAGE = "Export package level metrics to .csv canceled";
 
     private final String fileName;
 
-    public ExportToCsvTask(String fileName) {
-        super(MetricsUtils.getCurrentProject(), "Export Class Level Metrics To CSV");
+    public ExportPackageMetricsToCsvTask(String fileName) {
+        super(MetricsUtils.getCurrentProject(), "Export Package Level Metrics To CSV");
         this.fileName = fileName;
     }
 
@@ -45,7 +46,7 @@ public class ExportToCsvTask extends Task.Backgroundable {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
         JavaProject javaProject = getProjectModel(indicator);
         if (fileName != null) {
-            Exporter exporter = new CsvExporter();
+            Exporter exporter = new CsvPackageMetricsExporter();
             ReadAction.run(() -> exporter.export(fileName, javaProject));
         }
     }
@@ -54,7 +55,7 @@ public class ExportToCsvTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        MetricsUtils.instance().notify("Class level metrics have been successfully exported to " + fileName, myProject);
+        MetricsUtils.instance().notify("Package level metrics have been successfully exported to " + fileName, myProject);
     }
 
     @Override
