@@ -54,6 +54,7 @@ It supports the most common sets of metrics at the project, package, class, and 
      - Errors
    - Maintainability Index [11]
 3. Class level
+    - Lines of Code
     - Chidamber-Kemerer metrics set [5]:
         - WMC: Weighted methods per class
         - DIT: Depth of Inheritance Tree
