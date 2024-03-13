@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CsvExporter implements Exporter {
+    private final String CSV_DELIMITER = ",";
 
     public void export(String fileName, JavaProject javaProject) {
         File csvOutputFile = new File(fileName);
@@ -38,9 +39,9 @@ public class CsvExporter implements Exporter {
                 return;
             }
             JavaClass headerSupplier = headerSupplierOpt.get();
-            String header = "Class Name;" + headerSupplier.metrics()
+            String header = "Class Name" + CSV_DELIMITER + headerSupplier.metrics()
                     .map(m -> m.getType().name())
-                    .collect(Collectors.joining(";"));
+                    .collect(Collectors.joining(CSV_DELIMITER));
             printWriter.println(header);
             javaProject.allClasses()
                     .sorted((c1, c2) -> Objects.requireNonNull(c1.getPsiClass().getQualifiedName())
@@ -56,10 +57,10 @@ public class CsvExporter implements Exporter {
     }
 
     private String convertToCsv(JavaClass javaClass) {
-        String className = Objects.requireNonNull(javaClass.getPsiClass().getQualifiedName()) + ";";
+        String className = Objects.requireNonNull(javaClass.getPsiClass().getQualifiedName()) + CSV_DELIMITER;
         String metrics = javaClass.metrics()
                 .map(Metric::getFormattedValue)
-                .collect(Collectors.joining(";"));
+                .collect(Collectors.joining(CSV_DELIMITER));
         return className + metrics;
     }
 }
