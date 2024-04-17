@@ -63,6 +63,14 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2024.1.0:
+                <ul>
+                    <li>Added lines of code metric at class level.</li>
+                </ul>
+                <ul>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
             <li>2023.3.0:
                 <ul>
                     <li>Added ability to export package metrics to csv file.</li>
@@ -193,7 +201,7 @@
       ]]>
     </change-notes>
 
-    <version>2023.3.0</version>
+    <version>2024.1.0</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
