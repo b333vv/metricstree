@@ -77,6 +77,7 @@ public class ProjectModelBuilder extends ModelBuilder {
             buildInnerClasses(psiClass, javaClass);
 
             addMaintainabilityIndexForClass(javaClass);
+            addLinesOfCodeIndexForClass(javaClass);
 
             addToAllClasses(javaClass);
         }

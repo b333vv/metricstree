@@ -44,6 +44,9 @@ public enum MetricType {
     HVC("Halstead Vocabulary", HALSTEAD_METHOD, METHOD, null),
     HER("Halstead Errors", HALSTEAD_METHOD, METHOD, null),
 
+    // Class level metrics
+    CLOC("Lines of Code", MetricSet.UNDEFINED, CLASS, null),
+
     //Halstead's metrics set
     CHVL("Halstead Volume", HALSTEAD_CLASS, CLASS, null),
     CHD("Halstead Difficulty", HALSTEAD_CLASS, CLASS, null),
