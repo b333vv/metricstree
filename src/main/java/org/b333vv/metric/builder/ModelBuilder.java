@@ -53,6 +53,7 @@ public abstract class ModelBuilder {
             buildInnerClasses(psiClass, javaClass);
 
             addMaintainabilityIndexForClass(javaClass);
+            addLinesOfCodeIndexForClass(javaClass);
 
             addToAllClasses(javaClass);
         }
@@ -99,6 +100,7 @@ public abstract class ModelBuilder {
             addToAllClasses(javaClass);
 
             addMaintainabilityIndexForClass(javaClass);
+            addLinesOfCodeIndexForClass(javaClass);
 
             buildInnerClasses(psiClass, javaClass);
         }
@@ -131,6 +133,16 @@ public abstract class ModelBuilder {
         }
 
         javaClass.addMetric(Metric.of(MetricType.CMI, maintainabilityIndex));
+    }
+
+    void addLinesOfCodeIndexForClass(JavaClass javaClass) {
+        long linesOfCode = javaClass.methods()
+                .map(javaMethod ->  javaMethod.metric(LOC).getValue())
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        javaClass.addMetric(Metric.of(MetricType.CLOC, linesOfCode));
     }
 
     private void addMaintainabilityIndexForMethod(JavaMethod javaMethod) {
