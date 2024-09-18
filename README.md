@@ -89,6 +89,7 @@ It supports the most common sets of metrics at the project, package, class, and 
      - Vocabulary
      - Errors
    - Maintainability Index [11]
+   - Cognitive Complexity [12]
 4. Method level:
     - LOC: Lines Of Code
     - CC: McCabe Cyclomatic Complexity
@@ -109,6 +110,7 @@ It supports the most common sets of metrics at the project, package, class, and 
       - Vocabulary
       - Errors
    - Maintainability Index [11]
+   - Cognitive Complexity [12]
 > 1. Brito e Abreu F. and Carapuça R. Object-Oriented Software Engineering: Measuring and controlling the development process, 4th Interntional Conference on Software Quality, Mc Lean, VA, USA, 1994.
 > 2. Jagdish Bansiya and Carl G. Davis, A hierarchical model for object-oriented design quality assessment. Software Engineering, IEEE Transactions on, 28(1):4–17, 2002.
 > 3. Martin, R. C. OO design quality metrics. An analysis of dependencies. 28 October 1994.
@@ -120,6 +122,7 @@ It supports the most common sets of metrics at the project, package, class, and 
 > 9. J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system, Proceedings of the 1995 Symposium on Software reusability, Seattle, Washington, United States, pp. 259-262, 1995.
 > 10. Halstead, Maurice H. Elements of Software Science. Amsterdam: Elsevier North-Holland, Inc. ISBN 0-444-00205-7.
 > 11. D. Coleman, D. Ash, B. Lowther, and P. Oman, “Using metrics to evaluate software system maintainability,” Computer, vol. 27, no. 8, pp. 44–49, 1994.
+> 12. {Cognitive Complexity} a new way of measuring understandability. G. Ann Campbell. SonarSource S.A., 2023, Switzerland.
 # Featutes   
  - Represents metrics calculation results in forms of trees and treemaps
  - Builds trees with metrics for class open in the editor or for the entire project

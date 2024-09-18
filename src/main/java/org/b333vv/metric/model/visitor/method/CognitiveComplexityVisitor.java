@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.actions;
+package org.b333vv.metric.model.visitor.method;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.ToggleAction;
-import org.b333vv.metric.util.MetricsUtils;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiMethod;
+import org.b333vv.metric.model.metric.Metric;
 
-class SetProjectAutoScrollableAction extends AbstractToggleAction {
+import static org.b333vv.metric.model.metric.MetricType.CCM;
 
-    @Override
-    public boolean isSelected(@NotNull AnActionEvent event) {
-        return MetricsUtils.isProjectAutoScrollable();
-    }
+public class CognitiveComplexityVisitor extends JavaMethodVisitor {
 
     @Override
-    public void setSelected(@NotNull AnActionEvent event, boolean autoScrollable) {
-        MetricsUtils.setProjectAutoScrollable(autoScrollable);
+    public void visitMethod(PsiMethod psiMethod) {
+        MethodCognitiveComplexityVisitor visitor = new MethodCognitiveComplexityVisitor();
+        psiMethod.accept(visitor);
+        metric = Metric.of(CCM, visitor.getMethodCognitiveComplexity());
     }
-
 }

@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright 2020 b333vv
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Method Cognitive Complexity</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<h3>Class Cognitive Complexity (CCC)</h3>
+<p class="main">
+    A Cognitive Complexity score is assessed according to three basic rules [1]:
+
+    <ol>
+        <li>Ignore structures that allow multiple statements to be readably shorthanded into one</li>
+        <li>Increment (add one) for each break in the linear flow of the code</li>
+        <li>Increment when flow-breaking structures are nested</li>
+    </ol>
+
+    Additionally, a complexity score is made up of four different types of increments:
+
+    <ol>
+        <li>Nesting - assessed for nesting control flow structures inside each other</li>
+        <li>Structural - assessed on control flow structures that are subject to a nesting increment, and that increase the nesting count</li>
+        <li>Increment when flow-breaking structures are nested</li>
+        <li>Hybrid - assessed on control flow structures that are not subject to a nesting increment, but which do increase the nesting count</li>
+    </ol>
+
+    While the type of an increment makes no difference in the math - each increment adds one to the final score - making a distinction among the categories of features being counted makes it easier to understand where nesting increments do and do not apply.
+</p>
+<p class="sources">
+    G. Ann Campbell. {Cognitive Complexity} a new way of measuring understandability. SonarSource S.A., 2023, Switzerland.
+</p>
+<p class="values">
+    common value for this metric is less than 32, casual - between 32 and 64, uncommon is greater than 64.
+</p>
+</body>
+</html>

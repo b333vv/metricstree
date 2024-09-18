@@ -20,11 +20,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import icons.MetricsIcons;
+import org.b333vv.metric.actions.AbstractToggleAction;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectTreeShowPackageMetrics extends ToggleAction {
+public class ProjectTreeShowPackageMetrics extends AbstractToggleAction {
 
 
     public ProjectTreeShowPackageMetrics() {

@@ -19,8 +19,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 //    id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    id("org.jetbrains.intellij") version "1.13.3"
+    id("org.jetbrains.kotlin.jvm") version "2.0.20"
+    id("org.jetbrains.intellij") version "1.17.4"
 }
 
 fun properties(key: String) = project.findProperty(key).toString()
@@ -68,7 +68,8 @@ tasks {
     dependencies {
         implementation ("org.knowm.xchart:xchart:3.6.3")
         implementation ("org.json:json:20211205")
-        testImplementation ("junit:junit:4.12")
+//        testImplementation ("junit:junit:4.9")
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
         testImplementation ("org.assertj:assertj-core:3.6.2")
         testImplementation ("org.mockito:mockito-core:2.19.0")
     }

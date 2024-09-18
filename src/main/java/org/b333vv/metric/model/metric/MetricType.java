@@ -22,15 +22,16 @@ import org.b333vv.metric.model.visitor.type.*;
 
 import static org.b333vv.metric.model.metric.MetricLevel.*;
 import static org.b333vv.metric.model.metric.MetricSet.*;
+import static org.b333vv.metric.model.metric.MetricSet.UNDEFINED;
 
 public enum MetricType {
     //Method level metrics
-    CND("Condition Nesting Depth", MetricSet.UNDEFINED, METHOD, new ConditionNestingDepthVisitor()),
-    LND("Loop Nesting Depth", MetricSet.UNDEFINED, METHOD, new LoopNestingDepthVisitor()),
-    CC("McCabe Cyclomatic Complexity", MetricSet.UNDEFINED, METHOD, new McCabeCyclomaticComplexityVisitor()),
-    NOL("Number Of Loops", MetricSet.UNDEFINED, METHOD, new NumberOfLoopsVisitor()),
-    LOC("Lines Of Code", MetricSet.UNDEFINED, METHOD, new LinesOfCodeVisitor()),
-    NOPM("Number Of Parameters", MetricSet.UNDEFINED, METHOD, new NumberOfParametersVisitor()),
+    CND("Condition Nesting Depth", UNDEFINED, METHOD, new ConditionNestingDepthVisitor()),
+    LND("Loop Nesting Depth", UNDEFINED, METHOD, new LoopNestingDepthVisitor()),
+    CC("McCabe Cyclomatic Complexity", UNDEFINED, METHOD, new McCabeCyclomaticComplexityVisitor()),
+    NOL("Number Of Loops", UNDEFINED, METHOD, new NumberOfLoopsVisitor()),
+    LOC("Lines Of Code", UNDEFINED, METHOD, new LinesOfCodeVisitor()),
+    NOPM("Number Of Parameters", UNDEFINED, METHOD, new NumberOfParametersVisitor()),
     LAA("Locality Of Attribute Accesses", LANZA_MARINESCU, METHOD, new LocalityOfAttributeAccessesVisitor()),
     FDP("Foreign Data Providers", LANZA_MARINESCU, METHOD, new ForeignDataProvidersVisitor()),
     NOAV("Number Of Accessed Variables", LANZA_MARINESCU, METHOD, new NumberOfAccessedVariablesVisitor()),
@@ -43,9 +44,11 @@ public enum MetricType {
     HEF("Halstead Effort", HALSTEAD_METHOD, METHOD, null),
     HVC("Halstead Vocabulary", HALSTEAD_METHOD, METHOD, null),
     HER("Halstead Errors", HALSTEAD_METHOD, METHOD, null),
+    CCM("Cognitive Complexity", CAMPBELL_METHOD, METHOD, new CognitiveComplexityVisitor()),
 
     // Class level metrics
-    CLOC("Lines of Code", MetricSet.UNDEFINED, CLASS, null),
+    CLOC("Lines of Code", STATISTIC, CLASS, null),
+    CCC("Cognitive Complexity", CAMPBELL_CLASS, CLASS, null),
 
     //Halstead's metrics set
     CHVL("Halstead Volume", HALSTEAD_CLASS, CLASS, null),

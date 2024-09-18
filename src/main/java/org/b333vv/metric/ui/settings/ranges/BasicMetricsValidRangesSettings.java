@@ -79,11 +79,17 @@ public final class BasicMetricsValidRangesSettings implements PersistentStateCom
         putToControlledMetricsMap(NOAV, 3, 5, 7);
         putToControlledMetricsMap(MND, 3, 5, 7);
         putToControlledMetricsMap(CINT, 7, 11, 15);
+        //Method Cognitive Complexity
+        putToControlledMetricsMap(CCM, 8, 12, 16);
 
         //Lanza-Marinescu metrics set
         putToControlledMetricsMap(ATFD, 6, 8, 10);
         putToControlledMetricsMap(NOPA, 3, 5, 12);
         putToControlledMetricsMap(NOAC, 4, 7, 13);
+
+
+        //Class Cognitive Complexity
+        putToControlledMetricsMap(CCC, 32, 64, 96);
 
         //Chr. Clemens Lee metrics set
         putToControlledMetricsMap(NCSS, 1000, 1500, 2000);

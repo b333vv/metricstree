@@ -19,11 +19,12 @@ package org.b333vv.metric.actions.treefilters.projecttree;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
+import org.b333vv.metric.actions.AbstractToggleAction;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectTreeShowRobertMartinMetrics extends ToggleAction {
+public class ProjectTreeShowRobertMartinMetrics extends AbstractToggleAction {
 
 
     public ProjectTreeShowRobertMartinMetrics() {

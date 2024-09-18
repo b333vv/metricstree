@@ -16,13 +16,14 @@
 
 package org.b333vv.metric.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-class SetShowClassMetricsTreeAction extends ToggleAction {
+class SetShowClassMetricsTreeAction extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent event) {

@@ -33,7 +33,7 @@
                    Package level: Robert C. Martin metrics set, general statistics, Halstead metrics set
                 </li>
                 <li>
-                   Class and method levels: Chidamber-Kemerer, Lorenz-Kidd, Li-Henry and Lanza-Marinescu, Halstead metrics sets
+                   Class and method levels: Chidamber-Kemerer, Lorenz-Kidd, Li-Henry and Lanza-Marinescu, Halstead, G. Ann Campbell metrics sets
                 </li>
             </ul>
             <h3>Features</h3>
@@ -63,6 +63,14 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2024.1.1:
+                <ul>
+                    <li>Improved support for current IDE versions.</li>
+                </ul>
+                <ul>
+                    <li>Added metrics for cognitive complexity at the method and class levels.</li>
+                </ul>
+            </li>
             <li>2024.1.0:
                 <ul>
                     <li>Added lines of code metric at class level.</li>
@@ -201,7 +209,7 @@
       ]]>
     </change-notes>
 
-    <version>2024.1.0</version>
+    <version>2024.1.1</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -210,7 +218,8 @@
     <depends>Git4Idea</depends>
 
 <!--    <idea-version since-build="203.8084"/>-->
-    <idea-version since-build="193.7288"/>
+    <idea-version since-build="223.8214"/>
+<!--    <idea-version since-build="193.7288"/>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree13.svg"

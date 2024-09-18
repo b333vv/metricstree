@@ -75,10 +75,12 @@ public final class DerivativeMetricsValidRangesSettings implements PersistentSta
         putToControlledMetricsMap(CF, 0.00, 0.243);
         putToControlledMetricsMap(PF, 0.017, 0.151);
 
+        /* The currently implemented reference interval logic is not suitable for MI
         putToControlledMetricsMap(PRMI, 0.00, 19.00);
         putToControlledMetricsMap(PAMI, 0.00, 19.00);
         putToControlledMetricsMap(CMI, 0.00, 19.00);
         putToControlledMetricsMap(MMI, 0.00, 19.00);
+        */
     }
 
     private void putToControlledMetricsMap(MetricType type, double from, double to) {

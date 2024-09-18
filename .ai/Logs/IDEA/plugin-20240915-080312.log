@@ -1,0 +1,16 @@
+2024-09-15T05:03:12.196Z [ctureModificationListener$Companion.initForProject] INFO ProjectStructureModificationListener is init for project metricstree
+2024-09-15T05:03:12.197Z [s.AiToolwindowsInitializer.reinitializeToolWindows] INFO AI state ENABLED
+2024-09-15T05:03:12.200Z [nfrastructureApiService.createInfrastructureFacade] INFO isInfrastructureDebug: false
+2024-09-15T05:03:12.201Z [nfrastructureApiService.createInfrastructureFacade] INFO Use port: 50336
+2024-09-15T05:03:12.201Z [.services.HeavyInfrastructureApiService.initialize] INFO Plugin context initialized
+2024-09-15T05:03:12.201Z [itializeManager$initializeAnalyzer$1.invokeSuspend] INFO initializing infrastructure
+2024-09-15T05:03:12.211Z [intellij.services.AiInitializeManager.initializeAI] INFO IntelliJ listens web server on port: 63342
+2024-09-15T05:03:12.216Z [y.aiintellij.ui.panels.AIToolWindowLogPanel.<init>] INFO initializing a logs panel
+2024-09-15T05:03:12.225Z [y.aiintellij.ui.panels.AIToolWindowLogPanel.<init>] INFO initializing a logs panel
+2024-09-15T05:03:14.770Z [initializeInfrastructureInstance$1$1.invokeSuspend] INFO Infrastructure initialized
+2024-09-15T05:03:15.159Z [y.aiintellij.utils.logging.AiProjectLogger.cleanUp] INFO Clean up logs files was started
+2024-09-15T05:03:15.159Z [y.aiintellij.utils.logging.AiProjectLogger.cleanUp] INFO Clean up logs files was finished
+2024-09-15T05:03:16.750Z [tellij.services.PluginProjectService.createProject] INFO Project created
+2024-09-15T05:03:17.025Z [els.AIToolWindowLogPanel.reloadAdditionalLogPanels] INFO reloading additional log panels
+2024-09-15T05:03:17.026Z [els.AIToolWindowLogPanel.reloadAdditionalLogPanels] INFO not in developer mode, skipping
+2024-09-15T05:03:17.028Z [ices.aie.AieInitializer$initialize$1.invokeSuspend] INFO AIE integration isn't initialized, skipping listeners initialization

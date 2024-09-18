@@ -79,6 +79,8 @@ public class ProjectModelBuilder extends ModelBuilder {
             addMaintainabilityIndexForClass(javaClass);
             addLinesOfCodeIndexForClass(javaClass);
 
+            addCognitiveComplexityForClass(javaClass);
+
             addToAllClasses(javaClass);
         }
         MetricTaskCache.instance().putJavaFile(psiJavaFile.getVirtualFile(), javaFile);

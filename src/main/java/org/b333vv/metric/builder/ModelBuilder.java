@@ -55,6 +55,9 @@ public abstract class ModelBuilder {
             addMaintainabilityIndexForClass(javaClass);
             addLinesOfCodeIndexForClass(javaClass);
 
+            addCognitiveComplexityForClass(javaClass);
+
+
             addToAllClasses(javaClass);
         }
         return javaFile;
@@ -143,6 +146,16 @@ public abstract class ModelBuilder {
                 .longValue();
 
         javaClass.addMetric(Metric.of(MetricType.CLOC, linesOfCode));
+    }
+
+    void addCognitiveComplexityForClass(JavaClass javaClass) {
+        long cognitiveComplexity = javaClass.methods()
+                .map(javaMethod ->  javaMethod.metric(CCM).getValue())
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .longValue();
+
+        javaClass.addMetric(Metric.of(MetricType.CCC, cognitiveComplexity));
     }
 
     private void addMaintainabilityIndexForMethod(JavaMethod javaMethod) {

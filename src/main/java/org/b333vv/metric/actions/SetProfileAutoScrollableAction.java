@@ -21,7 +21,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-class SetProfileAutoScrollableAction extends ToggleAction {
+class SetProfileAutoScrollableAction extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent event) {

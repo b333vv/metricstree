@@ -20,11 +20,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import icons.MetricsIcons;
+import org.b333vv.metric.actions.AbstractToggleAction;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectTreeShowClassMetrics extends ToggleAction {
+public class ProjectTreeShowClassMetrics extends AbstractToggleAction {
 
     public ProjectTreeShowClassMetrics() {
         super("Show Class Metrics", "Show or dont show class metrics", MetricsIcons.CLASS_METRIC);

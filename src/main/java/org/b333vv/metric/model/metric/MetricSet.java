@@ -33,6 +33,9 @@ public enum MetricSet {
     STATISTIC("Statistics", MetricLevel.PROJECT_PACKAGE),
     QMOOD("QMOOD Quality Attributes Set", MetricLevel.PROJECT),
 
+    CAMPBELL_METHOD("G. Ann Campbell Metrics Set", MetricLevel.METHOD),
+    CAMPBELL_CLASS("G. Ann Campbell Metrics Set", MetricLevel.CLASS),
+
     //MAINTAINABILITY_INDEX
     METHOD_MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.METHOD),
     CLASS_MAINTAINABILITY_INDEX("Maintainability Index", MetricLevel.CLASS),

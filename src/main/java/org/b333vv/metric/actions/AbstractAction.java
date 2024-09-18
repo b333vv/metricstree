@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -33,6 +34,11 @@ public abstract class AbstractAction extends AnAction {
         if (check(project)) {
             MetricsUtils.setCurrentProject(project);
         }
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override
