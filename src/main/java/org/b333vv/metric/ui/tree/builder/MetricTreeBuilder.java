@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
@@ -32,8 +34,11 @@ import javax.swing.tree.DefaultTreeModel;
 public abstract class MetricTreeBuilder {
     protected DefaultTreeModel model;
     protected final JavaCode javaCode;
+    protected final Project project;
 
-    public MetricTreeBuilder(JavaCode javaCode) {
+
+    public MetricTreeBuilder(JavaCode javaCode, Project project) {
+        this.project = project;
         this.javaCode = javaCode;
     }
 
@@ -89,6 +94,7 @@ public abstract class MetricTreeBuilder {
     protected void storeMetric(MethodNode methodNode, MetricNode metricNode) {}
 
     protected MetricsTreeFilter getMetricsTreeFilter() {
+//        return MetricsUtils.getClassMetricsTreeFilter();
         return MetricsUtils.getClassMetricsTreeFilter();
     }
 

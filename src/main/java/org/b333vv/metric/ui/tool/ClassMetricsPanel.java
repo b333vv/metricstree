@@ -20,18 +20,19 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.project.NoAccessDuringPsiEvents;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
-import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,10 +44,10 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     private ClassMetricsPanel(Project project) {
         super(project, "Metrics.ClassMetricsToolbar", SPLIT_PROPORTION_PROPERTY);
         MetricsEventListener metricsEventListener = new ClassMetricsEventListener();
-        project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
+        project.getMessageBus().connect().subscribe(MetricsEventListener.TOPIC, metricsEventListener);
 
         EditorChangeListener editorChangeListener = new EditorChangeListener();
-        project.getMessageBus().connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorChangeListener);
+        project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorChangeListener);
     }
 
     public static ClassMetricsPanel newInstance(Project project) {
@@ -58,7 +59,8 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
         psiJavaFile = file;
-        if (MetricsService.isShowClassMetricsTree()) {
+//        if (MetricsService.isShowClassMetricsTree()) {
+        if (project.getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree()) {
             MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
         }
     }
@@ -71,10 +73,22 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
         MetricsUtils.setClassMetricsTreeExists(false);
-        MetricsUtils.getConsole().info("Built metrics tree for " + psiJavaFile.getName());
+//        MetricsUtils.getConsole().info("Built metrics tree for " + psiJavaFile.getName());
+        MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                .printInfo("Built metrics tree for " + psiJavaFile.getName());
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-        JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
-        metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
+//        JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+//        CachedValueProvider.Result.create(javaFile, psiJavaFile);
+
+
+
+        JavaFile jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
+            JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+            return CachedValueProvider.Result.create(javaFile, psiJavaFile);
+        });
+
+//        metricTreeBuilder = new ClassMetricTreeBuilder(javaFile);
+        metricTreeBuilder = new ClassMetricTreeBuilder(jf, psiJavaFile.getProject());
         buildTreeModel();
         MetricsUtils.setClassMetricsTreeExists(true);
     }

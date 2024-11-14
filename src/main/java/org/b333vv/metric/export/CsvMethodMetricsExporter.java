@@ -19,6 +19,7 @@ package org.b333vv.metric.export;
 import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.MethodSignature;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
@@ -54,10 +55,13 @@ public class CsvMethodMetricsExporter implements Exporter {
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
         }
         if (csvOutputFile.exists()) {
-            MetricsUtils.getConsole().info("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
+//            MetricsUtils.getConsole().info("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }
     }
 

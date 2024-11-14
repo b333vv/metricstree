@@ -20,15 +20,11 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
-import java.util.Set;
 
 public class MetricByProfileTable {
     private final Model model;

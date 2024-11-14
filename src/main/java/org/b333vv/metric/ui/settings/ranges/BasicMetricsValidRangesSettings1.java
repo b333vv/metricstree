@@ -32,8 +32,11 @@ import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
-@State(name = "BasicMetricsValidRanges", storages = {@Storage("basic-metrics-valid-ranges.xml")})
-public final class BasicMetricsValidRangesSettings implements PersistentStateComponent<BasicMetricsValidRangesSettings> {
+@State(
+        name = "BasicMetricsValidRanges",
+        storages = {@Storage("basic-metrics-valid-ranges.xml")}
+)
+public final class BasicMetricsValidRangesSettings1 implements PersistentStateComponent<BasicMetricsValidRangesSettings1> {
 
     private boolean controlValidRanges;
 
@@ -42,7 +45,7 @@ public final class BasicMetricsValidRangesSettings implements PersistentStateCom
     private final Map<String, BasicMetricsValidRangeStub> temporaryControlledMetrics = new HashMap<>();
     private final Map<String, BasicMetricsValidRangeStub> temporaryUnControlledMetrics = new HashMap<>();
 
-    public BasicMetricsValidRangesSettings() {
+    public BasicMetricsValidRangesSettings1() {
         loadInitialValues();
     }
 
@@ -172,12 +175,12 @@ public final class BasicMetricsValidRangesSettings implements PersistentStateCom
     }
 
     @Override
-    public synchronized BasicMetricsValidRangesSettings getState() {
+    public synchronized BasicMetricsValidRangesSettings1 getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull BasicMetricsValidRangesSettings state) {
+    public synchronized void loadState(@NotNull BasicMetricsValidRangesSettings1 state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

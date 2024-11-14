@@ -43,7 +43,7 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
 
     public ClassMetricsValuesEvolutionTreeBuilder(JavaFile javaFile,
                                                   Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution) {
-        super(javaFile);
+        super(javaFile, javaFile.classes().findAny().get().getPsiClass().getProject());
         this.classMetricsEvolution = classMetricsEvolution;
     }
 

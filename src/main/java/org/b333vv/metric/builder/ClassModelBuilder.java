@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.builder;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.code.JavaClass;
@@ -27,17 +28,21 @@ import java.util.stream.Stream;
 
 public class ClassModelBuilder extends ModelBuilder {
 
+
     public JavaFile buildJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         return createJavaFile(psiJavaFile);
     }
 
+    @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
         return MetricsService.classVisitorsForClassMetricsTree();
     }
 
+    @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
+
         return MetricsService.methodsVisitorsForClassMetricsTree();
     }
 

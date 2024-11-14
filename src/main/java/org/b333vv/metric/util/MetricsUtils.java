@@ -18,6 +18,7 @@ package org.b333vv.metric.util;
 
 //import com.intellij.notification.NotificationGroupManager;
 //import com.intellij.notification.NotificationType;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -30,6 +31,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import org.b333vv.metric.ui.log.MetricsConsole;
@@ -43,111 +45,111 @@ import java.util.*;
 public final class MetricsUtils {
 
 //    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("MetricsTree Info", NotificationDisplayType.BALLOON, true);
-    private final MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
-    private final MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
+    private final static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
+    private final static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
 
-    private Project currentProject;
-    private boolean projectAutoScrollable = true;
-    private boolean profileAutoScrollable = true;
-    private boolean classMetricsTreeExists = false;
-    private boolean projectMetricsTreeActive = false;
-    private boolean classMetricsValuesEvolutionCalculationPerforming = false;
-    private boolean classMetricsValuesEvolutionAdded = false;
+    private static Project currentProject;
+    private static boolean projectAutoScrollable = true;
+    private static boolean profileAutoScrollable = true;
+    private static boolean classMetricsTreeExists = false;
+    private static boolean projectMetricsTreeActive = false;
+    private static boolean classMetricsValuesEvolutionCalculationPerforming = false;
+    private static boolean classMetricsValuesEvolutionAdded = false;
 
 
     private MetricsUtils() {
         // Utility class
     }
 
-    public static MetricsUtils instance() {
-        return ServiceManager.getService(MetricsUtils.class);
-    }
+//    public static MetricsUtils instance() {
+//        return ServiceManager.getService(MetricsUtils.class);
+////        return getCurrentProject().getService(MetricsUtils.class);
+//    }
 
     public static synchronized MetricsConsole getConsole() {
-        return getForProject(MetricsConsole.class);
+//        return getForProject(MetricsConsole.class);
+//        return getCurrentProject().getComponent(MetricsConsole.class);
+        return getCurrentProject().getService(MetricsConsole.class);
     }
 
-    public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean classMetricsValuesEvolutionCalculationPerforming) {
-        instance().classMetricsValuesEvolutionCalculationPerforming = classMetricsValuesEvolutionCalculationPerforming;
+    public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean value) {
+        classMetricsValuesEvolutionCalculationPerforming = value;
     }
 
     public static boolean isClassMetricsValuesEvolutionAdded() {
-        return instance().classMetricsValuesEvolutionAdded;
+        return classMetricsValuesEvolutionAdded;
     }
 
-    public static void setClassMetricsValuesEvolutionAdded(boolean classMetricsValuesEvolutionAdded) {
-        instance().classMetricsValuesEvolutionAdded = classMetricsValuesEvolutionAdded;
+    public static void setClassMetricsValuesEvolutionAdded(boolean value) {
+        classMetricsValuesEvolutionAdded = value;
     }
 
     public static Project getCurrentProject() {
-        return instance().currentProject;
+//        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
+        return currentProject;
+//        return project;
     }
 
     public static void setCurrentProject(Project value) {
-        instance().currentProject = value;
+        currentProject = value;
     }
 
     public static DumbService getDumbService() {
-        return DumbService.getInstance(instance().currentProject);
+        return DumbService.getInstance(currentProject);
     }
 
     public static MetricsTreeFilter getClassMetricsTreeFilter() {
-        return instance().classMetricsTreeFilter;
+        return classMetricsTreeFilter;
     }
 
     public static MetricsTreeFilter getProjectMetricsTreeFilter() {
-        return instance().projectMetricsTreeFilter;
+        return projectMetricsTreeFilter;
     }
 
     public static boolean isProjectAutoScrollable() {
-        return instance().projectAutoScrollable;
+        return projectAutoScrollable;
     }
 
-    public static void setProjectAutoScrollable(boolean autoScrollable) {
-        instance().projectAutoScrollable = autoScrollable;
+    public static void setProjectAutoScrollable(boolean value) {
+        projectAutoScrollable = value;
     }
 
     public static boolean isProfileAutoScrollable() {
-        return instance().profileAutoScrollable;
+        return profileAutoScrollable;
     }
 
-    public static void setProfileAutoScrollable(boolean autoScrollable) {
-        instance().profileAutoScrollable = autoScrollable;
+    public static void setProfileAutoScrollable(boolean value) {
+        profileAutoScrollable = value;
     }
 
     public static boolean isClassMetricsTreeExists() {
-        return instance().classMetricsTreeExists;
+        return classMetricsTreeExists;
     }
 
-    public static void setClassMetricsTreeExists(boolean classMetricsTreeExists) {
-        instance().classMetricsTreeExists = classMetricsTreeExists;
+    public static void setClassMetricsTreeExists(boolean value) {
+        classMetricsTreeExists = classMetricsTreeExists;
     }
 
     public static boolean isMetricsEvolutionCalculationPerforming() {
-        return instance().classMetricsValuesEvolutionCalculationPerforming;
+        return classMetricsValuesEvolutionCalculationPerforming;
     }
 
     public static <T> T get(ComponentManager container, Class<T> clazz) {
-        T t = container.getComponent(clazz);
-        if (t == null) {
-            throw new IllegalArgumentException("Class not found: " + clazz.getName());
-        }
-        return t;
+//        T t = container.getService(clazz);
+//        if (t == null) {
+//            throw new IllegalArgumentException("Class not found: " + clazz.getName());
+//        }
+//        return t;
+        return currentProject.getService(clazz);
     }
 
     public static <T> T getForProject(Class<T> clazz) {
-        Project project = instance().currentProject;
-        if (project != null) {
-            return instance().currentProject.getComponent(clazz);
-        }
-        else {
-            return get(clazz);
-        }
+        return currentProject.getService(clazz);
     }
 
-    public static <T> T get(Class<T> clazz) {
-        return get(ApplicationManager.getApplication(), clazz);
-    }
+//    public static <T> T get(Class<T> clazz) {
+//        return get(ApplicationManager.getApplication(), clazz);
+//    }
 
     @CheckForNull
     public static VirtualFile getSelectedFile(Project project) {
@@ -256,11 +258,11 @@ public final class MetricsUtils {
     }
 
     public static boolean isProjectTreeActive() {
-        return instance().projectMetricsTreeActive;
+        return projectMetricsTreeActive;
     }
 
-    public static boolean setProjectTreeActive(boolean projectMetricsTreeActive) {
-        return instance().projectMetricsTreeActive = projectMetricsTreeActive;
+    public static boolean setProjectTreeActive(boolean value) {
+        return projectMetricsTreeActive = value;
     }
 
     public void notify(String content, Project project) {

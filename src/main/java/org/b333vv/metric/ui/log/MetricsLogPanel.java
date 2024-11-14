@@ -40,7 +40,9 @@ public class MetricsLogPanel extends SimpleToolWindowPanel {
   }
 
   private void addConsole() {
-    ConsoleView consoleView = MetricsUtils.get(project, MetricsConsole.class).getConsoleView();
+//    ConsoleView consoleView = MetricsUtils.get(project, MetricsConsole.class).getConsoleView();
+    ConsoleView consoleView = project.getService(MetricsConsole.class).getConsoleView();
+//    ConsoleView consoleView = project.getComponent(MetricsConsole.class).getConsoleView();
     super.setContent(consoleView.getComponent());
   }
 

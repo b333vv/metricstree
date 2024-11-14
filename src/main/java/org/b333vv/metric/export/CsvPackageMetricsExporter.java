@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.export;
 
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
@@ -49,10 +50,13 @@ public class CsvPackageMetricsExporter implements Exporter {
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
         }
         if (csvOutputFile.exists()) {
-            MetricsUtils.getConsole().info("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
+//            MetricsUtils.getConsole().info("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }
     }
 

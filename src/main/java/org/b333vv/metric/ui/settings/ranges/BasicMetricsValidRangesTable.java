@@ -133,9 +133,9 @@ public class BasicMetricsValidRangesTable {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
             BasicMetricsValidRangeStub value = model.items().get(selectedIndex);
-            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                    MetricsUtils.get(BasicMetricsValidRangesTable.this.project, BasicMetricsValidRangesSettings.class);
-            basicMetricsValidRangesSettings.addToUnControlledMetrics(value);
+            BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 =
+                    MetricsUtils.get(BasicMetricsValidRangesTable.this.project, BasicMetricsValidRangesSettings1.class);
+            basicMetricsValidRangesSettings1.addToUnControlledMetrics(value);
             model.items().remove(value);
             panel.revalidate();
             panel.repaint();
@@ -144,9 +144,9 @@ public class BasicMetricsValidRangesTable {
 
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 6;
-        final BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                MetricsUtils.get(BasicMetricsValidRangesTable.this.project, BasicMetricsValidRangesSettings.class);
-        private List<BasicMetricsValidRangeStub> rows = basicMetricsValidRangesSettings.getControlledMetricsList();
+        final BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 =
+                MetricsUtils.get(BasicMetricsValidRangesTable.this.project, BasicMetricsValidRangesSettings1.class);
+        private List<BasicMetricsValidRangeStub> rows = basicMetricsValidRangesSettings1.getControlledMetricsList();
 
         @Override
         public int getRowCount() {

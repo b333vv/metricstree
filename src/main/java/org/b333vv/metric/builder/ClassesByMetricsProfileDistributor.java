@@ -28,7 +28,7 @@ import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.profile.MetricProfile;
 import org.b333vv.metric.ui.settings.profile.MetricProfileItem;
-import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
+import org.b333vv.metric.ui.settings.profile.MetricProfileSettings1;
 import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.*;
@@ -80,9 +80,10 @@ public class ClassesByMetricsProfileDistributor {
 
 
     private static Set<MetricProfile> metricProfiles() {
-        MetricProfileSettings metricProfileSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                MetricProfileSettings.class);
-        Map<String, List<MetricProfileItem>> savedProfiles = metricProfileSettings.getProfiles();
+//        MetricProfileSettings metricProfileSettings = project.getService(MetricProfileSettings.class);
+        MetricProfileSettings1 metricProfileSettings1 = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+                MetricProfileSettings1.class);
+        Map<String, List<MetricProfileItem>> savedProfiles = metricProfileSettings1.getProfiles();
         Set<MetricProfile> profiles = new HashSet<>();
         for (Map.Entry<String, List<MetricProfileItem>> entry : savedProfiles.entrySet()) {
             Map<MetricType, Range> profileMap = new HashMap<>();

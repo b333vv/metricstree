@@ -20,7 +20,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.ui.settings.ConfigurationPanel;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,12 +27,12 @@ import java.awt.*;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings> {
+public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings1> {
     private final Project project;
     private JPanel panel;
     private JCheckBox projectMetricsStampStored;
 
-    public OtherSettingsPanel(Project project, OtherSettings settings) {
+    public OtherSettingsPanel(Project project, OtherSettings1 settings) {
         this.project = project;
         createUIComponents(settings);
     }
@@ -43,21 +42,21 @@ public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings> {
     }
 
     @Override
-    public boolean isModified(OtherSettings settings) {
+    public boolean isModified(OtherSettings1 settings) {
         return settings.isProjectMetricsStampStored() != projectMetricsStampStored.isSelected();
     }
 
     @Override
-    public void save(OtherSettings settings) {
+    public void save(OtherSettings1 settings) {
         settings.setProjectMetricsStampStored(projectMetricsStampStored.isSelected());
     }
 
     @Override
-    public void load(OtherSettings settings) {
+    public void load(OtherSettings1 settings) {
         projectMetricsStampStored.setSelected(settings.isProjectMetricsStampStored());;
     }
 
-    private void createUIComponents(OtherSettings settings) {
+    private void createUIComponents(OtherSettings1 settings) {
 
         projectMetricsStampStored = new JCheckBox("Save values of project level metrics in files " +
                 "on disk during their calculation",

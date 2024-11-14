@@ -45,8 +45,8 @@ public class AddValidRangeForBasicMetricDialog extends DialogWrapper {
         super(project, false);
         setTitle("Add Range For Basic Metric");
 
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(project, BasicMetricsValidRangesSettings.class);
-        List<BasicMetricsValidRangeStub> uncontrolledMetrics = basicMetricsValidRangesSettings.getUnControlledMetricsList();
+        BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 = MetricsUtils.get(project, BasicMetricsValidRangesSettings1.class);
+        List<BasicMetricsValidRangeStub> uncontrolledMetrics = basicMetricsValidRangesSettings1.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 
         metricsAllowableValuesRangeStubCombo.addItemListener(arg -> {
@@ -94,7 +94,7 @@ public class AddValidRangeForBasicMetricDialog extends DialogWrapper {
                 metricsAllowableValueRangeStub.setVeryHighBound((Long) veryHighBound.getModel().getValue());
                 if (metricsAllowableValueRangeStub.getHighBound() >= metricsAllowableValueRangeStub.getRegularBound()
                         && metricsAllowableValueRangeStub.getVeryHighBound() >= metricsAllowableValueRangeStub.getHighBound()) {
-                    basicMetricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
+                    basicMetricsValidRangesSettings1.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
                     super.actionPerformed(e);
                     dispose();
                 }

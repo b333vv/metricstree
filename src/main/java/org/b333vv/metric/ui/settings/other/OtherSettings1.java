@@ -22,12 +22,15 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
-@State(name = "OtherSettings", storages = {@Storage("other-settings.xml")})
-public final class OtherSettings implements PersistentStateComponent<OtherSettings> {
+@State(
+        name = "OtherSettings",
+        storages = {@Storage("other-settings.xml")}
+)
+public final class OtherSettings1 implements PersistentStateComponent<OtherSettings1> {
 
     private boolean projectMetricsStampStored;
 
-    public OtherSettings() {
+    public OtherSettings1() {
         loadInitialValues();
     }
 
@@ -46,12 +49,12 @@ public final class OtherSettings implements PersistentStateComponent<OtherSettin
     }
 
     @Override
-    public synchronized OtherSettings getState() {
+    public synchronized OtherSettings1 getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull OtherSettings state) {
+    public synchronized void loadState(@NotNull OtherSettings1 state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 }

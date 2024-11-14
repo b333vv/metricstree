@@ -20,7 +20,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -28,12 +27,15 @@ import java.util.*;
 import static java.lang.Long.MAX_VALUE;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
-@State(name = "MetricProfileSettings", storages = {@Storage("metric-profile-settings.xml")})
-public final class MetricProfileSettings implements PersistentStateComponent<MetricProfileSettings> {
+@State(
+        name = "MetricProfileSettings",
+        storages = {@Storage("metric-profile-settings.xml")}
+)
+public final class MetricProfileSettings1 implements PersistentStateComponent<MetricProfileSettings1> {
 
     private final Map<String, List<MetricProfileItem>> profiles = new TreeMap<>();
 
-    public MetricProfileSettings() {
+    public MetricProfileSettings1() {
         loadInitialValues();
     }
 
@@ -170,12 +172,12 @@ public final class MetricProfileSettings implements PersistentStateComponent<Met
     }
 
     @Override
-    public synchronized MetricProfileSettings getState() {
+    public synchronized MetricProfileSettings1 getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull MetricProfileSettings state) {
+    public synchronized void loadState(@NotNull MetricProfileSettings1 state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 }

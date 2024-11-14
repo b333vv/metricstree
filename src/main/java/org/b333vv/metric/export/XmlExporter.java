@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.export;
 
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.util.MetricsUtils;
@@ -54,11 +55,15 @@ public class XmlExporter implements Exporter {
             StreamResult result = new StreamResult(xmlOutputFile);
             transformer.transform(source, result);
         } catch (TransformerException e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
         }
         if (xmlOutputFile.exists()) {
-            MetricsUtils.getConsole().info("Project, packages, classes and methods metrics have been exported in "
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Project, packages, classes and methods metrics have been exported in "
                     + xmlOutputFile.getAbsolutePath());
+//            MetricsUtils.getConsole().info("Project, packages, classes and methods metrics have been exported in "
+//                    + xmlOutputFile.getAbsolutePath());
         }
     }
 
@@ -83,7 +88,8 @@ public class XmlExporter implements Exporter {
                 addPackages(packageNode, packageElement, doc);
             }
         } catch (ParserConfigurationException e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
         }
         return doc;
     }

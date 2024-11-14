@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.builder;
 
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.util.MetricsUtils;
@@ -74,14 +75,18 @@ public class ProjectMetricsSet2Json {
         try (PrintWriter printWriter = new PrintWriter(outputFile)) {
             printWriter.println(json);
         } catch (FileNotFoundException e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
         }
     }
 
     public static TreeSet<JSONObject> parseStoredMetricsSnapshots() {
         File directory = new File(directoryPath);
         if (!directory.exists() || Objects.requireNonNull(directory.listFiles()).length == 0){
-            MetricsUtils.getConsole().error("There are no saved project metrics.");
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("There are no saved project metrics.");
+//            MetricsUtils.getConsole().error("There are no saved project metrics.");
             return null;
         }
 
@@ -103,7 +108,9 @@ public class ProjectMetricsSet2Json {
             JSONTokener jsonTokener = new JSONTokener(new String(Files.readAllBytes(file.toPath())));
             return new JSONObject(jsonTokener);
         } catch (Exception e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
         }
         return null;
     }

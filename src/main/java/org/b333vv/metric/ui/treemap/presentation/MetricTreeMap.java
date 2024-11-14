@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.treemap.presentation;
 
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.*;
@@ -327,7 +328,8 @@ public class MetricTreeMap<N> extends JPanel {
                     metricTreeMap.repaint();
                 }
             } catch (InterruptedException | ExecutionException e) {
-                MetricsUtils.getConsole().error(e.getMessage());
+                MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//                MetricsUtils.getConsole().error(e.getMessage());
             }
         }
     }

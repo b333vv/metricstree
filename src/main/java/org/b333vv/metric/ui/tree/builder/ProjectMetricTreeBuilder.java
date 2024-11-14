@@ -17,6 +17,8 @@
 package org.b333vv.metric.ui.tree.builder;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaPackage;
@@ -42,10 +44,13 @@ import static icons.MetricsIcons.PROJECT_METRIC;
 import static org.b333vv.metric.model.metric.MetricType.CMI;
 
 public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
-
-    public ProjectMetricTreeBuilder(JavaProject javaProject) {
-        super(javaProject);
+    public ProjectMetricTreeBuilder(JavaCode javaCode, Project project) {
+        super(javaCode, project);
     }
+
+//    public ProjectMetricTreeBuilder(JavaProject javaProject) {
+//        super(javaProject);
+//    }
 
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
@@ -226,6 +231,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 
     @Override
     protected MetricsTreeFilter getMetricsTreeFilter() {
-        return MetricsUtils.getProjectMetricsTreeFilter();
+//        return MetricsUtils.getProjectMetricsTreeFilter();
+        return ServiceManager.getService(MetricsUtils.class).getProjectMetricsTreeFilter();
     }
 }

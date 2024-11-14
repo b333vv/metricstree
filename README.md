@@ -1,4 +1,9 @@
-# MetricsTree IntelliJ IDEA plugin [![Build Status](https://travis-ci.org/b333vv/metricstree.svg?branch=master)](https://travis-ci.org/b333vv)
+# MetricsTree IntelliJ IDEA plugin
+
+[//]: # ([![Build Status]&#40;https://travis-ci.org/b333vv/metricstree.svg?branch=master&#41;]&#40;https://travis-ci.org/b333vv&#41;)
+
+[![Version](https://img.shields.io/jetbrains/plugin/v/13959.svg)](https://plugins.jetbrains.com/plugin/13959)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/13959.svg)](https://plugins.jetbrains.com/plugin/13959)
 
 MetricsTree is an IDE extension that helps to evaluate quantitative properties of java code.
 It supports the most common sets of metrics at the project, package, class, and method levels.
@@ -130,6 +135,7 @@ It supports the most common sets of metrics at the project, package, class, and 
  - Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
  - Displays various metrics properties (distributions, correlations) in charts
  - Shows class metrics values evolution based on 'git log'
+ - Indicates in the code editor the values for those class metrics that do not fit into the reference interval
  
 ![Image of MetricsTree](project_metrics_tree.png)
 ![Image of MetricsTree](metrics_treemap.png)
@@ -138,10 +144,16 @@ It supports the most common sets of metrics at the project, package, class, and 
 ![Image of MetricsTree](metric_profiles.png)
 ![Image of MetricsTree](profiles_metrics_correlation.png)
 ![Image of MetricsTree](profiles_correlation.png)
+![Image of MetricsTree](inlay_hints.png)
 
 # Installation
 The plugin can be installed from the JetBrains plugin repository within your IDE with 
-Preferences | Plugins | Market Place and searching for MetricsTree. 
+Preferences | Plugins | Market Place and searching for MetricsTree.
+# Settings
+To set reference intervals for metrics, metrics tree display parameters, etc., click on the properties button:
+![Image of MetricsTree](settings.png)
+To control the display of inlay hints in code editor use the “Enable Metrics Tree Code Vision” checkbox in the Settings -> Metrics Tree Code Vision menu:
+![Image of MetricsTree](inlay_hints_settings.png)
 # Compatibility
 The plugin tested for compatibility with IntelliJ IDEA version 2020.3+.
 # Development

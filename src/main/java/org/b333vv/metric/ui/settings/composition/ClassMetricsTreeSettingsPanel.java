@@ -21,13 +21,13 @@ import org.b333vv.metric.ui.settings.ConfigurationPanel;
 import javax.swing.*;
 import java.util.List;
 
-public class ClassMetricsTreeSettingsPanel implements ConfigurationPanel<ClassMetricsTreeSettings> {
+public class ClassMetricsTreeSettingsPanel implements ConfigurationPanel<ClassMetricsTreeSettings1> {
     private static final String EMPTY_LABEL = "No metrics configured";
     private JPanel panel;
     private MetricsTreeSettingsTable metricsTreeSettingsTable;
 
-    public ClassMetricsTreeSettingsPanel(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        createUIComponents(classMetricsTreeSettings);
+    public ClassMetricsTreeSettingsPanel(ClassMetricsTreeSettings1 classMetricsTreeSettings1) {
+        createUIComponents(classMetricsTreeSettings1);
     }
 
     public JPanel getComponent() {
@@ -35,23 +35,23 @@ public class ClassMetricsTreeSettingsPanel implements ConfigurationPanel<ClassMe
     }
 
     @Override
-    public boolean isModified(ClassMetricsTreeSettings settings) {
+    public boolean isModified(ClassMetricsTreeSettings1 settings) {
         List<MetricsTreeSettingsStub> rows = settings.getMetricsList();
         return !rows.equals(metricsTreeSettingsTable.get());
     }
 
     @Override
-    public void save(ClassMetricsTreeSettings settings) {
+    public void save(ClassMetricsTreeSettings1 settings) {
         settings.setClassTreeMetrics(metricsTreeSettingsTable.get());
     }
 
     @Override
-    public void load(ClassMetricsTreeSettings settings) {
+    public void load(ClassMetricsTreeSettings1 settings) {
         metricsTreeSettingsTable.set(settings.getMetricsList());
     }
 
-    private void createUIComponents(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        metricsTreeSettingsTable = new MetricsTreeSettingsTable(EMPTY_LABEL, classMetricsTreeSettings.getMetricsList());
+    private void createUIComponents(ClassMetricsTreeSettings1 classMetricsTreeSettings1) {
+        metricsTreeSettingsTable = new MetricsTreeSettingsTable(EMPTY_LABEL, classMetricsTreeSettings1.getMetricsList());
         panel = metricsTreeSettingsTable.getComponent();
     }
 }

@@ -4,6 +4,7 @@ build
 classes
 gradle
 out
+.ai
 
 *.iml
 *.ipr

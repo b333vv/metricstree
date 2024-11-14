@@ -17,7 +17,7 @@
 package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.psi.PsiClass;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.code.JavaClass;
@@ -26,10 +26,9 @@ import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings1;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 
@@ -37,25 +36,28 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ProfileRadarChartBuilder {
     private Map<MetricProfile, Set<JavaClass>> classesByMetricProfile;
 
-    public List<RadarChartStructure> createChart(Map<MetricProfile, Set<JavaClass>> classesByMetricProfile) {
+    public List<RadarChartStructure> createChart(Map<MetricProfile, Set<JavaClass>> classesByMetricProfile, Project project) {
+
         this.classesByMetricProfile = classesByMetricProfile;
 
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                BasicMetricsValidRangesSettings.class);
-        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                DerivativeMetricsValidRangesSettings.class);
+        BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 = project
+                .getService(BasicMetricsValidRangesSettings1.class);
+//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+//                BasicMetricsValidRangesSettings.class);
+//        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+//                DerivativeMetricsValidRangesSettings.class);
+        DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1 = project
+                .getService(DerivativeMetricsValidRangesSettings1.class);
         List<MetricType> metrics = new ArrayList<>();
         for (MetricType mt : MetricType.values()) {
-            if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings.getControlledMetricsList().stream()
+            if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings1.getControlledMetricsList().stream()
                     .anyMatch(stub -> stub.getName().equals(mt.name()))
-                    || derivativeMetricsValidRangesSettings.getControlledMetricsList().stream()
+                    || derivativeMetricsValidRangesSettings1.getControlledMetricsList().stream()
                     .anyMatch(stub -> stub.getName().equals(mt.name())))) {
                 metrics.add(mt);
             }

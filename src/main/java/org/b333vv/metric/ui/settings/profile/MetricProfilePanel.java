@@ -20,26 +20,24 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.ui.settings.ConfigurationPanel;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class MetricProfilePanel implements ConfigurationPanel<MetricProfileSettings> {
+public class MetricProfilePanel implements ConfigurationPanel<MetricProfileSettings1> {
     private static final String EMPTY_LABEL = "No metrics profiles configured";
     private final Project project;
     private JPanel panel;
     private MetricProfileTable metricProfileTable;
 
-    public MetricProfilePanel(Project project, MetricProfileSettings settings) {
+    public MetricProfilePanel(Project project, MetricProfileSettings1 settings) {
         this.project = project;
         createUIComponents(settings);
     }
@@ -49,17 +47,17 @@ public class MetricProfilePanel implements ConfigurationPanel<MetricProfileSetti
     }
 
     @Override
-    public boolean isModified(MetricProfileSettings settings) {
+    public boolean isModified(MetricProfileSettings1 settings) {
         return !metricProfileTable.getProfiles().equals(settings.getProfiles());
     }
 
     @Override
-    public void save(MetricProfileSettings settings) {
+    public void save(MetricProfileSettings1 settings) {
         settings.setProfiles(metricProfileTable.getProfiles());
     }
 
     @Override
-    public void load(MetricProfileSettings settings) {
+    public void load(MetricProfileSettings1 settings) {
         metricProfileTable.setProfiles(settings.getProfiles());
     }
 
@@ -67,7 +65,7 @@ public class MetricProfilePanel implements ConfigurationPanel<MetricProfileSetti
         return metricProfileTable.getProfiles().containsKey(key);
     }
 
-    private void createUIComponents(MetricProfileSettings settings) {
+    private void createUIComponents(MetricProfileSettings1 settings) {
 
         Function<Map.Entry<String, List<MetricProfileItem>>,
                         Map.Entry<String, List<MetricProfileItem>>> onEdit = value -> {

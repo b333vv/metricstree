@@ -16,18 +16,20 @@
 
 package org.b333vv.metric.actions;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.ToggleAction;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 class SetShowClassMetricsTreeAction extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent event) {
-        return MetricsService.isShowClassMetricsTree();
+        return Objects.requireNonNull(event.getProject()).getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
+//        return MetricsService.isShowClassMetricsTree();
     }
 
     @Override

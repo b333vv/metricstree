@@ -46,10 +46,11 @@ public class  ProjectTreeTask extends Task.Backgroundable {
         ProjectMetricTreeBuilder projectMetricTreeBuilder = MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER);
         if (metricsTreeModel == null || projectMetricTreeBuilder == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+//            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+            AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
             JavaProject javaProject = getProjectModel(indicator);
-            projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject);
+            projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject, myProject);
             metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
             MetricTaskCache.instance().putUserData(MetricTaskCache.PROJECT_TREE, metricsTreeModel);
             MetricTaskCache.instance().putUserData(MetricTaskCache.TREE_BUILDER, projectMetricTreeBuilder);

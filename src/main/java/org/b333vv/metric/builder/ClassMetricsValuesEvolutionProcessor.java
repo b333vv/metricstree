@@ -18,6 +18,7 @@ package org.b333vv.metric.builder;
 
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.BackgroundTaskQueue;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFileFactory;
@@ -31,6 +32,7 @@ import git4idea.util.GitFileUtils;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -44,12 +46,13 @@ import java.util.concurrent.FutureTask;
 public class ClassMetricsValuesEvolutionProcessor {
 
     private final PsiJavaFile psiJavaFile;
-    private FutureTask<Void> getFileFromGitCalculateMetricsAndPutThemToMap;
-    private FutureTask<Void> buildTree;
+    private final FutureTask<Void> getFileFromGitCalculateMetricsAndPutThemToMap;
+    private final FutureTask<Void> buildTree;
     private final Runnable cancel;
     private final BackgroundTaskQueue queue;
     private final Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution = new ConcurrentHashMap<>();
     private final ClassModelBuilder classModelBuilder;
+    private Project project;
 
     private DefaultTreeModel metricsTreeModel;
 
@@ -57,14 +60,15 @@ public class ClassMetricsValuesEvolutionProcessor {
 
         this.psiJavaFile = psiJavaFile;
         classModelBuilder = new ClassModelBuilder();
+        project = psiJavaFile.getProject();
 
         MetricsEventListener metricsEventListener = new ClassMetricsEvolutionEventListener();
-        MetricsUtils.getCurrentProject().getMessageBus()
-                .connect(MetricsUtils.getCurrentProject()).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
+        project.getMessageBus()
+                .connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
 
         queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics Values Evolution");
 
-        MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " started");
+        project.getService(MetricsConsole.class).info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " started");
 
         Callable<Void> gitCalculations = () ->
         {
@@ -97,7 +101,8 @@ public class ClassMetricsValuesEvolutionProcessor {
                     });
                 }
             } catch (VcsException e) {
-                MetricsUtils.getConsole().error(e.getMessage());
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//                MetricsUtils.getConsole().error(e.getMessage());
             }
             return null;
         };
@@ -113,7 +118,9 @@ public class ClassMetricsValuesEvolutionProcessor {
             if (metricsTreeModel != null) {
                 psiJavaFile.getProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .classMetricsValuesEvolutionCalculated(metricsTreeModel);
-                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
+//                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
             }
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
             return null;
@@ -123,7 +130,9 @@ public class ClassMetricsValuesEvolutionProcessor {
 
         cancel = () -> {
             queue.clear();
-            MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+//            MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
         };
     }
@@ -143,7 +152,9 @@ public class ClassMetricsValuesEvolutionProcessor {
                 getFileFromGitCalculateMetricsAndPutThemToMap.cancel(false);
                 buildTree.cancel(false);
                 queue.clear();
-                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+//                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
                 MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
             }
         }

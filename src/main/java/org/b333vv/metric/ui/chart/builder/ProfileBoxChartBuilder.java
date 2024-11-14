@@ -43,11 +43,11 @@ public class ProfileBoxChartBuilder {
             if (mt.level() == MetricLevel.CLASS) {
                 Map<String, List<Double>> series = new LinkedHashMap<>();
                 for (Map.Entry<MetricProfile, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
-                    if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty()) {
+                    if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty() && !profileEntry.getKey().getProfile().isEmpty()) {
                         series.put(profileEntry.getKey().getName(), profileEntry.getValue().stream()
                                 .flatMap(JavaCode::metrics)
                                 .filter(metric -> metric.getType() == mt)
-                                .map(metric -> metric.getValue().doubleValue())
+                                .map(metric -> metric.getValue() == null ? 0.0 :  metric.getValue().doubleValue())
                                 .collect(Collectors.toList()));
                     }
                 }
@@ -59,6 +59,7 @@ public class ProfileBoxChartBuilder {
                         .build();
 
                 series.forEach(chart::addSeries);
+
 
                 chart.getStyler().setPlotContentSize(0.97);
                 if (series.size() > 10) {

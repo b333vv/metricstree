@@ -16,20 +16,23 @@
 
 package org.b333vv.metric.builder;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.method.HalsteadMethodVisitor;
+import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
+import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -40,9 +43,16 @@ public abstract class ModelBuilder {
 
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         JavaFile javaFile = new JavaFile(psiJavaFile.getName());
+        Project project = psiJavaFile.getProject();
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
-            classVisitors().forEach(javaClass::accept);
+
+//            classVisitors().forEach(javaClass::accept);
+            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+                    .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                    .map(m -> m.getType().visitor())
+                    .filter(m -> m instanceof JavaClassVisitor)
+                    .forEach(javaClass::accept);
 
             HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
             javaClass.accept(halsteadClassVisitor);
@@ -64,10 +74,16 @@ public abstract class ModelBuilder {
     }
 
     protected void buildConstructors(JavaClass javaClass) {
+        Project project = javaClass.getPsiClass().getProject();
         for (PsiMethod aConstructor : javaClass.getPsiClass().getConstructors()) {
             JavaMethod javaMethod = new JavaMethod(aConstructor, javaClass);
             javaClass.addMethod(javaMethod);
-            methodVisitors().forEach(javaMethod::accept);
+//            methodVisitors().forEach(javaMethod::accept);
+            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+                    .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                    .map(m -> m.getType().visitor())
+                    .filter(m -> m instanceof JavaMethodVisitor)
+                    .forEach(javaMethod::accept);
 
             HalsteadMethodVisitor halsteadMethodVisitor = new HalsteadMethodVisitor();
             javaMethod.accept(halsteadMethodVisitor);
@@ -77,10 +93,17 @@ public abstract class ModelBuilder {
     }
 
     protected void buildMethods(JavaClass javaClass) {
+        Project project = javaClass.getPsiClass().getProject();
         for (PsiMethod aMethod : javaClass.getPsiClass().getMethods()) {
             JavaMethod javaMethod = new JavaMethod(aMethod, javaClass);
             javaClass.addMethod(javaMethod);
-            methodVisitors().forEach(javaMethod::accept);
+
+//            methodVisitors().forEach(javaMethod::accept);
+            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+                    .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                    .map(m -> m.getType().visitor())
+                    .filter(m -> m instanceof JavaMethodVisitor)
+                    .forEach(javaMethod::accept);
 
             HalsteadMethodVisitor halsteadMethodVisitor = new HalsteadMethodVisitor();
             javaMethod.accept(halsteadMethodVisitor);
@@ -90,10 +113,18 @@ public abstract class ModelBuilder {
     }
 
     protected void buildInnerClasses(PsiClass aClass, JavaClass parentClass) {
+        Project project = aClass.getProject();
         for (PsiClass psiClass : aClass.getInnerClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
             parentClass.addClass(javaClass);
-            classVisitors().forEach(javaClass::accept);
+
+//            classVisitors().forEach(javaClass::accept);
+
+            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+                    .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                    .map(m -> m.getType().visitor())
+                    .filter(m -> m instanceof JavaMethodVisitor)
+                    .forEach(javaClass::accept);
 
             HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
             javaClass.accept(halsteadClassVisitor);

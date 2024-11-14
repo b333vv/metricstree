@@ -20,6 +20,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.util.MetricsUtils;
 
@@ -68,7 +69,8 @@ public class MetricsSetDescriptionPanel {
             URL url = MetricsSetDescriptionPanel.class.getResource(stringUrl);
             metricDescription.setPage(url);
         } catch (Exception e) {
-            MetricsUtils.getConsole().error(e.getMessage());
+            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//            MetricsUtils.getConsole().error(e.getMessage());
             metricDescription.setContentType("text/html");
             metricDescription.setText("<html>Page not found.</html>");
         }

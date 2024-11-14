@@ -18,17 +18,16 @@ package org.b333vv.metric.ui.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettingsPanel;
-import org.b333vv.metric.ui.settings.other.OtherSettings;
+import org.b333vv.metric.ui.settings.other.OtherSettings1;
 import org.b333vv.metric.ui.settings.other.OtherSettingsPanel;
 import org.b333vv.metric.ui.settings.profile.MetricProfilePanel;
-import org.b333vv.metric.ui.settings.profile.MetricProfileSettings;
+import org.b333vv.metric.ui.settings.profile.MetricProfileSettings1;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesPanel;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesPanel;
-import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings1;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,22 +46,34 @@ public class SettingsPanel {
         root = new JPanel(new BorderLayout());
         JBTabbedPane tabs = new JBTabbedPane();
 
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                MetricsUtils.get(project, BasicMetricsValidRangesSettings.class);
-        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
-                MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
-        ClassMetricsTreeSettings classMetricsTreeSettings =
-                MetricsUtils.get(project, ClassMetricsTreeSettings.class);
-        MetricProfileSettings metricProfileSettings =
-                MetricsUtils.get(project, MetricProfileSettings.class);
-        OtherSettings otherSettings =
-                MetricsUtils.get(project, OtherSettings.class);
+//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
+//                MetricsUtils.get(project, BasicMetricsValidRangesSettings.class);
+        BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 =
+                project.getService(BasicMetricsValidRangesSettings1.class);
+        DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1 =
+                project.getService(DerivativeMetricsValidRangesSettings1.class);
+//        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
+//                MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
+//        ClassMetricsTreeSettings classMetricsTreeSettings =
+//                MetricsUtils.get(project, ClassMetricsTreeSettings.class);
 
-        basicMetricsValidRangesPanel = new BasicMetricsValidRangesPanel(project, basicMetricsValidRangesSettings);
-        derivativeMetricsValidRangesPanel = new DerivativeMetricsValidRangesPanel(project, derivativeMetricsValidRangesSettings);
-        classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(classMetricsTreeSettings);
-        metricProfilePanel = new MetricProfilePanel(project, metricProfileSettings);
-        otherSettingsPanel = new OtherSettingsPanel(project, otherSettings);
+        ClassMetricsTreeSettings1 classMetricsTreeSettings1 =
+                project.getService(ClassMetricsTreeSettings1.class);
+
+//        MetricProfileSettings metricProfileSettings =
+//                MetricsUtils.get(project, MetricProfileSettings.class);
+        MetricProfileSettings1 metricProfileSettings1 =
+                project.getService(MetricProfileSettings1.class);
+        OtherSettings1 otherSettings1 =
+                project.getService(OtherSettings1.class);
+//      OtherSettings otherSettings =
+//                MetricsUtils.get(project, OtherSettings.class);
+
+        basicMetricsValidRangesPanel = new BasicMetricsValidRangesPanel(project, basicMetricsValidRangesSettings1);
+        derivativeMetricsValidRangesPanel = new DerivativeMetricsValidRangesPanel(project, derivativeMetricsValidRangesSettings1);
+        classMetricsTreeSettingsPanel = new ClassMetricsTreeSettingsPanel(classMetricsTreeSettings1);
+        metricProfilePanel = new MetricProfilePanel(project, metricProfileSettings1);
+        otherSettingsPanel = new OtherSettingsPanel(project, otherSettings1);
 
         tabs.insertTab("Basic Metrics Valid Values", null, basicMetricsValidRangesPanel.getComponent(),
                 "Configure valid values for basic metrics", 0);
@@ -86,44 +97,44 @@ public class SettingsPanel {
         return root;
     }
 
-    public boolean isModified(BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
-        return basicMetricsValidRangesPanel.isModified(basicMetricsValidRangesSettings);
+    public boolean isModified(BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1) {
+        return basicMetricsValidRangesPanel.isModified(basicMetricsValidRangesSettings1);
     }
 
-    public boolean isModified(DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings) {
-        return derivativeMetricsValidRangesPanel.isModified(derivativeMetricsValidRangesSettings);
+    public boolean isModified(DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1) {
+        return derivativeMetricsValidRangesPanel.isModified(derivativeMetricsValidRangesSettings1);
     }
 
-    public boolean isModified(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        return classMetricsTreeSettingsPanel.isModified(classMetricsTreeSettings);
+    public boolean isModified(ClassMetricsTreeSettings1 classMetricsTreeSettings1) {
+        return classMetricsTreeSettingsPanel.isModified(classMetricsTreeSettings1);
     }
 
 
-    public boolean isModified(MetricProfileSettings metricProfileSettings) {
-        return metricProfilePanel.isModified(metricProfileSettings);
+    public boolean isModified(MetricProfileSettings1 metricProfileSettings1) {
+        return metricProfilePanel.isModified(metricProfileSettings1);
     }
 
-    public boolean isModified(OtherSettings otherSettings) {
-        return otherSettingsPanel.isModified(otherSettings);
+    public boolean isModified(OtherSettings1 otherSettings1) {
+        return otherSettingsPanel.isModified(otherSettings1);
     }
 
-    public void save(BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
-        basicMetricsValidRangesPanel.save(basicMetricsValidRangesSettings);
+    public void save(BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1) {
+        basicMetricsValidRangesPanel.save(basicMetricsValidRangesSettings1);
     }
 
-    public void save(DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings) {
-        derivativeMetricsValidRangesPanel.save(derivativeMetricsValidRangesSettings);
+    public void save(DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1) {
+        derivativeMetricsValidRangesPanel.save(derivativeMetricsValidRangesSettings1);
     }
 
-    public void save(ClassMetricsTreeSettings classMetricsTreeSettings) {
-        classMetricsTreeSettingsPanel.save(classMetricsTreeSettings);
+    public void save(ClassMetricsTreeSettings1 classMetricsTreeSettings1) {
+        classMetricsTreeSettingsPanel.save(classMetricsTreeSettings1);
     }
 
-    public void save(MetricProfileSettings metricProfileSettings) {
-        metricProfilePanel.save(metricProfileSettings);
+    public void save(MetricProfileSettings1 metricProfileSettings1) {
+        metricProfilePanel.save(metricProfileSettings1);
     }
 
-    public void save(OtherSettings otherSettings) {
-        otherSettingsPanel.save(otherSettings);
+    public void save(OtherSettings1 otherSettings1) {
+        otherSettingsPanel.save(otherSettings1);
     }
 }

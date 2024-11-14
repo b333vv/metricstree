@@ -30,12 +30,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@State(name = "ClassMetricsTreeSettings", storages = {@Storage("class-metrics-tree.xml")})
-public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings> {
+@State(
+        name = "ClassMetricsTreeSettings",
+        storages = {@Storage("class-metrics-tree.xml")}
+)
+public final class ClassMetricsTreeSettings1 implements PersistentStateComponent<ClassMetricsTreeSettings1> {
     private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
     private boolean showClassMetricsTree;
 
-    public ClassMetricsTreeSettings() {
+    public ClassMetricsTreeSettings1() {
         loadInitialValues();
     }
 
@@ -54,12 +57,12 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
     }
 
     @Override
-    public synchronized ClassMetricsTreeSettings getState() {
+    public synchronized ClassMetricsTreeSettings1 getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull ClassMetricsTreeSettings state) {
+    public synchronized void loadState(@NotNull ClassMetricsTreeSettings1 state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

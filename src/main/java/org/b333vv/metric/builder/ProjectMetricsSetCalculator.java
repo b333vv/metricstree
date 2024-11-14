@@ -307,6 +307,9 @@ public class ProjectMetricsSetCalculator {
                 .collect(Collectors.toUnmodifiableList());
         double zInheritance = 0.0;
         for (JavaCode aClass : classes) {
+            if (aClass.metric(MetricType.NOM) == null) {
+                continue;
+            }
             Value nom = aClass.metric(NOM).getValue();
             Value noom = aClass.metric(NOOM).getValue();
             if (nom.isGreaterThan(Value.of(0))) {

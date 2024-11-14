@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.builder;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
@@ -31,8 +32,8 @@ import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
+import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -46,6 +47,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     private final JavaProject javaProject;
 
     public ProjectModelBuilder(JavaProject javaProject) {
+        super();
         this.javaProject = javaProject;
     }
 
@@ -55,6 +57,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     @Override
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
+        Project project = psiJavaFile.getProject();
         JavaFile javaFile = MetricTaskCache.instance().getJavaFile(psiJavaFile.getVirtualFile());
         if (javaFile != null) {
             javaFile.classes().forEach(c -> {
@@ -66,7 +69,14 @@ public class ProjectModelBuilder extends ModelBuilder {
         javaFile = new JavaFile(psiJavaFile.getName());
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             JavaClass javaClass = new JavaClass(psiClass);
-            classVisitors().forEach(javaClass::accept);
+
+//            classVisitors().forEach(javaClass::accept);
+
+            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+                    .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                    .map(m -> m.getType().visitor())
+                    .filter(m -> m instanceof JavaClassVisitor)
+                    .forEach(javaClass::accept);
 
             HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
             javaClass.accept(halsteadClassVisitor);

@@ -32,8 +32,11 @@ import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
-@State(name = "DerivativeMetricsValidRanges", storages = {@Storage("derivative-metrics-valid-ranges.xml")})
-public final class DerivativeMetricsValidRangesSettings implements PersistentStateComponent<DerivativeMetricsValidRangesSettings> {
+@State(
+        name = "DerivativeMetricsValidRanges",
+        storages = {@Storage("derivative-metrics-valid-ranges.xml")}
+)
+public final class DerivativeMetricsValidRangesSettings1 implements PersistentStateComponent<DerivativeMetricsValidRangesSettings1> {
 
     private boolean controlValidRanges;
 
@@ -42,7 +45,7 @@ public final class DerivativeMetricsValidRangesSettings implements PersistentSta
     private final Map<String, DerivativeMetricsValidRangeStub> temporaryControlledMetrics = new HashMap<>();
     private final Map<String, DerivativeMetricsValidRangeStub> temporaryUnControlledMetrics = new HashMap<>();
 
-    public DerivativeMetricsValidRangesSettings() {
+    public DerivativeMetricsValidRangesSettings1() {
         loadInitialValues();
     }
 
@@ -142,12 +145,12 @@ public final class DerivativeMetricsValidRangesSettings implements PersistentSta
     }
 
     @Override
-    public synchronized DerivativeMetricsValidRangesSettings getState() {
+    public synchronized DerivativeMetricsValidRangesSettings1 getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull DerivativeMetricsValidRangesSettings state) {
+    public synchronized void loadState(@NotNull DerivativeMetricsValidRangesSettings1 state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

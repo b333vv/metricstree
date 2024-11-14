@@ -44,8 +44,8 @@ public class AddValidRangeForDerivativeMetricDialog extends DialogWrapper {
         super(project, false);
         setTitle("Add Range For Metric");
 
-        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
-        List<DerivativeMetricsValidRangeStub> uncontrolledMetrics = derivativeMetricsValidRangesSettings.getUnControlledMetricsList();
+        DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1 = MetricsUtils.get(project, DerivativeMetricsValidRangesSettings1.class);
+        List<DerivativeMetricsValidRangeStub> uncontrolledMetrics = derivativeMetricsValidRangesSettings1.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 
         metricsAllowableValuesRangeStubCombo.addItemListener(arg -> {
@@ -85,7 +85,7 @@ public class AddValidRangeForDerivativeMetricDialog extends DialogWrapper {
                 metricsAllowableValueRangeStub.setMinValue((Double) minValue.getModel().getValue());
                 metricsAllowableValueRangeStub.setMaxValue((Double) maxValue.getModel().getValue());
                 if (metricsAllowableValueRangeStub.getMaxValue() >= metricsAllowableValueRangeStub.getMinValue()) {
-                    derivativeMetricsValidRangesSettings.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
+                    derivativeMetricsValidRangesSettings1.removeFromUnControlledMetrics(metricsAllowableValueRangeStub.getName());
                     super.actionPerformed(e);
                     dispose();
                 }

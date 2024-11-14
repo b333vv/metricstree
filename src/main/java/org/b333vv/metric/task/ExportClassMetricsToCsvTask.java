@@ -54,7 +54,7 @@ public class ExportClassMetricsToCsvTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        MetricsUtils.instance().notify("Class level metrics have been successfully exported to " + fileName, myProject);
+//        MetricsUtils.instance().notify("Class level metrics have been successfully exported to " + fileName, myProject);
     }
 
     @Override

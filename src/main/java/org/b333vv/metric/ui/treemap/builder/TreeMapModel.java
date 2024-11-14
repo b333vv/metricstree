@@ -27,6 +27,9 @@ public class TreeMapModel extends GenericTreeModel<JavaCode> {
 	}
 
 	private static long getWeight(JavaClass javaClass) {
+		if (javaClass.metric(MetricType.NCSS) == null) {
+			return 0;
+		}
 		if (javaClass.metric(MetricType.NCSS).getValue() == Value.UNDEFINED) {
 			return 0;
 		} else {
