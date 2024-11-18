@@ -18,6 +18,7 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.b333vv.metric.ui.log.MetricsConsole;
+import org.jetbrains.annotations.NotNull;
 
 public class CleanConsoleAction extends AbstractAction {
 
@@ -25,7 +26,7 @@ public class CleanConsoleAction extends AbstractAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         super.actionPerformed(e);
         if (e.getProject() != null) {
             e.getProject().getService(MetricsConsole.class).clear();

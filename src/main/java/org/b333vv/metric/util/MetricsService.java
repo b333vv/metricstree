@@ -111,11 +111,12 @@ public final class MetricsService {
                 .isProjectMetricsStampStored();
     }
 
-//    public static boolean isShowClassMetricsTree() {
+    public static boolean isShowClassMetricsTree() {
 ////        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
 ////        return project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
-//        return ComponentManager.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
-//    }
+        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
+        return project.getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
+    }
 
     public static void setShowClassMetricsTree(boolean showClassMetricsTree) {
 //        project.getService(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);

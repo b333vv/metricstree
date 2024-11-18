@@ -28,8 +28,8 @@ class SetShowClassMetricsTreeAction extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent event) {
-        return Objects.requireNonNull(event.getProject()).getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
-//        return MetricsService.isShowClassMetricsTree();
+//        return Objects.requireNonNull(event.getProject()).getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
+        return MetricsService.isShowClassMetricsTree();
     }
 
     @Override

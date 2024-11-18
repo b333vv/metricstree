@@ -51,7 +51,8 @@ public final class MetricsUtils {
     private static Project currentProject;
     private static boolean projectAutoScrollable = true;
     private static boolean profileAutoScrollable = true;
-    private static boolean classMetricsTreeExists = false;
+    private static boolean classMetricsTreeExists = true;
+//    private static boolean classMetricsTreeExists = false;
     private static boolean projectMetricsTreeActive = false;
     private static boolean classMetricsValuesEvolutionCalculationPerforming = false;
     private static boolean classMetricsValuesEvolutionAdded = false;
@@ -127,7 +128,7 @@ public final class MetricsUtils {
     }
 
     public static void setClassMetricsTreeExists(boolean value) {
-        classMetricsTreeExists = classMetricsTreeExists;
+        classMetricsTreeExists = value;
     }
 
     public static boolean isMetricsEvolutionCalculationPerforming() {
