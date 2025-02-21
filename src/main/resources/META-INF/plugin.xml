@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2025.1.1:
+                <ul>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
             <li>2025.1.0:
                 <ul>
                     <li>Added metric fitness functions at the package and class levels.</li>
@@ -222,7 +227,7 @@
       ]]>
     </change-notes>
 
-    <version>2025.1.0</version>
+    <version>2025.1.1</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 

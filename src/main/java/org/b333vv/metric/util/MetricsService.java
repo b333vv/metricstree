@@ -126,8 +126,8 @@ public final class MetricsService {
     }
 
     public static Set<MetricType> getDeferredMetricTypes() {
-        return Set.of(CBO, ATFD, TCC, LAA, FDP, NOAV, CINT, CDISP, MND, NOPA, NOAC, WOC);
-//        return Set.of(CBO);
+//        return Set.of(CBO, ATFD, TCC, LAA, FDP, NOAV, CINT, CDISP, MND, NOPA, NOAC, WOC);
+        return Set.of(CBO);
     }
 
     public static boolean isLongValueMetricType(MetricType metricType) {

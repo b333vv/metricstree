@@ -45,8 +45,7 @@ public final class ClassMetricsTreeSettings implements PersistentStateComponent<
     private void loadInitialValues() {
         showClassMetricsTree = true;
         for (MetricType type : MetricType.values()) {
-//            if (!MetricsService.getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
-            if ((type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+            if (!MetricsService.getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
                 classTreeMetrics.add(new MetricsTreeSettingsStub(type, true));
             }
         }

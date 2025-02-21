@@ -33,7 +33,7 @@ public class NumberOfPublicAttributesVisitor extends JavaClassVisitor {
         metric = Metric.of(NOPA, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             metric = Metric.of(NOPA, Arrays.stream(psiClass.getFields())
-                    .filter(f -> f.hasModifierProperty(PsiModifier.PUBLIC)&& !f.hasModifierProperty(PsiModifier.STATIC))
+                    .filter(f -> f.hasModifierProperty(PsiModifier.PUBLIC) && !f.hasModifierProperty(PsiModifier.STATIC))
                     .count());
         }
     }
