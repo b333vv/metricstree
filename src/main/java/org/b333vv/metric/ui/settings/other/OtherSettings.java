@@ -26,11 +26,11 @@ import org.jetbrains.annotations.NotNull;
         name = "OtherSettings",
         storages = {@Storage("other-settings.xml")}
 )
-public final class OtherSettings1 implements PersistentStateComponent<OtherSettings1> {
+public final class OtherSettings implements PersistentStateComponent<OtherSettings> {
 
     private boolean projectMetricsStampStored;
 
-    public OtherSettings1() {
+    public OtherSettings() {
         loadInitialValues();
     }
 
@@ -49,12 +49,12 @@ public final class OtherSettings1 implements PersistentStateComponent<OtherSetti
     }
 
     @Override
-    public synchronized OtherSettings1 getState() {
+    public synchronized OtherSettings getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull OtherSettings1 state) {
+    public synchronized void loadState(@NotNull OtherSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 }

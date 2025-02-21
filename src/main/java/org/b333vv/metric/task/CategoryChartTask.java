@@ -33,7 +33,7 @@ import java.util.Map;
 import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class CategoryChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes distribution by metric values category chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values category chart from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values category chart started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values category chart finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values category chart canceled";

@@ -25,13 +25,13 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.*;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
-import org.b333vv.metric.ui.settings.other.OtherSettings1;
+import org.b333vv.metric.ui.settings.other.OtherSettings;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
-import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings1;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -46,13 +46,13 @@ public final class MetricsService {
 
     public static Range getRangeForMetric(MetricType type) {
         Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        BasicMetricsValidRangeStub basicStub = project.getService(BasicMetricsValidRangesSettings1.class)
+        BasicMetricsValidRangeStub basicStub = project.getService(BasicMetricsValidRangesSettings.class)
                 .getControlledMetrics().get(type.name());
         if (basicStub != null) {
             return BasicMetricsRange.of(Value.of(basicStub.getRegularBound()),
                     Value.of(basicStub.getHighBound()), Value.of(basicStub.getVeryHighBound()));
         }
-        DerivativeMetricsValidRangeStub derivativeStub = project.getService(DerivativeMetricsValidRangesSettings1.class)
+        DerivativeMetricsValidRangeStub derivativeStub = project.getService(DerivativeMetricsValidRangesSettings.class)
                 .getControlledMetrics().get(type.name());
         if (derivativeStub != null) {
             return DerivativeMetricsRange.of(Value.of(derivativeStub.getMinValue()),
@@ -76,14 +76,14 @@ public final class MetricsService {
 //                .map(m -> m.getType().visitor())
 //                .filter(m -> m instanceof JavaClassVisitor);
 
-        return MetricsUtils.getForProject(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
     public static Stream<JavaRecursiveElementVisitor> methodsVisitorsForClassMetricsTree() {
-        return MetricsUtils.getForProject(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaMethodVisitor);
@@ -99,7 +99,7 @@ public final class MetricsService {
 //        return project.getService(BasicMetricsValidRangesSettings.class)
 //                .isControlValidRanges();
         Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return project.getService(BasicMetricsValidRangesSettings1.class)
+        return project.getService(BasicMetricsValidRangesSettings.class)
                 .isControlValidRanges();
     }
 
@@ -107,7 +107,7 @@ public final class MetricsService {
 //        return project.getService(OtherSettings.class)
 //                .isProjectMetricsStampStored();
         Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return project.getService(OtherSettings1.class)
+        return project.getService(OtherSettings.class)
                 .isProjectMetricsStampStored();
     }
 
@@ -115,13 +115,13 @@ public final class MetricsService {
 ////        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
 ////        return project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
         Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return project.getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
+        return project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
     }
 
     public static void setShowClassMetricsTree(boolean showClassMetricsTree) {
 //        project.getService(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);
         Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        project.getService(ClassMetricsTreeSettings1.class).setShowClassMetricsTree(showClassMetricsTree);
+        project.getService(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).showClassMetricsTree(showClassMetricsTree);
     }
 

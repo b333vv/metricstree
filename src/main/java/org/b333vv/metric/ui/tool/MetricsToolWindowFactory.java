@@ -16,12 +16,19 @@
 
 package org.b333vv.metric.ui.tool;
 
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.content.Content;
+import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.task.DependenciesTask;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.log.MetricsLogPanel;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_CLASS_METRICS_TREE = "Class Metrics";
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics";
-    public static final String TAB_PROFILES = "Metric Profiles";
+    public static final String TAB_PROFILES = "Metric Fitness Functions";
     public static final String TAB_LOGS = "Log";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
@@ -53,13 +60,13 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(treeContent);
     }
 
-    private static void addMetricsProfilesTab(Project project, ToolWindow toolWindow) {
-        MetricsProfilePanel metricsChartPanel = new MetricsProfilePanel(project);
-        Content chartContent = toolWindow.getContentManager().getFactory()
+    private static void addFitnessFunctionTab(Project project, ToolWindow toolWindow) {
+        var fitnessFunctionPanel = new FitnessFunctionPanel(project, toolWindow);
+        var fitnessFunctionContent = toolWindow.getContentManager().getFactory()
                 .createContent(
-                        metricsChartPanel, TAB_PROFILES, false);
-        toolWindow.getContentManager().addDataProvider(metricsChartPanel);
-        toolWindow.getContentManager().addContent(chartContent);
+                        fitnessFunctionPanel, TAB_PROFILES, false);
+        toolWindow.getContentManager().addDataProvider(fitnessFunctionPanel);
+        toolWindow.getContentManager().addContent(fitnessFunctionContent);
     }
 
     private static void addLogTab(Project project, ToolWindow toolWindow) {
@@ -74,7 +81,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         MetricsUtils.setCurrentProject(project);
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
-        addMetricsProfilesTab(project, toolWindow);
+        addFitnessFunctionTab(project, toolWindow);
         addLogTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);
     }

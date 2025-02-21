@@ -19,19 +19,19 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.MetricProfilesTask;
+import org.b333vv.metric.task.ClassFitnessFunctionsTask;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
 
-public class BuildByProfilesDistributionAction extends AbstractAction {
+public class BuildClassLevelFitnessFunctionAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
-            MetricProfilesTask metricProfilesTask = new MetricProfilesTask();
-            MetricTaskCache.getQueue().run(metricProfilesTask);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
+            ClassFitnessFunctionsTask classFitnessFunctionsTask = new ClassFitnessFunctionsTask();
+            MetricTaskCache.getQueue().run(classFitnessFunctionsTask);
         }
     }
 

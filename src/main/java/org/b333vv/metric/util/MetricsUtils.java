@@ -148,8 +148,8 @@ public final class MetricsUtils {
         return currentProject.getService(clazz);
     }
 
-//    public static <T> T get(Class<T> clazz) {
-//        return get(ApplicationManager.getApplication(), clazz);
+//    public static <T> T getProfiles(Class<T> clazz) {
+//        return getProfiles(ApplicationManager.getApplication(), clazz);
 //    }
 
     @CheckForNull

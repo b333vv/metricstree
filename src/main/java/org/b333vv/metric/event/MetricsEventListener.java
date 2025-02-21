@@ -18,9 +18,9 @@ package org.b333vv.metric.event;
 
 import com.intellij.util.messages.Topic;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -35,7 +35,10 @@ public interface MetricsEventListener {
     default void clearProjectMetricsTree() {
     }
 
-    default void clearProfilePanel() {
+    default void clearClassFitnessFunctionPanel() {
+    }
+
+    default void clearPackageFitnessFunctionPanel() {
     }
 
     default void clearClassMetricsValuesEvolutionTree() {
@@ -56,10 +59,16 @@ public interface MetricsEventListener {
     default void cancelMetricsValuesEvolutionCalculation() {
     }
 
-    default void metricsProfileSelected(MetricProfile profile) {
+    default void metricsProfileSelected(FitnessFunction profile) {
     }
 
     default void javaClassSelected(JavaClass javaClass) {
+    }
+
+    default void packageLevelJavaClassSelected(JavaClass javaClass) {
+    }
+
+    default void javaPackageSelected(JavaPackage javaPackage) {
     }
 
     default void projectMetricsTreeIsReady() {
@@ -80,7 +89,13 @@ public interface MetricsEventListener {
     default void classByMetricTreeIsReady() {
     }
 
-    default void metricProfilesIsReady() {
+    default void classLevelFitnessFunctionIsReady() {
+    }
+
+    default void packageLevelFitnessFunctionIsReady() {
+    }
+
+    default void packageLevelFitnessFunctionSelected(FitnessFunction fitnessFunction) {
     }
 
     default void profilesBoxChartIsReady() {
@@ -98,7 +113,7 @@ public interface MetricsEventListener {
     default void profilesCategoryChartIsReady() {
     }
 
-    default void currentMetricProfile(MetricProfile metricProfile) {
+    default void currentMetricProfile(FitnessFunction fitnessFunction) {
     }
 
     default void metricTreeMapIsReady() {

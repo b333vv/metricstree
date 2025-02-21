@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.task.PieChartTask;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,14 +41,11 @@ public class BuildMetricsPieChartAction extends AbstractAction {
     public void update (AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-        BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 = project.getService(
-            BasicMetricsValidRangesSettings1.class);
-
-//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(e.getProject(),
-//                BasicMetricsValidRangesSettings.class);
+        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
+            BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
                     MetricsService.isControlValidRanges()
-                    && basicMetricsValidRangesSettings1.getControlledMetricsList().stream()
+                    && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level"))
                     && MetricTaskCache.getQueue().isEmpty());
         }

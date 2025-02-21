@@ -29,7 +29,7 @@ public class BuildProfileHeatMapChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesHeatMapChartTask heatMapChartTask = new ProfilesHeatMapChartTask();
             MetricTaskCache.getQueue().run(heatMapChartTask);
         }

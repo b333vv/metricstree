@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class PackageMetricTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get package level metrics from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles package level metrics from cache";
     private static final String STARTED_MESSAGE = "Building package level metrics";
     private static final String FINISHED_MESSAGE = "Building package level metrics finished";
     private static final String CANCELED_MESSAGE = "Building package level metrics canceled";

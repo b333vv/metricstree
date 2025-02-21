@@ -22,7 +22,7 @@ import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
 import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ class AddClassMetricsValuesEvolutionAction extends AbstractAction {
             psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
             event.getPresentation().setEnabled(
                     !MetricsUtils.isMetricsEvolutionCalculationPerforming()
-                    && project.getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree()
+                    && project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()
                     && psiJavaFile != null
                     && GitUtil.isUnderGit(psiJavaFile.getVirtualFile())
                     && !MetricsUtils.isClassMetricsValuesEvolutionAdded());

@@ -30,7 +30,7 @@ import javax.swing.tree.DefaultTreeModel;
 import static org.b333vv.metric.task.MetricTaskManager.getProjectModel;
 
 public class  ProjectTreeTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get tree model from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles tree model from cache";
     private static final String STARTED_MESSAGE = "Building tree model started";
     private static final String FINISHED_MESSAGE = "Building tree model finished";
     private static final String CANCELED_MESSAGE = "Building tree model canceled";

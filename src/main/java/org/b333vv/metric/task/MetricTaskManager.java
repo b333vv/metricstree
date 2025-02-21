@@ -26,13 +26,12 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
+import com.intellij.psi.util.CachedValuesManager;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -98,12 +97,12 @@ public class MetricTaskManager {
         return javaProject;
     }
 
-    public static Map<MetricProfile, Set<JavaClass>> getMetricProfilesDistribution(@NotNull ProgressIndicator indicator) {
-        Map<MetricProfile, Set<JavaClass>> classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+    public static Map<FitnessFunction, Set<JavaClass>> getMetricProfilesDistribution(@NotNull ProgressIndicator indicator) {
+        Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classesByMetricProfile == null) {
-            MetricProfilesTask metricProfilesTask = new MetricProfilesTask();
-            metricProfilesTask.run(indicator);
-            classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+            ClassFitnessFunctionsTask classFitnessFunctionsTask = new ClassFitnessFunctionsTask();
+            classFitnessFunctionsTask.run(indicator);
+            classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
         }
         return classesByMetricProfile;
     }

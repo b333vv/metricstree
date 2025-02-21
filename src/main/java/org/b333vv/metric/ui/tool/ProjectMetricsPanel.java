@@ -16,19 +16,14 @@
 
 package org.b333vv.metric.ui.tool;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
-import com.intellij.util.ui.JBInsets;
-import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
-import org.b333vv.metric.actions.ConfigureProjectAction;
 import org.b333vv.metric.event.ButtonsEventListener;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
@@ -52,17 +47,12 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.style.XYStyler;
 
 import javax.swing.*;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
-import static java.awt.GridBagConstraints.CENTER;
-import static java.awt.GridBagConstraints.NONE;
 import static java.util.stream.Collectors.toList;
 import static org.b333vv.metric.util.MetricsUtils.setProjectTreeActive;
 
@@ -71,7 +61,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     private static final String SPLIT_PROPORTION_3PANELS = "PROJECT_3PANELS_PROPORTION";
     private PackageMetricsTable packageMetricsTable;
     private JPanel chartPanel;
-    private Map<Integer, JBTabbedPane> rightPanelMap = new HashMap<>();
+    private final Map<Integer, JBTabbedPane> rightPanelMap = new HashMap<>();
     private MetricsTrimmedSummaryTable metricsTrimmedSummaryTable;
     private JBPanel<?> leftPanel;
     private BottomPanel treeMapBottomPanel;
@@ -128,10 +118,10 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         JBTabbedPane tabs = new JBTabbedPane();
         for (MetricPieChartBuilder.PieChartStructure chartStructure : chartList) {
-            chartPanel = new XChartPanel<>(chartStructure.getPieChart());
-            tabs.insertTab(chartStructure.getMetricType().name(), null, chartPanel,
-                    chartStructure.getMetricType().description(), chartList.indexOf(chartStructure));
-            Map<JavaClass, Metric> classesByMetric = classesByMetricTypes.get(chartStructure.getMetricType());
+            chartPanel = new XChartPanel<>(chartStructure.pieChart());
+            tabs.insertTab(chartStructure.metricType().name(), null, chartPanel,
+                    chartStructure.metricType().description(), chartList.indexOf(chartStructure));
+            Map<JavaClass, Metric> classesByMetric = classesByMetricTypes.get(chartStructure.metricType());
             JBTabbedPane classesByRanges = getJbTabbedPane(classesByMetric);
             rightPanelMap.put(chartList.indexOf(chartStructure), classesByRanges);
         }
@@ -144,25 +134,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         });
         mainPanel.add(ScrollPaneFactory.createScrollPane(tabs), BorderLayout.CENTER);
         rightPanel.add(rightPanelMap.get(0));
-    }
-
-    private void showResults(XYChart xyChart, Map<String, Double> instability, Map<String, Double> abstractness) {
-        mainPanel = new JBPanel<>(new BorderLayout());
-        rightPanel = new JBPanel<>(new BorderLayout());
-        super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_XY_CHART"));
-
-        chartPanel = new XChartPanel<>(xyChart);
-        CoordinateListener mouseListener = new CoordinateListener(xyChart);
-        chartPanel.addMouseListener(mouseListener);
-        mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
-        packageMetricsTable = new PackageMetricsTable(instability, abstractness);
-        JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
-                packageMetricsTable.getComponent(),
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollableTablePanel.getVerticalScrollBar().setUnitIncrement(10);
-        scrollableTablePanel.getHorizontalScrollBar().setUnitIncrement(10);
-        rightPanel.add(scrollableTablePanel);
     }
 
     private void showResults(XYChart xyChart) {
@@ -329,14 +300,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void xyChartIsReady() {
-            Map<String, Double> instability = MetricTaskCache.instance().getUserData(MetricTaskCache.INSTABILITY);
-            Map<String, Double> abstractness = MetricTaskCache.instance().getUserData(MetricTaskCache.ABSTRACTNESS);
-            XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.XY_CHART);
-            showResults(xyChart, instability, abstractness);
-        }
-
-        @Override
         public void projectMetricsHistoryXyChartIsReady() {
             XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
             showResults(xyChart);
@@ -401,19 +364,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
             }
             projectMetricsHistoryXyChartPanel.revalidate();
             projectMetricsHistoryXyChartPanel.repaint();
-        }
-    }
-
-    public class CoordinateListener extends MouseAdapter {
-        private final XYChart chart;
-        public CoordinateListener(XYChart chart) {
-            this.chart = chart;
-        }
-        @Override
-        public void mousePressed(MouseEvent e) {
-            double chartX = chart.getChartXFromCoordinate(e.getX());
-            double chartY = chart.getChartYFromCoordinate(e.getY());
-            packageMetricsTable.updateSelection(chartX, chartY);
         }
     }
 

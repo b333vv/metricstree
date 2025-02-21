@@ -17,13 +17,12 @@
 package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.knowm.xchart.BoxChart;
 import org.knowm.xchart.BoxChartBuilder;
 import org.knowm.xchart.style.BoxStyler;
@@ -36,24 +35,32 @@ import java.util.stream.Collectors;
 
 public class ProfileBoxChartBuilder {
 
-    public List<BoxChartStructure> createChart(Map<MetricProfile, Set<JavaClass>> classesByMetricProfile) {
+    public List<BoxChartStructure> createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile) {
         List<BoxChartStructure> boxCharts = new ArrayList<>();
+//        Map<FitnessFunction, Set<JavaClass>> classesByMetricProfileWithoutEmptyMetrics = classesByMetricProfile.entrySet().stream()
+//                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty() && !entry.getKey().profile().isEmpty())
+//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         for (MetricType mt : MetricType.values()) {
             if (mt.level() == MetricLevel.CLASS) {
                 Map<String, List<Double>> series = new LinkedHashMap<>();
-                for (Map.Entry<MetricProfile, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
-                    if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty() && !profileEntry.getKey().getProfile().isEmpty()) {
-                        series.put(profileEntry.getKey().getName(), profileEntry.getValue().stream()
-                                .flatMap(JavaCode::metrics)
-                                .filter(metric -> metric.getType() == mt)
-                                .map(metric -> metric.getValue() == null ? 0.0 :  metric.getValue().doubleValue())
-                                .collect(Collectors.toList()));
+                for (Map.Entry<FitnessFunction, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
+                    var values = profileEntry.getValue().stream()
+                            .flatMap(JavaCode::metrics)
+                            .filter(metric -> metric.getType() == mt)
+                            .map(metric -> metric.getValue() == null ? 0.0 : metric.getValue().doubleValue())
+                            .toList();
+                    if (!values.isEmpty()) {
+                        series.put(profileEntry.getKey().name(), values);
                     }
                 }
 
+                if (series.isEmpty()) {
+                    continue;
+                }
+
                 BoxChart chart = new BoxChartBuilder()
-                        .title("Distribution Of " + '"' + mt.name() + '"' + " Metric Values By Metric Profiles")
+                        .title("Distribution Of " + '"' + mt.name() + '"' + " Metric Values By Metric Fitness Functions")
                         .width(series.size())
                         .height(50)
                         .build();

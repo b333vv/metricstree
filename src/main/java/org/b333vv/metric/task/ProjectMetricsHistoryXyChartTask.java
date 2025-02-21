@@ -29,7 +29,7 @@ import org.knowm.xchart.XYChart;
 import java.util.*;
 
 public class ProjectMetricsHistoryXyChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get project metrics history chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles project metrics history chart from cache";
     private static final String STARTED_MESSAGE = "Building project metrics history chart started";
     private static final String FINISHED_MESSAGE = "Building project metrics history chart finished";
     private static final String CANCELED_MESSAGE = "Building project metrics history chart canceled";

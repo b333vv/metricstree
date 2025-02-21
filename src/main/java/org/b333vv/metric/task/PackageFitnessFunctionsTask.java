@@ -19,37 +19,37 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.b333vv.metric.builder.ClassesByMetricsProfileDistributor.classesByMetricsProfileDistribution;
-import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
+import static org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packageLevelFitnessFunctionResult;
+import static org.b333vv.metric.task.MetricTaskManager.getPackageModel;
 
-public class MetricProfilesTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes by metric profiles distribution from cache";
-    private static final String STARTED_MESSAGE = "Building classes by metric profiles distribution started";
-    private static final String FINISHED_MESSAGE = "Building classes by metric profiles distribution finished";
-    private static final String CANCELED_MESSAGE = "Building classes by metric profiles distribution canceled";
+public class PackageFitnessFunctionsTask extends Task.Backgroundable {
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles package level fitness functions from cache";
+    private static final String STARTED_MESSAGE = "Building package level fitness functions started";
+    private static final String FINISHED_MESSAGE = "Building package level fitness functions finished";
+    private static final String CANCELED_MESSAGE = "Building package level fitness functions canceled";
 
-    public MetricProfilesTask() {
-        super(MetricsUtils.getCurrentProject(), "Building Classes by Metric Profiles Distribution");
+    public PackageFitnessFunctionsTask() {
+        super(MetricsUtils.getCurrentProject(), "Building package level fitness functions");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<MetricProfile, Set<JavaClass>> classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
-        if (classesByMetricProfile == null) {
+        Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
+        if (packageFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = getClassAndMethodModel(indicator);
-            classesByMetricProfile = classesByMetricsProfileDistribution(javaProject);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.METRIC_PROFILES, classesByMetricProfile);
+            JavaProject javaProject = getPackageModel(indicator);
+            packageFitnessFunctions = packageLevelFitnessFunctionResult(javaProject);
+            MetricTaskCache.instance().putUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION, packageFitnessFunctions);
         }
     }
 
@@ -57,7 +57,7 @@ public class MetricProfilesTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricProfilesIsReady();
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionIsReady();
     }
 
     @Override

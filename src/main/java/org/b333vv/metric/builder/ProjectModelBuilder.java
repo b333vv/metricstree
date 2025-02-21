@@ -32,7 +32,7 @@ import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,7 +72,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
 //            classVisitors().forEach(javaClass::accept);
 
-            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+            project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
                     .filter(m -> m instanceof JavaClassVisitor)

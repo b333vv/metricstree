@@ -48,7 +48,7 @@
                     Supports controlling calculated metrics values
                 </li>
                 <li>
-                    Finds common antipatterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
+                    Implements metric fitness functions at the package level (e.g. for detecting coupling and cohesion problems) and at the class level (e.g. for recognizing 'god class', 'feature envy' antipatterns)
                 </li>
                 <li>
                     Displays various metrics properties (distributions, correlations) in charts
@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2025.1.0:
+                <ul>
+                    <li>Added metric fitness functions at the package and class levels.</li>
+                </ul>
+            </li>
             <li>2024.2.0:
                 <ul>
                     <li>Added output of metrics whose values are outside the reference intervals in the form of hints for classes directly in the editor.</li>
@@ -217,7 +222,7 @@
       ]]>
     </change-notes>
 
-    <version>2024.2.0</version>
+    <version>2025.1.0</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -239,24 +244,32 @@
         <applicationService serviceImplementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionSettings"/>
         <applicationConfigurable instance="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionConfigurable"
                                  displayName="Metrics Tree Code Vision" groupId="org.b333vv.metric" id="metricsTree" />
-        <projectService serviceImplementation="org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1"/>
-        <projectService serviceImplementation="org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1"/>
-        <projectService serviceImplementation="org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings1"/>
-        <projectService serviceImplementation="org.b333vv.metric.ui.settings.profile.MetricProfileSettings1"/>
-        <projectService serviceImplementation="org.b333vv.metric.ui.settings.other.OtherSettings1"/>
+        <projectService serviceImplementation="org.b333vv.metric.ui.settings.other.OtherSettings"/>
         <projectService serviceImplementation="org.b333vv.metric.ui.log.MetricsConsole"/>
+        <projectService serviceImplementation="org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings"/>
+        <projectService serviceImplementation="org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings"/>
+        <projectService serviceImplementation="org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings"/>
+        <projectService serviceImplementation="org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions"/>
+        <projectService serviceImplementation="org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions"/>
     </extensions>
 
     <project-components>
 <!--        <component>-->
-<!--            <implementation-class>org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1</implementation-class>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings</implementation-class>-->
 <!--        </component>-->
 <!--        <component>-->
-<!--            <implementation-class>org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings1</implementation-class>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings</implementation-class>-->
 <!--        </component>-->
 <!--        <component>-->
-<!--            <implementation-class>org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1</implementation-class>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings</implementation-class>-->
 <!--        </component>-->
+<!--        <component>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions</implementation-class>-->
+<!--        </component>-->
+<!--        <component>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions</implementation-class>-->
+<!--        </component>-->
+
 <!--        <component>-->
 <!--            <implementation-class>org.b333vv.metric.ui.log.MetricsConsole</implementation-class>-->
 <!--        </component>-->
@@ -264,10 +277,10 @@
             <implementation-class>org.b333vv.metric.ui.tool.ProjectMetricsPanel</implementation-class>
         </component>
 <!--        <component>-->
-<!--            <implementation-class>org.b333vv.metric.ui.settings.profile.MetricProfileSettings1</implementation-class>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions</implementation-class>-->
 <!--        </component>-->
 <!--        <component>-->
-<!--            <implementation-class>org.b333vv.metric.ui.settings.other.OtherSettings1</implementation-class>-->
+<!--            <implementation-class>org.b333vv.metric.ui.settings.other.OtherSettings</implementation-class>-->
 <!--        </component>-->
     </project-components>
 
@@ -367,28 +380,28 @@
 
         <action id="Metrics.BuildProfileCategoryChart"
                 class="org.b333vv.metric.actions.BuildProfilesCategoryChartAction"
-                text="Build Distribution Of Classes By Metric Profiles Chart"
+                text="Build Distribution Of Classes By Fitness Function Chart"
                 description="Build distribution of classes by metric profiles chart"
                 icon="MetricsIcons.BAR_CHART">
         </action>
 
         <action id="Metrics.BuildMetricProfileBoxChart"
                 class="org.b333vv.metric.actions.BuildProfileBoxChartAction"
-                text="Build Metrics Values By Metric Profiles Distribution Charts"
+                text="Build Metrics Values By Fitness Function Distribution Charts"
                 description="Build metrics values by metric profiles distribution charts"
                 icon="MetricsIcons.BOX_CHART">
         </action>
 
         <action id="Metrics.BuildMetricProfileHeatMapChart"
                 class="org.b333vv.metric.actions.BuildProfileHeatMapChartAction"
-                text="Build Metric Profiles Correlation Chart"
+                text="Build Metric - Fitness Function Correlation Chart"
                 description="Build metric profiles correlation chart"
                 icon="MetricsIcons.HEAT_MAP_CHART">
         </action>
 
         <action id="Metrics.BuildMetricProfileRadarChart"
                 class="org.b333vv.metric.actions.BuildProfileRadarChartAction"
-                text="Build Invalid Metrics Values And Metric Profiles Correlation Chart"
+                text="Build Invalid Metrics Values And Fitness Functions Correlation Chart"
                 description="Build invalid metrics values and metric profiles correlation chart"
                 icon="MetricsIcons.RADAR_CHART">
         </action>
@@ -402,15 +415,22 @@
 
         <action id="Metrics.BuildProfileTreeMapAction"
                 class="org.b333vv.metric.actions.BuildProfileTreeMapAction"
-                text="Build Treemap With Profiles Distribution"
+                text="Build Treemap With Fitness Function Distribution"
                 description="Build treemap with profiles distribution"
                 icon="MetricsIcons.TREE_MAP">
         </action>
 
-        <action id="Metrics.BuildByProfileDistribution"
-                class="org.b333vv.metric.actions.BuildByProfilesDistributionAction"
-                text="Build Classes Distribution By Metrics Profile"
-                description="Build classes distribution By metrics profile"
+        <action id="Metrics.BuildClassLevelFitnessFunction"
+                class="org.b333vv.metric.actions.BuildClassLevelFitnessFunctionAction"
+                text="Build Class Level Fitness Function"
+                description="Build class level fitness function"
+                icon="MetricsIcons.PROFILE_TABLE">
+        </action>
+
+        <action id="Metrics.BuildPackageLevelFitnessFunction"
+                class="org.b333vv.metric.actions.BuildPackageLevelFitnessFunctionAction"
+                text="Build Package Level Fitness Function"
+                description="Build package level fitness function"
                 icon="MetricsIcons.PROFILE_TABLE">
         </action>
 
@@ -594,7 +614,7 @@
             <reference id="Metrics.BuildMetricTreeMapAction"/>
             <reference id="Metrics.SortClassesByMetricsValues"/>
             <separator/>
-            <reference id="Metrics.BuildProjectMetricXYChart"/>
+<!--            <reference id="Metrics.BuildProjectMetricXYChart"/>-->
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
             <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
             <separator/>
@@ -608,14 +628,25 @@
             <reference id="Metrics.Configure"/>
         </group>
 
-        <group id="Metrics.MetricsProfileToolbar">
-            <reference id="Metrics.BuildByProfileDistribution"/>
+        <group id="Metrics.ClassLevelFitnessFunctionToolbar">
+            <reference id="Metrics.BuildClassLevelFitnessFunction"/>
             <reference id="Metrics.BuildProfileTreeMapAction"/>
             <separator/>
             <reference id="Metrics.BuildProfileCategoryChart"/>
             <reference id="Metrics.BuildMetricProfileRadarChart"/>
             <reference id="Metrics.BuildMetricProfileHeatMapChart"/>
             <reference id="Metrics.BuildMetricProfileBoxChart"/>
+            <separator/>
+            <reference id="Metrics.ProfileAutoscroll"/>
+            <separator/>
+            <reference id="Metrics.Configure"/>
+            <separator/>
+        </group>
+
+        <group id="Metrics.PackageLevelFitnessFunctionToolbar">
+            <reference id="Metrics.BuildPackageLevelFitnessFunction"/>
+            <separator/>
+            <reference id="Metrics.BuildProjectMetricXYChart"/>
             <separator/>
             <reference id="Metrics.ProfileAutoscroll"/>
             <separator/>

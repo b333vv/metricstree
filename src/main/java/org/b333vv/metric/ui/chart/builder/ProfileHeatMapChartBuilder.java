@@ -21,7 +21,7 @@ import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.util.CommonUtils;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.knowm.xchart.HeatMapChart;
 import org.knowm.xchart.HeatMapChartBuilder;
 import org.knowm.xchart.HeatMapSeries;
@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProfileHeatMapChartBuilder {
-    private Map<MetricProfile, Set<JavaClass>> classesByMetricProfile;
+    private Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile;
 
-    public HeatMapChart createChart(Map<MetricProfile, Set<JavaClass>> classesByMetricProfile) {
+    public HeatMapChart createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile) {
         this.classesByMetricProfile = classesByMetricProfile;
         HeatMapChart chart = new HeatMapChartBuilder()
                 .title("Correlation Between Metric Profiles")
@@ -43,9 +43,9 @@ public class ProfileHeatMapChartBuilder {
                 .height(50)
                 .build();
 
-        Set<MetricProfile> profiles = new TreeSet<>();
+        Set<FitnessFunction> profiles = new TreeSet<>();
 
-        for (Map.Entry<MetricProfile, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
+        for (Map.Entry<FitnessFunction, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
             if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty()) {
                 profiles.add(profileEntry.getKey());
             }
@@ -55,12 +55,12 @@ public class ProfileHeatMapChartBuilder {
 
         int i = 0;
         int j = 0;
-        for (MetricProfile metricProfile1 : profiles) {
-            for (MetricProfile metricProfile2 : profiles) {
+        for (FitnessFunction fitnessFunction1 : profiles) {
+            for (FitnessFunction fitnessFunction2 : profiles) {
                 Number[] numbers = {
                         i,
                         j,
-                        getHeatData(metricProfile1, metricProfile2)
+                        getHeatData(fitnessFunction1, fitnessFunction2)
                 };
                 heatData.add(numbers);
                 j++;
@@ -70,10 +70,10 @@ public class ProfileHeatMapChartBuilder {
         }
 
         List<String> xData = profiles.stream()
-                .map(MetricProfile::getName)
+                .map(FitnessFunction::name)
                 .collect(Collectors.toList());
         List<String> yData = profiles.stream()
-                .map(MetricProfile::getName)
+                .map(FitnessFunction::name)
                 .collect(Collectors.toList());
 
         HeatMapSeries heatMapSeries = chart.addSeries("Classes Normalized Intersection In",
@@ -117,7 +117,7 @@ public class ProfileHeatMapChartBuilder {
         return chart;
     }
 
-    private Number getHeatData(MetricProfile profile1, MetricProfile profile2) {
+    private Number getHeatData(FitnessFunction profile1, FitnessFunction profile2) {
         Set<JavaClass> classesInProfile1 = new HashSet<>(classesByMetricProfile.get(profile1));
         Set<JavaClass> classesInProfile2 = new HashSet<>(classesByMetricProfile.get(profile2));
         int intersectSize = CommonUtils.sizeOfIntersection(classesInProfile1, classesInProfile2);

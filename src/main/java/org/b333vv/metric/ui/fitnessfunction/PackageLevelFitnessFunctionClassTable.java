@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.profile;
+package org.b333vv.metric.ui.fitnessfunction;
 
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.components.JBScrollPane;
@@ -22,17 +22,18 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-public class ClassesByProfileTable {
+public class PackageLevelFitnessFunctionClassTable {
     private final Model model;
     private final JBScrollPane panel;
 
-    public ClassesByProfileTable() {
+    public PackageLevelFitnessFunctionClassTable() {
         model = new Model();
         JBTable table = new JBTable(model);
         table.setShowGrid(false);
@@ -51,7 +52,7 @@ public class ClassesByProfileTable {
                     MetricsUtils.openInEditor(javaClass.getPsiClass());
                 }
                 MetricsUtils.getCurrentProject().getMessageBus()
-                        .syncPublisher(MetricsEventListener.TOPIC).javaClassSelected(javaClass);
+                        .syncPublisher(MetricsEventListener.TOPIC).packageLevelJavaClassSelected(javaClass);
             }
         });
         panel = new JBScrollPane(table);
@@ -70,6 +71,10 @@ public class ClassesByProfileTable {
         model.set(List.of());
     }
 
+    public void set(JavaPackage javaPackage) {
+        model.set(javaPackage.classes().toList());
+    }
+
     private static class Model extends AbstractTableModel {
         private List<JavaClass> rows = List.of();
 
@@ -80,7 +85,7 @@ public class ClassesByProfileTable {
 
         @Override
         public int getColumnCount() {
-            return 2;
+            return 1;
         }
 
         @Override
@@ -93,8 +98,6 @@ public class ClassesByProfileTable {
             switch (column) {
                 case 0:
                     return "Class";
-                case 1:
-                    return "Package";
                 default:
                     return "";
             }
@@ -111,19 +114,9 @@ public class ClassesByProfileTable {
             switch (column) {
                 case 0:
                     return javaClass;
-                case 1:
-                    return getPackage(javaClass);
                 default:
                     return "";
             }
-        }
-
-        private Object getPackage(JavaClass javaClass) {
-            PsiPackage psiPackage = ClassUtils.findPackage(javaClass.getPsiClass());
-            if (psiPackage == null) {
-                return "";
-            }
-            return psiPackage.getQualifiedName();
         }
 
         @Override

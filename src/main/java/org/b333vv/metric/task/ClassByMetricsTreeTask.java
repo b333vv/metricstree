@@ -29,7 +29,7 @@ import javax.swing.tree.DefaultTreeModel;
 import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class ClassByMetricsTreeTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes distribution by metric values tree from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values tree from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values tree started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values tree finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values tree canceled";

@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.ClassByMetricsTreeTask;
 import org.b333vv.metric.task.MetricTaskCache;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.jetbrains.annotations.NotNull;
 
 public class SortClassesByMetricsValuesAction extends AbstractAction {
@@ -43,7 +43,7 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
         if (project == null) {
             e.getPresentation().setEnabled(false);
         } else {
-            e.getPresentation().setEnabled(project.getService(BasicMetricsValidRangesSettings1.class).isControlValidRanges()
+            e.getPresentation().setEnabled(project.getService(BasicMetricsValidRangesSettings.class).isControlValidRanges()
                     && MetricTaskCache.getQueue().isEmpty());
 //            e.getPresentation().setEnabled(project.getComponent(BasicMetricsValidRangesSettings.class).isControlValidRanges()
 //                    && MetricTaskCache.getQueue().isEmpty());

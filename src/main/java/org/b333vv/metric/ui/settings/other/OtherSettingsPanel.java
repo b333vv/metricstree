@@ -27,12 +27,12 @@ import java.awt.*;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 
-public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings1> {
+public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings> {
     private final Project project;
     private JPanel panel;
     private JCheckBox projectMetricsStampStored;
 
-    public OtherSettingsPanel(Project project, OtherSettings1 settings) {
+    public OtherSettingsPanel(Project project, OtherSettings settings) {
         this.project = project;
         createUIComponents(settings);
     }
@@ -42,21 +42,21 @@ public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings1> {
     }
 
     @Override
-    public boolean isModified(OtherSettings1 settings) {
+    public boolean isModified(OtherSettings settings) {
         return settings.isProjectMetricsStampStored() != projectMetricsStampStored.isSelected();
     }
 
     @Override
-    public void save(OtherSettings1 settings) {
+    public void save(OtherSettings settings) {
         settings.setProjectMetricsStampStored(projectMetricsStampStored.isSelected());
     }
 
     @Override
-    public void load(OtherSettings1 settings) {
+    public void load(OtherSettings settings) {
         projectMetricsStampStored.setSelected(settings.isProjectMetricsStampStored());;
     }
 
-    private void createUIComponents(OtherSettings1 settings) {
+    private void createUIComponents(OtherSettings settings) {
 
         projectMetricsStampStored = new JCheckBox("Save values of project level metrics in files " +
                 "on disk during their calculation",

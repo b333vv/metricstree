@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings.profile;
+package org.b333vv.metric.ui.settings.fitnessfunction;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -32,61 +28,66 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.function.Supplier;
 
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 import static java.lang.Long.MAX_VALUE;
 
-public class AddMetricProfileItemDialog extends DialogWrapper {
+public class EditMetricProfileItemDialog extends DialogWrapper {
     private final JPanel panel;
-    private final ComboBox metricType;
     private final JSpinner minValue;
     private final JSpinner maxValue;
     private JCheckBox minValueNotSet;
     private JCheckBox maxValueNotSet;
-    private boolean isLong = true;
-    private MetricProfileItem item = new MetricProfileItem();
+    private final FitnessFunctionItem item;
 
-    public AddMetricProfileItemDialog(Project project, Supplier<ArrayList<String>> getMetricTypeList) {
+    public EditMetricProfileItemDialog(Project project, FitnessFunctionItem item) {
         super(project, false);
-        setTitle("Add Metric Profile Item");
+        setTitle("Edit Metric Profile Item");
 
-        metricType = new ComboBox(getMetricTypeList.get().toArray());
-
-        metricType.addItemListener(arg -> {
-            String metricTypeName = (String) metricType.getSelectedItem();
-
-            boolean isLongFromCombo = MetricsService.isLongValueMetricType(MetricType.valueOf(metricTypeName));
-            if (isLongFromCombo != isLong) {
-                isLong = isLongFromCombo;
-                resetSpinnerModels();
-            }
-        });
+        this.item = item;
 
         panel = new JPanel(new GridBagLayout());
-        JLabel comboBoxLabel = new JLabel("Metric Type:");
-        minValueNotSet = new JCheckBox("Min Value:", false);
-        maxValueNotSet = new JCheckBox("Max Value:", false);
+        minValueNotSet = new JCheckBox("Min Value:", item.getMinLongValue() > 0L || item.getMinDoubleValue() > 0.00);
+        maxValueNotSet = new JCheckBox("Max Value:", (item.getMaxLongValue() != MAX_VALUE) && (item.getMaxLongValue() != 0L) ||
+                (item.getMaxDoubleValue() != MAX_VALUE) && (item.getMaxDoubleValue() > 0.00));
+        JLabel metricTypeNameLabel = new JLabel("Metric Type:");
+        JLabel metricTypeName = new JLabel(MetricType.valueOf(item.getName()).description() + " [" + item.getName() + "]");
         minValue = new JSpinner();
         maxValue = new JSpinner();
-
-        SpinnerNumberModel minValueModel = new SpinnerNumberModel(Long.valueOf(0),
-                Long.valueOf(0), Long.valueOf(MAX_VALUE), Long.valueOf(1));
-        SpinnerNumberModel maxValueModel = new SpinnerNumberModel(Long.valueOf(0),
-                Long.valueOf(0), Long.valueOf(MAX_VALUE), Long.valueOf(1));
+        SpinnerNumberModel minValueModel;
+        SpinnerNumberModel maxValueModel;
+        if (this.item.isLong()) {
+            minValueModel = new SpinnerNumberModel(Long.valueOf(this.item.getMinLongValue()),
+                    Long.valueOf(0), Long.valueOf(MAX_VALUE), Long.valueOf(1));
+            maxValueModel = new SpinnerNumberModel(Long.valueOf(this.item.getMaxLongValue()),
+                    Long.valueOf(0), Long.valueOf(MAX_VALUE), Long.valueOf(1));
+        } else {
+            minValueModel = new SpinnerNumberModel(Double.valueOf(this.item.getMinDoubleValue()),
+                    Double.valueOf(0.00), Double.valueOf(MAX_VALUE), Double.valueOf(0.01));
+            maxValueModel = new SpinnerNumberModel(Double.valueOf(this.item.getMaxDoubleValue()),
+                    Double.valueOf(0.00), Double.valueOf(MAX_VALUE), Double.valueOf(0.01));
+        }
         minValue.setModel(minValueModel);
         maxValue.setModel(maxValueModel);
-        minValue.setEnabled(false);
-        maxValue.setEnabled(false);
+
+        if (!maxValueNotSet.isSelected()) {
+            maxValue.setValue(item.isLong() ? 0L : 0.00);
+            maxValue.setEnabled(false);
+            maxValue.updateUI();
+        }
+
+        if (!minValueNotSet.isSelected()) {
+            minValue.setValue(item.isLong() ? 0L : 0.00);
+            minValue.setEnabled(false);
+            minValue.updateUI();
+        }
 
         JBInsets insets = JBUI.insets(2, 2, 2, 2);
 
-        panel.add(comboBoxLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
+        panel.add(metricTypeNameLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                 NORTHWEST, NONE, insets, 0, 0));
-        panel.add(metricType, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
+        panel.add(metricTypeName, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
                 NORTHWEST, NONE, insets, 0, 0));
         panel.add(minValueNotSet, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0,
                 NORTHWEST, NONE, insets, 0, 0));
@@ -103,15 +104,19 @@ public class AddMetricProfileItemDialog extends DialogWrapper {
                 if (!minValueNotSet.isSelected() && !maxValueNotSet.isSelected()) {
                     return;
                 }
-                if (isLong) {
+                if (item.isLong()) {
                     item.setLong(true);
                     if (!maxValueNotSet.isSelected()) {
                         item.setMaxLongValue(MAX_VALUE);
                     } else {
                         item.setMaxLongValue((Long) maxValue.getModel().getValue());
                     }
-                    item.setName((String) metricType.getSelectedItem());
-                    item.setMinLongValue((Long) minValue.getModel().getValue());
+                    Object value = minValue.getModel().getValue();
+                    if (value instanceof Double) {
+                        item.setMinLongValue(((Double) minValue.getModel().getValue()).longValue());
+                    } else {
+                        item.setMinLongValue((Long) minValue.getModel().getValue());
+                    }
                     if (item.getMaxLongValue() >= item.getMinLongValue()) {
                         super.actionPerformed(e);
                         dispose();
@@ -124,7 +129,6 @@ public class AddMetricProfileItemDialog extends DialogWrapper {
                         double value = Math.round(((Double) maxValue.getModel().getValue()) * 100.0) / 100.0;
                         item.setMaxDoubleValue(value);
                     }
-                    item.setName((String) metricType.getSelectedItem());
                     double value = Math.round(((Double) minValue.getModel().getValue()) * 100.0) / 100.0;
                     item.setMinDoubleValue(value);
                     if (item.getMaxDoubleValue() >= item.getMinDoubleValue()) {
@@ -141,7 +145,7 @@ public class AddMetricProfileItemDialog extends DialogWrapper {
                 minValue.setEnabled(minValueNotSet.isSelected());
                 minValue.updateUI();
                 if (!minValueNotSet.isSelected()) {
-                    minValue.setValue(isLong ? 0L : 0.0);
+                    minValue.setValue(item.isLong() ? 0L : 0.0);
                 }
             }
         });
@@ -152,31 +156,12 @@ public class AddMetricProfileItemDialog extends DialogWrapper {
                 maxValue.setEnabled(maxValueNotSet.isSelected());
                 maxValue.updateUI();
                 if (!maxValueNotSet.isSelected()) {
-                    maxValue.setValue(isLong ? 0L : 0.0);
+                    maxValue.setValue(item.isLong() ? 0L : 0.0);
                 }
             }
         });
-        init();
-    }
 
-    private void resetSpinnerModels() {
-        SpinnerNumberModel minValueModel;
-        SpinnerNumberModel maxValueModel;
-        if (isLong) {
-            minValueModel = new SpinnerNumberModel(Long.valueOf(0), Long.valueOf(0),
-                    Long.valueOf(MAX_VALUE), Long.valueOf(1));
-            maxValueModel = new SpinnerNumberModel(Long.valueOf(0), Long.valueOf(0),
-                    Long.valueOf(MAX_VALUE), Long.valueOf(1));
-        } else {
-            minValueModel = new SpinnerNumberModel(Double.valueOf(0.00), Double.valueOf(0.00),
-                    Double.valueOf(MAX_VALUE), Double.valueOf(0.01));
-            maxValueModel = new SpinnerNumberModel(Double.valueOf(0.00),
-                    Double.valueOf(0.00), Double.valueOf(MAX_VALUE), Double.valueOf(0.01));
-        }
-        minValue.setModel(minValueModel);
-        maxValue.setModel(maxValueModel);
-        minValue.setEnabled(false);
-        maxValue.setEnabled(false);
+        init();
     }
 
     @Nullable
@@ -185,7 +170,7 @@ public class AddMetricProfileItemDialog extends DialogWrapper {
         return panel;
     }
 
-    public MetricProfileItem getMetricProfileItem() {
+    public FitnessFunctionItem getMetricProfileItem() {
         return item;
     }
 }

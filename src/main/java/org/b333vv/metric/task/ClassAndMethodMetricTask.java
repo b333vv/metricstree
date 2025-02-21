@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.b333vv.metric.task.MetricTaskManager.sureDependenciesAreInCache;
 
 public class ClassAndMethodMetricTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get class and method levels metrics from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles class and method levels metrics from cache";
     private static final String STARTED_MESSAGE = "Building class and method levels metrics";
     private static final String FINISHED_MESSAGE = "Building class and method levels metrics finished";
     private static final String CANCELED_MESSAGE = "Building class and method levels metrics canceled";

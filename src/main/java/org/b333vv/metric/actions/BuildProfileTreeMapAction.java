@@ -28,7 +28,7 @@ public class BuildProfileTreeMapAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfileTreeMapTask profileTreeMapTask = new ProfileTreeMapTask();
             MetricTaskCache.getQueue().run(profileTreeMapTask);
         }

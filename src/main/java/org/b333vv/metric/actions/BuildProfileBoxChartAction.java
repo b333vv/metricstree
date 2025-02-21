@@ -29,7 +29,7 @@ public class BuildProfileBoxChartAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProfilePanel();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesBoxChartTask boxChartTask = new ProfilesBoxChartTask();
             MetricTaskCache.getQueue().run(boxChartTask);
         }
@@ -37,7 +37,7 @@ public class BuildProfileBoxChartAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(false);
-//        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+//        e.getPresentation().setEnabled(false);
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
     }
 }

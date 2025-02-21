@@ -28,6 +28,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.function.Consumer;
 
 public class MetricTreeMap<N> extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Consumer<String> selectionAction;
@@ -329,7 +331,6 @@ public class MetricTreeMap<N> extends JPanel {
                 }
             } catch (InterruptedException | ExecutionException e) {
                 MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
-//                MetricsUtils.getConsole().error(e.getMessage());
             }
         }
     }

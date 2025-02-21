@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.profile;
+package org.b333vv.metric.ui.fitnessfunction;
 
+import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class MetricProfile implements Comparable<MetricProfile> {
-    private final String name;
-    private final Map<MetricType, Range> profile;
-
-    public MetricProfile(String name, Map<MetricType, Range> profile) {
-        this.name = name;
-        this.profile = profile;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Map<MetricType, Range> getProfile() {
-        return profile;
-    }
+public record FitnessFunction(String name, MetricLevel level,
+                              Map<MetricType, Range> profile) implements Comparable<FitnessFunction> {
 
     @Override
     public String toString() {
@@ -45,7 +32,7 @@ public class MetricProfile implements Comparable<MetricProfile> {
     }
 
     @Override
-    public int compareTo(@NotNull MetricProfile o) {
+    public int compareTo(@NotNull FitnessFunction o) {
         return name.compareTo(o.name);
     }
 }

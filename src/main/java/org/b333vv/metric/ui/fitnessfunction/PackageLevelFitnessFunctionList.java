@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.profile;
+package org.b333vv.metric.ui.fitnessfunction;
 
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
@@ -22,7 +22,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
@@ -36,13 +36,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MetricProfileList {
+public class PackageLevelFitnessFunctionList {
     private final Model model;
     private final JBScrollPane panel;
     private final JBTable table;
-    private Map<MetricProfile, Integer> byProfileFoundedClassesCount;
+    private Map<FitnessFunction, Integer> packagesCount;
 
-    public MetricProfileList() {
+    public PackageLevelFitnessFunctionList() {
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
@@ -57,9 +57,9 @@ public class MetricProfileList {
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 1);
-                MetricProfile profile = (MetricProfile) selectedCell;
+                FitnessFunction fitnessFunction = (FitnessFunction) selectedCell;
                 MetricsUtils.getCurrentProject().getMessageBus()
-                        .syncPublisher(MetricsEventListener.TOPIC).metricsProfileSelected(profile);
+                        .syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionSelected(fitnessFunction);
             }
         });
 
@@ -76,9 +76,9 @@ public class MetricProfileList {
         panel.setBorder(IdeBorderFactory.createTitledBorder(text));
     }
 
-    public void setProfiles(Map<MetricProfile, Set<JavaClass>> distribution) {
-        ArrayList<MetricProfile> rows = new ArrayList<>(distribution.keySet());
-        byProfileFoundedClassesCount = distribution.entrySet().stream()
+    public void setProfiles(Map<FitnessFunction, Set<JavaPackage>> distribution) {
+        ArrayList<FitnessFunction> rows = new ArrayList<>(distribution.keySet());
+        packagesCount = distribution.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().size()));
         model.set(rows);
         model.fireTableDataChanged();
@@ -93,7 +93,7 @@ public class MetricProfileList {
     }
 
     private class Model extends AbstractTableModel {
-        private List<MetricProfile> rows = List.of();
+        private List<FitnessFunction> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -116,29 +116,29 @@ public class MetricProfileList {
                 case 0:
                     return "";
                 case 1:
-                    return "Profile Name";
+                    return "Fitness Function";
                 case 2:
-                    return "Metric Profile";
+                    return "Formula";
                 default:
                     return "";
             }
         }
 
-        public void set(List<MetricProfile> rows) {
+        public void set(List<FitnessFunction> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
         @Override
         public Object getValueAt(int row, int column) {
-            MetricProfile profile = rows.get(row);
+            FitnessFunction fitnessFunction = rows.get(row);
             switch (column) {
                 case 0:
-                    return getImageForRow(profile);
+                    return getImageForRow(fitnessFunction);
                 case 1:
-                    return profile;
+                    return fitnessFunction;
                 case 2:
-                    return getProfileStructure(profile.getProfile());
+                    return getProfileStructure(fitnessFunction.profile());
                 default:
                     return "";
             }
@@ -150,7 +150,7 @@ public class MetricProfileList {
                 case 0:
                     return Icon.class;
                 case 1:
-                    return MetricProfile.class;
+                    return FitnessFunction.class;
                 default:
                     return String.class;
             }
@@ -183,15 +183,15 @@ public class MetricProfileList {
         }
     }
 
-    private Icon getImageForRow(MetricProfile profile) {
-        int classesCount = byProfileFoundedClassesCount.get(profile);
-        if (classesCount > 0 && classesCount <= 10) {
+    private Icon getImageForRow(FitnessFunction profile) {
+        int count = packagesCount.get(profile);
+        if (count > 0 && count <= 10) {
             return MetricsIcons.HIGH_COLOR;
         }
-        if (classesCount > 10 && classesCount <= 20) {
+        if (count > 10 && count <= 20) {
             return MetricsIcons.VERY_HIGH_COLOR;
         }
-        if (classesCount > 20) {
+        if (count > 20) {
             return MetricsIcons.EXTREME_COLOR;
         }
         return MetricsIcons.REGULAR_COLOR;

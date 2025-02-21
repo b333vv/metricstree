@@ -33,16 +33,16 @@ import java.util.stream.Collectors;
 
 import static java.awt.GridBagConstraints.*;
 
-public class BasicMetricsValidRangesPanel implements ConfigurationPanel<BasicMetricsValidRangesSettings1> {
+public class BasicMetricsValidRangesPanel implements ConfigurationPanel<BasicMetricsValidRangesSettings> {
     private static final String EMPTY_LABEL = "No metrics configured";
     private final Project project;
     private JPanel panel;
     private BasicMetricsValidRangesTable basicMetricsValidRangesTable;
     private JCheckBox controlValidRanges;
 
-    public BasicMetricsValidRangesPanel(Project project, BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1) {
+    public BasicMetricsValidRangesPanel(Project project, BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
         this.project = project;
-        createUIComponents(basicMetricsValidRangesSettings1);
+        createUIComponents(basicMetricsValidRangesSettings);
     }
 
     public JPanel getComponent() {
@@ -50,14 +50,14 @@ public class BasicMetricsValidRangesPanel implements ConfigurationPanel<BasicMet
     }
 
     @Override
-    public boolean isModified(BasicMetricsValidRangesSettings1 settings) {
+    public boolean isModified(BasicMetricsValidRangesSettings settings) {
         List<BasicMetricsValidRangeStub> rows = settings.getControlledMetricsList();
         return !rows.equals(basicMetricsValidRangesTable.get())
                 || settings.isControlValidRanges() != controlValidRanges.isSelected();
     }
 
     @Override
-    public void save(BasicMetricsValidRangesSettings1 settings) {
+    public void save(BasicMetricsValidRangesSettings settings) {
         Map<String, BasicMetricsValidRangeStub> newMetricsMap = basicMetricsValidRangesTable.get()
                 .stream()
                 .collect(Collectors.toMap(BasicMetricsValidRangeStub::getName, x -> x));
@@ -66,15 +66,15 @@ public class BasicMetricsValidRangesPanel implements ConfigurationPanel<BasicMet
     }
 
     @Override
-    public void load(BasicMetricsValidRangesSettings1 settings) {
+    public void load(BasicMetricsValidRangesSettings settings) {
         basicMetricsValidRangesTable.set(settings.getControlledMetricsList());
         controlValidRanges.setSelected(settings.isControlValidRanges());
     }
 
-    private void createUIComponents(BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1) {
+    private void createUIComponents(BasicMetricsValidRangesSettings basicMetricsValidRangesSettings) {
 
         controlValidRanges = new JCheckBox("Take Basic Metrics Values Under Control",
-                        basicMetricsValidRangesSettings1.isControlValidRanges());
+                        basicMetricsValidRangesSettings.isControlValidRanges());
 
         Function<BasicMetricsValidRangeStub, BasicMetricsValidRangeStub> onEdit = value -> {
             EditValidRangeForBasicMetricDialog dialog = new EditValidRangeForBasicMetricDialog(project);
@@ -86,7 +86,7 @@ public class BasicMetricsValidRangesPanel implements ConfigurationPanel<BasicMet
         };
 
         Supplier<BasicMetricsValidRangeStub> onAdd = () -> {
-            if (!basicMetricsValidRangesSettings1.getUnControlledMetricsList().isEmpty()) {
+            if (!basicMetricsValidRangesSettings.getUnControlledMetricsList().isEmpty()) {
                 AddValidRangeForBasicMetricDialog dialog = new AddValidRangeForBasicMetricDialog(project);
                 if (dialog.showAndGet() && dialog.getMetricsAllowableValueRangeStub() != null) {
                     return dialog.getMetricsAllowableValueRangeStub();

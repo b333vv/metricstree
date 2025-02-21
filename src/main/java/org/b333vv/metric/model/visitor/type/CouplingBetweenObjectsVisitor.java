@@ -22,6 +22,7 @@ import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,7 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
+        MetricsUtils.setCurrentProject(psiClass.getProject());
         metric = Metric.of(CBO, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             DependenciesBuilder dependenciesBuilder = MetricTaskCache.instance()

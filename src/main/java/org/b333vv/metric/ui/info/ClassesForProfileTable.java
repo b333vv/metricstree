@@ -40,6 +40,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ClassesForProfileTable {
     private final Model model;
@@ -47,7 +48,11 @@ public class ClassesForProfileTable {
     private Map<JavaClass, List<Metric>> classes;
 
     public ClassesForProfileTable(Map<JavaClass, List<Metric>> classesMap) {
-        this.classes = classesMap;
+        this.classes = classesMap.entrySet().stream()
+                .filter(b -> !b.getValue().isEmpty())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        int columns = classes.entrySet().stream()
+                .findFirst().get().getValue().size() + 1;
 
         model = new Model();
         JBTable table = new JBTable(model);

@@ -25,9 +25,9 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings1;
-import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings1;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
+import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
@@ -39,38 +39,38 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ProfileRadarChartBuilder {
-    private Map<MetricProfile, Set<JavaClass>> classesByMetricProfile;
+    private Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile;
 
-    public List<RadarChartStructure> createChart(Map<MetricProfile, Set<JavaClass>> classesByMetricProfile, Project project) {
+    public List<RadarChartStructure> createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile, Project project) {
 
         this.classesByMetricProfile = classesByMetricProfile;
 
-        BasicMetricsValidRangesSettings1 basicMetricsValidRangesSettings1 = project
-                .getService(BasicMetricsValidRangesSettings1.class);
-//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project
+                .getService(BasicMetricsValidRangesSettings.class);
+//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
 //                BasicMetricsValidRangesSettings.class);
-//        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+//        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
 //                DerivativeMetricsValidRangesSettings.class);
-        DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1 = project
-                .getService(DerivativeMetricsValidRangesSettings1.class);
+        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = project
+                .getService(DerivativeMetricsValidRangesSettings.class);
         List<MetricType> metrics = new ArrayList<>();
         for (MetricType mt : MetricType.values()) {
-            if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings1.getControlledMetricsList().stream()
+            if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                     .anyMatch(stub -> stub.getName().equals(mt.name()))
-                    || derivativeMetricsValidRangesSettings1.getControlledMetricsList().stream()
+                    || derivativeMetricsValidRangesSettings.getControlledMetricsList().stream()
                     .anyMatch(stub -> stub.getName().equals(mt.name())))) {
                 metrics.add(mt);
             }
         }
 
-        List<MetricProfile> profiles = new ArrayList<>();
-        for (Map.Entry<MetricProfile, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
+        List<FitnessFunction> profiles = new ArrayList<>();
+        for (Map.Entry<FitnessFunction, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
             if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty()) {
                 profiles.add(profileEntry.getKey());
             }
         }
         List<RadarChartStructure> chartStructures = new ArrayList<>();
-        for (MetricProfile profile : profiles) {
+        for (FitnessFunction profile : profiles) {
             double[] numbers = new double[metrics.size()];
             for (int i = 0; i < metrics.size(); i++) {
                 numbers[i] = getData(metrics.get(i), profile);
@@ -80,7 +80,7 @@ public class ProfileRadarChartBuilder {
                     .height(200)
                     .build();
             chart.setVariableLabels(metrics.stream().map(MetricType::name).toArray(String[]::new));
-            RadarSeries series = chart.addSeries(profile.getName(), numbers);
+            RadarSeries series = chart.addSeries(profile.name(), numbers);
             series.setLineColor(new JBColor(new Color(0xf9c784), new Color(0xf9c784)));
             Color annotationColor = EditorColorsManager.getInstance().getGlobalScheme().getDefaultForeground();
             Color backgroundColor = UIUtil.getPanelBackground();
@@ -122,7 +122,7 @@ public class ProfileRadarChartBuilder {
         return false;
     }
 
-    private double getData(MetricType metricType, MetricProfile profile) {
+    private double getData(MetricType metricType, FitnessFunction profile) {
         long classesNumber = classesByMetricProfile.entrySet().stream()
                 .filter(e -> e.getKey().equals(profile))
                 .findFirst()
@@ -144,18 +144,18 @@ public class ProfileRadarChartBuilder {
     }
 
     public static class RadarChartStructure {
-        private final MetricProfile metricProfile;
+        private final FitnessFunction fitnessFunction;
         private final RadarChart radarChart;
         private final Map<JavaClass, List<Metric>> classes;
 
-        public RadarChartStructure(MetricProfile metricProfile, RadarChart radarChart, Map<JavaClass, List<Metric>> classes) {
-            this.metricProfile = metricProfile;
+        public RadarChartStructure(FitnessFunction fitnessFunction, RadarChart radarChart, Map<JavaClass, List<Metric>> classes) {
+            this.fitnessFunction = fitnessFunction;
             this.radarChart = radarChart;
             this.classes = classes;
         }
 
-        public MetricProfile getMetricProfile() {
-            return metricProfile;
+        public FitnessFunction getMetricProfile() {
+            return fitnessFunction;
         }
 
         public RadarChart getRadarChart() {

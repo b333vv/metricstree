@@ -28,17 +28,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.events.*;
 import org.b333vv.metric.builder.DependenciesBuilder;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.util.MetricsUtils;
@@ -70,7 +67,8 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<XYChart> PROJECT_METRICS_HISTORY_XY_CHART = Key.create("PROJECT_METRICS_HISTORY_XY_CHART");
     public static final Key<JavaProject> PACKAGE_ONLY_METRICS = Key.create("PACKAGE_WITHOUT_CLASSES_METRICS");
     public static final Key<DefaultTreeModel> CLASSES_BY_METRIC_TREE = Key.create("CLASSES_BY_METRIC_TREE");
-    public static final Key<Map<MetricProfile, Set<JavaClass>>> METRIC_PROFILES = Key.create("METRIC_PROFILES");
+    public static final Key<Map<FitnessFunction, Set<JavaClass>>> CLASS_LEVEL_FITNESS_FUNCTION = Key.create("CLASS_LEVEL_FITNESS_FUNCTION");
+    public static final Key<Map<FitnessFunction, Set<JavaPackage>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key.create("PACKAGE_LEVEL_FITNESS_FUNCTION");
     public static final Key<List<ProfileBoxChartBuilder.BoxChartStructure>> BOX_CHARTS = Key.create("BOX_CHARTS");
     public static final Key<HeatMapChart> HEAT_MAP_CHART = Key.create("HEAT_MAP_CHART");
     public static final Key<List<ProfileRadarChartBuilder.RadarChartStructure>> RADAR_CHART = Key.create("RADAR_CHART");
@@ -86,7 +84,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         VirtualFileManager.getInstance().addAsyncFileListener(new MyAsyncVfsListener(), this);
     }
     public static MetricTaskCache instance() {
-        return ServiceManager.getService(MetricsUtils.getCurrentProject(), MetricTaskCache.class);
+        return MetricsUtils.getCurrentProject().getService(MetricTaskCache.class);
     }
 
     @Nullable
@@ -142,7 +140,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         putUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART, null);
         putUserData(MetricTaskCache.PACKAGE_ONLY_METRICS, null);
         putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, null);
-        putUserData(MetricTaskCache.METRIC_PROFILES, null);
+        putUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION, null);
         putUserData(MetricTaskCache.BOX_CHARTS, null);
         putUserData(MetricTaskCache.HEAT_MAP_CHART, null);
         putUserData(MetricTaskCache.PROFILE_CATEGORY_CHART, null);

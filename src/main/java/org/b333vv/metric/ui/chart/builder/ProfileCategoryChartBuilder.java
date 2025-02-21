@@ -17,12 +17,9 @@
 package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
@@ -32,11 +29,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static org.b333vv.metric.model.metric.value.RangeType.*;
-
 public class ProfileCategoryChartBuilder {
 
-    public CategoryChart createChart(Map<MetricProfile, Set<JavaClass>> classesByProfiles) {
+    public CategoryChart createChart(Map<FitnessFunction, Set<JavaClass>> classesByProfiles) {
 
         CategoryChart chart = new CategoryChartBuilder()
                 .width(50)
@@ -77,7 +72,7 @@ public class ProfileCategoryChartBuilder {
                     List<Integer> xData = new ArrayList<>();
                     xData.add(i[0]++);
                     int yData = e.getValue().size();
-                    chart.addSeries(e.getKey().getName(), xData, Collections.singletonList(yData));
+                    chart.addSeries(e.getKey().name(), xData, Collections.singletonList(yData));
                 });
 
         return chart;

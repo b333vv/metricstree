@@ -34,18 +34,19 @@ import java.util.stream.Collectors;
         name = "ClassMetricsTreeSettings",
         storages = {@Storage("class-metrics-tree.xml")}
 )
-public final class ClassMetricsTreeSettings1 implements PersistentStateComponent<ClassMetricsTreeSettings1> {
+public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings> {
     private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
     private boolean showClassMetricsTree;
 
-    public ClassMetricsTreeSettings1() {
+    public ClassMetricsTreeSettings() {
         loadInitialValues();
     }
 
     private void loadInitialValues() {
         showClassMetricsTree = true;
         for (MetricType type : MetricType.values()) {
-            if (!MetricsService.getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+//            if (!MetricsService.getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+            if ((type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
                 classTreeMetrics.add(new MetricsTreeSettingsStub(type, true));
             }
         }
@@ -57,12 +58,12 @@ public final class ClassMetricsTreeSettings1 implements PersistentStateComponent
     }
 
     @Override
-    public synchronized ClassMetricsTreeSettings1 getState() {
+    public synchronized ClassMetricsTreeSettings getState() {
         return this;
     }
 
     @Override
-    public synchronized void loadState(@NotNull ClassMetricsTreeSettings1 state) {
+    public synchronized void loadState(@NotNull ClassMetricsTreeSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

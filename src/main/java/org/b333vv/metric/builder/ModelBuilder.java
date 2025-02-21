@@ -31,7 +31,7 @@ import org.b333vv.metric.model.visitor.method.HalsteadMethodVisitor;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ public abstract class ModelBuilder {
             JavaClass javaClass = new JavaClass(psiClass);
 
 //            classVisitors().forEach(javaClass::accept);
-            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+            project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
                     .filter(m -> m instanceof JavaClassVisitor)
@@ -79,7 +79,7 @@ public abstract class ModelBuilder {
             JavaMethod javaMethod = new JavaMethod(aConstructor, javaClass);
             javaClass.addMethod(javaMethod);
 //            methodVisitors().forEach(javaMethod::accept);
-            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+            project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
                     .filter(m -> m instanceof JavaMethodVisitor)
@@ -99,7 +99,7 @@ public abstract class ModelBuilder {
             javaClass.addMethod(javaMethod);
 
 //            methodVisitors().forEach(javaMethod::accept);
-            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+            project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
                     .filter(m -> m instanceof JavaMethodVisitor)
@@ -120,10 +120,10 @@ public abstract class ModelBuilder {
 
 //            classVisitors().forEach(javaClass::accept);
 
-            project.getService(ClassMetricsTreeSettings1.class).getMetricsList().stream()
+            project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
-                    .filter(m -> m instanceof JavaMethodVisitor)
+                    .filter(m -> m instanceof JavaClassVisitor)
                     .forEach(javaClass::accept);
 
             HalsteadClassVisitor halsteadClassVisitor = new HalsteadClassVisitor();
@@ -135,6 +135,8 @@ public abstract class ModelBuilder {
 
             addMaintainabilityIndexForClass(javaClass);
             addLinesOfCodeIndexForClass(javaClass);
+
+            addCognitiveComplexityForClass(javaClass);
 
             buildInnerClasses(psiClass, javaClass);
         }

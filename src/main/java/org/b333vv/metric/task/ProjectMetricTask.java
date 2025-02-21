@@ -32,7 +32,7 @@ import static org.b333vv.metric.task.MetricTaskManager.getPackageModel;
 import static org.b333vv.metric.util.MetricsService.isProjectMetricsStampStored;
 
 public class ProjectMetricTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get project level metrics from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles project level metrics from cache";
     private static final String STARTED_MESSAGE = "Building project level metrics";
     private static final String FINISHED_MESSAGE = "Building project level metrics finished";
     private static final String CANCELED_MESSAGE = "Building project level metrics canceled";

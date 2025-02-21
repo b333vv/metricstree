@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings.profile;
+package org.b333vv.metric.ui.settings.fitnessfunction;
 
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -32,15 +32,15 @@ import java.util.function.Supplier;
 public class MetricProfileItemTable {
     private final Model model;
     private final JPanel panel;
-    private final Consumer<MetricProfileItem> onAdd;
-    private final Consumer<MetricProfileItem> onEdit;
-    private final Consumer<MetricProfileItem> onRemove;
+    private final Consumer<FitnessFunctionItem> onAdd;
+    private final Consumer<FitnessFunctionItem> onEdit;
+    private final Consumer<FitnessFunctionItem> onRemove;
     private final Supplier<ArrayList<String>> getMetricTypeList;
     private final JBTable table;
-    private MetricProfileItem currentProfile;
+    private FitnessFunctionItem currentProfile;
 
-    public MetricProfileItemTable(Consumer<MetricProfileItem> onAdd, Consumer<MetricProfileItem> onEdit,
-                                  Consumer<MetricProfileItem> onRemove, Supplier<ArrayList<String>> getMetricTypeList) {
+    public MetricProfileItemTable(Consumer<FitnessFunctionItem> onAdd, Consumer<FitnessFunctionItem> onEdit,
+                                  Consumer<FitnessFunctionItem> onRemove, Supplier<ArrayList<String>> getMetricTypeList) {
         this.onAdd = onAdd;
         this.onEdit = onEdit;
         this.onRemove = onRemove;
@@ -58,7 +58,7 @@ public class MetricProfileItemTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-                currentProfile = (MetricProfileItem) selectedCell;
+                currentProfile = (FitnessFunctionItem) selectedCell;
             }
         });
 
@@ -75,7 +75,7 @@ public class MetricProfileItemTable {
         panel.add(toolbarDecorator.createPanel(), BorderLayout.CENTER);
     }
 
-    public void setProfileItems(List<MetricProfileItem> profiles) {
+    public void setProfileItems(List<FitnessFunctionItem> profiles) {
         model.set(profiles);
 //        model.fireTableDataChanged();
     }
@@ -91,7 +91,7 @@ public class MetricProfileItemTable {
     private void addEntry() {
         AddMetricProfileItemDialog dialog = new AddMetricProfileItemDialog(MetricsUtils.getCurrentProject(), getMetricTypeList);
         if (dialog.showAndGet()) {
-            MetricProfileItem item = dialog.getMetricProfileItem();
+            FitnessFunctionItem item = dialog.getMetricProfileItem();
             if (item != null) {
                 onAdd.accept(item);
             }
@@ -101,7 +101,7 @@ public class MetricProfileItemTable {
     private void editEntry() {
         EditMetricProfileItemDialog dialog = new EditMetricProfileItemDialog(MetricsUtils.getCurrentProject(), currentProfile);
         if (dialog.showAndGet()) {
-            MetricProfileItem item = dialog.getMetricProfileItem();
+            FitnessFunctionItem item = dialog.getMetricProfileItem();
             if (item != null) {
                 onEdit.accept(dialog.getMetricProfileItem());
             }
@@ -111,14 +111,14 @@ public class MetricProfileItemTable {
     private void removeEntry() {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
-            MetricProfileItem value = model.rows.get(selectedIndex);
+            FitnessFunctionItem value = model.rows.get(selectedIndex);
             onRemove.accept(value);
             model.fireTableDataChanged();
         }
     }
 
     private static class Model extends AbstractTableModel {
-        private List<MetricProfileItem> rows = List.of();
+        private List<FitnessFunctionItem> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -149,14 +149,14 @@ public class MetricProfileItemTable {
             }
         }
 
-        public void set(List<MetricProfileItem> rows) {
+        public void set(List<FitnessFunctionItem> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
         @Override
         public Object getValueAt(int row, int column) {
-            MetricProfileItem profile = rows.get(row);
+            FitnessFunctionItem profile = rows.get(row);
             switch (column) {
                 case 0:
                     return profile;
@@ -175,7 +175,7 @@ public class MetricProfileItemTable {
         @Override
         public Class<?> getColumnClass(int column) {
             if (column == 0) {
-                return MetricProfileItem.class;
+                return FitnessFunctionItem.class;
             }
             return String.class;
         }

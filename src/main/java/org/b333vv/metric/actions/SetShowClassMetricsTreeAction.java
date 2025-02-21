@@ -17,12 +17,9 @@
 package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings1;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 class SetShowClassMetricsTreeAction extends AbstractToggleAction {
 

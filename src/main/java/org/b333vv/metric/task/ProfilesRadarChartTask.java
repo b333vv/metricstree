@@ -20,13 +20,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.ui.chart.builder.ProfileHeatMapChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
-import org.knowm.xchart.HeatMapChart;
-import org.knowm.xchart.RadarChart;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +32,7 @@ import java.util.Set;
 import static org.b333vv.metric.task.MetricTaskManager.getMetricProfilesDistribution;
 
 public class ProfilesRadarChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get invalid metrics values and metric profiles correlation chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles invalid metrics values and metric profiles correlation chart from cache";
     private static final String STARTED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart started";
     private static final String FINISHED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart  finished";
     private static final String CANCELED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart  canceled";
@@ -50,7 +47,7 @@ public class ProfilesRadarChartTask extends Task.Backgroundable {
         List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = MetricTaskCache.instance().getUserData(MetricTaskCache.RADAR_CHART);
         if (radarCharts == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<MetricProfile, Set<JavaClass>> classesByMetricProfile = getMetricProfilesDistribution(indicator);
+            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = getMetricProfilesDistribution(indicator);
             ProfileRadarChartBuilder profileRadarChartBuilder = new ProfileRadarChartBuilder();
             radarCharts = profileRadarChartBuilder.createChart(classesByMetricProfile, myProject);
             MetricTaskCache.instance().putUserData(MetricTaskCache.RADAR_CHART, radarCharts);

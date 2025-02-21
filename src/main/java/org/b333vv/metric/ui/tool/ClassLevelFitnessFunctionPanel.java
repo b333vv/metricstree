@@ -35,14 +35,16 @@ import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
 import org.b333vv.metric.ui.info.*;
-import org.b333vv.metric.ui.profile.ClassesByProfileTable;
-import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.ui.profile.MetricProfileList;
-import org.b333vv.metric.ui.settings.profile.MetricProfilePanel;
+import org.b333vv.metric.ui.fitnessfunction.ClassLevelFitnessFunctionClassTable;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.ui.fitnessfunction.ClassLevelFitnessFunctionList;
+import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
+import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
 import org.b333vv.metric.ui.treemap.builder.ProfileColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
+import org.knowm.xchart.BoxChart;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.HeatMapChart;
 import org.knowm.xchart.XChartPanel;
@@ -53,7 +55,7 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MetricsProfilePanel extends SimpleToolWindowPanel {
+public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     private JBPanel<?> profilesPanel;
     private JBPanel<?> classesPanel;
     private JBPanel<?> metricsPanel;
@@ -63,12 +65,15 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     private JBPanel<?> leftPanel;
     private JPanel chartPanel;
 
-    private MetricProfileList metricProfileList;
-    private ClassesByProfileTable classesTable;
+    private final BottomPanel bottomPanel = new BottomPanel();
+    private final Map<String, String> fitnessFunctionDescriptionMap;
+
+    private ClassLevelFitnessFunctionList classLevelFitnessFunctionList;
+    private ClassLevelFitnessFunctionClassTable classesTable;
     private MetricsSummaryTable metricsSummaryTable;
 
     private final Project project;
-    private Map<MetricProfile, Set<JavaClass>> distribution;
+    private Map<FitnessFunction, Set<JavaClass>> distribution;
     private List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList;
     private List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts;
 
@@ -76,25 +81,29 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     private BottomPanel treeMapBottomPanel;
     private MetricTreeMap<JavaCode> treeMap;
 
-    public MetricsProfilePanel(Project project) {
+    public ClassLevelFitnessFunctionPanel(Project project) {
         super(false, true);
         this.project = project;
+        ClassLevelFitnessFunctions packageLevelFitnessFunctions = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+                ClassLevelFitnessFunctions.class);
+        fitnessFunctionDescriptionMap = packageLevelFitnessFunctions.getProfilesDescription();
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
-                (DefaultActionGroup) actionManager.getAction("Metrics.MetricsProfileToolbar"), false);
+                (DefaultActionGroup) actionManager.getAction("Metrics.ClassLevelFitnessFunctionToolbar"), false);
         actionToolbar.setOrientation(SwingConstants.VERTICAL);
         setToolbar(actionToolbar.getComponent());
-        MetricsEventListener metricsEventListener = new MetricsChartEventListener();
+        MetricsEventListener metricsEventListener = new ClassLevelFitnessFunctionEventListener();
         project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
     }
 
     private void createProfileUIComponents() {
         profilesPanel = new JBPanel<>(new BorderLayout());
-        metricProfileList = new MetricProfileList();
-        profilesPanel.add(metricProfileList.getComponent());
+        classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList();
+        profilesPanel.add(classLevelFitnessFunctionList.getComponent());
+        profilesPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
 
         classesPanel = new JBPanel<>(new BorderLayout());
-        classesTable = new ClassesByProfileTable();
+        classesTable = new ClassLevelFitnessFunctionClassTable();
         classesPanel.add(classesTable.getComponent());
 
         metricsPanel = new JBPanel<>(new BorderLayout());
@@ -119,16 +128,17 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         return splitter;
     }
 
-    public void setDistribution(Map<MetricProfile, Set<JavaClass>> distribution) {
+    public void setDistribution(Map<FitnessFunction, Set<JavaClass>> distribution) {
         this.distribution = distribution;
     }
 
     private void showProfiles() {
-        metricProfileList.setProfiles(new TreeMap<>(distribution));
+        classLevelFitnessFunctionList.setProfiles(new TreeMap<>(distribution));
     }
 
-    private void showClasses(MetricProfile profile) {
+    private void showClasses(FitnessFunction profile) {
         classesTable.setClasses(new ArrayList<>(distribution.get(profile)));
+        bottomPanel.setData(fitnessFunctionDescriptionMap.get(profile.name()));
         metricsSummaryTable.clear();
     }
 
@@ -184,11 +194,16 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
     private void updateMetricTypeForBoxCharts(@NotNull MetricType metricType) {
         rightPanel.removeAll();
         updateUI();
-        chartPanel = new XChartPanel<>(boxChartList.stream()
+        Optional<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructure = boxChartList.stream()
                 .filter(b -> b.getMetricType() == metricType)
-                .findFirst()
+                .findFirst();
+        if (boxChartStructure.isEmpty()) {
+            return;
+        }
+        BoxChart boxChart = boxChartStructure
                 .get()
-                .getBoxChart());
+                .getBoxChart();
+        chartPanel = new XChartPanel<>(boxChart);
         JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
                 chartPanel,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
@@ -203,7 +218,7 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         rightPanel = new JBPanel<>(new BorderLayout());
         leftPanel = new JBPanel<>(new BorderLayout());
 
-        List<MetricProfile> profiles = radarCharts.stream()
+        List<FitnessFunction> profiles = radarCharts.stream()
                 .map(ProfileRadarChartBuilder.RadarChartStructure::getMetricProfile).collect(Collectors.toList());
         MetricByProfileTable metricByProfileTable = new MetricByProfileTable(profiles);
         JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
@@ -218,14 +233,18 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         updateMetricProfileForRadarCharts(profiles.get(0));
     }
 
-    private void updateMetricProfileForRadarCharts(@NotNull MetricProfile metricProfile) {
+    private void updateMetricProfileForRadarCharts(@NotNull FitnessFunction fitnessFunction) {
         mainPanel.removeAll();
         rightPanel.removeAll();
         updateUI();
 
-        ProfileRadarChartBuilder.RadarChartStructure chartStructure = radarCharts.stream()
-                .filter(b -> b.getMetricProfile() == metricProfile)
-                .findFirst()
+        Optional<ProfileRadarChartBuilder.RadarChartStructure> radarChartStructure = radarCharts.stream()
+                .filter(b -> b.getMetricProfile() == fitnessFunction)
+                .findFirst();
+        if (radarChartStructure.isEmpty()) {
+            return;
+        }
+        ProfileRadarChartBuilder.RadarChartStructure chartStructure = radarChartStructure
                 .get();
         chartPanel = new XChartPanel<>(chartStructure
                 .getRadarChart());
@@ -284,11 +303,11 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_TREE_MAP_1"), rightPanel,
                 "PROFILE_TREE_MAP_2"));
 
-        metricProfileList = new MetricProfileList();
-        metricProfileList.hideColumn(2);
-        metricProfileList.setBorder("Select Profile");
-        metricProfileList.setProfiles(new TreeMap<>(distribution));
-        leftPanel.add(metricProfileList.getComponent());
+        classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList();
+        classLevelFitnessFunctionList.hideColumn(2);
+        classLevelFitnessFunctionList.setBorder("Select Profile");
+        classLevelFitnessFunctionList.setProfiles(new TreeMap<>(distribution));
+        leftPanel.add(classLevelFitnessFunctionList.getComponent());
 
         JScrollPane scrollableTreeMapPanel = ScrollPaneFactory.createScrollPane(
                 treeMap,
@@ -307,26 +326,26 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         rightPanel.add(scrollableTablePanel);
     }
 
-    private void updateTreeMap(MetricProfile profile) {
+    private void updateTreeMap(FitnessFunction profile) {
         treeMap.setColorProvider(new ProfileColorProvider(distribution.getOrDefault(profile, Set.of())));
         treeMap.updateUI();
         treeMap.refresh();
-        treeMapBottomPanel.setData("Metric Profile: " + profile.getName());
+        treeMapBottomPanel.setData("Metric Profile: " + profile.name());
     }
 
-    private class MetricsChartEventListener implements MetricsEventListener {
+    private class ClassLevelFitnessFunctionEventListener implements MetricsEventListener {
 
         @Override
-        public void metricProfilesIsReady() {
+        public void classLevelFitnessFunctionIsReady() {
             createProfileUIComponents();
-            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
             if (distribution != null) {
                 showProfiles();
             }
         }
 
         @Override
-        public void metricsProfileSelected(MetricProfile profile) {
+        public void metricsProfileSelected(FitnessFunction profile) {
             if (classesPanel != null) {
                 showClasses(profile);
             } else {
@@ -340,7 +359,7 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void clearProfilePanel() {
+        public void clearClassFitnessFunctionPanel() {
             clearPanels();
         }
 
@@ -375,14 +394,14 @@ public class MetricsProfilePanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void currentMetricProfile(MetricProfile metricProfile) {
-            updateMetricProfileForRadarCharts(metricProfile);
+        public void currentMetricProfile(FitnessFunction fitnessFunction) {
+            updateMetricProfileForRadarCharts(fitnessFunction);
         }
 
         @Override
         public void profileTreeMapIsReady() {
             treeMap = MetricTaskCache.instance().getUserData(MetricTaskCache.PROFILE_TREE_MAP);
-            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_PROFILES);
+            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
             if (treeMap != null && distribution != null) {
                 showTreeMap();
             }

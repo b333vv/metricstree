@@ -20,7 +20,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.table.AbstractTableModel;
@@ -29,10 +29,10 @@ import java.util.List;
 public class MetricByProfileTable {
     private final Model model;
     private final JBScrollPane panel;
-    private List<MetricProfile> metricProfiles;
+    private List<FitnessFunction> fitnessFunctions;
 
-    public MetricByProfileTable(List<MetricProfile> metricProfiles) {
-        this.metricProfiles = metricProfiles;
+    public MetricByProfileTable(List<FitnessFunction> fitnessFunctions) {
+        this.fitnessFunctions = fitnessFunctions;
         model = new Model();
         JBTable table = new JBTable(model);
         table.setShowGrid(false);
@@ -47,9 +47,9 @@ public class MetricByProfileTable {
 
         table.getSelectionModel().addListSelectionListener(event -> {
             Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-            MetricProfile metricProfile = (MetricProfile) selectedCell;
+            FitnessFunction fitnessFunction = (FitnessFunction) selectedCell;
             MetricsUtils.getCurrentProject()
-                    .getMessageBus().syncPublisher(MetricsEventListener.TOPIC).currentMetricProfile(metricProfile);
+                    .getMessageBus().syncPublisher(MetricsEventListener.TOPIC).currentMetricProfile(fitnessFunction);
         });
 
         panel = new JBScrollPane(table);
@@ -64,7 +64,7 @@ public class MetricByProfileTable {
     }
 
     private class Model extends AbstractTableModel {
-        private List<MetricProfile> rows = metricProfiles;
+        private List<FitnessFunction> rows = fitnessFunctions;
 
         @Override
         public int getRowCount() {
@@ -86,7 +86,7 @@ public class MetricByProfileTable {
             return "Profile";
         }
 
-        public void set(List<MetricProfile> rows) {
+        public void set(List<FitnessFunction> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
@@ -98,7 +98,7 @@ public class MetricByProfileTable {
 
         @Override
         public Class<?> getColumnClass(int column) {
-            return MetricProfile.class;
+            return FitnessFunction.class;
         }
     }
 }

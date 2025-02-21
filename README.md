@@ -126,23 +126,29 @@ It supports the most common sets of metrics at the project, package, class, and 
 > 8. M. Lanza, R. Marinescu. Object-Oriented Metrics in Practice. Using Software Metrics to Characterize, Evaluate, and Improve the Design of Object-Oriented Systems. Springer-Verlag Berlin Heidelberg, 2006.
 > 9. J. M. Bieman and B. Kang, Cohesion and reuse in an object-oriented system, Proceedings of the 1995 Symposium on Software reusability, Seattle, Washington, United States, pp. 259-262, 1995.
 > 10. Halstead, Maurice H. Elements of Software Science. Amsterdam: Elsevier North-Holland, Inc. ISBN 0-444-00205-7.
-> 11. D. Coleman, D. Ash, B. Lowther, and P. Oman, “Using metrics to evaluate software system maintainability,” Computer, vol. 27, no. 8, pp. 44–49, 1994.
-> 12. {Cognitive Complexity} a new way of measuring understandability. G. Ann Campbell. SonarSource S.A., 2023, Switzerland.
+> 11. D. Coleman, D. Ash, B. Lowther, and P. Oman, Using metrics to evaluate software system maintainability, Computer, vol. 27, no. 8, pp. 44–49, 1994.
+> 12. G. Ann Campbell, {Cognitive Complexity} a new way of measuring understandability. SonarSource S.A., 2023, Switzerland.
 # Featutes   
  - Represents metrics calculation results in forms of trees and treemaps
  - Builds trees with metrics for class open in the editor or for the entire project
  - Supports controlling calculated metrics values
- - Finds common anti-patterns such as 'god class', 'feature envy', 'brain method' etc and allows to define new ones
+ - Implements metric fitness functions at the package level (e.g. for detecting coupling and cohesion problems) and at the class level (e.g. for recognizing 'god class', 'feature envy' antipatterns)
  - Displays various metrics properties (distributions, correlations) in charts
  - Shows class metrics values evolution based on 'git log'
  - Indicates in the code editor the values for those class metrics that do not fit into the reference interval
  
-![Image of MetricsTree](project_metrics_tree.png)
+![Image of MetricsTree](class_metricstree.png)
+![Image of MetricsTree](project_metricstree.png)
 ![Image of MetricsTree](metrics_treemap.png)
 ![Image of MetricsTree](xy_chart.png)
 ![Image of MetricsTree](pie_chart.png)
-![Image of MetricsTree](metric_profiles.png)
+![Image of MetricsTree](package_level_fitness_function.png)
 ![Image of MetricsTree](profiles_metrics_correlation.png)
+![Image of MetricsTree](class_level_fitness.png)
+![Image of MetricsTree](class_level_fitness_treemap.png)
+![Image of MetricsTree](classes_antipatterns.png)
+![Image of MetricsTree](metrics_distribution.png)
+![Image of MetricsTree](metrics_fitness_function_distribution.png)
 ![Image of MetricsTree](profiles_correlation.png)
 ![Image of MetricsTree](inlay_hints.png)
 

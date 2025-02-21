@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings.profile;
+package org.b333vv.metric.ui.settings.fitnessfunction;
 
 import java.util.Objects;
 
-public class MetricProfileItem {
+public class FitnessFunctionItem {
     private String name;
     private boolean isLong;
     private long minLongValue;
@@ -26,11 +26,11 @@ public class MetricProfileItem {
     private double minDoubleValue;
     private double maxDoubleValue;
 
-    public MetricProfileItem() {
+    public FitnessFunctionItem() {
     }
 
-    public MetricProfileItem(String name, boolean isLong, long minLongValue, long maxLongValue,
-                             double minDoubleValue, double maxDoubleValue) {
+    public FitnessFunctionItem(String name, boolean isLong, long minLongValue, long maxLongValue,
+                               double minDoubleValue, double maxDoubleValue) {
         this.name = name;
         this.isLong = isLong;
         this.minLongValue = minLongValue;
@@ -95,19 +95,18 @@ public class MetricProfileItem {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MetricProfileItem)) return false;
-        MetricProfileItem item = (MetricProfileItem) o;
-        return isLong() == item.isLong() &&
-                getMinLongValue() == item.getMinLongValue() &&
-                getMaxLongValue() == item.getMaxLongValue() &&
-                Double.compare(item.getMinDoubleValue(), getMinDoubleValue()) == 0 &&
-                getMaxDoubleValue() == item.getMaxDoubleValue() &&
-                Objects.equals(getName(), item.getName());
+        if (o == null || getClass() != o.getClass()) return false;
+        FitnessFunctionItem that = (FitnessFunctionItem) o;
+        return isLong == that.isLong &&
+                minLongValue == that.minLongValue &&
+                maxLongValue == that.maxLongValue &&
+                Double.compare(that.minDoubleValue, minDoubleValue) == 0 &&
+                Double.compare(that.maxDoubleValue, maxDoubleValue) == 0 &&
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), isLong(), getMinLongValue(), getMaxLongValue(),
-                getMinDoubleValue(), getMaxDoubleValue());
+        return Objects.hash(name, isLong, minLongValue, maxLongValue, minDoubleValue, maxDoubleValue);
     }
 }

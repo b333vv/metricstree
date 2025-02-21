@@ -19,6 +19,7 @@ package org.b333vv.metric.ui.treemap.builder;
 import com.intellij.ui.JBColor;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -26,8 +27,11 @@ import org.b333vv.metric.ui.treemap.model.ColorProvider;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.TreeModel;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 
 import java.awt.*;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
     private static final Color UNDEFINED = new JBColor(new Color(0x979797), new Color(0x979797));
@@ -45,7 +49,14 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
     @Override
     public Color getColor(TreeModel<Rectangle<JavaCode>> model, Rectangle<JavaCode> rectangle) {
         if (rectangle.getNode() instanceof JavaClass) {
+            Map<MetricType, Metric> metrics = rectangle.getNode().metrics().collect(Collectors.toMap(Metric::getType, m -> m));
+            if (!metrics.containsKey(metricType)) {
+                MetricsUtils.getConsole().debug("Metric " + metricType + " is not calculated for " + rectangle.getNode().getName());
+                return UNDEFINED;
+            }
+
             Value value = rectangle.getNode().metric(metricType).getValue();
+
             if (MetricsService.getRangeForMetric(metricType).getRangeType(value) == RangeType.UNDEFINED) {
                 return UNDEFINED;
             }

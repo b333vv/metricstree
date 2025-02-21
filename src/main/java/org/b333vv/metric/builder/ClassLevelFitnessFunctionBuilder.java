@@ -26,17 +26,17 @@ import org.b333vv.metric.model.metric.value.DerivativeMetricsRange;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.ui.profile.MetricProfile;
-import org.b333vv.metric.ui.settings.profile.MetricProfileItem;
-import org.b333vv.metric.ui.settings.profile.MetricProfileSettings1;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.ui.settings.fitnessfunction.FitnessFunctionItem;
+import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
 import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.*;
 
-public class ClassesByMetricsProfileDistributor {
-    public static Map<MetricProfile, Set<JavaClass>> classesByMetricsProfileDistribution(JavaProject javaProject) {
-        Map<MetricProfile, Set<JavaClass>> profileSetMap = new TreeMap<>();
-        for (MetricProfile profile : metricProfiles()) {
+public class ClassLevelFitnessFunctionBuilder {
+    public static Map<FitnessFunction, Set<JavaClass>> classesByMetricsProfileDistribution(JavaProject javaProject) {
+        Map<FitnessFunction, Set<JavaClass>> fitnessFunctionResult = new TreeMap<>();
+        for (FitnessFunction profile : fitnessFunctionResult()) {
             Set<JavaClass> classes = new HashSet<>();
             javaProject.allClasses()
                     .forEach(c -> {
@@ -44,13 +44,13 @@ public class ClassesByMetricsProfileDistributor {
                             classes.add(c);
                         }
                     });
-            profileSetMap.put(profile, classes);
+            fitnessFunctionResult.put(profile, classes);
         }
-        return Collections.unmodifiableMap(profileSetMap);
+        return Collections.unmodifiableMap(fitnessFunctionResult);
     }
 
-    private static boolean checkClass(JavaClass javaClass, MetricProfile profile) {
-        for (Map.Entry<MetricType, Range> entry : profile.getProfile().entrySet()) {
+    private static boolean checkClass(JavaClass javaClass, FitnessFunction profile) {
+        for (Map.Entry<MetricType, Range> entry : profile.profile().entrySet()) {
             if (entry.getKey().level() == MetricLevel.CLASS) {
                 Metric m = javaClass.metric(entry.getKey());
                 if (m != null && entry.getValue().getRangeType(m.getValue()) != RangeType.REGULAR) {
@@ -72,22 +72,18 @@ public class ClassesByMetricsProfileDistributor {
 
     private static boolean checkMethod(JavaMethod javaMethod, Map.Entry<MetricType, Range> entry) {
         Metric m = javaMethod.metric(entry.getKey());
-        if (m != null && entry.getValue().getRangeType(m.getValue()) != RangeType.REGULAR) {
-            return false;
-        }
-        return true;
+        return m == null || entry.getValue().getRangeType(m.getValue()) == RangeType.REGULAR;
     }
 
 
-    private static Set<MetricProfile> metricProfiles() {
-//        MetricProfileSettings metricProfileSettings = project.getService(MetricProfileSettings.class);
-        MetricProfileSettings1 metricProfileSettings1 = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                MetricProfileSettings1.class);
-        Map<String, List<MetricProfileItem>> savedProfiles = metricProfileSettings1.getProfiles();
-        Set<MetricProfile> profiles = new HashSet<>();
-        for (Map.Entry<String, List<MetricProfileItem>> entry : savedProfiles.entrySet()) {
+    private static Set<FitnessFunction> fitnessFunctionResult() {
+        ClassLevelFitnessFunctions classLevelFitnessFunctions = MetricsUtils.get(MetricsUtils.getCurrentProject(),
+                ClassLevelFitnessFunctions.class);
+        Map<String, List<FitnessFunctionItem>> savedProfiles = classLevelFitnessFunctions.getProfiles();
+        Set<FitnessFunction> profiles = new HashSet<>();
+        for (Map.Entry<String, List<FitnessFunctionItem>> entry : savedProfiles.entrySet()) {
             Map<MetricType, Range> profileMap = new HashMap<>();
-            for (MetricProfileItem item : entry.getValue()) {
+            for (FitnessFunctionItem item : entry.getValue()) {
                 if (item.isLong()) {
                     profileMap.put(MetricType.valueOf(item.getName()),
                             DerivativeMetricsRange.of(Value.of(item.getMinLongValue()), Value.of(item.getMaxLongValue())));
@@ -96,7 +92,7 @@ public class ClassesByMetricsProfileDistributor {
                             DerivativeMetricsRange.of(Value.of(item.getMinDoubleValue()), Value.of(item.getMaxDoubleValue())));
                 }
             }
-            MetricProfile profile = new MetricProfile(entry.getKey(), profileMap);
+            FitnessFunction profile = new FitnessFunction(entry.getKey(), MetricLevel.CLASS, profileMap);
             profiles.add(profile);
         }
         return profiles;

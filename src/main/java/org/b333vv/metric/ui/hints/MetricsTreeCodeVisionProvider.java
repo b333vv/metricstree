@@ -97,15 +97,14 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
             return lenses;
         }
 
-        if (file instanceof PsiExpressionCodeFragmentImpl) {
-            return lenses;
-        }
-
         if (!settings.isEnabled()) {
             return lenses;
         }
 
-        PsiJavaFile psiJavaFile = (PsiJavaFile) file;
+        if (!(file instanceof PsiJavaFile psiJavaFile)) {
+            return lenses;
+        }
+
         ClassModelBuilder classModelBuilder = new ClassModelBuilder();
         JavaFile javaFile = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
             JavaFile jf = classModelBuilder.buildJavaFile(psiJavaFile);
@@ -186,17 +185,17 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
 //    private String getHintForMethod(PsiElement psiMethod, JavaFile javaFile) {
 //        Optional<JavaClass> ojc = javaFile.classes().filter(c -> c.getName().equals(((PsiMethod) psiMethod).getClass().getName())).findFirst();
 //        if (ojc.isPresent()) {
-//            var ojm = ojc.get().methods().filter(m -> m
+//            var ojm = ojc.getProfiles().methods().filter(m -> m
 //                    .getPsiMethod()
 //                    .getSignature(PsiSubstitutor.EMPTY)
 //                    .equals(((PsiMethod) psiMethod)
 //                            .getSignature(PsiSubstitutor.EMPTY))).findFirst();
 //            if (ojm.isPresent()) {
-//                var hint = ojm.get().metrics()
+//                var hint = ojm.getProfiles().metrics()
 //                        .filter(m -> MetricsService.isNotRegularValue(m.getType(), m.getValue()))
 //                        .map(Object::toString)
 //                        .collect(Collectors.joining(", "));
-//                MetricsUtils.getConsole().info("Hint for method " + ojm.get().getName() + ": " + hint);
+//                MetricsUtils.getConsole().info("Hint for method " + ojm.getProfiles().getName() + ": " + hint);
 //            }
 //        }
 //        return "";

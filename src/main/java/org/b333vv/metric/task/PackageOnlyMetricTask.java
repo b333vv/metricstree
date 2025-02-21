@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.b333vv.metric.task.MetricTaskManager.sureDependenciesAreInCache;
 
 public class PackageOnlyMetricTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get package only level metrics from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles package only level metrics from cache";
     private static final String STARTED_MESSAGE = "Building package only level metrics";
     private static final String FINISHED_MESSAGE = "Building package only level metrics finished";
     private static final String CANCELED_MESSAGE = "Building package only level metrics canceled";

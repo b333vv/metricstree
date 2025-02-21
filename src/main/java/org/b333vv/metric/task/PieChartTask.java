@@ -35,7 +35,7 @@ import static org.b333vv.metric.builder.ClassesByMetricsValuesDistributor.classe
 import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class PieChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes distribution by metric values pie chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values pie chart from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values pie chart started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values pie chart finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values pie chart canceled";

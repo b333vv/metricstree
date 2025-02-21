@@ -32,15 +32,15 @@ import java.util.stream.Collectors;
 
 import static java.awt.GridBagConstraints.*;
 
-public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<DerivativeMetricsValidRangesSettings1> {
+public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<DerivativeMetricsValidRangesSettings> {
     private static final String EMPTY_LABEL = "No metrics configured";
     private final Project project;
     private JPanel panel;
     private DerivativeMetricsValidRangesTable derivativeMetricsValidRangesTable;
 
-    public DerivativeMetricsValidRangesPanel(Project project, DerivativeMetricsValidRangesSettings1 derivativeMetricsValidRangesSettings1) {
+    public DerivativeMetricsValidRangesPanel(Project project, DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings) {
         this.project = project;
-        createUIComponents(derivativeMetricsValidRangesSettings1);
+        createUIComponents(derivativeMetricsValidRangesSettings);
     }
 
     public JPanel getComponent() {
@@ -48,13 +48,13 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
     }
 
     @Override
-    public boolean isModified(DerivativeMetricsValidRangesSettings1 settings) {
+    public boolean isModified(DerivativeMetricsValidRangesSettings settings) {
         List<DerivativeMetricsValidRangeStub> rows = settings.getControlledMetricsList();
         return !rows.equals(derivativeMetricsValidRangesTable.get());
     }
 
     @Override
-    public void save(DerivativeMetricsValidRangesSettings1 settings) {
+    public void save(DerivativeMetricsValidRangesSettings settings) {
         Map<String, DerivativeMetricsValidRangeStub> newMetricsMap = derivativeMetricsValidRangesTable.get()
                 .stream()
                 .collect(Collectors.toMap(DerivativeMetricsValidRangeStub::getName, x -> x));
@@ -62,11 +62,11 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
     }
 
     @Override
-    public void load(DerivativeMetricsValidRangesSettings1 settings) {
+    public void load(DerivativeMetricsValidRangesSettings settings) {
         derivativeMetricsValidRangesTable.set(settings.getControlledMetricsList());
     }
 
-    private void createUIComponents(DerivativeMetricsValidRangesSettings1 settings) {
+    private void createUIComponents(DerivativeMetricsValidRangesSettings settings) {
 
         Function<DerivativeMetricsValidRangeStub, DerivativeMetricsValidRangeStub> onEdit = value -> {
             EditValidRangeForDerivativeMetricDialog dialog = new EditValidRangeForDerivativeMetricDialog(project);

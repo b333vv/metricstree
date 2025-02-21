@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class MetricTreeMapTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get treemap with metric types distribution from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles treemap with metric types distribution from cache";
     private static final String STARTED_MESSAGE = "Building treemap with metric types distribution started";
     private static final String FINISHED_MESSAGE = "Building treemap with metric types distribution finished";
     private static final String CANCELED_MESSAGE = "Building treemap with metric types distribution canceled";

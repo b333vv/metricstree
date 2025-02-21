@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b333vv.metric.ui.settings.profile;
+package org.b333vv.metric.ui.settings.fitnessfunction;
 
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -35,15 +35,15 @@ import java.util.stream.Collectors;
 public class MetricProfileTable {
     private final Model model;
     private final JPanel panel;
-    private final Function<Map.Entry<String, List<MetricProfileItem>>,
-            Map.Entry<String, List<MetricProfileItem>>> onEdit;
-    private final Supplier<Map.Entry<String, List<MetricProfileItem>>> onAdd;
-    private Map<String, List<MetricProfileItem>> profiles;
+    private final Function<Map.Entry<String, List<FitnessFunctionItem>>,
+            Map.Entry<String, List<FitnessFunctionItem>>> onEdit;
+    private final Supplier<Map.Entry<String, List<FitnessFunctionItem>>> onAdd;
+    private Map<String, List<FitnessFunctionItem>> profiles;
     private JBTable table;
 
-    public MetricProfileTable(Function<Map.Entry<String, List<MetricProfileItem>>,
-            Map.Entry<String, List<MetricProfileItem>>> onEdit,
-                              Supplier<Map.Entry<String, List<MetricProfileItem>>> onAdd) {
+    public MetricProfileTable(Function<Map.Entry<String, List<FitnessFunctionItem>>,
+            Map.Entry<String, List<FitnessFunctionItem>>> onEdit,
+                              Supplier<Map.Entry<String, List<FitnessFunctionItem>>> onAdd) {
         model = new Model();
         this.onEdit = onEdit;
         this.onAdd = onAdd;
@@ -78,13 +78,13 @@ public class MetricProfileTable {
 
     }
 
-    public void setProfiles(Map<String, List<MetricProfileItem>> profiles) {
+    public void setProfiles(Map<String, List<FitnessFunctionItem>> profiles) {
         this.profiles = profiles;
         model.set(new ArrayList<>(profiles.keySet()));
         model.fireTableDataChanged();
     }
 
-    public Map<String, List<MetricProfileItem>> getProfiles() {
+    public Map<String, List<FitnessFunctionItem>> getProfiles() {
         return profiles;
     }
 
@@ -97,7 +97,7 @@ public class MetricProfileTable {
     }
 
     private void addEntry() {
-        Map.Entry<String, List<MetricProfileItem>> newEntry = onAdd.get();
+        Map.Entry<String, List<FitnessFunctionItem>> newEntry = onAdd.get();
         if (newEntry != null) {
             profiles.put(newEntry.getKey(), newEntry.getValue());
             model.rows.add(newEntry.getKey());
@@ -108,8 +108,8 @@ public class MetricProfileTable {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
             String key = model.rows.get(selectedIndex);
-            Map.Entry<String, List<MetricProfileItem>> entry = Map.entry(key, profiles.get(key));
-            Map.Entry<String, List<MetricProfileItem>> newEntry = onEdit.apply(entry);
+            Map.Entry<String, List<FitnessFunctionItem>> entry = Map.entry(key, profiles.get(key));
+            Map.Entry<String, List<FitnessFunctionItem>> newEntry = onEdit.apply(entry);
             if (newEntry != null) {
                 profiles.remove(entry.getKey());
                 profiles.put(newEntry.getKey(), newEntry.getValue());
@@ -150,9 +150,9 @@ public class MetricProfileTable {
         public String getColumnName(int column) {
             switch (column) {
                 case 0:
-                    return "Name";
+                    return "Fitness Function";
                 case 1:
-                    return "Metric Profile";
+                    return "Formula";
                 default:
                     return "";
             }
@@ -176,14 +176,14 @@ public class MetricProfileTable {
             }
         }
 
-        private String getProfileStructure(List<MetricProfileItem> structureList) {
+        private String getProfileStructure(List<FitnessFunctionItem> structureList) {
             return structureList.stream()
                     .map(this::buildProfileStructurePart)
                     .sorted()
                     .collect(Collectors.joining(" \u2227 "));
         }
 
-        private String buildProfileStructurePart(MetricProfileItem m) {
+        private String buildProfileStructurePart(FitnessFunctionItem m) {
             if (m.isLong()) {
                 if (m.getMinLongValue() == m.getMaxLongValue()) {
                     return m.getName() + " = " + m.getMaxLongValue();

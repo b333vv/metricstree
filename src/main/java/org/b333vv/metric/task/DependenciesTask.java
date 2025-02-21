@@ -26,7 +26,7 @@ import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class DependenciesTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get dependencies map from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles dependencies map from cache";
     private static final String STARTED_MESSAGE = "Building dependencies map";
     private static final String FINISHED_MESSAGE = "Building dependencies map finished";
     private static final String CANCELED_MESSAGE = "Building dependencies map canceled";

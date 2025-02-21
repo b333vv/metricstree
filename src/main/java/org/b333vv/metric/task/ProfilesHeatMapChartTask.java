@@ -20,21 +20,19 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileHeatMapChartBuilder;
-import org.b333vv.metric.ui.profile.MetricProfile;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.HeatMapChart;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.b333vv.metric.task.MetricTaskManager.getMetricProfilesDistribution;
 
 public class ProfilesHeatMapChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to get metric profiles correlation chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles metric profiles correlation chart from cache";
     private static final String STARTED_MESSAGE = "Building metric profiles correlation chart started";
     private static final String FINISHED_MESSAGE = "Building metric profiles correlation chart finished";
     private static final String CANCELED_MESSAGE = "Building metric profiles correlation chart canceled";
@@ -49,7 +47,7 @@ public class ProfilesHeatMapChartTask extends Task.Backgroundable {
         HeatMapChart heatMapChart = MetricTaskCache.instance().getUserData(MetricTaskCache.HEAT_MAP_CHART);
         if (heatMapChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<MetricProfile, Set<JavaClass>> classesByMetricProfile = getMetricProfilesDistribution(indicator);
+            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = getMetricProfilesDistribution(indicator);
             ProfileHeatMapChartBuilder profileHeatMapChartBuilder = new ProfileHeatMapChartBuilder();
             heatMapChart = profileHeatMapChartBuilder.createChart(classesByMetricProfile);
             MetricTaskCache.instance().putUserData(MetricTaskCache.HEAT_MAP_CHART, heatMapChart);
