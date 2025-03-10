@@ -31,13 +31,12 @@ public class BuildProfileBoxChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesBoxChartTask boxChartTask = new ProfilesBoxChartTask();
-            MetricTaskCache.getQueue().run(boxChartTask);
+            MetricTaskCache.runTask(boxChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-//        e.getPresentation().setEnabled(false);
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

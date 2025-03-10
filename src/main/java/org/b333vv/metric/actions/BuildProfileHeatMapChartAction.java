@@ -31,12 +31,12 @@ public class BuildProfileHeatMapChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesHeatMapChartTask heatMapChartTask = new ProfilesHeatMapChartTask();
-            MetricTaskCache.getQueue().run(heatMapChartTask);
+            MetricTaskCache.runTask(heatMapChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

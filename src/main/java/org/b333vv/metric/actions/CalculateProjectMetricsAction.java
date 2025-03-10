@@ -32,12 +32,12 @@ public class CalculateProjectMetricsAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
             ProjectTreeTask projectTreeTask = new ProjectTreeTask();
-            MetricTaskCache.getQueue().run(projectTreeTask);
+            MetricTaskCache.runTask(projectTreeTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

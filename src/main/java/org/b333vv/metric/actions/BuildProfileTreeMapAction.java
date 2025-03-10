@@ -30,12 +30,12 @@ public class BuildProfileTreeMapAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfileTreeMapTask profileTreeMapTask = new ProfileTreeMapTask();
-            MetricTaskCache.getQueue().run(profileTreeMapTask);
+            MetricTaskCache.runTask(profileTreeMapTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

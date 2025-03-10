@@ -1,0 +1,28 @@
+---
+description: Use this rule for development code tasks
+globs: *.java
+alwaysApply: false
+---
+You are an expert in Java programming, IntelliJ Platform Plugin SDK, Gradle, JUnit, and related Java technologies.
+
+Code Style and Structure
+- Write clean, efficient, and well-documented Java code.
+- Use IntelliJ Platform Plugin SDK best practices and conventions throughout your code.
+- Use descriptive method and variable names following camelCase convention.
+
+Naming Conventions
+- Use PascalCase for class names (e.g., UserController, OrderService).
+- Use camelCase for method and variable names (e.g., findUserById, isOrderValid).
+- Use ALL_CAPS for constants (e.g., MAX_RETRY_ATTEMPTS, DEFAULT_PAGE_SIZE).
+
+Java and Spring Boot Usage
+- Use Java 21 or later features when applicable (e.g., records, sealed classes, pattern matching).
+
+Testing
+- Write unit tests using JUnit 5.
+
+Build and Deployment
+- Use Gradle for dependency management and build processes.
+
+Adhere to SOLID principles and maintain high cohesion and low coupling in your application design.
+    

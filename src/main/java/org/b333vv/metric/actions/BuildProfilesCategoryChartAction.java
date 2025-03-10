@@ -31,12 +31,12 @@ public class BuildProfilesCategoryChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesCategoryChartTask categoryChartTask = new ProfilesCategoryChartTask();
-            MetricTaskCache.getQueue().run(categoryChartTask);
+            MetricTaskCache.runTask(categoryChartTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

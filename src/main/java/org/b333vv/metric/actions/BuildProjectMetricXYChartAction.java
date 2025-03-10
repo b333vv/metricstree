@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.task.XyChartTask;
+import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,17 +33,21 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             XyChartTask xyChartTask = new XyChartTask();
-            MetricTaskCache.getQueue().run(xyChartTask);
+            MetricTaskCache.runTask(xyChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
+                BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
                     MetricsService.isControlValidRanges()
-                    && MetricTaskCache.getQueue().isEmpty());
+                    && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
+                            .anyMatch(s -> s.getLevel().equals("Package Level"))
+                    && MetricTaskCache.isQueueEmpty());
         }
     }
 }

@@ -31,12 +31,12 @@ public class BuildProfileRadarChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesRadarChartTask radarChartTask = new ProfilesRadarChartTask();
-            MetricTaskCache.getQueue().run(radarChartTask);
+            MetricTaskCache.runTask(radarChartTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

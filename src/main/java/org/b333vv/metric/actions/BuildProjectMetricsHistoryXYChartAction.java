@@ -35,16 +35,12 @@ public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             ProjectMetricsHistoryXyChartTask projectMetricsHistoryXyChartTask = new ProjectMetricsHistoryXyChartTask();
-            MetricTaskCache.getQueue().run(projectMetricsHistoryXyChartTask);
+            MetricTaskCache.runTask(projectMetricsHistoryXyChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-        Project project = e.getProject();
-        if (project != null && project.getProjectFile() != null) {
-            e.getPresentation().setEnabled(
-                    GitUtil.isUnderGit(project.getProjectFile()));
-        }
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

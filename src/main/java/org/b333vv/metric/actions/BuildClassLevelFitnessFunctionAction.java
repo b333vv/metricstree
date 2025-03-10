@@ -31,12 +31,12 @@ public class BuildClassLevelFitnessFunctionAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ClassFitnessFunctionsTask classFitnessFunctionsTask = new ClassFitnessFunctionsTask();
-            MetricTaskCache.getQueue().run(classFitnessFunctionsTask);
+            MetricTaskCache.runTask(classFitnessFunctionsTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

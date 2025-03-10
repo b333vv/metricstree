@@ -17,7 +17,6 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -35,13 +34,14 @@ import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassMetricsValuesEvolutionProcessor {
 
@@ -49,7 +49,6 @@ public class ClassMetricsValuesEvolutionProcessor {
     private final FutureTask<Void> getFileFromGitCalculateMetricsAndPutThemToMap;
     private final FutureTask<Void> buildTree;
     private final Runnable cancel;
-    private final BackgroundTaskQueue queue;
     private final Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution = new ConcurrentHashMap<>();
     private final ClassModelBuilder classModelBuilder;
     private Project project;
@@ -65,8 +64,6 @@ public class ClassMetricsValuesEvolutionProcessor {
         MetricsEventListener metricsEventListener = new ClassMetricsEvolutionEventListener();
         project.getMessageBus()
                 .connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
-
-        queue = new BackgroundTaskQueue(psiJavaFile.getProject(), "Get Metrics Values Evolution");
 
         project.getService(MetricsConsole.class).info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " started");
 
@@ -129,8 +126,6 @@ public class ClassMetricsValuesEvolutionProcessor {
         buildTree = new FutureTask<>(buildingTree);
 
         cancel = () -> {
-            queue.clear();
-//            MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
             MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
@@ -142,17 +137,15 @@ public class ClassMetricsValuesEvolutionProcessor {
                 "Get Metrics History for " + psiJavaFile.getName() + "...", true,
                 getFileFromGitCalculateMetricsAndPutThemToMap, buildTree,
                 cancel, null);
-        queue.run(classMetricsTask);
+        MetricTaskCache.runTask(classMetricsTask);
     }
 
     private class ClassMetricsEvolutionEventListener implements MetricsEventListener {
         @Override
         public void cancelMetricsValuesEvolutionCalculation() {
-            if (!queue.isEmpty()) {
+            if (!MetricTaskCache.isQueueEmpty()) {
                 getFileFromGitCalculateMetricsAndPutThemToMap.cancel(false);
                 buildTree.cancel(false);
-                queue.clear();
-//                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
                 MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);

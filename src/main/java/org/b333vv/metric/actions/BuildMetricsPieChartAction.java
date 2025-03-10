@@ -23,6 +23,7 @@ import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.task.PieChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildMetricsPieChartAction extends AbstractAction {
@@ -33,21 +34,21 @@ public class BuildMetricsPieChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             PieChartTask pieChartTask = new PieChartTask();
-            MetricTaskCache.getQueue().run(pieChartTask);
+            MetricTaskCache.runTask(pieChartTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
-            BasicMetricsValidRangesSettings.class);
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
+                BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
                     MetricsService.isControlValidRanges()
                     && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level"))
-                    && MetricTaskCache.getQueue().isEmpty());
+                    && MetricTaskCache.isQueueEmpty());
         }
     }
 }

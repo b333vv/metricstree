@@ -34,13 +34,13 @@ public class ExportMethodMetricsToCsvAction extends AbstractAction {
             String fileName = getFileName("csv", project);
             if (fileName != null && !fileName.isBlank()) {
                 ExportMethodMetricsToCsvTask exportToCsvTask = new ExportMethodMetricsToCsvTask(fileName);
-                MetricTaskCache.getQueue().run(exportToCsvTask);
+                MetricTaskCache.runTask(exportToCsvTask);
             }
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

@@ -22,6 +22,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.ClassByMetricsTreeTask;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
+import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
 public class SortClassesByMetricsValuesAction extends AbstractAction {
@@ -33,20 +34,18 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
             ClassByMetricsTreeTask classByMetricsTreeTask = new ClassByMetricsTreeTask();
-            MetricTaskCache.getQueue().run(classByMetricsTreeTask);
+            MetricTaskCache.runTask(classByMetricsTreeTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(AnActionEvent e) {
         Project project = e.getProject();
         if (project == null) {
             e.getPresentation().setEnabled(false);
         } else {
             e.getPresentation().setEnabled(project.getService(BasicMetricsValidRangesSettings.class).isControlValidRanges()
-                    && MetricTaskCache.getQueue().isEmpty());
-//            e.getPresentation().setEnabled(project.getComponent(BasicMetricsValidRangesSettings.class).isControlValidRanges()
-//                    && MetricTaskCache.getQueue().isEmpty());
+                    && MetricTaskCache.isQueueEmpty());
         }
     }
 }

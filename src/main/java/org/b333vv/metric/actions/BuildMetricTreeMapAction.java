@@ -31,12 +31,12 @@ public class BuildMetricTreeMapAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             MetricTreeMapTask metricTreeMapTask = new MetricTreeMapTask();
-            MetricTaskCache.getQueue().run(metricTreeMapTask);
+            MetricTaskCache.runTask(metricTreeMapTask);
         }
     }
 
     @Override
-    public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.getQueue().isEmpty());
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
     }
 }

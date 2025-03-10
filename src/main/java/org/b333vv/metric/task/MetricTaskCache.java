@@ -18,8 +18,11 @@ package org.b333vv.metric.task;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.BackgroundTaskQueue;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.impl.CoreProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -48,6 +51,7 @@ import org.knowm.xchart.XYChart;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Stream;
 
 public final class MetricTaskCache implements UserDataHolder, Disposable {
@@ -77,12 +81,14 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<MetricTreeMap<JavaCode>> PROFILE_TREE_MAP = Key.create("PROFILE_TREE_MAP");
 
     private final UserDataHolder myUserDataHolder = new UserDataHolderBase();
-    private final BackgroundTaskQueue queue = new BackgroundTaskQueue(MetricsUtils.getCurrentProject(), "MetricsTree Queue");
+    private final ConcurrentLinkedQueue<Task.Backgroundable> taskQueue = new ConcurrentLinkedQueue<>();
+    private volatile boolean isProcessing = false;
     private final Map<VirtualFile, JavaFile> javaFiles = new ConcurrentHashMap<>();
 
     private MetricTaskCache () {
         VirtualFileManager.getInstance().addAsyncFileListener(new MyAsyncVfsListener(), this);
     }
+
     public static MetricTaskCache instance() {
         return MetricsUtils.getCurrentProject().getService(MetricTaskCache.class);
     }
@@ -102,8 +108,28 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     public void dispose() {
     }
 
-    public static BackgroundTaskQueue getQueue() {
-        return instance().queue;
+    private void processNextTask() {
+        if (isProcessing) return;
+        
+        Task.Backgroundable nextTask = taskQueue.poll();
+        if (nextTask != null) {
+            isProcessing = true;
+            ProgressManager.getInstance().run(nextTask);
+            ApplicationManager.getApplication().invokeLater(() -> {
+                isProcessing = false;
+                processNextTask();
+            }, ModalityState.NON_MODAL);
+        }
+    }
+
+    public static void runTask(Task.Backgroundable task) {
+        MetricTaskCache instance = instance();
+        instance.taskQueue.offer(task);
+        instance.processNextTask();
+    }
+
+    public static boolean isQueueEmpty() {
+        return instance().taskQueue.isEmpty() && !instance().isProcessing;
     }
 
     @Nullable
@@ -229,6 +255,6 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
 
     private void invalidateCaches(VirtualFile file) {
         InvalidateCachesTask invalidateCachesTask = new InvalidateCachesTask(file);
-        queue.run(invalidateCachesTask);
+        taskQueue.add(invalidateCachesTask);
     }
 }
