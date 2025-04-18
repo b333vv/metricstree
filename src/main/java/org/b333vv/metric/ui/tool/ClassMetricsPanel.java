@@ -58,16 +58,20 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     public void update(@NotNull PsiJavaFile file) {
         MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
-        psiJavaFile = file;
-//        if (MetricsService.isShowClassMetricsTree()) {
+        // psiJavaFile = file; // Удаляем кеширование PSI-элемента
         if (project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()) {
             MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
         }
     }
 
     public void refresh() {
-        if (psiJavaFile != null) {
-            update(psiJavaFile);
+        // Вместо использования кеша, получаем PsiJavaFile по VirtualFile
+        VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
+        if (selectedFile != null) {
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
+            if (psiFile instanceof PsiJavaFile) {
+                update((PsiJavaFile) psiFile);
+            }
         }
     }
 
@@ -75,10 +79,8 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         MetricsUtils.setClassMetricsTreeExists(false);
         MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .printInfo("Built metrics tree for " + psiJavaFile.getName());
-        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
-
         JavaFile jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
-            JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+            JavaFile javaFile = new ClassModelBuilder().buildJavaFile(psiJavaFile);
             return CachedValueProvider.Result.create(javaFile, psiJavaFile);
         });
 
@@ -119,13 +121,11 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-            psiJavaFile = null;
             clear();
         }
 
         @Override
         public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-            psiJavaFile = null;
             clear();
             VirtualFile selectedFile = event.getNewFile();
             MetricsUtils.setCurrentProject(event.getManager().getProject());
