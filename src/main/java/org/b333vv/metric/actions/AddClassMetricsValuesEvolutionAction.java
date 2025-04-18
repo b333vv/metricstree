@@ -17,6 +17,7 @@
 package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
@@ -45,13 +46,16 @@ class AddClassMetricsValuesEvolutionAction extends AbstractAction {
     public void update(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         if (project != null) {
-            psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
-            event.getPresentation().setEnabled(
-                    !MetricsUtils.isMetricsEvolutionCalculationPerforming()
-                    && project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()
-                    && psiJavaFile != null
-                    && GitUtil.isUnderGit(psiJavaFile.getVirtualFile())
-                    && !MetricsUtils.isClassMetricsValuesEvolutionAdded());
+            ApplicationManager.getApplication().invokeLater(() -> {
+                psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
+                event.getPresentation().setEnabled(
+                        !MetricsUtils.isMetricsEvolutionCalculationPerforming()
+                        && project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()
+                        && psiJavaFile != null
+                        && GitUtil.isUnderGit(psiJavaFile.getVirtualFile())
+                        && !MetricsUtils.isClassMetricsValuesEvolutionAdded());
+
+            });
         }
     }
 }
