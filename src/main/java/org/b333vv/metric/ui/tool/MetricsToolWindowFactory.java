@@ -38,6 +38,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics";
     public static final String TAB_PROFILES = "Metric Fitness Functions";
     public static final String TAB_LOGS = "Log";
+    public static final String TAB_METRICS_EVOLUTION = "Metrics Evolution";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
         ClassMetricsPanel classMetricsPanel = ClassMetricsPanel.newInstance(project);
@@ -76,6 +77,14 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(logContent);
     }
 
+    private static void addMetricsEvolutionTab(Project project, ToolWindow toolWindow) {
+        MetricsEvolutionPanel metricsEvolutionPanel = new MetricsEvolutionPanel(project);
+        Content evolutionContent = toolWindow.getContentManager().getFactory()
+                .createContent(metricsEvolutionPanel, TAB_METRICS_EVOLUTION, false);
+        toolWindow.getContentManager().addDataProvider(metricsEvolutionPanel);
+        toolWindow.getContentManager().addContent(evolutionContent);
+    }
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull final ToolWindow toolWindow) {
         MetricsUtils.setCurrentProject(project);
@@ -83,6 +92,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         addProjectMetricsTreeTab(project, toolWindow);
         addFitnessFunctionTab(project, toolWindow);
         addLogTab(project, toolWindow);
+        addMetricsEvolutionTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);
     }
 }
