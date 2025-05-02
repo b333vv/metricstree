@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2025.1.2:
+                <ul>
+                    <li>Fix for IDEA 2025.1 compatibility.</li>
+                </ul>
+            </li>
             <li>2025.1.1:
                 <ul>
                     <li>Bug fixes.</li>
@@ -227,7 +232,7 @@
       ]]>
     </change-notes>
 
-    <version>2025.1.1</version>
+    <version>2025.1.2</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
