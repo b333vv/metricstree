@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.tree;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import org.b333vv.metric.ui.tree.node.AbstractNode;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,10 @@ public class TreeCellRenderer extends ColoredTreeCellRenderer {
   public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected,
                                     boolean expanded, boolean leaf, int row, boolean hasFocus) {
     AbstractNode node = (AbstractNode) value;
-    node.render(this);
+    // Wrapped in read action
+//    Icon icon = ApplicationManager.getApplication().runReadAction(() -> someModel.getIcon());
+    ApplicationManager.getApplication().runReadAction(() -> node.render(this));
+//    node.render(this);
   }
 
   public void setIconToolTip(String toolTip) {
