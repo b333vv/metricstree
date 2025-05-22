@@ -18,6 +18,7 @@ package org.b333vv.metric.task;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.DependenciesBuilder;
@@ -31,22 +32,22 @@ public class DependenciesTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building dependencies map finished";
     private static final String CANCELED_MESSAGE = "Building dependencies map canceled";
 
-    public DependenciesTask() {
-        super(MetricsUtils.getCurrentProject(), "Building Dependencies");
+    public DependenciesTask(Project project) {
+        super(project, "Building Dependencies");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DependenciesBuilder dependenciesBuilder = MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES);
+        DependenciesBuilder dependenciesBuilder = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES);
         if (dependenciesBuilder == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+            AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
             dependenciesBuilder = new DependenciesBuilder();
             DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
             dependenciesCalculator.calculateDependencies();
-            MetricTaskCache.instance().putUserData(MetricTaskCache.DEPENDENCIES, dependenciesBuilder);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.DEPENDENCIES, dependenciesBuilder);
         }
     }
 

@@ -18,18 +18,18 @@ package org.b333vv.metric.task;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.ProjectMetricsSet2Json;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 
 import static org.b333vv.metric.task.MetricTaskManager.getPackageModel;
-import static org.b333vv.metric.util.MetricsService.isProjectMetricsStampStored;
 
 public class ProjectMetricTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles project level metrics from cache";
@@ -37,26 +37,26 @@ public class ProjectMetricTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building project level metrics finished";
     private static final String CANCELED_MESSAGE = "Building project level metrics canceled";
 
-    public ProjectMetricTask() {
-        super(MetricsUtils.getCurrentProject(), "Calculating Project Level Metrics");
+    public ProjectMetricTask(Project project) {
+        super(project, "Calculating Project Level Metrics");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS);
+        JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            javaProject = getPackageModel(indicator);
-            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+            javaProject = myProject.getService(MetricTaskManager.class).getPackageModel(indicator);
+            AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
             ProjectMetricsSetCalculator projectMetricsSetCalculator = new ProjectMetricsSetCalculator(scope,
-                    MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
+                    myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
             projectMetricsSetCalculator.calculate();
-            if (isProjectMetricsStampStored()) {
+            if (myProject.getService(MetricsService.class).isProjectMetricsStampStored()) {
                 ProjectMetricsSet2Json.takeProjectMetricsSnapshot(javaProject);
             }
-            MetricTaskCache.instance().putUserData(MetricTaskCache.PROJECT_METRICS, javaProject);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_METRICS, javaProject);
         }
     }
 

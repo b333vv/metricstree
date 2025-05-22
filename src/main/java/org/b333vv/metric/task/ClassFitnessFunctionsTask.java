@@ -17,12 +17,12 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -37,19 +37,19 @@ public class ClassFitnessFunctionsTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building class level fitness functions finished";
     private static final String CANCELED_MESSAGE = "Building class level fitness functions canceled";
 
-    public ClassFitnessFunctionsTask() {
-        super(MetricsUtils.getCurrentProject(), "Building class level fitness functions");
+    public ClassFitnessFunctionsTask(Project project) {
+        super(project, "Building class level fitness functions");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<FitnessFunction, Set<JavaClass>> classFitnessFunctions = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+        Map<FitnessFunction, Set<JavaClass>> classFitnessFunctions = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = getClassAndMethodModel(indicator);
+            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             classFitnessFunctions = classesByMetricsProfileDistribution(javaProject);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION, classFitnessFunctions);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION, classFitnessFunctions);
         }
     }
 

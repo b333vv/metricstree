@@ -17,6 +17,7 @@
 package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.util.MetricsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -25,13 +26,23 @@ class SetShowClassMetricsTreeAction extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent event) {
+        Project project = event.getProject();
+        if (project == null) {
+            return false;
+        }
+        MetricsService metricsService = project.getService(MetricsService.class);
 //        return Objects.requireNonNull(event.getProject()).getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
-        return MetricsService.isShowClassMetricsTree();
+        return metricsService.isShowClassMetricsTree();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent event, boolean showClassMetricsTree) {
-        MetricsService.setShowClassMetricsTree(showClassMetricsTree);
+        Project project = event.getProject();
+        if (project == null) {
+            return;
+        }
+        MetricsService metricsService = project.getService(MetricsService.class);
+        metricsService.setShowClassMetricsTree(showClassMetricsTree);
         MetricsUtils.setClassMetricsTreeExists(showClassMetricsTree);
     }
 }

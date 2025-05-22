@@ -18,28 +18,26 @@ package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
-
-import static org.b333vv.metric.task.MetricTaskCache.instance;
 
 public class InvalidateCachesTask extends Task.Backgroundable {
     private static final String STARTED_MESSAGE = "Invalidating caches started";
     private static final String FINISHED_MESSAGE = "Invalidating caches finished";
     private final VirtualFile virtualFile;
 
-    public InvalidateCachesTask(VirtualFile file) {
-        super(MetricsUtils.getCurrentProject(), "Invalidate Caches");
+    public InvalidateCachesTask(Project project, VirtualFile file) {
+        super(project, "Invalidate Caches");
         virtualFile = file;
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-        instance().invalidateUserData();
-        instance().removeJavaFile(virtualFile);
+        myProject.getService(MetricTaskCache.class).invalidateUserData();
+        myProject.getService(MetricTaskCache.class).removeJavaFile(virtualFile);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
     }
 }

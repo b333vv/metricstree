@@ -31,13 +31,14 @@ public class CalculateProjectMetricsAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            ProjectTreeTask projectTreeTask = new ProjectTreeTask();
-            MetricTaskCache.runTask(projectTreeTask);
+            ProjectTreeTask projectTreeTask = new ProjectTreeTask(project);
+            MetricTaskCache.runTask(project, projectTreeTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
+        Project project = e.getProject();
+        e.getPresentation().setEnabled(project != null && MetricTaskCache.isQueueEmpty(project));
     }
 }

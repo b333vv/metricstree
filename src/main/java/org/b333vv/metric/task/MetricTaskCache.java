@@ -17,6 +17,7 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.impl.CoreProgressManager;
@@ -55,6 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Stream;
 
+@Service(Service.Level.PROJECT)
 public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<DependenciesBuilder> DEPENDENCIES = Key.create("DEPENDENCIES");
     public static final Key<JavaProject> CLASS_AND_METHODS_METRICS = Key.create("CLASS_AND_METHODS_METRICS");
@@ -85,8 +87,10 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     private final ConcurrentLinkedQueue<Task.Backgroundable> taskQueue = new ConcurrentLinkedQueue<>();
     private volatile boolean isProcessing = false;
     private final Map<VirtualFile, JavaFile> javaFiles = new ConcurrentHashMap<>();
+    private final Project project;
 
-    private MetricTaskCache () {
+    public MetricTaskCache (Project project) {
+        this.project = project;
         VirtualFileManager.getInstance().addAsyncFileListener(new MyAsyncVfsListener(), this);
     }
 
@@ -252,7 +256,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
     }
 
     private void invalidateCaches(VirtualFile file) {
-        InvalidateCachesTask invalidateCachesTask = new InvalidateCachesTask(file);
+        InvalidateCachesTask invalidateCachesTask = new InvalidateCachesTask(this.project, file);
         taskQueue.add(invalidateCachesTask);
     }
 }

@@ -18,6 +18,7 @@ package org.b333vv.metric.task;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.PackageMetricsSetCalculator;
@@ -33,23 +34,23 @@ public class PackageMetricTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building package level metrics finished";
     private static final String CANCELED_MESSAGE = "Building package level metrics canceled";
 
-    public PackageMetricTask() {
-        super(MetricsUtils.getCurrentProject(), "Calculating Package Level Metrics");
+    public PackageMetricTask(Project project) {
+        super(project, "Calculating Package Level Metrics");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_METRICS);
+        JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+            AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
-            javaProject = getClassAndMethodModel(indicator);
+            javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             PackageMetricsSetCalculator packageMetricsSetCalculator = new PackageMetricsSetCalculator(scope,
-                    MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
+                    myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
             packageMetricsSetCalculator.calculate();
-            MetricTaskCache.instance().putUserData(MetricTaskCache.PACKAGE_METRICS, javaProject);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PACKAGE_METRICS, javaProject);
         }
     }
 

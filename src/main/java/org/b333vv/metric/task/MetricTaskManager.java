@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.task;
 
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
@@ -37,19 +38,26 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Set;
 
+@Service(Service.Level.PROJECT)
 public class MetricTaskManager {
 
-    public static void sureDependenciesAreInCache(@NotNull ProgressIndicator indicator) {
-        if (MetricTaskCache.instance().getUserData(MetricTaskCache.DEPENDENCIES) == null) {
-            DependenciesTask dependenciesTask = new DependenciesTask();
+    private final Project project;
+
+    public MetricTaskManager(Project project) {
+        this.project = project;
+    }
+
+    public void sureDependenciesAreInCache(@NotNull ProgressIndicator indicator) {
+        if (this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES) == null) {
+            DependenciesTask dependenciesTask = new DependenciesTask(this.project);
             dependenciesTask.run(indicator);
 
             ReadAction.run(() -> {
-                MetricTaskCache.instance().getJavaFiles().flatMap(JavaFile::classes)
+                this.project.getService(MetricTaskCache.class).getJavaFiles().flatMap(JavaFile::classes)
                         .forEach(javaClass -> {
                             javaClass.removeMetric(MetricType.CBO);
                         });
-                MetricTaskCache.instance().getJavaFiles().flatMap(JavaFile::classes)
+                this.project.getService(MetricTaskCache.class).getJavaFiles().flatMap(JavaFile::classes)
                         .forEach(javaClass -> {
                             javaClass.accept(MetricType.CBO.visitor());
                         });
@@ -57,52 +65,52 @@ public class MetricTaskManager {
         }
     }
 
-    public static JavaProject getClassAndMethodModel(@NotNull ProgressIndicator indicator) {
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
+    public JavaProject getClassAndMethodModel(@NotNull ProgressIndicator indicator) {
+        JavaProject javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
         if (javaProject == null) {
-            ClassAndMethodMetricTask classAndMethodMetricTask = new ClassAndMethodMetricTask();
+            ClassAndMethodMetricTask classAndMethodMetricTask = new ClassAndMethodMetricTask(this.project);
             classAndMethodMetricTask.run(indicator);
-            javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
+            javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
         }
         return javaProject;
     }
 
-    public static JavaProject getPackageModel(@NotNull ProgressIndicator indicator) {
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_METRICS);
+    public JavaProject getPackageModel(@NotNull ProgressIndicator indicator) {
+        JavaProject javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_METRICS);
         if (javaProject == null) {
-            PackageMetricTask packageMetricTask = new PackageMetricTask();
+            PackageMetricTask packageMetricTask = new PackageMetricTask(this.project);
             packageMetricTask.run(indicator);
-            javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_METRICS);
+            javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_METRICS);
         }
         return javaProject;
     }
 
-    public static JavaProject getPackageOnlyModel(@NotNull ProgressIndicator indicator) {
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
+    public JavaProject getPackageOnlyModel(@NotNull ProgressIndicator indicator) {
+        JavaProject javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
         if (javaProject == null) {
-            PackageOnlyMetricTask packageMetricTask = new PackageOnlyMetricTask();
+            PackageOnlyMetricTask packageOnlyMetricTask = new PackageOnlyMetricTask(this.project);
             packageMetricTask.run(indicator);
-            javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
+            javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
         }
         return javaProject;
     }
 
-    public static JavaProject getProjectModel(@NotNull ProgressIndicator indicator) {
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS);
+    public JavaProject getProjectModel(@NotNull ProgressIndicator indicator) {
+        JavaProject javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS);
         if (javaProject == null) {
-            ProjectMetricTask projectMetricTask = new ProjectMetricTask();
+            ProjectMetricTask projectMetricTask = new ProjectMetricTask(this.project);
             projectMetricTask.run(indicator);
-            javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS);
+            javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS);
         }
         return javaProject;
     }
 
-    public static Map<FitnessFunction, Set<JavaClass>> getMetricProfilesDistribution(@NotNull ProgressIndicator indicator) {
-        Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+    public Map<FitnessFunction, Set<JavaClass>> getMetricProfilesDistribution(@NotNull ProgressIndicator indicator) {
+        Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classesByMetricProfile == null) {
-            ClassFitnessFunctionsTask classFitnessFunctionsTask = new ClassFitnessFunctionsTask();
+            ClassFitnessFunctionsTask classFitnessFunctionsTask = new ClassFitnessFunctionsTask(this.project);
             classFitnessFunctionsTask.run(indicator);
-            classesByMetricProfile = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+            classesByMetricProfile = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
         }
         return classesByMetricProfile;
     }
