@@ -48,7 +48,6 @@ public final class MetricsUtils {
     private final static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private final static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
 
-    private static Project currentProject;
     private static boolean projectAutoScrollable = true;
     private static boolean profileAutoScrollable = true;
     private static boolean classMetricsTreeExists = true;
@@ -67,10 +66,10 @@ public final class MetricsUtils {
 ////        return getCurrentProject().getService(MetricsUtils.class);
 //    }
 
-    public static synchronized MetricsConsole getConsole() {
+    public static synchronized MetricsConsole getConsole(Project project) {
 //        return getForProject(MetricsConsole.class);
 //        return getCurrentProject().getComponent(MetricsConsole.class);
-        return getCurrentProject().getService(MetricsConsole.class);
+        return project.getService(MetricsConsole.class);
     }
 
     public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean value) {
@@ -85,18 +84,8 @@ public final class MetricsUtils {
         classMetricsValuesEvolutionAdded = value;
     }
 
-    public static Project getCurrentProject() {
-//        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return currentProject;
-//        return project;
-    }
-
-    public static void setCurrentProject(Project value) {
-        currentProject = value;
-    }
-
-    public static DumbService getDumbService() {
-        return DumbService.getInstance(currentProject);
+    public static DumbService getDumbService(Project project) {
+        return DumbService.getInstance(project);
     }
 
     public static MetricsTreeFilter getClassMetricsTreeFilter() {
@@ -135,17 +124,8 @@ public final class MetricsUtils {
         return classMetricsValuesEvolutionCalculationPerforming;
     }
 
-    public static <T> T get(ComponentManager container, Class<T> clazz) {
-//        T t = container.getService(clazz);
-//        if (t == null) {
-//            throw new IllegalArgumentException("Class not found: " + clazz.getName());
-//        }
-//        return t;
-        return currentProject.getService(clazz);
-    }
-
-    public static <T> T getForProject(Class<T> clazz) {
-        return currentProject.getService(clazz);
+    public static <T> T getForProject(Project project, Class<T> clazz) {
+        return project.getService(clazz);
     }
 
 //    public static <T> T getProfiles(Class<T> clazz) {
@@ -237,8 +217,8 @@ public final class MetricsUtils {
         return editor;
     }
 
-    public static void openInEditor(PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(getCurrentProject());
+    public static void openInEditor(Project project, PsiElement psiElement) {
+        final EditorController caretMover = new EditorController(project);
         if (psiElement != null) {
             Editor editor = caretMover.openInEditor(psiElement);
             if (editor != null) {

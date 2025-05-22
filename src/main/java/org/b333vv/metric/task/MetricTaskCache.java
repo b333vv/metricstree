@@ -20,6 +20,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.impl.CoreProgressManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -89,10 +90,6 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         VirtualFileManager.getInstance().addAsyncFileListener(new MyAsyncVfsListener(), this);
     }
 
-    public static MetricTaskCache instance() {
-        return MetricsUtils.getCurrentProject().getService(MetricTaskCache.class);
-    }
-
     @Nullable
     @Override
     public <T> T getUserData(@NotNull Key<T> key) {
@@ -122,14 +119,15 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
         }
     }
 
-    public static void runTask(Task.Backgroundable task) {
-        MetricTaskCache instance = instance();
+    public static void runTask(Project project, Task.Backgroundable task) {
+        MetricTaskCache instance = project.getService(MetricTaskCache.class);
         instance.taskQueue.offer(task);
         instance.processNextTask();
     }
 
-    public static boolean isQueueEmpty() {
-        return instance().taskQueue.isEmpty() && !instance().isProcessing;
+    public static boolean isQueueEmpty(Project project) {
+        MetricTaskCache instance = project.getService(MetricTaskCache.class);
+        return instance.taskQueue.isEmpty() && !instance.isProcessing;
     }
 
     @Nullable

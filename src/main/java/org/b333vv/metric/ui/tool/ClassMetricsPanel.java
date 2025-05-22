@@ -20,6 +20,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiCompiledElement;
@@ -60,7 +61,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
         // psiJavaFile = file; // Удаляем кеширование PSI-элемента
         if (project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()) {
-            MetricsUtils.getDumbService().runWhenSmart(() -> calculateMetrics(file));
+            DumbService.getInstance(project).runWhenSmart(() -> calculateMetrics(file));
         }
     }
 
@@ -77,7 +78,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
         MetricsUtils.setClassMetricsTreeExists(false);
-        MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .printInfo("Built metrics tree for " + psiJavaFile.getName());
         JavaFile jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
             JavaFile javaFile = new ClassModelBuilder().buildJavaFile(psiJavaFile);
@@ -128,7 +129,6 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         public void selectionChanged(@NotNull FileEditorManagerEvent event) {
             clear();
             VirtualFile selectedFile = event.getNewFile();
-            MetricsUtils.setCurrentProject(event.getManager().getProject());
             if (selectedFile == null) {
                 return;
             }

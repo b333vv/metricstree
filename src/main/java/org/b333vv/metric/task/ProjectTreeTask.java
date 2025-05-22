@@ -18,6 +18,7 @@ package org.b333vv.metric.task;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
@@ -35,15 +36,15 @@ public class  ProjectTreeTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building tree model finished";
     private static final String CANCELED_MESSAGE = "Building tree model canceled";
 
-    public ProjectTreeTask() {
-        super(MetricsUtils.getCurrentProject(), "Build Project Tree");
+    public ProjectTreeTask(Project project) {
+        super(project, "Build Project Tree");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DefaultTreeModel metricsTreeModel = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_TREE);
-        ProjectMetricTreeBuilder projectMetricTreeBuilder = MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER);
+        DefaultTreeModel metricsTreeModel = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_TREE);
+        ProjectMetricTreeBuilder projectMetricTreeBuilder = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.TREE_BUILDER);
         if (metricsTreeModel == null || projectMetricTreeBuilder == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
 //            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
@@ -52,8 +53,8 @@ public class  ProjectTreeTask extends Task.Backgroundable {
             JavaProject javaProject = getProjectModel(indicator);
             projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject, myProject);
             metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-            MetricTaskCache.instance().putUserData(MetricTaskCache.PROJECT_TREE, metricsTreeModel);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.TREE_BUILDER, projectMetricTreeBuilder);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_TREE, metricsTreeModel);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.TREE_BUILDER, projectMetricTreeBuilder);
         }
     }
 
@@ -61,7 +62,7 @@ public class  ProjectTreeTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .projectMetricsTreeIsReady();
     }
 

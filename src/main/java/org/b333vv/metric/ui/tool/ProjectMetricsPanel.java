@@ -82,7 +82,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     @Override
     protected void openInEditor(PsiElement psiElement) {
-        MetricsUtils.openInEditor(psiElement);
+        MetricsUtils.openInEditor(project, psiElement);
     }
 
     private void createTreeMapUIComponents() {

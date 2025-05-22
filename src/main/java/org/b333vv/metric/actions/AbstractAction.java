@@ -32,7 +32,6 @@ public abstract class AbstractAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         if (check(project)) {
-            MetricsUtils.setCurrentProject(project);
         }
     }
 
@@ -46,7 +45,6 @@ public abstract class AbstractAction extends AnAction {
         if (check(e.getProject())) {
             e.getPresentation().setVisible(true);
             e.getPresentation().setEnabled(check(e.getProject()));
-            MetricsUtils.setCurrentProject(e.getProject());
         }
     }
 

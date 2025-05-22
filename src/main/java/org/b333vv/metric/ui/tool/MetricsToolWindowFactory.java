@@ -87,7 +87,6 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull final ToolWindow toolWindow) {
-        MetricsUtils.setCurrentProject(project);
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
         addFitnessFunctionTab(project, toolWindow);

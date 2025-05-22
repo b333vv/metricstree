@@ -17,6 +17,7 @@
 package org.b333vv.metric.util;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.JavaRecursiveElementVisitor;
@@ -38,21 +39,23 @@ import java.util.stream.Stream;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
+@Service(Service.Level.PROJECT)
 public final class MetricsService {
 
-//    private static final Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-    private MetricsService(Project value) {
+    private final Project project;
+
+    public MetricsService(Project project) {
+        this.project = project;
     }
 
-    public static Range getRangeForMetric(MetricType type) {
-        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        BasicMetricsValidRangeStub basicStub = project.getService(BasicMetricsValidRangesSettings.class)
+    public Range getRangeForMetric(MetricType type) {
+        BasicMetricsValidRangeStub basicStub = this.project.getService(BasicMetricsValidRangesSettings.class)
                 .getControlledMetrics().get(type.name());
         if (basicStub != null) {
             return BasicMetricsRange.of(Value.of(basicStub.getRegularBound()),
                     Value.of(basicStub.getHighBound()), Value.of(basicStub.getVeryHighBound()));
         }
-        DerivativeMetricsValidRangeStub derivativeStub = project.getService(DerivativeMetricsValidRangesSettings.class)
+        DerivativeMetricsValidRangeStub derivativeStub = this.project.getService(DerivativeMetricsValidRangesSettings.class)
                 .getControlledMetrics().get(type.name());
         if (derivativeStub != null) {
             return DerivativeMetricsRange.of(Value.of(derivativeStub.getMinValue()),
@@ -61,29 +64,29 @@ public final class MetricsService {
         return BasicMetricsRange.UNDEFINED;
     }
 
-    public static RangeType getRangeTypeByMetricTypeAndValue(MetricType type, Value value) {
+    public RangeType getRangeTypeByMetricTypeAndValue(MetricType type, Value value) {
         return getRangeForMetric(type).getRangeType(value);
     }
 
-    public static boolean isNotRegularValue(MetricType type, Value value) {
+    public boolean isNotRegularValue(MetricType type, Value value) {
         return getRangeTypeByMetricTypeAndValue(type, value) != RangeType.UNDEFINED
                 && getRangeTypeByMetricTypeAndValue(type, value) != RangeType.REGULAR;
     }
 
-    public static Stream<JavaRecursiveElementVisitor> classVisitorsForClassMetricsTree() {
+    public Stream<JavaRecursiveElementVisitor> classVisitorsForClassMetricsTree() {
 //        return project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
 //                .filter(MetricsTreeSettingsStub::isNeedToConsider)
 //                .map(m -> m.getType().visitor())
 //                .filter(m -> m instanceof JavaClassVisitor);
 
-        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).getMetricsList().stream()
+        return this.project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
-    public static Stream<JavaRecursiveElementVisitor> methodsVisitorsForClassMetricsTree() {
-        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).getMetricsList().stream()
+    public Stream<JavaRecursiveElementVisitor> methodsVisitorsForClassMetricsTree() {
+        return this.project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
                 .filter(MetricsTreeSettingsStub::isNeedToConsider)
                 .map(m -> m.getType().visitor())
                 .filter(m -> m instanceof JavaMethodVisitor);
@@ -95,44 +98,40 @@ public final class MetricsService {
 //                .filter(m -> m instanceof JavaMethodVisitor);
     }
 
-    public static boolean isControlValidRanges() {
+    public boolean isControlValidRanges() {
 //        return project.getService(BasicMetricsValidRangesSettings.class)
 //                .isControlValidRanges();
-        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return project.getService(BasicMetricsValidRangesSettings.class)
+        return this.project.getService(BasicMetricsValidRangesSettings.class)
                 .isControlValidRanges();
     }
 
-    public static boolean isProjectMetricsStampStored() {
+    public boolean isProjectMetricsStampStored() {
 //        return project.getService(OtherSettings.class)
 //                .isProjectMetricsStampStored();
-        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return project.getService(OtherSettings.class)
+        return this.project.getService(OtherSettings.class)
                 .isProjectMetricsStampStored();
     }
 
-    public static boolean isShowClassMetricsTree() {
+    public boolean isShowClassMetricsTree() {
 ////        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
 ////        return project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
-        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        return project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
+        return this.project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
     }
 
-    public static void setShowClassMetricsTree(boolean showClassMetricsTree) {
+    public void setShowClassMetricsTree(boolean showClassMetricsTree) {
 //        project.getService(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);
-        Project project = ApplicationManager.getApplication().getService(ProjectManager.class).getDefaultProject();
-        project.getService(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);
-        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).showClassMetricsTree(showClassMetricsTree);
+        this.project.getService(ClassMetricsTreeSettings.class).setShowClassMetricsTree(showClassMetricsTree);
+        this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).showClassMetricsTree(showClassMetricsTree);
     }
 
-    public static Set<MetricType> getDeferredMetricTypes() {
+    public Set<MetricType> getDeferredMetricTypes() {
 //        return Set.of(CBO, ATFD, TCC, LAA, FDP, NOAV, CINT, CDISP, MND, NOPA, NOAC, WOC);
 //        return Set.of(CBO);
         return Set.of();
     }
 
 
-    public static boolean isLongValueMetricType(MetricType metricType) {
+    public boolean isLongValueMetricType(MetricType metricType) {
         Set<MetricType> doubleValueMetricTypes = Set.of(TCC, I, A, D, MHF, AHF, MIF, AIF, CF, PF, LAA, CDISP, WOC, CCC, CCM);
         return !doubleValueMetricTypes.contains(metricType);
     }

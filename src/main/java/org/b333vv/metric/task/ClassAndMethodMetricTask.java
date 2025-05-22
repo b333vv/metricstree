@@ -19,6 +19,7 @@ package org.b333vv.metric.task;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ClassAndMethodsMetricsCalculator;
 import org.b333vv.metric.model.code.JavaProject;
@@ -33,23 +34,23 @@ public class ClassAndMethodMetricTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building class and method levels metrics finished";
     private static final String CANCELED_MESSAGE = "Building class and method levels metrics canceled";
 
-    public ClassAndMethodMetricTask() {
-        super(MetricsUtils.getCurrentProject(), "Calculating Class And Method Metrics");
+    public ClassAndMethodMetricTask(Project project) {
+        super(project, "Calculating Class And Method Metrics");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         sureDependenciesAreInCache(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
+        JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+            AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
-            javaProject = new JavaProject(MetricsUtils.getCurrentProject().getName());
+            javaProject = new JavaProject(myProject.getName());
             ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
             metricsCalculator.calculateMetrics();
-            MetricTaskCache.instance().putUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS, javaProject);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS, javaProject);
         }
     }
 
