@@ -18,16 +18,13 @@ package org.b333vv.metric.task;
 
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.export.CsvClassMetricsExporter;
 import org.b333vv.metric.export.CsvPackageMetricsExporter;
 import org.b333vv.metric.export.Exporter;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
-
-import static org.b333vv.metric.task.MetricTaskManager.getProjectModel;
 
 public class ExportPackageMetricsToCsvTask extends Task.Backgroundable {
     private static final String STARTED_MESSAGE = "Export package level metrics to .csv started";
@@ -36,17 +33,17 @@ public class ExportPackageMetricsToCsvTask extends Task.Backgroundable {
 
     private final String fileName;
 
-    public ExportPackageMetricsToCsvTask(String fileName) {
-        super(MetricsUtils.getCurrentProject(), "Export Package Level Metrics To CSV");
+    public ExportPackageMetricsToCsvTask(Project project, String fileName) {
+        super(project, "Export Package Level Metrics To CSV");
         this.fileName = fileName;
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-        JavaProject javaProject = getProjectModel(indicator);
+        JavaProject javaProject = myProject.getService(MetricTaskManager.class).getProjectModel(indicator);
         if (fileName != null) {
-            Exporter exporter = new CsvPackageMetricsExporter();
+            Exporter exporter = new CsvPackageMetricsExporter(myProject);
             ReadAction.run(() -> exporter.export(fileName, javaProject));
         }
     }

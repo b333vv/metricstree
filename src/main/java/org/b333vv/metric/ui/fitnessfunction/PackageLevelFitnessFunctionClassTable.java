@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.fitnessfunction;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -32,8 +33,10 @@ import java.util.List;
 public class PackageLevelFitnessFunctionClassTable {
     private final Model model;
     private final JBScrollPane panel;
+    private final Project project;
 
-    public PackageLevelFitnessFunctionClassTable() {
+    public PackageLevelFitnessFunctionClassTable(Project project) {
+        this.project = project;
         model = new Model();
         JBTable table = new JBTable(model);
         table.setShowGrid(false);
@@ -49,9 +52,9 @@ public class PackageLevelFitnessFunctionClassTable {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
                 if (MetricsUtils.isProfileAutoScrollable()) {
-                    MetricsUtils.openInEditor(javaClass.getPsiClass());
+                    MetricsUtils.openInEditor(this.project, javaClass.getPsiClass());
                 }
-                MetricsUtils.getCurrentProject().getMessageBus()
+                this.project.getMessageBus()
                         .syncPublisher(MetricsEventListener.TOPIC).packageLevelJavaClassSelected(javaClass);
             }
         });

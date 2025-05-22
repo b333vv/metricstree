@@ -17,11 +17,11 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.ProjectMetricsSet2Json;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.ui.chart.builder.ProjectMetricsHistoryXYChartBuilder;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.knowm.xchart.XYChart;
@@ -34,24 +34,24 @@ public class ProjectMetricsHistoryXyChartTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building project metrics history chart finished";
     private static final String CANCELED_MESSAGE = "Building project metrics history chart canceled";
 
-    public ProjectMetricsHistoryXyChartTask() {
-        super(MetricsUtils.getCurrentProject(), "Building Project Metrics History Chart");
+    public ProjectMetricsHistoryXyChartTask(Project project) {
+        super(project, "Building Project Metrics History Chart");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
+        XYChart xyChart = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
         if (xyChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            TreeSet<JSONObject> metricsStampSet = ProjectMetricsSet2Json.parseStoredMetricsSnapshots();
+            TreeSet<JSONObject> metricsStampSet = ProjectMetricsSet2Json.parseStoredMetricsSnapshots(myProject);
             if (metricsStampSet == null) {
                 indicator.cancel();
                 return;
             }
             ProjectMetricsHistoryXYChartBuilder builder = new ProjectMetricsHistoryXYChartBuilder();
             xyChart = builder.createChart(metricsStampSet);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART, xyChart);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART, xyChart);
         }
     }
 

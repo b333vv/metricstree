@@ -17,19 +17,17 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.b333vv.metric.task.MetricTaskManager.getMetricProfilesDistribution;
 
 public class ProfilesBoxChartTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles metrics values by metric profiles distribution charts from cache";
@@ -37,20 +35,20 @@ public class ProfilesBoxChartTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building metrics values by metric profiles distribution charts finished";
     private static final String CANCELED_MESSAGE = "Building metrics values by metric profiles distribution charts canceled";
 
-    public ProfilesBoxChartTask() {
-        super(MetricsUtils.getCurrentProject(), "Build Metrics Values By Metric Profiles Distribution Charts");
+    public ProfilesBoxChartTask(Project project) {
+        super(project, "Build Metrics Values By Metric Profiles Distribution Charts");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = MetricTaskCache.instance().getUserData(MetricTaskCache.BOX_CHARTS);
+        List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.BOX_CHARTS);
         if (boxChartStructures == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = getMetricProfilesDistribution(indicator);
+            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
             ProfileBoxChartBuilder profileBoxChartBuilder = new ProfileBoxChartBuilder();
             boxChartStructures = profileBoxChartBuilder.createChart(classesByMetricProfile);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.BOX_CHARTS, boxChartStructures);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.BOX_CHARTS, boxChartStructures);
         }
 
     }

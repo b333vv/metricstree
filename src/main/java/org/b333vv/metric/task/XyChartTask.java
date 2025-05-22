@@ -17,19 +17,17 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ProjectMetricXYChartDataBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.chart.builder.ProjectMetricXYChartBuilder;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.XYChart;
 
 import java.util.Map;
 import java.util.TreeMap;
-
-import static org.b333vv.metric.task.MetricTaskManager.getPackageOnlyModel;
 
 public class XyChartTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles package level metrics distribution chart from cache";
@@ -37,27 +35,27 @@ public class XyChartTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building package level metrics distribution chart finished";
     private static final String CANCELED_MESSAGE = "Building package level metrics distribution chart canceled";
 
-    public XyChartTask() {
-        super(MetricsUtils.getCurrentProject(), "Building XY Chart");
+    public XyChartTask(Project project) {
+        super(project, "Building XY Chart");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<String, Double> instability = MetricTaskCache.instance().getUserData(MetricTaskCache.INSTABILITY);
-        Map<String, Double> abstractness = MetricTaskCache.instance().getUserData(MetricTaskCache.ABSTRACTNESS);
-        XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.XY_CHART);
+        Map<String, Double> instability = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.INSTABILITY);
+        Map<String, Double> abstractness = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.ABSTRACTNESS);
+        XYChart xyChart = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.XY_CHART);
         if (instability == null || abstractness == null || xyChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = getPackageOnlyModel(indicator);
+            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getPackageOnlyModel(indicator);
             instability = new TreeMap<>();
             abstractness = new TreeMap<>();
             ProjectMetricXYChartDataBuilder.build(javaProject, instability, abstractness);
             ProjectMetricXYChartBuilder builder = new ProjectMetricXYChartBuilder();
             xyChart = builder.createChart(instability, abstractness);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.INSTABILITY, instability);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.ABSTRACTNESS, abstractness);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.XY_CHART, xyChart);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.INSTABILITY, instability);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.ABSTRACTNESS, abstractness);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.XY_CHART, xyChart);
         }
     }
 

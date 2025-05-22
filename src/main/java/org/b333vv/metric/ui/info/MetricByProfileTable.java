@@ -16,12 +16,12 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -30,8 +30,10 @@ public class MetricByProfileTable {
     private final Model model;
     private final JBScrollPane panel;
     private List<FitnessFunction> fitnessFunctions;
+    private final Project project;
 
-    public MetricByProfileTable(List<FitnessFunction> fitnessFunctions) {
+    public MetricByProfileTable(Project project, List<FitnessFunction> fitnessFunctions) {
+        this.project = project;
         this.fitnessFunctions = fitnessFunctions;
         model = new Model();
         JBTable table = new JBTable(model);
@@ -48,7 +50,7 @@ public class MetricByProfileTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
             FitnessFunction fitnessFunction = (FitnessFunction) selectedCell;
-            MetricsUtils.getCurrentProject()
+            this.project
                     .getMessageBus().syncPublisher(MetricsEventListener.TOPIC).currentMetricProfile(fitnessFunction);
         });
 

@@ -18,6 +18,7 @@ package org.b333vv.metric.task;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
@@ -26,12 +27,9 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.treemap.builder.ProfileColorProvider;
 import org.b333vv.metric.ui.treemap.builder.TreeMapBuilder;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
-
-import static org.b333vv.metric.task.MetricTaskManager.*;
 
 public class ProfileTreeMapTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles treemap with metric profiles distribution from cache";
@@ -39,30 +37,30 @@ public class ProfileTreeMapTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building treemap with metric profiles distribution finished";
     private static final String CANCELED_MESSAGE = "Building treemap with metric profiles distribution canceled";
 
-    public ProfileTreeMapTask() {
-        super(MetricsUtils.getCurrentProject(), "Build Profile Treemap");
+    public ProfileTreeMapTask(Project project) {
+        super(project, "Build Profile Treemap");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        getMetricProfilesDistribution(indicator);
+        myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        MetricTreeMap<JavaCode> metricTreeMap = MetricTaskCache.instance().getUserData(MetricTaskCache.PROFILE_TREE_MAP);
+        MetricTreeMap<JavaCode> metricTreeMap = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_TREE_MAP);
         if (metricTreeMap == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
+            AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
-            JavaProject javaProject = getClassAndMethodModel(indicator);
+            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             TreeMapBuilder treeMapBuilder = new TreeMapBuilder(javaProject);
             metricTreeMap = treeMapBuilder.getTreeMap();
             metricTreeMap.setColorProvider(new ProfileColorProvider(Set.of()));
             metricTreeMap.setSelectionChangedAction((String text) ->
-                    MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                             .setProfilePanelBottomText(text));
             metricTreeMap.setClickedAction((JavaClass javaClass) ->
-                    MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                             .profileTreeMapCellClicked(javaClass));
-            MetricTaskCache.instance().putUserData(MetricTaskCache.PROFILE_TREE_MAP, metricTreeMap);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROFILE_TREE_MAP, metricTreeMap);
         }
     }
 
@@ -70,7 +68,7 @@ public class ProfileTreeMapTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .profileTreeMapIsReady();
     }
 

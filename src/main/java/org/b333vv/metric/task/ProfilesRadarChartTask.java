@@ -17,19 +17,17 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.b333vv.metric.task.MetricTaskManager.getMetricProfilesDistribution;
 
 public class ProfilesRadarChartTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles invalid metrics values and metric profiles correlation chart from cache";
@@ -37,20 +35,20 @@ public class ProfilesRadarChartTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart  finished";
     private static final String CANCELED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart  canceled";
 
-    public ProfilesRadarChartTask() {
-        super(MetricsUtils.getCurrentProject(), "Build Invalid Metrics Values And Metric Profiles Correlation Chart");
+    public ProfilesRadarChartTask(Project project) {
+        super(project, "Build Invalid Metrics Values And Metric Profiles Correlation Chart");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = MetricTaskCache.instance().getUserData(MetricTaskCache.RADAR_CHART);
+        List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.RADAR_CHART);
         if (radarCharts == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = getMetricProfilesDistribution(indicator);
+            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
             ProfileRadarChartBuilder profileRadarChartBuilder = new ProfileRadarChartBuilder();
             radarCharts = profileRadarChartBuilder.createChart(classesByMetricProfile, myProject);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.RADAR_CHART, radarCharts);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.RADAR_CHART, radarCharts);
         }
 
     }

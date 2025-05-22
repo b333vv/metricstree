@@ -16,10 +16,10 @@
 
 package org.b333vv.metric.export;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,6 +40,12 @@ import java.util.stream.Collectors;
 
 public class XmlExporter implements Exporter {
 
+    private final Project project;
+
+    public XmlExporter(Project project) {
+        this.project = project;
+    }
+
     @Override
     public void export(String fileName, JavaProject javaProject) {
         File xmlOutputFile = new File(fileName);
@@ -55,11 +61,11 @@ public class XmlExporter implements Exporter {
             StreamResult result = new StreamResult(xmlOutputFile);
             transformer.transform(source, result);
         } catch (TransformerException e) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
 //            MetricsUtils.getConsole().error(e.getMessage());
         }
         if (xmlOutputFile.exists()) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Project, packages, classes and methods metrics have been exported in "
                     + xmlOutputFile.getAbsolutePath());
 //            MetricsUtils.getConsole().info("Project, packages, classes and methods metrics have been exported in "
@@ -88,7 +94,7 @@ public class XmlExporter implements Exporter {
                 addPackages(packageNode, packageElement, doc);
             }
         } catch (ParserConfigurationException e) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
 //            MetricsUtils.getConsole().error(e.getMessage());
         }
         return doc;

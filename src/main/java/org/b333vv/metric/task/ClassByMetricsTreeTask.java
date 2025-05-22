@@ -17,16 +17,14 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.SortedByMetricsValuesClassesTreeBuilder;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
-
-import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class ClassByMetricsTreeTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values tree from cache";
@@ -34,20 +32,20 @@ public class ClassByMetricsTreeTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values tree finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values tree canceled";
 
-    public ClassByMetricsTreeTask() {
-        super(MetricsUtils.getCurrentProject(), "Building Class Distribution by Metric Values");
+    public ClassByMetricsTreeTask(Project project) {
+        super(project, "Building Class Distribution by Metric Values");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DefaultTreeModel treeModel = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE);
+        DefaultTreeModel treeModel = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE);
         if (treeModel == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = getClassAndMethodModel(indicator);
+            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             SortedByMetricsValuesClassesTreeBuilder builder = new SortedByMetricsValuesClassesTreeBuilder();
             treeModel = builder.createMetricTreeModel(javaProject);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, treeModel);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, treeModel);
         }
     }
 

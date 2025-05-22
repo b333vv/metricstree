@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.fitnessfunction;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -26,7 +27,6 @@ import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -41,8 +41,10 @@ public class PackageLevelFitnessFunctionList {
     private final JBScrollPane panel;
     private final JBTable table;
     private Map<FitnessFunction, Integer> packagesCount;
+    private final Project project;
 
-    public PackageLevelFitnessFunctionList() {
+    public PackageLevelFitnessFunctionList(Project project) {
+        this.project = project;
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
@@ -58,7 +60,7 @@ public class PackageLevelFitnessFunctionList {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 1);
                 FitnessFunction fitnessFunction = (FitnessFunction) selectedCell;
-                MetricsUtils.getCurrentProject().getMessageBus()
+                this.project.getMessageBus()
                         .syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionSelected(fitnessFunction);
             }
         });

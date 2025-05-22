@@ -17,19 +17,16 @@
 package org.b333vv.metric.task;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-
-import static org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packageLevelFitnessFunctionResult;
-import static org.b333vv.metric.task.MetricTaskManager.getPackageModel;
 
 public class PackageFitnessFunctionsTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles package level fitness functions from cache";
@@ -37,19 +34,19 @@ public class PackageFitnessFunctionsTask extends Task.Backgroundable {
     private static final String FINISHED_MESSAGE = "Building package level fitness functions finished";
     private static final String CANCELED_MESSAGE = "Building package level fitness functions canceled";
 
-    public PackageFitnessFunctionsTask() {
-        super(MetricsUtils.getCurrentProject(), "Building package level fitness functions");
+    public PackageFitnessFunctionsTask(Project project) {
+        super(project, "Building package level fitness functions");
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
+        Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
         if (packageFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = getPackageModel(indicator);
-            packageFitnessFunctions = packageLevelFitnessFunctionResult(javaProject);
-            MetricTaskCache.instance().putUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION, packageFitnessFunctions);
+            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getPackageModel(indicator);
+            packageFitnessFunctions = org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packageLevelFitnessFunctionResult(myProject, javaProject);
+            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION, packageFitnessFunctions);
         }
     }
 
