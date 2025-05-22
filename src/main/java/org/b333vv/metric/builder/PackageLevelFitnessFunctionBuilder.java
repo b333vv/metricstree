@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.builder;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -28,14 +29,13 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.ui.settings.fitnessfunction.FitnessFunctionItem;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
-import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.*;
 
 public class PackageLevelFitnessFunctionBuilder {
-    public static Map<FitnessFunction, Set<JavaPackage>> packageLevelFitnessFunctionResult(JavaProject javaProject) {
+    public static Map<FitnessFunction, Set<JavaPackage>> packageLevelFitnessFunctionResult(Project project, JavaProject javaProject) {
         Map<FitnessFunction, Set<JavaPackage>> fitnessFunctionResult = new TreeMap<>();
-        for (FitnessFunction profile : fitnessFunctionResult()) {
+        for (FitnessFunction profile : fitnessFunctionResult(project)) {
             Set<JavaPackage> packages = new HashSet<>();
             javaProject.allPackages()
                     .forEach(p -> {
@@ -66,9 +66,8 @@ public class PackageLevelFitnessFunctionBuilder {
     }
 
 
-    private static Set<FitnessFunction> fitnessFunctionResult() {
-        PackageLevelFitnessFunctions packageLevelFitnessFunctions = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                PackageLevelFitnessFunctions.class);
+    private static Set<FitnessFunction> fitnessFunctionResult(Project project) {
+        PackageLevelFitnessFunctions packageLevelFitnessFunctions = project.getService(PackageLevelFitnessFunctions.class);
         Map<String, List<FitnessFunctionItem>> fitnessFunction = packageLevelFitnessFunctions.getProfiles();
         Set<FitnessFunction> result = new HashSet<>();
         for (Map.Entry<String, List<FitnessFunctionItem>> entry : fitnessFunction.entrySet()) {

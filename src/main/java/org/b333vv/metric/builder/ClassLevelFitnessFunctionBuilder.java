@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.builder;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
@@ -29,14 +30,13 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.ui.settings.fitnessfunction.FitnessFunctionItem;
 import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
-import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.*;
 
 public class ClassLevelFitnessFunctionBuilder {
-    public static Map<FitnessFunction, Set<JavaClass>> classesByMetricsProfileDistribution(JavaProject javaProject) {
+    public static Map<FitnessFunction, Set<JavaClass>> classesByMetricsProfileDistribution(Project project, JavaProject javaProject) {
         Map<FitnessFunction, Set<JavaClass>> fitnessFunctionResult = new TreeMap<>();
-        for (FitnessFunction profile : fitnessFunctionResult()) {
+        for (FitnessFunction profile : fitnessFunctionResult(project)) {
             Set<JavaClass> classes = new HashSet<>();
             javaProject.allClasses()
                     .forEach(c -> {
@@ -76,9 +76,8 @@ public class ClassLevelFitnessFunctionBuilder {
     }
 
 
-    private static Set<FitnessFunction> fitnessFunctionResult() {
-        ClassLevelFitnessFunctions classLevelFitnessFunctions = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                ClassLevelFitnessFunctions.class);
+    private static Set<FitnessFunction> fitnessFunctionResult(Project project) {
+        ClassLevelFitnessFunctions classLevelFitnessFunctions = project.getService(ClassLevelFitnessFunctions.class);
         Map<String, List<FitnessFunctionItem>> savedProfiles = classLevelFitnessFunctions.getProfiles();
         Set<FitnessFunction> profiles = new HashSet<>();
         for (Map.Entry<String, List<FitnessFunctionItem>> entry : savedProfiles.entrySet()) {

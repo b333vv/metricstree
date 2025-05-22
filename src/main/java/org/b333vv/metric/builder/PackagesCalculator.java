@@ -29,13 +29,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.builder.PackagesModelBuilder;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.util.MetricsUtils;
 
 public class PackagesCalculator {
 
     private final AnalysisScope scope;
     private final PackagesModelBuilder packagesModelBuilder;
-    private final JavaProject javaProject = new JavaProject(MetricsUtils.getCurrentProject().getName());
+    private final JavaProject javaProject;
 
     private ProgressIndicator indicator;
     private int filesCount;
@@ -43,6 +42,7 @@ public class PackagesCalculator {
 
     public PackagesCalculator(AnalysisScope scope) {
         this.scope = scope;
+        this.javaProject = new JavaProject(scope.getProject().getName());
         packagesModelBuilder = new PackagesModelBuilder(javaProject);
     }
 

@@ -16,12 +16,12 @@
 
 package org.b333vv.metric.export;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.util.MetricsUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +31,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CsvPackageMetricsExporter implements Exporter {
+
+    private final Project project;
+
+    public CsvPackageMetricsExporter(Project project) {
+        this.project = project;
+    }
 
     public void export(String fileName, JavaProject javaProject) {
         File csvOutputFile = new File(fileName);
@@ -50,11 +56,11 @@ public class CsvPackageMetricsExporter implements Exporter {
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
 //            MetricsUtils.getConsole().error(e.getMessage());
         }
         if (csvOutputFile.exists()) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
 //            MetricsUtils.getConsole().info("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }

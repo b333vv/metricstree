@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.export;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.MethodSignature;
@@ -24,7 +25,6 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.util.MetricsUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +35,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CsvMethodMetricsExporter implements Exporter {
+
+    private final Project project;
+
+    public CsvMethodMetricsExporter(Project project) {
+        this.project = project;
+    }
 
     public void export(String fileName, JavaProject javaProject) {
         File csvOutputFile = new File(fileName);
@@ -56,10 +62,10 @@ public class CsvMethodMetricsExporter implements Exporter {
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
 //            MetricsUtils.getConsole().error(e.getMessage());
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
         }
         if (csvOutputFile.exists()) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
 //            MetricsUtils.getConsole().info("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }
