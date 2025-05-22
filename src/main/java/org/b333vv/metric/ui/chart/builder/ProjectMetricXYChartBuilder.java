@@ -84,7 +84,7 @@ public class ProjectMetricXYChartBuilder {
 
         instability.forEach((k, v) -> {
             XYSeries xySeries = chart.addSeries(k, List.of(v), List.of(abstractness.get(k)));
-            if (MetricsService.getRangeForMetric(MetricType.D)
+            if (project.getService(MetricsService.class).getRangeForMetric(MetricType.D)
                     .getRangeType(Value.of(Math.abs(1.0 - v - abstractness.get(k)))) == RangeType.REGULAR) {
                 xySeries.setMarkerColor(new JBColor(new Color(0x499C54), new Color(0x499C54)));
             } else {

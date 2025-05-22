@@ -101,7 +101,7 @@ public class MetricsRangesTable {
     private List<MetricTypeRange> metricTypeRanges() {
         List<MetricTypeRange> result = new ArrayList<>();
         metricTypes.forEach(mt -> {
-            Range range = MetricsService.getRangeForMetric(mt);
+            Range range = project.getService(MetricsService.class).getRangeForMetric(mt);
             MetricTypeRange metricTypeRange = new MetricTypeRange(mt, range);
             result.add(metricTypeRange);
         });

@@ -165,7 +165,7 @@ public class MetricTypeSelectorTable {
             return javaClasses.stream()
                     .map(javaClass -> javaClass.metric(metricType))
                     .filter(Objects::nonNull)
-                    .anyMatch(metric -> MetricsService.getRangeForMetric(metricType)
+                    .anyMatch(metric -> project.getService(MetricsService.class).getRangeForMetric(metricType)
                             .getRangeType(metric.getValue()) == rangeType);
         }
     }

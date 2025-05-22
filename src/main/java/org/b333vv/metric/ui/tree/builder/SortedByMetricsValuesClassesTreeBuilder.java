@@ -46,7 +46,7 @@ public class SortedByMetricsValuesClassesTreeBuilder {
 
         classesByMetricTypes.forEach((key, value) -> {
             if (value.values().stream()
-                    .anyMatch(m -> MetricsService.getRangeForMetric(m.getType()).getRangeType(m.getValue()) != RangeType.REGULAR)) {
+                    .anyMatch(m -> project.getService(MetricsService.class).getRangeForMetric(m.getType()).getRangeType(m.getValue()) != RangeType.REGULAR)) {
                 MetricTypeNode metricTypeNode = new MetricTypeNode(key);
                 projectNode.add(metricTypeNode);
                 GrouppingNode high = new GrouppingNode("high", MetricsIcons.HIGH_COLOR);
@@ -57,15 +57,15 @@ public class SortedByMetricsValuesClassesTreeBuilder {
                 metricTypeNode.add(extreme);
 
                 value.forEach((k, v) -> {
-                    if (MetricsService.getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.HIGH) {
+                    if (project.getService(MetricsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.HIGH) {
                         SortedByMetricsValueClassNode sortedByMetricsValueClassNode = new SortedByMetricsValueClassNode(k, v);
                         high.add(sortedByMetricsValueClassNode);
                     }
-                    if (MetricsService.getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.VERY_HIGH) {
+                    if (project.getService(MetricsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.VERY_HIGH) {
                         SortedByMetricsValueClassNode sortedByMetricsValueClassNode = new SortedByMetricsValueClassNode(k, v);
                         veryHigh.add(sortedByMetricsValueClassNode);
                     }
-                    if (MetricsService.getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.EXTREME) {
+                    if (project.getService(MetricsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.EXTREME) {
                         SortedByMetricsValueClassNode sortedByMetricsValueClassNode = new SortedByMetricsValueClassNode(k, v);
                         extreme.add(sortedByMetricsValueClassNode);
                     }

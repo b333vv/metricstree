@@ -46,7 +46,7 @@ public class MetricTypeNode extends AbstractNode {
     public void render(TreeCellRenderer renderer) {
         renderer.setIcon(getIcon());
         renderer.append(getMetricTypeName());
-//        renderer.append(": " + MetricsService.getRangeForMetric(metricType).toString());
+//        renderer.append(": " + project.getService(MetricsService.class).getRangeForMetric(metricType).toString());
 //        renderer.append(" [" + this.children.size() + " classes]", SimpleTextAttributes.GRAY_SMALL_ATTRIBUTES);
     }
 }

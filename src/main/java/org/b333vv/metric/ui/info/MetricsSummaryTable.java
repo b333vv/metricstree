@@ -191,9 +191,9 @@ public class MetricsSummaryTable {
                     }
                 case 5:
                     if (metric.getType().set() == MetricSet.MOOD) {
-                        return MetricsService.getRangeForMetric(metric.getType()).percentageFormat();
+                        return project.getService(MetricsService.class).getRangeForMetric(metric.getType()).percentageFormat();
                     } else {
-                        return MetricsService.getRangeForMetric(metric.getType()).toString();
+                        return project.getService(MetricsService.class).getRangeForMetric(metric.getType()).toString();
                     }
                 default:
                     return metric;
@@ -204,16 +204,16 @@ public class MetricsSummaryTable {
             if (metric.getValue() == Value.UNDEFINED) {
                 return MetricsIcons.NA;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                 return MetricsIcons.HIGH_COLOR;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                 return MetricsIcons.VERY_HIGH_COLOR;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                 return MetricsIcons.EXTREME_COLOR;
             }
             return MetricsIcons.NOT_TRACKED;

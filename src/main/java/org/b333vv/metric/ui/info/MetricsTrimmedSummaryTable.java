@@ -151,15 +151,15 @@ public class MetricsTrimmedSummaryTable {
             if (metric.getValue() == Value.UNDEFINED) {
                 return "-";
             }
-            Value to = MetricsService.getRangeForMetric(metric.getType()).getRegularTo();
-            Value from = MetricsService.getRangeForMetric(metric.getType()).getRegularFrom();
+            Value to = project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRegularTo();
+            Value from = project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRegularFrom();
             if (to == Value.UNDEFINED || from == Value.UNDEFINED) {
                 return "-";
             }
             if (metric.getValue().isLessThan(from)) {
                 return "-" + from.minus(metric.getValue());
             }
-            if (MetricsService.getRangeForMetric(metric.getType()) instanceof BasicMetricsRange) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()) instanceof BasicMetricsRange) {
                 if (metric.getValue().isEqualsOrGreaterThan(to)) {
                     return "+" + metric.getValue().minus(to).plus(Value.ONE);
                 }
@@ -175,16 +175,16 @@ public class MetricsTrimmedSummaryTable {
             if (metric.getValue() == Value.UNDEFINED) {
                 return MetricsIcons.NA;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                 return MetricsIcons.HIGH_COLOR;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                 return MetricsIcons.VERY_HIGH_COLOR;
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                 return MetricsIcons.EXTREME_COLOR;
             }
             return MetricsIcons.NOT_TRACKED;

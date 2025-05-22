@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.model.code;
 
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -25,11 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class JavaProject extends JavaCode {
+//    private final Project project;
     private final Map<String, JavaPackage> allPackages;
     private final Set<JavaClass> allClasses;
 
-    public JavaProject(@NotNull String name) {
+    public JavaProject(@NotNull String name/*, @NotNull Project project*/) {
         super(name);
+//        this.project = project;
         allPackages = new ConcurrentHashMap<>();
         allClasses = new ConcurrentHashMap<JavaClass, Boolean>().keySet(true);
     }

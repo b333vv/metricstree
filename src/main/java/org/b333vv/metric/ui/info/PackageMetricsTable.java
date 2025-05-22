@@ -170,7 +170,7 @@ public class PackageMetricsTable {
         }
 
         private Icon getImageForRow(double distance) {
-            if (MetricsService.getRangeForMetric(MetricType.D)
+            if (project.getService(MetricsService.class).getRangeForMetric(MetricType.D)
                     .getRangeType(Value.of(distance)) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }

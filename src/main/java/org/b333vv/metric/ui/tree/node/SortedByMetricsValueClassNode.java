@@ -38,7 +38,9 @@ public class SortedByMetricsValueClassNode extends ClassNode {
 
     private String getDelta() {
         return " [+" + metric.getValue()
-                .minus(MetricsService.getRangeForMetric(metric.getType()).getRegularTo())
+                .minus(javaClass.getPsiClass().getProject().getService(
+                        MetricsService.class
+                ).getRangeForMetric(metric.getType()).getRegularTo())
                 .plus(Value.ONE) + "]";
     }
 

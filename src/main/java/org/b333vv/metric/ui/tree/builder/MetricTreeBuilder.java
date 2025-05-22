@@ -102,14 +102,14 @@ public abstract class MetricTreeBuilder {
         MetricsTreeFilter metricsTreeFilter = getMetricsTreeFilter();
         return metricsTreeFilter.isAllowedValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
-                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR
+                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR
                 || metricsTreeFilter.isDisallowedValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
-                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
-                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED
+                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
+                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED
                 || metricsTreeFilter.isNotSetValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
-                    && MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
+                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
                 || metricsTreeFilter.isNotApplicableMetricsVisible()
                     && metric.getValue() == Value.UNDEFINED;
     }

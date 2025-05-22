@@ -57,19 +57,19 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
 
             Value value = rectangle.getNode().metric(metricType).getValue();
 
-            if (MetricsService.getRangeForMetric(metricType).getRangeType(value) == RangeType.UNDEFINED) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.UNDEFINED) {
                 return UNDEFINED;
             }
-            if (MetricsService.getRangeForMetric(metricType).getRangeType(value) == RangeType.REGULAR) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.REGULAR) {
                 return REGULAR;
             }
-            if (MetricsService.getRangeForMetric(metricType).getRangeType(value) == RangeType.HIGH) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.HIGH) {
                 return HIGH;
             }
-            if (MetricsService.getRangeForMetric(metricType).getRangeType(value) == RangeType.VERY_HIGH) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.VERY_HIGH) {
                 return VERY_HIGH;
             }
-            if (MetricsService.getRangeForMetric(metricType).getRangeType(value) == RangeType.EXTREME) {
+            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.EXTREME) {
                 return EXTREME;
             }
         }
