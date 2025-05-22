@@ -32,8 +32,8 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            CategoryChartTask categoryChartTask = new CategoryChartTask();
-            MetricTaskCache.runTask(categoryChartTask);
+            CategoryChartTask categoryChartTask = new CategoryChartTask(project);
+            MetricTaskCache.runTask(project, categoryChartTask);
         }
     }
 
@@ -42,12 +42,12 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
-                BasicMetricsValidRangesSettings.class);
+                    BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
-                    MetricsService.isControlValidRanges()
-                    && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
+                    project.getService(MetricsService.class).isControlValidRanges()
+                            && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level"))
-                    && MetricTaskCache.isQueueEmpty());
+                            && MetricTaskCache.isQueueEmpty(project));
         }
     }
 }

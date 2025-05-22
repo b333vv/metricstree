@@ -22,9 +22,7 @@ import git4idea.GitUtil;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.task.ProjectMetricsHistoryXyChartTask;
-import org.b333vv.metric.task.XyChartTask;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
@@ -34,13 +32,19 @@ public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            ProjectMetricsHistoryXyChartTask projectMetricsHistoryXyChartTask = new ProjectMetricsHistoryXyChartTask();
-            MetricTaskCache.runTask(projectMetricsHistoryXyChartTask);
+            ProjectMetricsHistoryXyChartTask projectMetricsHistoryXyChartTask = new ProjectMetricsHistoryXyChartTask(project);
+            MetricTaskCache.runTask(project, projectMetricsHistoryXyChartTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
+        Project project = e.getProject();
+        if (project == null) {
+            e.getPresentation().setEnabled(false);
+            return;
+        }
+        e.getPresentation().setEnabled(project.getService(MetricsService.class).isProjectMetricsStampStored()
+                && MetricTaskCache.isQueueEmpty(project));
     }
 }

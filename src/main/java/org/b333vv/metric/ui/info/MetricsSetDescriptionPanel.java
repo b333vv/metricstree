@@ -16,13 +16,13 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricSet;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -35,8 +35,10 @@ import static java.awt.GridBagConstraints.NORTHWEST;
 public class MetricsSetDescriptionPanel {
     private final JEditorPane metricDescription;
     private final JPanel rightMetricPanel;
+    private final Project project;
 
-    public MetricsSetDescriptionPanel() {
+    public MetricsSetDescriptionPanel(Project project) {
+        this.project = project;
         rightMetricPanel = new JPanel(new GridBagLayout());
         metricDescription = new JEditorPane();
         metricDescription.setContentType("text/html");
@@ -69,7 +71,7 @@ public class MetricsSetDescriptionPanel {
             URL url = MetricsSetDescriptionPanel.class.getResource(stringUrl);
             metricDescription.setPage(url);
         } catch (Exception e) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
 //            MetricsUtils.getConsole().error(e.getMessage());
             metricDescription.setContentType("text/html");
             metricDescription.setText("<html>Page not found.</html>");

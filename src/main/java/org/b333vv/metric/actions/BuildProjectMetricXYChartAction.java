@@ -32,8 +32,8 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            XyChartTask xyChartTask = new XyChartTask();
-            MetricTaskCache.runTask(xyChartTask);
+            XyChartTask xyChartTask = new XyChartTask(project);
+            MetricTaskCache.runTask(project, xyChartTask);
         }
     }
 
@@ -42,12 +42,12 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
-                BasicMetricsValidRangesSettings.class);
+                    BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
-                    MetricsService.isControlValidRanges()
-                    && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
+                    project.getService(MetricsService.class).isControlValidRanges()
+                            && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Package Level"))
-                    && MetricTaskCache.isQueueEmpty());
+                            && MetricTaskCache.isQueueEmpty(project));
         }
     }
 }

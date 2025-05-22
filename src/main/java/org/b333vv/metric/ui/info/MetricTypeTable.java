@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.info;
 
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -26,7 +27,6 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.EditorController;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -35,8 +35,10 @@ public class MetricTypeTable {
     private final Model model;
     private final JBScrollPane panel;
     private final List<MetricType> metricTypes;
+    private final Project project;
 
-    public MetricTypeTable(List<MetricType> metricTypes) {
+    public MetricTypeTable(Project project, List<MetricType> metricTypes) {
+        this.project = project;
         this.metricTypes = metricTypes;
 
         model = new Model();
@@ -56,7 +58,7 @@ public class MetricTypeTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
             MetricType metricType = (MetricType) selectedCell;
-            MetricsUtils.getCurrentProject()
+            this.project
                     .getMessageBus().syncPublisher(MetricsEventListener.TOPIC).currentMetricType(metricType);
         });
 

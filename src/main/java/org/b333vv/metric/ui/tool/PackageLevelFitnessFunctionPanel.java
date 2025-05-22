@@ -36,7 +36,6 @@ import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.settings.fitnessfunction.FitnessFunctionItem;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
-import org.b333vv.metric.util.MetricsUtils;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 
@@ -77,8 +76,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     public PackageLevelFitnessFunctionPanel(Project project) {
         super(false, true);
         this.project = project;
-        PackageLevelFitnessFunctions packageLevelFitnessFunctions = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                PackageLevelFitnessFunctions.class);
+        PackageLevelFitnessFunctions packageLevelFitnessFunctions = project.getService(PackageLevelFitnessFunctions.class);
         fitnessFunctionDescriptionMap = packageLevelFitnessFunctions.getProfilesDescription();
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
@@ -91,16 +89,16 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
     private void createProfileUIComponents() {
         fitnessFunctionPanel = new JBPanel<>(new BorderLayout());
-        packageLevelFitnessFunctionList = new PackageLevelFitnessFunctionList();
+        packageLevelFitnessFunctionList = new PackageLevelFitnessFunctionList(this.project);
         fitnessFunctionPanel.add(packageLevelFitnessFunctionList.getComponent());
         fitnessFunctionPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
 
         packagesPanel = new JBPanel<>(new BorderLayout());
-        packagesTable = new PackageLevelFitnessFunctionPackageTable();
+        packagesTable = new PackageLevelFitnessFunctionPackageTable(this.project);
         packagesPanel.add(packagesTable.getComponent());
 
         classesPanel = new JBPanel<>(new BorderLayout());
-        classesTable = new PackageLevelFitnessFunctionClassTable();
+        classesTable = new PackageLevelFitnessFunctionClassTable(this.project);
         classesPanel.add(classesTable.getComponent());
 
         metricsPanel = new JBPanel<>(new BorderLayout());
@@ -204,7 +202,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_TREE_MAP_1"), rightPanel,
                 "PROFILE_TREE_MAP_2"));
 
-        packageLevelFitnessFunctionList = new PackageLevelFitnessFunctionList();
+        packageLevelFitnessFunctionList = new PackageLevelFitnessFunctionList(this.project);
         packageLevelFitnessFunctionList.hideColumn(2);
         packageLevelFitnessFunctionList.setBorder("Select Profile");
         packageLevelFitnessFunctionList.setProfiles(new TreeMap<>(fitnessFunctionResult));
@@ -232,7 +230,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void packageLevelFitnessFunctionIsReady() {
             createProfileUIComponents();
-            fitnessFunctionResult = MetricTaskCache.instance().getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
+            fitnessFunctionResult = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
             if (fitnessFunctionResult != null) {
                 showResult();
             }
@@ -240,9 +238,9 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void xyChartIsReady() {
-            Map<String, Double> instability = MetricTaskCache.instance().getUserData(MetricTaskCache.INSTABILITY);
-            Map<String, Double> abstractness = MetricTaskCache.instance().getUserData(MetricTaskCache.ABSTRACTNESS);
-            XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.XY_CHART);
+            Map<String, Double> instability = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.INSTABILITY);
+            Map<String, Double> abstractness = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.ABSTRACTNESS);
+            XYChart xyChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.XY_CHART);
             showResults(xyChart, instability, abstractness);
         }
 

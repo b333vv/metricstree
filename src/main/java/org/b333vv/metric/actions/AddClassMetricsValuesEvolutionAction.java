@@ -37,7 +37,7 @@ class AddClassMetricsValuesEvolutionAction extends AbstractAction {
         if (project != null && psiJavaFile != null) {
             ClassMetricsValuesEvolutionProcessor classMetricsValuesEvolutionProcessor = new ClassMetricsValuesEvolutionProcessor(psiJavaFile);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassMetricsValuesEvolutionTree();
-            MetricsUtils.getDumbService().runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
+            MetricsUtils.getDumbService(project).runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
             MetricsUtils.setClassMetricsValuesEvolutionAdded(true);
         }
     }
@@ -50,10 +50,10 @@ class AddClassMetricsValuesEvolutionAction extends AbstractAction {
                 psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
                 event.getPresentation().setEnabled(
                         !MetricsUtils.isMetricsEvolutionCalculationPerforming()
-                        && project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()
-                        && psiJavaFile != null
-                        && GitUtil.isUnderGit(psiJavaFile.getVirtualFile())
-                        && !MetricsUtils.isClassMetricsValuesEvolutionAdded());
+                                && project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()
+                                && psiJavaFile != null
+                                && GitUtil.isUnderGit(psiJavaFile.getVirtualFile())
+                                && !MetricsUtils.isClassMetricsValuesEvolutionAdded());
 
             });
         }

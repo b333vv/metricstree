@@ -111,7 +111,7 @@ public final class MetricTaskCache implements UserDataHolder, Disposable {
 
     private void processNextTask() {
         if (isProcessing) return;
-        
+
         Task.Backgroundable nextTask = taskQueue.poll();
         if (nextTask != null) {
             isProcessing = true;

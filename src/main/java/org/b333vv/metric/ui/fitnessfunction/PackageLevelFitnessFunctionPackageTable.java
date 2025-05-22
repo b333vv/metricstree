@@ -99,7 +99,7 @@ public class PackageLevelFitnessFunctionPackageTable {
         }
 
         @Override
-            public Object getValueAt(int row, int column) {
+        public Object getValueAt(int row, int column) {
             JavaPackage javaPackage = rows.get(row);
             return switch (column) {
                 case 0, 1 -> javaPackage;

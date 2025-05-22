@@ -84,8 +84,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     public ClassLevelFitnessFunctionPanel(Project project) {
         super(false, true);
         this.project = project;
-        ClassLevelFitnessFunctions packageLevelFitnessFunctions = MetricsUtils.get(MetricsUtils.getCurrentProject(),
-                ClassLevelFitnessFunctions.class);
+        ClassLevelFitnessFunctions packageLevelFitnessFunctions = project.getService(ClassLevelFitnessFunctions.class);
         fitnessFunctionDescriptionMap = packageLevelFitnessFunctions.getProfilesDescription();
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
@@ -338,7 +337,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void classLevelFitnessFunctionIsReady() {
             createProfileUIComponents();
-            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+            distribution = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
             if (distribution != null) {
                 showProfiles();
             }
@@ -365,26 +364,26 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void profilesBoxChartIsReady() {
-            List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList = MetricTaskCache.instance()
+            List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList = project.getService(MetricTaskCache.class)
                     .getUserData(MetricTaskCache.BOX_CHARTS);
             showBoxCharts(Objects.requireNonNull(boxChartList));
         }
 
         @Override
         public void profilesHeatMapChartIsReady() {
-            HeatMapChart heatMapChart = MetricTaskCache.instance().getUserData(MetricTaskCache.HEAT_MAP_CHART);
+            HeatMapChart heatMapChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.HEAT_MAP_CHART);
             showResults(Objects.requireNonNull(heatMapChart));
         }
 
         @Override
         public void profilesRadarChartIsReady() {
-            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = MetricTaskCache.instance().getUserData(MetricTaskCache.RADAR_CHART);
+            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.RADAR_CHART);
             showRadarCharts(Objects.requireNonNull(radarCharts));
         }
 
         @Override
         public void profilesCategoryChartIsReady() {
-            CategoryChart categoryChart = MetricTaskCache.instance().getUserData(MetricTaskCache.PROFILE_CATEGORY_CHART);
+            CategoryChart categoryChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_CATEGORY_CHART);
             showResults(Objects.requireNonNull(categoryChart));
         }
 
@@ -400,8 +399,8 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void profileTreeMapIsReady() {
-            treeMap = MetricTaskCache.instance().getUserData(MetricTaskCache.PROFILE_TREE_MAP);
-            distribution = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+            treeMap = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_TREE_MAP);
+            distribution = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
             if (treeMap != null && distribution != null) {
                 showTreeMap();
             }
@@ -415,7 +414,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void profileTreeMapCellClicked(JavaClass javaClass) {
             if (MetricsUtils.isProfileAutoScrollable()) {
-                MetricsUtils.openInEditor(javaClass.getPsiClass());
+                MetricsUtils.openInEditor(project, javaClass.getPsiClass());
             }
             metricsTrimmedSummaryTable.set(javaClass);
         }

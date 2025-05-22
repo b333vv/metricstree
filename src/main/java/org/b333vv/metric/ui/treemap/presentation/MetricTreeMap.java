@@ -16,11 +16,11 @@
 
 package org.b333vv.metric.ui.treemap.presentation;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.*;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,13 +55,15 @@ public class MetricTreeMap<N> extends JPanel {
     protected ColorProvider<N, Color> colorProvider;
     protected List<SelectionChangeListener<N>> listeners;
     protected GraphicsConfiguration gc;
+    private final Project project;
 
-    public MetricTreeMap() {
-        this(true);
+    public MetricTreeMap(Project project) {
+        this(project, true);
     }
 
-    public MetricTreeMap(final boolean supportNavigation) {
+    public MetricTreeMap(Project project, final boolean supportNavigation) {
         super();
+        this.project = project;
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent componentevent) {
@@ -270,7 +272,7 @@ public class MetricTreeMap<N> extends JPanel {
         }
     }
 
-    private static class Worker<N> extends SwingWorker<TreeModel<Rectangle<N>>, Object> {
+    private class Worker<N> extends SwingWorker<TreeModel<Rectangle<N>>, Object> {
 
         private final BuildControl buildControl;
         private final MetricTreeMap<N> metricTreeMap;
@@ -330,7 +332,7 @@ public class MetricTreeMap<N> extends JPanel {
                     metricTreeMap.repaint();
                 }
             } catch (InterruptedException | ExecutionException e) {
-                MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+                MetricTreeMap.this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
             }
         }
     }

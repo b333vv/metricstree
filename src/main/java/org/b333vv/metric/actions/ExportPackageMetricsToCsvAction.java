@@ -18,12 +18,10 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.task.ExportClassMetricsToCsvTask;
 import org.b333vv.metric.task.ExportPackageMetricsToCsvTask;
 import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.task.MetricTaskManager;
 import org.jetbrains.annotations.NotNull;
-
-import static org.b333vv.metric.task.MetricTaskManager.getFileName;
 
 public class ExportPackageMetricsToCsvAction extends AbstractAction {
     @Override
@@ -31,16 +29,17 @@ public class ExportPackageMetricsToCsvAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            String fileName = getFileName("csv", project);
+            String fileName = MetricTaskManager.getFileName("csv", project);
             if (fileName != null && !fileName.isBlank()) {
-                ExportPackageMetricsToCsvTask exportToCsvTask = new ExportPackageMetricsToCsvTask(fileName);
-                MetricTaskCache.runTask(exportToCsvTask);
+                ExportPackageMetricsToCsvTask exportToCsvTask = new ExportPackageMetricsToCsvTask(project, fileName);
+                MetricTaskCache.runTask(project, exportToCsvTask);
             }
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
+        Project project = e.getProject();
+        e.getPresentation().setEnabled(project != null && MetricTaskCache.isQueueEmpty(project));
     }
 }

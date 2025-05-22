@@ -16,10 +16,10 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.ButtonsEventListener;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,8 +32,10 @@ public class ProjectMetricsHistoryBottomPanel {
     private final JPanel panel;
     JButton plusButton = new JButton("+");
     JButton minusButton = new JButton("-");
+    private final Project project;
 
-    public ProjectMetricsHistoryBottomPanel() {
+    public ProjectMetricsHistoryBottomPanel(Project project) {
+        this.project = project;
         panel = new JPanel(new GridBagLayout());
 
 
@@ -61,11 +63,11 @@ public class ProjectMetricsHistoryBottomPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             if ("+".equals(e.getActionCommand())) {
-                MetricsUtils.getCurrentProject().getMessageBus()
+                this.project.getMessageBus()
                         .syncPublisher(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC).plusButtonPressed(plusButton, minusButton);
             }
             if ("-".equals(e.getActionCommand())) {
-                MetricsUtils.getCurrentProject().getMessageBus()
+                this.project.getMessageBus()
                         .syncPublisher(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC).minusButtonPressed(plusButton, minusButton);
             }
         }

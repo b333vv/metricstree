@@ -36,7 +36,7 @@ public class CalculateClassMetricsEvolutionAction extends AbstractAction {
             if (psiJavaFile != null) {
                 ClassMetricsValuesEvolutionProcessor classMetricsValuesEvolutionProcessor = new ClassMetricsValuesEvolutionProcessor(psiJavaFile);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassMetricsValuesEvolutionTree();
-                MetricsUtils.getDumbService().runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
+                MetricsUtils.getDumbService(project).runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
             }
         }
     }

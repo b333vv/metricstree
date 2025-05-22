@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.JBInsets;
@@ -27,7 +28,6 @@ import org.b333vv.metric.model.metric.MetricType;
 import icons.MetricsIcons;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -43,8 +43,10 @@ public class MetricsDescriptionPanel {
     private final JLabel currentValue;
     private final JLabel metricLevel;
     private final JLabel metricSet;
+    private final Project project;
 
-    public MetricsDescriptionPanel() {
+    public MetricsDescriptionPanel(Project project) {
+        this.project = project;
         rightMetricPanel = new JPanel(new GridBagLayout());
         JLabel allowableRangeLabel = new JLabel("Regular Range:");
         allowableRangeValue = new JLabel();
@@ -102,29 +104,29 @@ public class MetricsDescriptionPanel {
         metricLevel.setText(metric.getType().level().level());
         metricSet.setText(metric.getType().set().set());
         if (metric.getType().set() == MetricSet.MOOD) {
-            allowableRangeValue.setText(MetricsService.getRangeForMetric(metric.getType()).percentageFormat());
+            allowableRangeValue.setText(this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).percentageFormat());
             currentValue.setText(metric.getValue().percentageFormat());
         } else {
-            allowableRangeValue.setText(MetricsService.getRangeForMetric(metric.getType()).toString());
+            allowableRangeValue.setText(this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).toString());
             currentValue.setText(metric.getValue().toString());
         }
 
         showDescription(metric.getType().url());
 
-        if (MetricsService.isControlValidRanges()) {
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+        if (this.project.getService(MetricsService.class).isControlValidRanges()) {
+            if (this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 currentValue.setIcon(MetricsIcons.REGULAR_COLOR);
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            if (this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                 currentValue.setIcon(MetricsIcons.HIGH_COLOR);
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            if (this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                 currentValue.setIcon(MetricsIcons.VERY_HIGH_COLOR);
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            if (this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                 currentValue.setIcon(MetricsIcons.EXTREME_COLOR);
             }
-            if (MetricsService.getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
+            if (this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
                 currentValue.setIcon(MetricsIcons.NOT_TRACKED);
             }
         } else {
@@ -159,7 +161,7 @@ public class MetricsDescriptionPanel {
             URL url = MetricsDescriptionPanel.class.getResource(stringUrl);
             metricDescription.setPage(url);
         } catch (Exception e) {
-            MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
 //            MetricsUtils.getConsole().error(e.getMessage());
             metricDescription.setContentType("text/html");
             metricDescription.setText("<html>Page not found.</html>");

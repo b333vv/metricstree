@@ -33,8 +33,8 @@ public class BuildMetricsPieChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            PieChartTask pieChartTask = new PieChartTask();
-            MetricTaskCache.runTask(pieChartTask);
+            PieChartTask pieChartTask = new PieChartTask(project);
+            MetricTaskCache.runTask(project, pieChartTask);
         }
     }
 
@@ -43,12 +43,12 @@ public class BuildMetricsPieChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
-                BasicMetricsValidRangesSettings.class);
+                    BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
-                    MetricsService.isControlValidRanges()
-                    && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
+                    project.getService(MetricsService.class).isControlValidRanges()
+                            && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level"))
-                    && MetricTaskCache.isQueueEmpty());
+                            && MetricTaskCache.isQueueEmpty(project));
         }
     }
 }

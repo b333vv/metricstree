@@ -44,14 +44,14 @@ import java.util.*;
 
 public final class MetricsUtils {
 
-//    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("MetricsTree Info", NotificationDisplayType.BALLOON, true);
+    //    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("MetricsTree Info", NotificationDisplayType.BALLOON, true);
     private final static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private final static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
 
     private static boolean projectAutoScrollable = true;
     private static boolean profileAutoScrollable = true;
     private static boolean classMetricsTreeExists = true;
-//    private static boolean classMetricsTreeExists = false;
+    //    private static boolean classMetricsTreeExists = false;
     private static boolean projectMetricsTreeActive = false;
     private static boolean classMetricsValuesEvolutionCalculationPerforming = false;
     private static boolean classMetricsValuesEvolutionAdded = false;
@@ -63,14 +63,8 @@ public final class MetricsUtils {
 
 //    public static MetricsUtils instance() {
 //        return ServiceManager.getService(MetricsUtils.class);
-////        return getCurrentProject().getService(MetricsUtils.class);
+    ////        return getCurrentProject().getService(MetricsUtils.class);
 //    }
-
-    public static synchronized MetricsConsole getConsole(Project project) {
-//        return getForProject(MetricsConsole.class);
-//        return getCurrentProject().getComponent(MetricsConsole.class);
-        return project.getService(MetricsConsole.class);
-    }
 
     public static void setClassMetricsValuesEvolutionCalculationPerforming(boolean value) {
         classMetricsValuesEvolutionCalculationPerforming = value;
@@ -122,10 +116,6 @@ public final class MetricsUtils {
 
     public static boolean isMetricsEvolutionCalculationPerforming() {
         return classMetricsValuesEvolutionCalculationPerforming;
-    }
-
-    public static <T> T getForProject(Project project, Class<T> clazz) {
-        return project.getService(clazz);
     }
 
 //    public static <T> T getProfiles(Class<T> clazz) {

@@ -16,10 +16,10 @@
 
 package org.b333vv.metric.ui.settings.fitnessfunction;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -38,9 +38,11 @@ public class MetricProfileItemTable {
     private final Supplier<ArrayList<String>> getMetricTypeList;
     private final JBTable table;
     private FitnessFunctionItem currentProfile;
+    private final Project project;
 
-    public MetricProfileItemTable(Consumer<FitnessFunctionItem> onAdd, Consumer<FitnessFunctionItem> onEdit,
+    public MetricProfileItemTable(Project project, Consumer<FitnessFunctionItem> onAdd, Consumer<FitnessFunctionItem> onEdit,
                                   Consumer<FitnessFunctionItem> onRemove, Supplier<ArrayList<String>> getMetricTypeList) {
+        this.project = project;
         this.onAdd = onAdd;
         this.onEdit = onEdit;
         this.onRemove = onRemove;
@@ -89,7 +91,7 @@ public class MetricProfileItemTable {
     }
 
     private void addEntry() {
-        AddMetricProfileItemDialog dialog = new AddMetricProfileItemDialog(MetricsUtils.getCurrentProject(), getMetricTypeList);
+        AddMetricProfileItemDialog dialog = new AddMetricProfileItemDialog(this.project, getMetricTypeList);
         if (dialog.showAndGet()) {
             FitnessFunctionItem item = dialog.getMetricProfileItem();
             if (item != null) {
@@ -99,7 +101,7 @@ public class MetricProfileItemTable {
     }
 
     private void editEntry() {
-        EditMetricProfileItemDialog dialog = new EditMetricProfileItemDialog(MetricsUtils.getCurrentProject(), currentProfile);
+        EditMetricProfileItemDialog dialog = new EditMetricProfileItemDialog(this.project, currentProfile);
         if (dialog.showAndGet()) {
             FitnessFunctionItem item = dialog.getMetricProfileItem();
             if (item != null) {

@@ -31,13 +31,14 @@ public class BuildPackageLevelFitnessFunctionAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearPackageFitnessFunctionPanel();
-            PackageFitnessFunctionsTask packageFitnessFunctionsTask = new PackageFitnessFunctionsTask();
-            MetricTaskCache.runTask(packageFitnessFunctionsTask);
+            PackageFitnessFunctionsTask packageFitnessFunctionsTask = new PackageFitnessFunctionsTask(project);
+            MetricTaskCache.runTask(project, packageFitnessFunctionsTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(e.getProject() != null && MetricTaskCache.isQueueEmpty());
+        Project project = e.getProject();
+        e.getPresentation().setEnabled(project != null && MetricTaskCache.isQueueEmpty(project));
     }
 }
