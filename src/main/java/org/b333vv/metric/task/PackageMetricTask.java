@@ -26,7 +26,6 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
-import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class PackageMetricTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles package level metrics from cache";

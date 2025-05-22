@@ -30,7 +30,6 @@ import org.b333vv.metric.ui.treemap.builder.TreeMapBuilder;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.jetbrains.annotations.NotNull;
 
-import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class MetricTreeMapTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles treemap with metric types distribution from cache";

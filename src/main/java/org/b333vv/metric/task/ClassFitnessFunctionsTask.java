@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.b333vv.metric.builder.ClassLevelFitnessFunctionBuilder.classesByMetricsProfileDistribution;
-import static org.b333vv.metric.task.MetricTaskManager.getClassAndMethodModel;
 
 public class ClassFitnessFunctionsTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles class level fitness functions from cache";

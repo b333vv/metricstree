@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 
-import static org.b333vv.metric.task.MetricTaskManager.getPackageModel;
 
 public class ProjectMetricTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles project level metrics from cache";

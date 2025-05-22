@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
 
-import static org.b333vv.metric.task.MetricTaskManager.getProjectModel;
 
 public class  ProjectTreeTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles tree model from cache";
