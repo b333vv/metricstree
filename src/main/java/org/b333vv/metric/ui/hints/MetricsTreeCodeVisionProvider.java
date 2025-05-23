@@ -105,7 +105,7 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
             return lenses;
         }
 
-        ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+        ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
         JavaFile javaFile = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
             JavaFile jf = classModelBuilder.buildJavaFile(psiJavaFile);
             return CachedValueProvider.Result.create(jf, psiJavaFile);
@@ -129,12 +129,11 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
     }
 
     private Pair<String, List<MetricType>> getHintForClass(PsiElement psiClass, JavaFile javaFile) {
-        MetricsUtils.setCurrentProject(psiClass.getProject());
         Optional<JavaClass> ojc = javaFile.classes().filter(c -> c.getName().equals(((PsiClass) psiClass).getName())).findFirst();
         List<MetricType> metricTypes = new ArrayList<>();
         if (ojc.isPresent()) {
             String hint = ojc.get().metrics()
-                    .filter(m -> MetricsService.isNotRegularValue(m.getType(), m.getValue()))
+                    .filter(m -> psiClass.getProject().getService(MetricsService.class).isNotRegularValue(m.getType(), m.getValue()))
                     .peek(m -> {
                         metricTypes.add(m.getType());
                     })

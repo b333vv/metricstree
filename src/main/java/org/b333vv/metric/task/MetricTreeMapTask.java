@@ -53,7 +53,7 @@ public class MetricTreeMapTask extends Task.Backgroundable {
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             TreeMapBuilder treeMapBuilder = new TreeMapBuilder(javaProject);
             metricTreeMap = treeMapBuilder.getTreeMap();
-            metricTreeMap.setColorProvider(new MetricTypeColorProvider(MetricType.NCSS));
+            metricTreeMap.setColorProvider(new MetricTypeColorProvider(MetricType.NCSS, myProject));
             metricTreeMap.setSelectionChangedAction((String text) ->
                     myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                             .setProjectPanelBottomText(text));

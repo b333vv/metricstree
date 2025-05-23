@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
@@ -32,8 +33,8 @@ public class MetricHistoryNode extends MetricNode {
     private final Value currentValue;
     private final Value previousValue;
 
-    public MetricHistoryNode(String dateTime, String id, Metric metric, Value previousValue) {
-        super(metric);
+    public MetricHistoryNode(String dateTime, String id, Metric metric, Value previousValue, Project project) {
+        super(metric, project);
         this.dateTime = dateTime;
         this.id = id;
         this.currentValue = metric.getValue();

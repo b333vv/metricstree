@@ -41,6 +41,7 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 
 public abstract class ModelBuilder {
 
+
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         JavaFile javaFile = new JavaFile(psiJavaFile.getName());
         Project project = psiJavaFile.getProject();

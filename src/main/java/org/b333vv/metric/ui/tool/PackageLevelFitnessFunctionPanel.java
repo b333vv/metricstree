@@ -33,7 +33,6 @@ import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.fitnessfunction.*;
 import org.b333vv.metric.ui.info.*;
-import org.b333vv.metric.ui.settings.fitnessfunction.FitnessFunctionItem;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.knowm.xchart.XChartPanel;
@@ -44,7 +43,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
-import java.util.List;
 
 public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     private JBPanel<?> fitnessFunctionPanel;
@@ -102,7 +100,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         classesPanel.add(classesTable.getComponent());
 
         metricsPanel = new JBPanel<>(new BorderLayout());
-        metricsSummaryTable = new MetricsSummaryTable(false);
+        metricsSummaryTable = new MetricsSummaryTable(false, project);
         metricsPanel.add(metricsSummaryTable.getComponent());
 
         super.setContent(createSplitter(fitnessFunctionPanel,
@@ -143,7 +141,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         PackageLevelFitnessFunctionPanel.CoordinateListener mouseListener = new PackageLevelFitnessFunctionPanel.CoordinateListener(xyChart);
         chartPanel.addMouseListener(mouseListener);
         mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
-        packageMetricsTable = new PackageMetricsTable(instability, abstractness);
+        packageMetricsTable = new PackageMetricsTable(instability, abstractness, project);
         JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 packageMetricsTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -215,7 +213,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         scrollableTreeMapPanel.getHorizontalScrollBar().setUnitIncrement(10);
         mainPanel.add(scrollableTreeMapPanel);
 
-        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable();
+        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable(project);
         JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricsTrimmedSummaryTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,

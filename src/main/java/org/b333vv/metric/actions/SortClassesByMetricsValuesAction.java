@@ -33,8 +33,8 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            ClassByMetricsTreeTask classByMetricsTreeTask = new ClassByMetricsTreeTask();
-            MetricTaskCache.runTask(classByMetricsTreeTask);
+            ClassByMetricsTreeTask classByMetricsTreeTask = new ClassByMetricsTreeTask(project);
+            MetricTaskCache.runTask(project,classByMetricsTreeTask);
         }
     }
 
@@ -45,7 +45,7 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
             e.getPresentation().setEnabled(false);
         } else {
             e.getPresentation().setEnabled(project.getService(BasicMetricsValidRangesSettings.class).isControlValidRanges()
-                    && MetricTaskCache.isQueueEmpty());
+                    && MetricTaskCache.isQueueEmpty(project));
         }
     }
 }

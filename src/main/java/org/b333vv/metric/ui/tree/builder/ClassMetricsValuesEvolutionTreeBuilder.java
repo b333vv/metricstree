@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.TimedVcsCommit;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
@@ -42,7 +43,8 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
     private final Map<EvolutionKey, Value> previousValue = new HashMap<>();
 
     public ClassMetricsValuesEvolutionTreeBuilder(JavaFile javaFile,
-                                                  Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution) {
+                                                  Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution,
+                                                  Project project) {
         super(javaFile, javaFile.classes().findAny().get().getPsiClass().getProject());
         this.classMetricsEvolution = classMetricsEvolution;
     }
@@ -88,7 +90,7 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
     }
 
     private void handleMetric(String hash, String dateTime, Metric m, EvolutionKey key) {
-        MetricHistoryNode historyNode = new MetricHistoryNode(dateTime, hash, m, previousValue.getOrDefault(key, Value.UNDEFINED));
+        MetricHistoryNode historyNode = new MetricHistoryNode(dateTime, hash, m, previousValue.getOrDefault(key, Value.UNDEFINED), project);
         if (classesAndMethodsMetrics.get(key) != null) {
             classesAndMethodsMetrics.get(key).insert(historyNode, 0);
             previousValue.put(key, m.getValue());

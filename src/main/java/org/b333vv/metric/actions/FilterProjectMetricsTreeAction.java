@@ -40,7 +40,7 @@ public class FilterProjectMetricsTreeAction extends AbstractAction {
     public void update(AnActionEvent e) {
         Project project = e.getProject();
         e.getPresentation().setEnabled(project != null
-                && MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER) != null
+                && project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.TREE_BUILDER) != null
                 && MetricsUtils.isProjectTreeActive());
     }
 

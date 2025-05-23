@@ -90,21 +90,21 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     }
 
     private void createRightPanels() {
-        metricsDescriptionPanel = new MetricsDescriptionPanel();
+        metricsDescriptionPanel = new MetricsDescriptionPanel(project);
         JScrollPane scrollableMetricPanel = ScrollPaneFactory.createScrollPane(
                 metricsDescriptionPanel.getPanel(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricPanel.getVerticalScrollBar().setUnitIncrement(10);
 
-        metricsSetDescriptionPanel = new MetricsSetDescriptionPanel();
+        metricsSetDescriptionPanel = new MetricsSetDescriptionPanel(project);
         JScrollPane scrollableMetricSetPanel = ScrollPaneFactory.createScrollPane(
                 metricsSetDescriptionPanel.getPanel(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollableMetricSetPanel.getVerticalScrollBar().setUnitIncrement(10);
 
-        metricsSummaryTable = new MetricsSummaryTable(true);
+        metricsSummaryTable = new MetricsSummaryTable(true, project);
         scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricsSummaryTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,

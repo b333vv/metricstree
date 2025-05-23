@@ -100,7 +100,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     private void addMetrics(Stream<Metric> metrics, AbstractNode node, Icon icon) {
                 metrics
                     .filter(this::mustBeShown)
-                    .map(m -> new MetricNode(m, icon))
+                    .map(m -> new MetricNode(m, icon, project))
                     .forEach(node::add);
     }
 
@@ -129,7 +129,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         packageNode.getJavaPackage().metrics()
                                 .filter(m -> m.getType().set() == metricSet)
                                 .filter(this::mustBeShown)
-                                .map(ProjectMetricNode::new)
+                                .map(m -> new ProjectMetricNode(m, project))
                                 .forEach(metricsSetNode::add);
                     }
                 }
@@ -198,7 +198,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         classNode.getJavaClass().metrics()
                                 .filter(m -> m.getType().set() == metricSet)
                                 .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
-                                .map(ClassMetricNode::new)
+                                .map(m -> new ClassMetricNode(m, project))
                                 .forEach(m -> {
                                     metricsSetNode.add(m);
                                     storeMetric(classNode, m);
@@ -209,7 +209,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
             else {
                 classNode.getJavaClass().metrics()
                         .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
-                        .map(ClassMetricNode::new)
+                        .map(m -> new ClassMetricNode(m, project))
                         .forEach(m -> {
                             classNode.add(m);
                             storeMetric(classNode, m);
@@ -222,7 +222,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     protected void addMethodMetricsNodes(MethodNode methodNode) {
         methodNode.getJavaMethod().metrics()
                 .filter(this::mustBeShown)
-                .map(MethodMetricNode::new)
+                .map(m -> new MethodMetricNode(m, project))
                 .forEach(m -> {
                     methodNode.add(m);
                     storeMetric(methodNode, m);

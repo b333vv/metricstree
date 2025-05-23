@@ -38,7 +38,8 @@ public class ClassAndMethodMetricTask extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        sureDependenciesAreInCache(indicator);
+        MetricTaskManager metricTaskManager = myProject.getService(MetricTaskManager.class);
+        metricTaskManager.sureDependenciesAreInCache(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
         JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
         if (javaProject == null) {

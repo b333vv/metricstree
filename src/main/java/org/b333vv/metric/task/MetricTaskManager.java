@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service(Service.Level.PROJECT)
-public class MetricTaskManager {
+public final class MetricTaskManager {
 
     private final Project project;
 
@@ -89,7 +89,7 @@ public class MetricTaskManager {
         JavaProject javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
         if (javaProject == null) {
             PackageOnlyMetricTask packageOnlyMetricTask = new PackageOnlyMetricTask(this.project);
-            packageMetricTask.run(indicator);
+            packageOnlyMetricTask.run(indicator);
             javaProject = this.project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
         }
         return javaProject;

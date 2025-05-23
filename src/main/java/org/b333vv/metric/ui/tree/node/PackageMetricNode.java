@@ -16,14 +16,15 @@
 
 package org.b333vv.metric.ui.tree.node;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.metric.Metric;
 import icons.MetricsIcons;
 
 import javax.swing.*;
 
 public class PackageMetricNode extends MetricNode {
-    public PackageMetricNode(Metric metric) {
-        super(metric);
+    public PackageMetricNode(Metric metric, Project project) {
+        super(metric, project);
     }
 
     @Override

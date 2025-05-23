@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.scale.JBUIScale;
 import icons.MetricsIcons;
@@ -35,14 +36,17 @@ public class MetricNode extends AbstractNode {
 
     protected final Metric metric;
     protected final Icon icon;
+    private final Project project;
 
-    public MetricNode(Metric metric, Icon icon) {
+    public MetricNode(Metric metric, Icon icon, Project project) {
+        this.project = project;
         this.metric = metric;
         this.icon = icon;
     }
 
-    public MetricNode(Metric metric) {
+    public MetricNode(Metric metric, Project project) {
         this.metric = metric;
+        this.project = project;
         this.icon = AllIcons.Nodes.Artifact;
     }
 
@@ -71,7 +75,7 @@ public class MetricNode extends AbstractNode {
     public void render(TreeCellRenderer renderer) {
         int gap = JBUIScale.isUsrHiDPI() ? 8 : 4;
         renderer.append(getMetricName());
-        if (MetricsService.isControlValidRanges()) {
+        if (project.getService(MetricsService.class).isControlValidRanges()) {
             if (metric.getValue() == Value.UNDEFINED) {
                 renderer.setIconToolTip("This metric was not calculated");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NA));

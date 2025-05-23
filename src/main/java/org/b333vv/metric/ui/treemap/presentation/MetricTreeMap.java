@@ -55,15 +55,13 @@ public class MetricTreeMap<N> extends JPanel {
     protected ColorProvider<N, Color> colorProvider;
     protected List<SelectionChangeListener<N>> listeners;
     protected GraphicsConfiguration gc;
-    private final Project project;
 
-    public MetricTreeMap(Project project) {
-        this(project, true);
+    public MetricTreeMap() {
+        this(true);
     }
 
-    public MetricTreeMap(Project project, final boolean supportNavigation) {
+    public MetricTreeMap(final boolean supportNavigation) {
         super();
-        this.project = project;
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent componentevent) {
@@ -332,7 +330,7 @@ public class MetricTreeMap<N> extends JPanel {
                     metricTreeMap.repaint();
                 }
             } catch (InterruptedException | ExecutionException e) {
-                MetricTreeMap.this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+//                MetricTreeMap.this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
             }
         }
     }

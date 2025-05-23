@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -23,7 +24,6 @@ import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.value.BasicMetricsRange;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -41,8 +41,10 @@ public class MetricsTrimmedSummaryTable {
     private final Model model;
     private final JBScrollPane panel;
     private final JBTable table;
+    private final Project project;
 
-    public MetricsTrimmedSummaryTable() {
+    public MetricsTrimmedSummaryTable(Project project) {
+        this.project = project;
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
@@ -85,7 +87,7 @@ public class MetricsTrimmedSummaryTable {
         model.fireTableDataChanged();
     }
 
-    private static class Model extends AbstractTableModel {
+    private class Model extends AbstractTableModel {
         private List<Metric> rows = List.of();
 
         @Override
@@ -151,7 +153,7 @@ public class MetricsTrimmedSummaryTable {
             if (metric.getValue() == Value.UNDEFINED) {
                 return "-";
             }
-            Value to = project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRegularTo();
+            Value to = MetricsTrimmedSummaryTable.this.project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRegularTo();
             Value from = project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRegularFrom();
             if (to == Value.UNDEFINED || from == Value.UNDEFINED) {
                 return "-";

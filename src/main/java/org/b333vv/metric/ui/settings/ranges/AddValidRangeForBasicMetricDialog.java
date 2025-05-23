@@ -45,7 +45,7 @@ public class AddValidRangeForBasicMetricDialog extends DialogWrapper {
         super(project, false);
         setTitle("Add Range For Basic Metric");
 
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.get(project, BasicMetricsValidRangesSettings.class);
+        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(BasicMetricsValidRangesSettings.class);
         List<BasicMetricsValidRangeStub> uncontrolledMetrics = basicMetricsValidRangesSettings.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 

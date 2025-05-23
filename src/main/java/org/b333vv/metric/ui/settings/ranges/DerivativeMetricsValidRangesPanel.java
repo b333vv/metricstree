@@ -100,6 +100,6 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
         panel.add(tablePanel, new GridBagConstraints(0, 1, 4, 2, 1.0, 1.0,
                 NORTHWEST, BOTH, insets, 40, 40));
 
-        derivativeMetricsValidRangesTable.enableComponents(tablePanel, MetricsService.isControlValidRanges());
+        derivativeMetricsValidRangesTable.enableComponents(tablePanel, project.getService(MetricsService.class).isControlValidRanges());
     }
 }

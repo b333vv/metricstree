@@ -88,8 +88,8 @@ public class ProjectMetricsHistoryXYChartBuilder {
                                     .map(jsonObject -> Double.valueOf(jsonObject.getString(mt.name()).replace(",", ".")))
                                     .collect(Collectors.toList()));
                 } catch (Exception e) {
-                    MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                            .printInfo(e.getClass() + " " + mt.name() + " " + e.getMessage());
+//                    MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+//                            .printInfo(e.getClass() + " " + mt.name() + " " + e.getMessage());
 //                    MetricsUtils.getConsole().error(e.getClass() + " " + mt.name() + " " + e.getMessage());
                 }
             }

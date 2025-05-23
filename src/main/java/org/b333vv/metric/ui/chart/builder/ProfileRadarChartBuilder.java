@@ -39,8 +39,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ProfileRadarChartBuilder {
+    private final Project project;
     private Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile;
 
+
+    public ProfileRadarChartBuilder(Project project) {
+        this.project = project;
+    }
     public List<RadarChartStructure> createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile, Project project) {
 
         this.classesByMetricProfile = classesByMetricProfile;

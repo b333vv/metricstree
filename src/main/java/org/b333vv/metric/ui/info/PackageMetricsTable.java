@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -41,8 +42,10 @@ public class PackageMetricsTable {
     private final JBScrollPane panel;
     private final Map<String, Double> instability, abstractness;
     private JBTable table;
+    private final Project project;
 
-    public PackageMetricsTable(Map<String, Double> instability, Map<String, Double> abstractness) {
+    public PackageMetricsTable(Map<String, Double> instability, Map<String, Double> abstractness, Project project) {
+        this.project = project;
         this.instability = instability;
         this.abstractness = abstractness;
 

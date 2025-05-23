@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -42,8 +43,10 @@ public class MetricsRangesTable {
     private final JBScrollPane panel;
     private final Set<MetricType> metricTypes;
     private final JBTable table;
+    private final Project project;
 
-    public MetricsRangesTable(Set<MetricType> metricTypes) {
+    public MetricsRangesTable(Set<MetricType> metricTypes, Project project) {
+        this.project = project;
         this.metricTypes = metricTypes;
 
         model = new Model();

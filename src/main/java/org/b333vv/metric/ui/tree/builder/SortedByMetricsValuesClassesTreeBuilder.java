@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
+import com.intellij.openapi.project.Project;
 import icons.MetricsIcons;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
@@ -37,8 +38,8 @@ import static org.b333vv.metric.builder.ClassesByMetricsValuesDistributor.classe
 public class SortedByMetricsValuesClassesTreeBuilder {
 
     @Nullable
-    public DefaultTreeModel createMetricTreeModel(JavaProject javaProject) {
-        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject);
+    public DefaultTreeModel createMetricTreeModel(JavaProject javaProject, Project project) {
+        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject, project);
 
         ProjectNode projectNode = new ProjectNode(javaProject, "class distribution by metric values", MetricsIcons.SORT_BY_VALUES);
         DefaultTreeModel model = new DefaultTreeModel(projectNode);

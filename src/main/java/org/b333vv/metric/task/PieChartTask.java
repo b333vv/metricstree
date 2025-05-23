@@ -53,9 +53,9 @@ public class PieChartTask extends Task.Backgroundable {
         if (classesByMetricTypes == null || pieChartList == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            classesByMetricTypes = classesByMetricsValuesDistribution(Objects.requireNonNull(javaProject));
+            classesByMetricTypes = classesByMetricsValuesDistribution(Objects.requireNonNull(javaProject), myProject);
             MetricPieChartBuilder builder = new MetricPieChartBuilder();
-            pieChartList = builder.createChart(javaProject);
+            pieChartList = builder.createChart(javaProject, myProject);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES, classesByMetricTypes);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PIE_CHART_LIST, pieChartList);
         }

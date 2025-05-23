@@ -19,6 +19,7 @@ package org.b333vv.metric.ui.settings.composition;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
@@ -37,15 +38,17 @@ import java.util.stream.Collectors;
 public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings> {
     private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
     private boolean showClassMetricsTree;
+    private final Project project;
 
-    public ClassMetricsTreeSettings() {
+    public ClassMetricsTreeSettings(Project project) {
+        this.project = project;
         loadInitialValues();
     }
 
     private void loadInitialValues() {
         showClassMetricsTree = true;
         for (MetricType type : MetricType.values()) {
-            if (!MetricsService.getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+            if (project.getService(MetricsService.class).getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
                 classTreeMetrics.add(new MetricsTreeSettingsStub(type, true));
             }
         }

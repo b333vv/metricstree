@@ -58,7 +58,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     @Override
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         Project project = psiJavaFile.getProject();
-        JavaFile javaFile = MetricTaskCache.instance().getJavaFile(psiJavaFile.getVirtualFile());
+        JavaFile javaFile = project.getService(MetricTaskCache.class).getJavaFile(psiJavaFile.getVirtualFile());
         if (javaFile != null) {
             javaFile.classes().forEach(c -> {
                 addToAllClasses(c);
@@ -93,7 +93,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
             addToAllClasses(javaClass);
         }
-        MetricTaskCache.instance().putJavaFile(psiJavaFile.getVirtualFile(), javaFile);
+        project.getService(MetricTaskCache.class).putJavaFile(psiJavaFile.getVirtualFile(), javaFile);
         return javaFile;
     }
 

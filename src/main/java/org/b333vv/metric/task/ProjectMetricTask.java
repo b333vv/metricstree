@@ -53,7 +53,7 @@ public class ProjectMetricTask extends Task.Backgroundable {
                     myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
             projectMetricsSetCalculator.calculate();
             if (myProject.getService(MetricsService.class).isProjectMetricsStampStored()) {
-                ProjectMetricsSet2Json.takeProjectMetricsSnapshot(javaProject);
+                ProjectMetricsSet2Json.takeProjectMetricsSnapshot(myProject, javaProject);
             }
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_METRICS, javaProject);
         }

@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -40,9 +41,11 @@ public class MetricsSummaryTable {
     private final JBScrollPane panel;
     private final JBTable table;
     private final boolean withBorder;
+    private final Project project;
 
-    public MetricsSummaryTable(boolean withBorder) {
+    public MetricsSummaryTable(boolean withBorder, Project project) {
         this.withBorder = withBorder;
+        this.project = project;
         model = new Model();
         table = new JBTable(model);
         table.setShowGrid(false);
@@ -117,11 +120,11 @@ public class MetricsSummaryTable {
                 .sorted(Comparator.comparing(Metric::getType))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);
-        hideOrShowValidValuesColumn(MetricsService.isControlValidRanges());
+        hideOrShowValidValuesColumn(project.getService(MetricsService.class).isControlValidRanges());
         model.fireTableDataChanged();
     }
 
-    private static class Model extends AbstractTableModel {
+    private class Model extends AbstractTableModel {
 
         private List<Metric> rows = List.of();
 

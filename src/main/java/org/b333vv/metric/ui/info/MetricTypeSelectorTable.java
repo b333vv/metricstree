@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.info;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -40,8 +41,10 @@ public class MetricTypeSelectorTable {
     private final Set<MetricType> metricTypes;
     private final Set<JavaClass> javaClasses;
     private final JBTable table;
+    private final Project project;
 
-    public MetricTypeSelectorTable(JavaProject javaProject, Consumer<MetricType> selectAction) {
+    public MetricTypeSelectorTable(JavaProject javaProject, Consumer<MetricType> selectAction, Project project) {
+        this.project = project;
         this.javaClasses = javaProject.allClasses().collect(Collectors.toUnmodifiableSet());
         this.metricTypes = Arrays.stream(MetricType.values())
                 .filter(mt -> mt.level() == MetricLevel.CLASS)

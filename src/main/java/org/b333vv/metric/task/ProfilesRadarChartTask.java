@@ -46,7 +46,7 @@ public class ProfilesRadarChartTask extends Task.Backgroundable {
         if (radarCharts == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
-            ProfileRadarChartBuilder profileRadarChartBuilder = new ProfileRadarChartBuilder();
+            ProfileRadarChartBuilder profileRadarChartBuilder = new ProfileRadarChartBuilder(myProject);
             radarCharts = profileRadarChartBuilder.createChart(classesByMetricProfile, myProject);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.RADAR_CHART, radarCharts);
         }

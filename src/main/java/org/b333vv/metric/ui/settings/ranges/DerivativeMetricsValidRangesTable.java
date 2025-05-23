@@ -133,7 +133,7 @@ public class DerivativeMetricsValidRangesTable {
         if (selectedIndex >= 0) {
             DerivativeMetricsValidRangeStub value = model.items().get(selectedIndex);
             DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
-                    MetricsUtils.get(DerivativeMetricsValidRangesTable.this.project, DerivativeMetricsValidRangesSettings.class);
+                    project.getService(DerivativeMetricsValidRangesSettings.class);
             derivativeMetricsValidRangesSettings.addToUnControlledMetrics(value);
             model.items().remove(value);
             panel.revalidate();
@@ -144,7 +144,7 @@ public class DerivativeMetricsValidRangesTable {
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 5;
         final DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
-                MetricsUtils.get(DerivativeMetricsValidRangesTable.this.project, DerivativeMetricsValidRangesSettings.class);
+                project.getService(DerivativeMetricsValidRangesSettings.class);
         private List<DerivativeMetricsValidRangeStub> rows = derivativeMetricsValidRangesSettings.getControlledMetricsList();
 
         @Override

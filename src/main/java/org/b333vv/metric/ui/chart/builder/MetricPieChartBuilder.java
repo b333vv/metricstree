@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
@@ -37,11 +38,11 @@ import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class MetricPieChartBuilder {
 
-    public List<PieChartStructure> createChart(JavaProject javaProject) {
+    public List<PieChartStructure> createChart(JavaProject javaProject, Project project) {
 
         List<PieChartStructure> pieCharts = new ArrayList<>();
 
-        var classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter();
+        var classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter(project);
         var valuesByMetricTypes =
                 classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
 

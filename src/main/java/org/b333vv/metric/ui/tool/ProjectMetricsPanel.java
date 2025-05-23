@@ -101,7 +101,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         chartPanel = new XChartPanel<>(categoryChart);
         mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
-        MetricsRangesTable metricsRangesTable = new MetricsRangesTable(metricTypes);
+        MetricsRangesTable metricsRangesTable = new MetricsRangesTable(metricTypes, project);
         JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricsRangesTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -171,7 +171,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         scrollableMetricDescriptionPanel.getVerticalScrollBar().setUnitIncrement(10);
         rightPanel.add(scrollableMetricDescriptionPanel);
 
-        ProjectMetricsHistoryBottomPanel projectMetricsHistoryBottomPanel = new ProjectMetricsHistoryBottomPanel();
+        ProjectMetricsHistoryBottomPanel projectMetricsHistoryBottomPanel = new ProjectMetricsHistoryBottomPanel(project);
 
         projectMetricsHistoryXyChartPanel = new XChartPanel<>(xyChart);
         mainPanel.add(ScrollPaneFactory.createScrollPane(projectMetricsHistoryXyChartPanel), BorderLayout.CENTER);
@@ -204,7 +204,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                         project.getService(MetricsService.class).getRangeForMetric(e.getValue().getType()).getRangeByRangeType(rangeType),
                         e.getValue().getValue()))
                 .collect(toList());
-        ClassesByRangesTable classesByRangesTable = new ClassesByRangesTable(classesByRanges);
+        ClassesByRangesTable classesByRangesTable = new ClassesByRangesTable(classesByRanges, project);
         JBPanel<?> jbPanel = new JBPanel<>(new BorderLayout());
         jbPanel.add(classesByRangesTable.getComponent());
         return jbPanel;
@@ -222,11 +222,11 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     private void showResults(@NotNull MetricTreeMap<JavaCode> treeMap, JavaProject javaProject) {
         createTreeMapUIComponents();
         MetricTypeSelectorTable metricTypeSelectorTable = new MetricTypeSelectorTable(javaProject, metricType -> {
-            treeMap.setColorProvider(new MetricTypeColorProvider(metricType));
+            treeMap.setColorProvider(new MetricTypeColorProvider(metricType, project));
             treeMap.updateUI();
             treeMap.refresh();
             treeMapBottomPanel.setData(metricType);
-        });
+        }, project);
         JScrollPane scrollableMetricTablePanel = ScrollPaneFactory.createScrollPane(
                 metricTypeSelectorTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -242,7 +242,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         scrollableTreeMapPanel.getHorizontalScrollBar().setUnitIncrement(10);
         mainPanel.add(scrollableTreeMapPanel);
 
-        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable();
+        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable(project);
         JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricsTrimmedSummaryTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -270,38 +270,38 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void projectMetricsTreeIsReady() {
-            metricTreeBuilder = MetricTaskCache.instance().getUserData(MetricTaskCache.TREE_BUILDER);
-            showResults(MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_TREE));
+            metricTreeBuilder = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.TREE_BUILDER);
+            showResults(project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_TREE));
             buildProjectMetricsTree();
             setProjectTreeActive(true);
         }
 
         @Override
         public void classByMetricTreeIsReady() {
-            showResults(MetricTaskCache.instance().getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE));
+            showResults(project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE));
         }
 
         @Override
         public void pieChartIsReady() {
-            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = MetricTaskCache.instance()
+            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = project.getService(MetricTaskCache.class)
                     .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES);
-            List<MetricPieChartBuilder.PieChartStructure> pieChartList = MetricTaskCache.instance()
+            List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(MetricTaskCache.class)
                     .getUserData(MetricTaskCache.PIE_CHART_LIST);
             showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
         }
 
         @Override
         public void categoryChartIsReady() {
-            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = MetricTaskCache.instance()
+            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(MetricTaskCache.class)
                     .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
-            CategoryChart categoryChart = MetricTaskCache.instance()
+            CategoryChart categoryChart = project.getService(MetricTaskCache.class)
                     .getUserData(MetricTaskCache.CATEGORY_CHART);
             showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
         }
 
         @Override
         public void projectMetricsHistoryXyChartIsReady() {
-            XYChart xyChart = MetricTaskCache.instance().getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
+            XYChart xyChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
             showResults(xyChart);
         }
 
@@ -313,8 +313,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void metricTreeMapIsReady() {
-            JavaProject javaProject = MetricTaskCache.instance().getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
-            MetricTreeMap<JavaCode> treeMap = MetricTaskCache.instance().getUserData(MetricTaskCache.METRIC_TREE_MAP);
+            JavaProject javaProject = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
+            MetricTreeMap<JavaCode> treeMap = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.METRIC_TREE_MAP);
             if (treeMap != null && javaProject != null) {
                 showResults(treeMap, javaProject);
             }

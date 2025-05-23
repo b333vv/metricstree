@@ -44,7 +44,7 @@ public class AddValidRangeForDerivativeMetricDialog extends DialogWrapper {
         super(project, false);
         setTitle("Add Range For Metric");
 
-        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.get(project, DerivativeMetricsValidRangesSettings.class);
+        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = project.getService(DerivativeMetricsValidRangesSettings.class);
         List<DerivativeMetricsValidRangeStub> uncontrolledMetrics = derivativeMetricsValidRangesSettings.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 

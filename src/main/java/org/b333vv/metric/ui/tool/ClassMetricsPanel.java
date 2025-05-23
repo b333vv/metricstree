@@ -81,7 +81,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .printInfo("Built metrics tree for " + psiJavaFile.getName());
         JavaFile jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
-            JavaFile javaFile = new ClassModelBuilder().buildJavaFile(psiJavaFile);
+            JavaFile javaFile = new ClassModelBuilder(psiJavaFile.getProject()).buildJavaFile(psiJavaFile);
             return CachedValueProvider.Result.create(javaFile, psiJavaFile);
         });
 

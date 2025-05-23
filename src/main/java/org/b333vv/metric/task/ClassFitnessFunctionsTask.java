@@ -47,7 +47,7 @@ public class ClassFitnessFunctionsTask extends Task.Backgroundable {
         if (classFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            classFitnessFunctions = classesByMetricsProfileDistribution(javaProject);
+            classFitnessFunctions = classesByMetricsProfileDistribution(myProject, javaProject);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION, classFitnessFunctions);
         }
     }

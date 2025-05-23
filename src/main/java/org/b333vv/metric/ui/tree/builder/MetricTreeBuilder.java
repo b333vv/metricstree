@@ -71,7 +71,7 @@ public abstract class MetricTreeBuilder {
         if (getMetricsTreeFilter().isClassMetricsVisible()) {
             classNode.getJavaClass().metrics()
                     .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
-                    .map(ClassMetricNode::new)
+                    .map(m -> new ClassMetricNode(m, project))
                     .forEach(m -> {
                             classNode.add(m);
                             storeMetric(classNode, m);
@@ -82,7 +82,7 @@ public abstract class MetricTreeBuilder {
     protected void addMethodMetricsNodes(MethodNode methodNode) {
         methodNode.getJavaMethod().metrics()
                 .filter(this::mustBeShown)
-                .map(MethodMetricNode::new)
+                .map(m -> new MethodMetricNode(m, project))
                 .forEach(m -> {
                     methodNode.add(m);
                     storeMetric(methodNode, m);

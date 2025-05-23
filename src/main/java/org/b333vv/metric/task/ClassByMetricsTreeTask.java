@@ -44,7 +44,7 @@ public class ClassByMetricsTreeTask extends Task.Backgroundable {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             SortedByMetricsValuesClassesTreeBuilder builder = new SortedByMetricsValuesClassesTreeBuilder();
-            treeModel = builder.createMetricTreeModel(javaProject);
+            treeModel = builder.createMetricTreeModel(javaProject, myProject);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, treeModel);
         }
     }

@@ -58,7 +58,7 @@ public class ClassMetricsValuesEvolutionProcessor {
     public ClassMetricsValuesEvolutionProcessor(@NotNull PsiJavaFile psiJavaFile) {
 
         this.psiJavaFile = psiJavaFile;
-        classModelBuilder = new ClassModelBuilder();
+        classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
         project = psiJavaFile.getProject();
 
         MetricsEventListener metricsEventListener = new ClassMetricsEvolutionEventListener();
@@ -107,10 +107,10 @@ public class ClassMetricsValuesEvolutionProcessor {
         getFileFromGitCalculateMetricsAndPutThemToMap = new FutureTask<>(gitCalculations);
 
         Callable<Void> buildingTree = () -> {
-            ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+            ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
             JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
-                    new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution));
+                    new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution), project);
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();
             if (metricsTreeModel != null) {
                 psiJavaFile.getProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -137,13 +137,13 @@ public class ClassMetricsValuesEvolutionProcessor {
                 "Get Metrics History for " + psiJavaFile.getName() + "...", true,
                 getFileFromGitCalculateMetricsAndPutThemToMap, buildTree,
                 cancel, null);
-        MetricTaskCache.runTask(classMetricsTask);
+        MetricTaskCache.runTask(psiJavaFile.getProject(),classMetricsTask);
     }
 
     private class ClassMetricsEvolutionEventListener implements MetricsEventListener {
         @Override
         public void cancelMetricsValuesEvolutionCalculation() {
-            if (!MetricTaskCache.isQueueEmpty()) {
+            if (!MetricTaskCache.isQueueEmpty(project)) {
                 getFileFromGitCalculateMetricsAndPutThemToMap.cancel(false);
                 buildTree.cancel(false);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)

@@ -33,10 +33,9 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
-        MetricsUtils.setCurrentProject(psiClass.getProject());
         metric = Metric.of(CBO, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            DependenciesBuilder dependenciesBuilder = MetricTaskCache.instance()
+            DependenciesBuilder dependenciesBuilder = psiClass.getProject().getService(MetricTaskCache.class)
                     .getUserData(MetricTaskCache.DEPENDENCIES);
             if (dependenciesBuilder != null) {
                 Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);

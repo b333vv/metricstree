@@ -50,7 +50,7 @@ public class CategoryChartTask extends Task.Backgroundable {
         if (classesByMetricTypes == null || categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            ClassesByMetricsValuesCounter classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter();
+            ClassesByMetricsValuesCounter classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter(myProject);
             classesByMetricTypes = classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
             MetricCategoryChartBuilder builder = new MetricCategoryChartBuilder();
             categoryChart = builder.createChart(classesByMetricTypes);

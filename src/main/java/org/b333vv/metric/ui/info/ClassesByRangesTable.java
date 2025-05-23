@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.info;
 
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -33,9 +34,11 @@ public class ClassesByRangesTable {
     private final Model model;
     private final JBScrollPane panel;
     private final List<ClassByRange> classByRanges;
+    private final Project project;
 
-    public ClassesByRangesTable(List<ClassByRange> classByRanges) {
+    public ClassesByRangesTable(List<ClassByRange> classByRanges, Project project) {
         this.classByRanges = classByRanges;
+        this.project = project;
 
         model = new Model();
         JBTable table = new JBTable(model);
@@ -53,7 +56,7 @@ public class ClassesByRangesTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
             JavaClass javaClass = (JavaClass) selectedCell;
-            MetricsUtils.openInEditor(javaClass.getPsiClass());
+            MetricsUtils.openInEditor(project, javaClass.getPsiClass());
         });
 
         panel = new JBScrollPane(table);

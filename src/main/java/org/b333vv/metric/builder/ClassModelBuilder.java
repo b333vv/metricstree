@@ -28,7 +28,10 @@ import java.util.stream.Stream;
 
 public class ClassModelBuilder extends ModelBuilder {
 
-
+    protected final Project project;
+    public ClassModelBuilder(Project project) {
+        this.project = project;
+    }
     public JavaFile buildJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         return createJavaFile(psiJavaFile);
     }
@@ -36,14 +39,14 @@ public class ClassModelBuilder extends ModelBuilder {
     @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
-        return MetricsService.classVisitorsForClassMetricsTree();
+        return project.getService(MetricsService.class).classVisitorsForClassMetricsTree();
     }
 
     @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
 
-        return MetricsService.methodsVisitorsForClassMetricsTree();
+        return project.getService(MetricsService.class).methodsVisitorsForClassMetricsTree();
     }
 
     @Override

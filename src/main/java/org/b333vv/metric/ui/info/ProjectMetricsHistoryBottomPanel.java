@@ -63,11 +63,11 @@ public class ProjectMetricsHistoryBottomPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             if ("+".equals(e.getActionCommand())) {
-                this.project.getMessageBus()
+                ProjectMetricsHistoryBottomPanel.this.project.getMessageBus()
                         .syncPublisher(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC).plusButtonPressed(plusButton, minusButton);
             }
             if ("-".equals(e.getActionCommand())) {
-                this.project.getMessageBus()
+                ProjectMetricsHistoryBottomPanel.this.project.getMessageBus()
                         .syncPublisher(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC).minusButtonPressed(plusButton, minusButton);
             }
         }

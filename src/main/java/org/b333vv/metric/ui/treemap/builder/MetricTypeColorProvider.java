@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.treemap.builder;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
@@ -41,8 +42,10 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
     private static final Color EXTREME = new JBColor(new Color(0xf24c00), new Color(0xf24c00));
 
     private final MetricType metricType;
+    private final Project project;
 
-    public MetricTypeColorProvider(MetricType metricType) {
+    public MetricTypeColorProvider(MetricType metricType, Project project) {
+        this.project = project;
         this.metricType = metricType;
     }
 
@@ -51,7 +54,6 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
         if (rectangle.getNode() instanceof JavaClass) {
             Map<MetricType, Metric> metrics = rectangle.getNode().metrics().collect(Collectors.toMap(Metric::getType, m -> m));
             if (!metrics.containsKey(metricType)) {
-                MetricsUtils.getConsole().debug("Metric " + metricType + " is not calculated for " + rectangle.getNode().getName());
                 return UNDEFINED;
             }
 

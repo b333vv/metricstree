@@ -49,7 +49,7 @@ public class  ProjectTreeTask extends Task.Backgroundable {
 //            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
             AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
-            JavaProject javaProject = getProjectModel(indicator);
+            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getProjectModel(indicator);
             projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject, myProject);
             metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_TREE, metricsTreeModel);

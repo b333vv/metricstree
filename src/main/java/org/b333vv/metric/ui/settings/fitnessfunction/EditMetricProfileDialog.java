@@ -51,7 +51,7 @@ public class EditMetricProfileDialog extends DialogWrapper {
 
         this.profile = Objects.requireNonNullElseGet(profile, () -> Map.entry("Edit Fitness Function", new ArrayList<>()));
 
-        metricProfileItemTable = new MetricProfileItemTable(this::onProfileItemAdd, this::onProfileItemEdit,
+        metricProfileItemTable = new MetricProfileItemTable(project, this::onProfileItemAdd, this::onProfileItemEdit,
                 this::onProfileItemRemove, this::getPossibleMetricTypes);
         metricProfileItemTable.setProfileItems(this.profile.getValue());
 

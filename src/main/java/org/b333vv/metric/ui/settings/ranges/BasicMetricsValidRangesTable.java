@@ -133,8 +133,7 @@ public class BasicMetricsValidRangesTable {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
             BasicMetricsValidRangeStub value = model.items().get(selectedIndex);
-            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                    MetricsUtils.get(BasicMetricsValidRangesTable.this.project, BasicMetricsValidRangesSettings.class);
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(BasicMetricsValidRangesSettings.class);
             basicMetricsValidRangesSettings.addToUnControlledMetrics(value);
             model.items().remove(value);
             panel.revalidate();
@@ -145,7 +144,7 @@ public class BasicMetricsValidRangesTable {
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 6;
         final BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                MetricsUtils.get(BasicMetricsValidRangesTable.this.project, BasicMetricsValidRangesSettings.class);
+                project.getService(BasicMetricsValidRangesSettings.class);
         private List<BasicMetricsValidRangeStub> rows = basicMetricsValidRangesSettings.getControlledMetricsList();
 
         @Override

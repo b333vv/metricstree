@@ -18,6 +18,7 @@ package org.b333vv.metric.ui.info;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
@@ -46,8 +47,10 @@ public class ClassesForProfileTable {
     private final Model model;
     private final JBScrollPane panel;
     private Map<JavaClass, List<Metric>> classes;
+    private final Project project;
 
-    public ClassesForProfileTable(Map<JavaClass, List<Metric>> classesMap) {
+    public ClassesForProfileTable(Map<JavaClass, List<Metric>> classesMap, Project project) {
+        this.project = project;
         this.classes = classesMap.entrySet().stream()
                 .filter(b -> !b.getValue().isEmpty())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -72,7 +75,7 @@ public class ClassesForProfileTable {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
-                MetricsUtils.openInEditor(javaClass.getPsiClass());
+                MetricsUtils.openInEditor(project, javaClass.getPsiClass());
             }
         });
         panel = new JBScrollPane(table);
@@ -127,7 +130,7 @@ public class ClassesForProfileTable {
         }
     }
 
-    public static class CellRenderer extends DefaultTableCellRenderer {
+    public class CellRenderer extends DefaultTableCellRenderer {
         private Color regularColor = new JBColor(new Color(0x499C54), new Color(0x499C54));
         private Color highColor = new JBColor(new Color(0xf9c784), new Color(0xf9c784));
         private Color veryHighColor = new JBColor(new Color(0xfc7a1e), new Color(0xfc7a1e));

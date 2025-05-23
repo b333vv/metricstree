@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.builder;
 
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
@@ -35,10 +36,10 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 
 public class ClassesByMetricsValuesDistributor {
-    public static Map<MetricType, Map<JavaClass, Metric>> classesByMetricsValuesDistribution(JavaProject javaProject) {
+    public static Map<MetricType, Map<JavaClass, Metric>> classesByMetricsValuesDistribution(JavaProject javaProject, Project project) {
         return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
-                        .filter(metric -> MetricsService.isLongValueMetricType(metric.getType())
+                        .filter(metric -> project.getService(MetricsService.class).isLongValueMetricType(metric.getType())
                                 && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()

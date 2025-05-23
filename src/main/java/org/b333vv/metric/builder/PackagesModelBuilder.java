@@ -108,7 +108,7 @@ public class PackagesModelBuilder extends ModelBuilder {
 
     @Override
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
-        JavaFile javaFile = MetricTaskCache.instance().getJavaFile(psiJavaFile.getVirtualFile());
+        JavaFile javaFile = psiJavaFile.getProject().getService(MetricTaskCache.class).getJavaFile(psiJavaFile.getVirtualFile());
         if (javaFile != null) {
             return javaFile;
         }

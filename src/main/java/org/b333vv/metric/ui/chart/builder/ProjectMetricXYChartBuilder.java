@@ -17,6 +17,7 @@
 package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.model.code.JavaPackage;
@@ -41,6 +42,12 @@ import java.util.stream.Stream;
 import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class ProjectMetricXYChartBuilder {
+
+    private final Project project;
+
+    public ProjectMetricXYChartBuilder(Project project) {
+        this.project = project;
+    }
     public XYChart createChart(Map<String, Double> instability, Map<String, Double> abstractness) {
 
         XYChart chart = new XYChartBuilder()

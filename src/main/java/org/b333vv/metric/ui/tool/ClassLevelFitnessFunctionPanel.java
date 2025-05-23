@@ -97,16 +97,16 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
     private void createProfileUIComponents() {
         profilesPanel = new JBPanel<>(new BorderLayout());
-        classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList();
+        classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList(project);
         profilesPanel.add(classLevelFitnessFunctionList.getComponent());
         profilesPanel.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
 
         classesPanel = new JBPanel<>(new BorderLayout());
-        classesTable = new ClassLevelFitnessFunctionClassTable();
+        classesTable = new ClassLevelFitnessFunctionClassTable(project);
         classesPanel.add(classesTable.getComponent());
 
         metricsPanel = new JBPanel<>(new BorderLayout());
-        metricsSummaryTable = new MetricsSummaryTable(false);
+        metricsSummaryTable = new MetricsSummaryTable(false, project);
         metricsPanel.add(metricsSummaryTable.getComponent());
 
         super.setContent(createSplitter(profilesPanel, createSplitter(classesPanel, metricsPanel, "PROFILE_2"),
@@ -179,7 +179,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         List<MetricType> metricTypes = Arrays.stream(MetricType.values())
                 .filter(mt -> mt.level() == MetricLevel.CLASS)
                 .collect(Collectors.toList());
-        MetricTypeTable metricTypeTable = new MetricTypeTable(metricTypes);
+        MetricTypeTable metricTypeTable = new MetricTypeTable(project, metricTypes);
         JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricTypeTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -219,7 +219,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         List<FitnessFunction> profiles = radarCharts.stream()
                 .map(ProfileRadarChartBuilder.RadarChartStructure::getMetricProfile).collect(Collectors.toList());
-        MetricByProfileTable metricByProfileTable = new MetricByProfileTable(profiles);
+        MetricByProfileTable metricByProfileTable = new MetricByProfileTable(project, profiles);
         JScrollPane scrollablePanel = ScrollPaneFactory.createScrollPane(
                 metricByProfileTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -255,7 +255,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         scrollablePanel.getHorizontalScrollBar().setUnitIncrement(10);
         mainPanel.add(scrollablePanel);
 
-        ClassesForProfileTable classesForProfileTable = new ClassesForProfileTable(chartStructure.getClasses());
+        ClassesForProfileTable classesForProfileTable = new ClassesForProfileTable(chartStructure.getClasses(), project);
         JScrollPane classesForProfileScrollablePanel = ScrollPaneFactory.createScrollPane(
                 classesForProfileTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -302,7 +302,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_TREE_MAP_1"), rightPanel,
                 "PROFILE_TREE_MAP_2"));
 
-        classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList();
+        classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList(project);
         classLevelFitnessFunctionList.hideColumn(2);
         classLevelFitnessFunctionList.setBorder("Select Profile");
         classLevelFitnessFunctionList.setProfiles(new TreeMap<>(distribution));
@@ -315,7 +315,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         scrollableTreeMapPanel.getHorizontalScrollBar().setUnitIncrement(10);
         mainPanel.add(scrollableTreeMapPanel);
 
-        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable();
+        metricsTrimmedSummaryTable = new MetricsTrimmedSummaryTable(project);
         JScrollPane scrollableTablePanel = ScrollPaneFactory.createScrollPane(
                 metricsTrimmedSummaryTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,

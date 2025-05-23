@@ -51,7 +51,7 @@ public class XyChartTask extends Task.Backgroundable {
             instability = new TreeMap<>();
             abstractness = new TreeMap<>();
             ProjectMetricXYChartDataBuilder.build(javaProject, instability, abstractness);
-            ProjectMetricXYChartBuilder builder = new ProjectMetricXYChartBuilder();
+            ProjectMetricXYChartBuilder builder = new ProjectMetricXYChartBuilder(myProject);
             xyChart = builder.createChart(instability, abstractness);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.INSTABILITY, instability);
             myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.ABSTRACTNESS, abstractness);
