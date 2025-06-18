@@ -12,7 +12,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setCurrentProject(myFixture.getProject());
+//        MetricsUtils.setCurrentProject(myFixture.getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
     }
 

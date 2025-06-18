@@ -1,10 +1,14 @@
+.ai
+.cursor
 .gradle
 .idea
+.qodo
+.vscode
 build
-classes
 gradle
+classes
 out
-.ai
+.gitignore
 
 *.iml
 *.ipr
