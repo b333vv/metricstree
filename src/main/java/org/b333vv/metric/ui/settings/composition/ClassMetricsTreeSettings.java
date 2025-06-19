@@ -38,17 +38,24 @@ import java.util.stream.Collectors;
 public final class ClassMetricsTreeSettings implements PersistentStateComponent<ClassMetricsTreeSettings> {
     private final List<MetricsTreeSettingsStub> classTreeMetrics = new ArrayList<>();
     private boolean showClassMetricsTree;
-    private final Project project;
+//    private final Project project;
 
-    public ClassMetricsTreeSettings(Project project) {
-        this.project = project;
+    public ClassMetricsTreeSettings() {
         loadInitialValues();
     }
+
+//    public ClassMetricsTreeSettings(Project project) {
+//        this.project = project;
+//        loadInitialValues();
+//    }
 
     private void loadInitialValues() {
         showClassMetricsTree = true;
         for (MetricType type : MetricType.values()) {
-            if (!project.getService(MetricsService.class).getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+//            if (!project.getService(MetricsService.class).getDeferredMetricTypes().contains(type) && (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD)) {
+//                classTreeMetrics.add(new MetricsTreeSettingsStub(type, true));
+//            }
+            if (type.level() == MetricLevel.CLASS || type.level() == MetricLevel.METHOD) {
                 classTreeMetrics.add(new MetricsTreeSettingsStub(type, true));
             }
         }

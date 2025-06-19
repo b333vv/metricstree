@@ -16,19 +16,12 @@
 
 package org.b333vv.metric.ui.tool;
 
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.content.Content;
-import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.task.DependenciesTask;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.log.MetricsLogPanel;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +31,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics";
     public static final String TAB_PROFILES = "Metric Fitness Functions";
     public static final String TAB_LOGS = "Log";
-    public static final String TAB_METRICS_EVOLUTION = "Metrics Evolution";
+    public static final String TAB_METRICS_EVOLUTION = "Metrics Timeline";
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
         ClassMetricsPanel classMetricsPanel = ClassMetricsPanel.newInstance(project);
@@ -77,7 +70,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(logContent);
     }
 
-    private static void addMetricsEvolutionTab(Project project, ToolWindow toolWindow) {
+    private static void addMetricsTimelineTab(Project project, ToolWindow toolWindow) {
         MetricsEvolutionPanel metricsEvolutionPanel = new MetricsEvolutionPanel(project);
         Content evolutionContent = toolWindow.getContentManager().getFactory()
                 .createContent(metricsEvolutionPanel, TAB_METRICS_EVOLUTION, false);
@@ -90,8 +83,8 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
         addFitnessFunctionTab(project, toolWindow);
+//        addMetricsTimelineTab(project, toolWindow);
         addLogTab(project, toolWindow);
-        addMetricsEvolutionTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);
     }
 }
