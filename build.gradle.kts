@@ -47,8 +47,8 @@ sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
         runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
-        java.srcDir("test/integration-test/java") // Updated path
-        resources.srcDir("test/integration-test/resources") // Updated path
+        java.srcDir("src/integration-test/java") // Updated path
+        resources.srcDir("src/integration-test/resources") // Updated path
     }
     create("e2eTest") {
         compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
