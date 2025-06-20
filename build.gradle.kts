@@ -99,14 +99,14 @@ tasks {
         group = "verification"
         testClassesDirs = project.sourceSets["integrationTest"].output.classesDirs
         classpath = project.sourceSets["integrationTest"].runtimeClasspath
-        mustRunAfter(tasks.named("test"))
+        mustRunAfter(named("test"))
     }
     register("e2eTest", org.gradle.api.tasks.testing.Test::class.java) {
         description = "Runs end-to-end tests."
         group = "verification"
         testClassesDirs = project.sourceSets["e2eTest"].output.classesDirs
         classpath = project.sourceSets["e2eTest"].runtimeClasspath
-        mustRunAfter(tasks.named("integrationTest"))
+        mustRunAfter(named("integrationTest"))
     }
 
     check {
