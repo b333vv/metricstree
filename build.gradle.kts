@@ -43,16 +43,34 @@ intellij {
     plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
 }
 
+configurations {
+    val testImplementation = configurations.getByName("testImplementation")
+    val testRuntimeOnly = configurations.getByName("testRuntimeOnly")
+
+    create("integrationTestImplementation") {
+        extendsFrom(testImplementation)
+    }
+    create("integrationTestRuntimeOnly") {
+        extendsFrom(testRuntimeOnly)
+    }
+    create("e2eTestImplementation") {
+        extendsFrom(testImplementation)
+    }
+    create("e2eTestRuntimeOnly") {
+        extendsFrom(testRuntimeOnly)
+    }
+}
+
 sourceSets {
     create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
-        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
-        java.srcDir("src/integration-test/java") // Updated path
-        resources.srcDir("src/integration-test/resources") // Updated path
+        compileClasspath += sourceSets.main.get().output + configurations.named("integrationTestImplementation").get()
+        runtimeClasspath += sourceSets.main.get().output + configurations.named("integrationTestRuntimeOnly").get()
+        java.srcDir("src/integration-test/java")
+        resources.srcDir("src/integration-test/resources")
     }
     create("e2eTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
-        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
+        compileClasspath += sourceSets.main.get().output + configurations.named("e2eTestImplementation").get()
+        runtimeClasspath += sourceSets.main.get().output + configurations.named("e2eTestRuntimeOnly").get()
         java.srcDir("src/e2e-test/java")
         resources.srcDir("src/e2e-test/resources")
     }
@@ -88,10 +106,6 @@ tasks {
         testImplementation ("org.assertj:assertj-core:3.6.2")
         testImplementation("org.mockito:mockito-core:5.11.0")
         testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
-        "integrationTestImplementation"(configurations.testImplementation.get())
-        "integrationTestRuntimeOnly"(configurations.testRuntimeOnly.get())
-        "e2eTestImplementation"(configurations.testImplementation.get())
-        "e2eTestRuntimeOnly"(configurations.testRuntimeOnly.get())
     }
 
     register("integrationTest", org.gradle.api.tasks.testing.Test::class.java) {
