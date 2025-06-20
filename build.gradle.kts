@@ -62,15 +62,17 @@ configurations {
 }
 
 sourceSets {
+    val main by getting
+
     create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.named("integrationTestImplementation").get()
-        runtimeClasspath += sourceSets.main.get().output + configurations.named("integrationTestRuntimeOnly").get()
+        compileClasspath += main.output
+        runtimeClasspath += main.output
         java.srcDir("src/integration-test/java")
         resources.srcDir("src/integration-test/resources")
     }
     create("e2eTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.named("e2eTestImplementation").get()
-        runtimeClasspath += sourceSets.main.get().output + configurations.named("e2eTestRuntimeOnly").get()
+        compileClasspath += main.output
+        runtimeClasspath += main.output
         java.srcDir("src/e2e-test/java")
         resources.srcDir("src/e2e-test/resources")
     }
