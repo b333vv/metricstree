@@ -35,7 +35,6 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setCurrentProject(getProject());
         myFixture.configureByFiles("Object.java", "HashMap.java", "AbstractMap.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.findClass("java.util.HashMap").getContainingFile();
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(getProject());
