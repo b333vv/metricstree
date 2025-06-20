@@ -94,14 +94,14 @@ tasks {
         "e2eTestRuntimeOnly"(configurations.testRuntimeOnly.get())
     }
 
-    tasks.register<Test>("integrationTest") {
+    tasks.register("integrationTest", Test::class.java) {
         description = "Runs integration tests."
         group = "verification"
         testClassesDirs = sourceSets["integrationTest"].output.classesDirs
         classpath = sourceSets["integrationTest"].runtimeClasspath
-        mustRunAfter(tasks.test)
+        mustRunAfter(tasks.named("test"))
     }
-    tasks.register<Test>("e2eTest") {
+    tasks.register("e2eTest", Test::class.java) {
         description = "Runs end-to-end tests."
         group = "verification"
         testClassesDirs = sourceSets["e2eTest"].output.classesDirs
