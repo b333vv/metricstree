@@ -43,6 +43,21 @@ intellij {
     plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
 }
 
+sourceSets {
+    create("integrationTest") {
+        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
+        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
+        java.srcDir("src/integration-test/java")
+        resources.srcDir("src/integration-test/resources")
+    }
+    create("e2eTest") {
+        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
+        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
+        java.srcDir("src/e2e-test/java")
+        resources.srcDir("src/e2e-test/resources")
+    }
+}
+
 tasks {
     // Set the JVM compatibility versions
     properties("javaVersion").let {
@@ -72,6 +87,29 @@ tasks {
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
         testImplementation ("org.assertj:assertj-core:3.6.2")
         testImplementation ("org.mockito:mockito-core:2.19.0")
+        "integrationTestImplementation"(configurations.testImplementation.get())
+        "integrationTestRuntimeOnly"(configurations.testRuntimeOnly.get())
+        "e2eTestImplementation"(configurations.testImplementation.get())
+        "e2eTestRuntimeOnly"(configurations.testRuntimeOnly.get())
     }
 
+    tasks.register<Test>("integrationTest") {
+        description = "Runs integration tests."
+        group = "verification"
+        testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+        classpath = sourceSets["integrationTest"].runtimeClasspath
+        mustRunAfter(tasks.test)
+    }
+    tasks.register<Test>("e2eTest") {
+        description = "Runs end-to-end tests."
+        group = "verification"
+        testClassesDirs = sourceSets["e2eTest"].output.classesDirs
+        classpath = sourceSets["e2eTest"].runtimeClasspath
+        mustRunAfter(tasks.named("integrationTest"))
+    }
+
+    check {
+        dependsOn(tasks.named("integrationTest"))
+        dependsOn(tasks.named("e2eTest"))
+    }
 }
