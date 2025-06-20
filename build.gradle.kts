@@ -94,18 +94,18 @@ tasks {
         "e2eTestRuntimeOnly"(configurations.testRuntimeOnly.get())
     }
 
-    tasks.register("integrationTest", org.gradle.api.tasks.testing.Test::class.java) {
+    register("integrationTest", org.gradle.api.tasks.testing.Test::class.java) {
         description = "Runs integration tests."
         group = "verification"
-        testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-        classpath = sourceSets["integrationTest"].runtimeClasspath
+        testClassesDirs = project.sourceSets["integrationTest"].output.classesDirs
+        classpath = project.sourceSets["integrationTest"].runtimeClasspath
         mustRunAfter(tasks.named("test"))
     }
-    tasks.register("e2eTest", org.gradle.api.tasks.testing.Test::class.java) {
+    register("e2eTest", org.gradle.api.tasks.testing.Test::class.java) {
         description = "Runs end-to-end tests."
         group = "verification"
-        testClassesDirs = sourceSets["e2eTest"].output.classesDirs
-        classpath = sourceSets["e2eTest"].runtimeClasspath
+        testClassesDirs = project.sourceSets["e2eTest"].output.classesDirs
+        classpath = project.sourceSets["e2eTest"].runtimeClasspath
         mustRunAfter(tasks.named("integrationTest"))
     }
 
