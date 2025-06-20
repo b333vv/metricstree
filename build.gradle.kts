@@ -45,14 +45,14 @@ intellij {
 
 sourceSets {
     create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
-        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
-        java.srcDir("src/integration-test/java")
-        resources.srcDir("src/integration-test/resources")
+        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
+        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
+        java.srcDir("test/integration-test/java") // Updated path
+        resources.srcDir("test/integration-test/resources") // Updated path
     }
     create("e2eTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
-        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
+        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
+        runtimeClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath.get()
         java.srcDir("src/e2e-test/java")
         resources.srcDir("src/e2e-test/resources")
     }
@@ -86,7 +86,8 @@ tasks {
 //        testImplementation ("junit:junit:4.9")
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
         testImplementation ("org.assertj:assertj-core:3.6.2")
-        testImplementation ("org.mockito:mockito-core:2.19.0")
+        testImplementation("org.mockito:mockito-core:5.11.0")
+        testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
         "integrationTestImplementation"(configurations.testImplementation.get())
         "integrationTestRuntimeOnly"(configurations.testRuntimeOnly.get())
         "e2eTestImplementation"(configurations.testImplementation.get())

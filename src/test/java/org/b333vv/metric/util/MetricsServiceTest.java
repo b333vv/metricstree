@@ -4,8 +4,9 @@ import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.metric.MetricType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockitoExtension.class)
 public class MetricsServiceTest {
 
     @Mock
@@ -30,7 +32,7 @@ public class MetricsServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // MockitoAnnotations.openMocks(this); // Removed
         // Assuming MetricsService has a constructor that accepts a Project.
         // If MetricsService is typically retrieved via Project.getService(MetricsService.class),
         // this direct instantiation is a valid way to unit test the class logic itself,

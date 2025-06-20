@@ -12,8 +12,9 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.JavaMethodVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class JavaMethodTest {
 
     @Mock
@@ -41,7 +43,7 @@ public class JavaMethodTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // MockitoAnnotations.openMocks(this); // Removed
 
         // Common setup for PsiMethod needed by JavaMethod constructor via JavaMethod.signature()
         when(mockPsiMethod.getName()).thenReturn(methodName);

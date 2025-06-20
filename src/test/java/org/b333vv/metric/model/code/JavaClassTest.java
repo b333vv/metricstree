@@ -8,8 +8,9 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.JavaClassVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class JavaClassTest {
 
     @Mock
@@ -36,7 +38,7 @@ public class JavaClassTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // MockitoAnnotations.openMocks(this); // Removed
         when(mockPsiClass.getName()).thenReturn(className);
         javaClass = new JavaClass(mockPsiClass, mockParent, startLine, endLine);
     }
