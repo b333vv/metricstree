@@ -94,7 +94,7 @@ public class MetricTest {
     // 5. `getFormattedValue()`
     @Test
     void testGetFormattedValue() {
-        Metric metricLong = Metric.of(MetricType.NOP, 12L);
+        Metric metricLong = Metric.of(MetricType.LOC, 12L);
         assertEquals("12", metricLong.getFormattedValue(), "getFormattedValue() for Long should match Value.toString().");
 
         Metric metricDouble = Metric.of(MetricType.A, 1.23); // Value.of(1.23).toString() is "1.23"
@@ -109,8 +109,8 @@ public class MetricTest {
     void testCompareTo() {
         Metric metricVal5TypeA = Metric.of(MetricType.LCOM, 5L);
         Metric metricVal10TypeA = Metric.of(MetricType.LCOM, 10L);
-        Metric metricVal5TypeB = Metric.of(MetricType.NOF, 5L); // Same value, different type
-        Metric metricVal10TypeB = Metric.of(MetricType.NOF, 10L); // Same value as metricVal10TypeA, different type
+        Metric metricVal5TypeB = Metric.of(MetricType.LCOM, 5L); // Same value, different type
+        Metric metricVal10TypeB = Metric.of(MetricType.LCOM, 10L); // Same value as metricVal10TypeA, different type
 
         // Basic comparison
         assertTrue(metricVal5TypeA.compareTo(metricVal10TypeA) < 0, "5L should be less than 10L.");
@@ -135,7 +135,7 @@ public class MetricTest {
         // If Value.UNDEFINED is treated as smallest:
         // assertTrue(metricUndefined.compareTo(metricDefined) < 0);
         // assertTrue(metricDefined.compareTo(metricUndefined) > 0);
-        // assertEquals(0, metricUndefined.compareTo(Metric.of(MetricType.NOF, Value.UNDEFINED)));
+        // assertEquals(0, metricUndefined.compareTo(Metric.of(MetricType.LCOM, Value.UNDEFINED)));
         // For now, let's assume Value.compareTo works and does not throw with UNDEFINED.
         // The exact behavior of comparing with UNDEFINED needs to be known from Value.java implementation.
         // If Value.compareTo throws an exception, then Metric.compareTo would also.
@@ -145,7 +145,7 @@ public class MetricTest {
         if (valUndef.compareTo(valDef) < 0) { // Check assumption
              assertTrue(metricUndefined.compareTo(metricDefined) < 0, "UNDEFINED value metric should be less than defined value metric.");
              assertTrue(metricDefined.compareTo(metricUndefined) > 0, "Defined value metric should be greater than UNDEFINED value metric.");
-             assertEquals(0, metricUndefined.compareTo(Metric.of(MetricType.NOF, Value.UNDEFINED)), "Two UNDEFINED value metrics should be equal in comparison.");
+             assertEquals(0, metricUndefined.compareTo(Metric.of(MetricType.LCOM, Value.UNDEFINED)), "Two UNDEFINED value metrics should be equal in comparison.");
         } else {
             // If Value.UNDEFINED comparison is different (e.g., throws), this part of test might need adjustment
             // or assertThrows. For now, this block acknowledges the dependency.
