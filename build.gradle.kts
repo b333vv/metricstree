@@ -110,7 +110,7 @@ tasks {
     }
 
     check {
-        dependsOn(tasks.named("integrationTest"))
-        dependsOn(tasks.named("e2eTest"))
+        dependsOn(named("integrationTest"))
+        dependsOn(named("e2eTest"))
     }
 }
