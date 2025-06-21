@@ -31,7 +31,7 @@ public class MetricsUtilsTest {
 
         // 3. Call MetricsUtils.sortByValueReversed with this map
         // Assuming MetricsUtils.sortByValueReversed returns a LinkedHashMap to preserve order
-        LinkedHashMap<String, Integer> sortedMap = MetricsUtils.sortByValueReversed(originalMap);
+        Map<String, Integer> sortedMap = MetricsUtils.sortByValueReversed(originalMap); // Corrected type
 
         // 4. Assert that the returned map has the entries sorted in descending order of their values
         assertNotSame(originalMap, sortedMap, "The returned map should be a new instance.");

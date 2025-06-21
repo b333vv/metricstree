@@ -6,8 +6,10 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith; // Added
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.MockitoAnnotations; // Will be removed by logic below
+import org.mockito.junit.jupiter.MockitoExtension; // Added
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class) // Added
 public class JavaProjectTest {
 
     private JavaProject javaProject;
@@ -31,8 +34,8 @@ public class JavaProjectTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        javaProject = new JavaProject(projectName, null); // Parent is null
+        // MockitoAnnotations.openMocks(this); // Removed
+        javaProject = new JavaProject(projectName); // Corrected constructor
     }
 
     // 1. Constructor and `getName()`
@@ -46,9 +49,10 @@ public class JavaProjectTest {
     void testAddPackageAndPackages() {
         assertTrue(javaProject.packages().collect(Collectors.toList()).isEmpty(), "Initially, packages() stream should be empty.");
 
-        JavaPackage pkgA = new JavaPackage("com.a", null, javaProject);
-        JavaPackage pkgC = new JavaPackage("com.c", null, javaProject);
-        JavaPackage pkgB = new JavaPackage("com.b", null, javaProject);
+        // PsiPackage mocks for JavaPackage constructor if needed, or null if PsiPackage is optional for the test's purpose
+        JavaPackage pkgA = new JavaPackage("com.a", null); // Corrected constructor
+        JavaPackage pkgC = new JavaPackage("com.c", null); // Corrected constructor
+        JavaPackage pkgB = new JavaPackage("com.b", null); // Corrected constructor
 
         javaProject.addPackage(pkgA); // This adds to JavaCode.children, used by packages()
         javaProject.addPackage(pkgC);
@@ -67,8 +71,8 @@ public class JavaProjectTest {
         assertTrue(javaProject.allPackagesIsEmpty(), "allPackagesIsEmpty should be true initially.");
         assertTrue(javaProject.allPackages().collect(Collectors.toList()).isEmpty(), "allPackages() stream should be empty initially.");
 
-        JavaPackage pkg1 = new JavaPackage("com.example.one", null, null); // Parent doesn't matter for this global map
-        JavaPackage pkg2 = new JavaPackage("com.example.two", null, null);
+        JavaPackage pkg1 = new JavaPackage("com.example.one", null); // Corrected constructor
+        JavaPackage pkg2 = new JavaPackage("com.example.two", null); // Corrected constructor
 
         javaProject.putToAllPackages("com.example.one", pkg1);
         javaProject.putToAllPackages("com.example.two", pkg2);
@@ -99,10 +103,10 @@ public class JavaProjectTest {
         assertTrue(javaProject.allClasses().collect(Collectors.toList()).isEmpty(), "Initially, allClasses() stream should be empty.");
 
         when(mockPsiClass1.getName()).thenReturn("ClassA");
-        JavaClass classA = new JavaClass(mockPsiClass1, null, 1, 10); // Parent JavaFile/JavaClass doesn't matter for this global list
+        JavaClass classA = new JavaClass(mockPsiClass1); // Corrected constructor
 
         when(mockPsiClass2.getName()).thenReturn("ClassB");
-        JavaClass classB = new JavaClass(mockPsiClass2, null, 1, 10);
+        JavaClass classB = new JavaClass(mockPsiClass2); // Corrected constructor
 
         javaProject.addToAllClasses(classA);
         javaProject.addToAllClasses(classB);
@@ -128,23 +132,23 @@ public class JavaProjectTest {
     // 5. Metric Management (inherited)
     @Test
     void testMetricManagement() {
-        Metric metricNOF = Metric.of(MetricType.NOF, 1000L); // Number of Files for a project
-        javaProject.addMetric(metricNOF);
-        assertEquals(metricNOF, javaProject.metric(MetricType.NOF));
+        Metric metricMHF = Metric.of(MetricType.MHF, 1000L); // Corrected: NOF -> MHF
+        javaProject.addMetric(metricMHF);
+        assertEquals(metricMHF, javaProject.metric(MetricType.MHF));
 
         assertNull(javaProject.metric(MetricType.LOC));
 
         Metric metricNOL = Metric.of(MetricType.NOL, Value.of(50000L)); // Number of Lines
         javaProject.addMetric(metricNOL);
 
-        List<Metric> expectedMetrics = Arrays.asList(metricNOF, metricNOL); // NOF before NOL
+        List<Metric> expectedMetrics = Arrays.asList(metricMHF, metricNOL); // MHF before NOL (depends on enum name order)
         expectedMetrics.sort(Comparator.comparing(m -> m.getType().name()));
 
         List<Metric> actualMetrics = javaProject.metrics().collect(Collectors.toList());
         assertIterableEquals(expectedMetrics, actualMetrics);
 
-        javaProject.removeMetric(MetricType.NOF);
-        assertNull(javaProject.metric(MetricType.NOF));
+        javaProject.removeMetric(MetricType.MHF);
+        assertNull(javaProject.metric(MetricType.MHF));
         assertEquals(1, javaProject.metrics().count());
         assertEquals(metricNOL, javaProject.metrics().findFirst().get());
 

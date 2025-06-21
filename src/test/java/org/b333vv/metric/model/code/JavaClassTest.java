@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElementVisitor;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.visitor.JavaClassVisitor;
+import org.b333vv.metric.model.visitor.type.JavaClassVisitor; // Corrected import
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,20 +27,20 @@ public class JavaClassTest {
     private PsiClass mockPsiClass;
     @Mock
     private PsiClass mockPsiClass2;
-    @Mock
-    private JavaCode mockParent; // Assuming JavaFile or another JavaClass, not critical for most tests
+    // @Mock
+    // private JavaCode mockParent; // Removed as JavaClass constructor is JavaClass(PsiClass)
 
     private JavaClass javaClass;
     private final String className = "TestClass";
-    private final int startLine = 1;
-    private final int endLine = 100;
+    // private final int startLine = 1; // Removed
+    // private final int endLine = 100; // Removed
 
 
     @BeforeEach
     void setUp() {
         // MockitoAnnotations.openMocks(this); // Removed
         when(mockPsiClass.getName()).thenReturn(className);
-        javaClass = new JavaClass(mockPsiClass, mockParent, startLine, endLine);
+        javaClass = new JavaClass(mockPsiClass); // Corrected constructor
     }
 
     // 1. Constructor and `getName()`
@@ -57,7 +57,7 @@ public class JavaClassTest {
         // then the behavior of JavaClass.getName() would depend on JavaCode.name default or handling.
         // For now, assuming PsiClass.getName() is expected to be non-null by contract or by Psi...
         when(mockPsiClass.getName()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> new JavaClass(mockPsiClass, mockParent, startLine, endLine),
+        assertThrows(NullPointerException.class, () -> new JavaClass(mockPsiClass), // Corrected constructor
                 "Constructor should throw NullPointerException if psiClass.getName() is null due to Objects.requireNonNull.");
     }
 
@@ -125,13 +125,13 @@ public class JavaClassTest {
     @Test
     void testEqualsAndHashCode() {
         // javaClass is (mockPsiClass, className)
-        JavaClass javaClassSame = new JavaClass(mockPsiClass, mockParent, startLine, endLine); // Same PsiClass, same name
+        JavaClass javaClassSame = new JavaClass(mockPsiClass); // Corrected constructor - Same PsiClass, same name
 
         when(mockPsiClass2.getName()).thenReturn(className); // Different PsiClass, same name
-        JavaClass javaClassDifferentPsi = new JavaClass(mockPsiClass2, mockParent, startLine, endLine);
+        JavaClass javaClassDifferentPsi = new JavaClass(mockPsiClass2); // Corrected constructor
 
         when(mockPsiClass2.getName()).thenReturn("AnotherName"); // Different PsiClass, different name
-        JavaClass javaClassDifferentPsiAndName = new JavaClass(mockPsiClass2, mockParent, startLine, endLine);
+        JavaClass javaClassDifferentPsiAndName = new JavaClass(mockPsiClass2); // Corrected constructor
 
         // Reflexivity
         assertEquals(javaClass, javaClass);

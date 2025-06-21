@@ -4,12 +4,12 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.impl.source.tree.java.PsiMethodImpl; // A concrete class for mocking if needed, or just PsiMethod
+// import com.intellij.psi.impl.source.tree.java.PsiMethodImpl; // Removed
 import com.intellij.psi.util.MethodSignature;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.visitor.JavaMethodVisitor;
+import org.b333vv.metric.model.visitor.method.JavaMethodVisitor; // Corrected import
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,8 +38,8 @@ public class JavaMethodTest {
 
     private JavaMethod javaMethod;
     private final String methodName = "testMethod";
-    private final int startLine = 5;
-    private final int endLine = 25;
+    // private final int startLine = 5; // Removed
+    // private final int endLine = 25; // Removed
 
     @BeforeEach
     void setUp() {
@@ -51,7 +51,7 @@ public class JavaMethodTest {
         when(mockMethodSignature.getParameterTypes()).thenReturn(PsiType.EMPTY_ARRAY); // Default to no params
 
         // javaMethod instance for some tests, others will create their own
-        javaMethod = new JavaMethod(mockPsiMethod, mockJavaClass, startLine, endLine);
+        javaMethod = new JavaMethod(mockPsiMethod, mockJavaClass); // Corrected constructor
     }
 
     // 1. `signature()` static method
@@ -99,19 +99,19 @@ public class JavaMethodTest {
     @Test
     void testEqualsAndHashCode() {
         // javaMethod uses mockPsiMethod, methodName + "()"
-        JavaMethod javaMethodSamePsi = new JavaMethod(mockPsiMethod, mockJavaClass, startLine, endLine);
+        JavaMethod javaMethodSamePsi = new JavaMethod(mockPsiMethod, mockJavaClass); // Corrected constructor
 
         // Different PsiMethod, but we'll mock it to produce the same signature
         when(mockPsiMethod2.getName()).thenReturn(methodName);
         MethodSignature mockMethodSignature2 = mock(MethodSignature.class);
         when(mockMethodSignature2.getParameterTypes()).thenReturn(PsiType.EMPTY_ARRAY);
         when(mockPsiMethod2.getSignature(PsiSubstitutor.EMPTY)).thenReturn(mockMethodSignature2);
-        JavaMethod javaMethodDifferentPsiSameSig = new JavaMethod(mockPsiMethod2, mockJavaClass, startLine, endLine);
+        JavaMethod javaMethodDifferentPsiSameSig = new JavaMethod(mockPsiMethod2, mockJavaClass); // Corrected constructor
 
         // Different PsiMethod, different signature (name)
         when(mockPsiMethod2.getName()).thenReturn("anotherMethod");
         // Signature will be anotherMethod()
-        JavaMethod javaMethodDifferentPsiDifferentSig = new JavaMethod(mockPsiMethod2, mockJavaClass, startLine, endLine);
+        JavaMethod javaMethodDifferentPsiDifferentSig = new JavaMethod(mockPsiMethod2, mockJavaClass); // Corrected constructor
 
         // Reflexivity
         assertEquals(javaMethod, javaMethod);
@@ -156,26 +156,26 @@ public class JavaMethodTest {
     // 5. Metric Management (inherited)
     @Test
     void testMetricManagement() {
-        Metric metricCYCLO = Metric.of(MetricType.CYCLO, 5L);
-        javaMethod.addMetric(metricCYCLO);
-        assertEquals(metricCYCLO, javaMethod.metric(MetricType.CYCLO));
+        Metric metricCC = Metric.of(MetricType.CC, 5L); // Corrected: CYCLO -> CC
+        javaMethod.addMetric(metricCC);
+        assertEquals(metricCC, javaMethod.metric(MetricType.CC));
 
         assertNull(javaMethod.metric(MetricType.LOC)); // Non-existent
 
-        Metric metricNBD = Metric.of(MetricType.NBD, Value.of(3));
-        javaMethod.addMetric(metricNBD);
-        List<Metric> expectedMetrics = Arrays.asList(metricCYCLO, metricNBD); // CYCLO before NBD by type name
+        Metric metricCND = Metric.of(MetricType.CND, Value.of(3)); // Corrected: NBD -> CND
+        javaMethod.addMetric(metricCND);
+        List<Metric> expectedMetrics = Arrays.asList(metricCC, metricCND); // CC before CND by type name (depends on actual enum names)
         expectedMetrics.sort(Comparator.comparing(m -> m.getType().name()));
 
         List<Metric> actualMetrics = javaMethod.metrics().collect(Collectors.toList());
         assertIterableEquals(expectedMetrics, actualMetrics);
 
-        javaMethod.removeMetric(MetricType.CYCLO);
-        assertNull(javaMethod.metric(MetricType.CYCLO));
+        javaMethod.removeMetric(MetricType.CC);
+        assertNull(javaMethod.metric(MetricType.CC));
         assertEquals(1, javaMethod.metrics().count());
-        assertEquals(metricNBD, javaMethod.metrics().findFirst().get());
+        assertEquals(metricCND, javaMethod.metrics().findFirst().get());
 
-        javaMethod.removeMetric(MetricType.NBD);
+        javaMethod.removeMetric(MetricType.CND);
         assertTrue(javaMethod.metrics().collect(Collectors.toList()).isEmpty());
     }
 }

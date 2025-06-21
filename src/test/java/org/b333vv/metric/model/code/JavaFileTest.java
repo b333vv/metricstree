@@ -3,8 +3,12 @@ package org.b333vv.metric.model.code;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
+import com.intellij.psi.PsiClass; // Added for mocking
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+// Mockito imports needed for createMockJavaClass helper
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,9 +22,16 @@ public class JavaFileTest {
     private JavaFile javaFile;
     private final String fileName = "TestFile.java";
 
+    // Helper to create JavaClass with mocked PsiClass
+    private JavaClass createMockJavaClass(String name) {
+        PsiClass mockPsi = mock(PsiClass.class);
+        when(mockPsi.getName()).thenReturn(name);
+        return new JavaClass(mockPsi);
+    }
+
     @BeforeEach
     void setUp() {
-        javaFile = new JavaFile(fileName, null); // Assuming parent is not critical for these tests
+        javaFile = new JavaFile(fileName); // Corrected constructor
     }
 
     // 1. Constructor and `getName()`
@@ -36,9 +47,9 @@ public class JavaFileTest {
         assertTrue(javaFile.classes().collect(Collectors.toList()).isEmpty(), "Initially, classes stream should be empty.");
 
         // Add classes
-        JavaClass classA = new JavaClass("ClassA", javaFile, 1, 10);
-        JavaClass classC = new JavaClass("ClassC", javaFile, 11, 20);
-        JavaClass classB = new JavaClass("ClassB", javaFile, 21, 30);
+        JavaClass classA = createMockJavaClass("ClassA");
+        JavaClass classC = createMockJavaClass("ClassC");
+        JavaClass classB = createMockJavaClass("ClassB");
 
         javaFile.addClass(classA);
         javaFile.addClass(classC);
