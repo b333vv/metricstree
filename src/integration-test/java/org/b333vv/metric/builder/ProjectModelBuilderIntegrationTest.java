@@ -54,8 +54,8 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
 
         // Note: configureByText creates files in a light PSI file system.
         // The path provided to configureByText helps IntelliJ understand package structure.
-        PsiFile psiFile1 = myFixture.configureByText("src/com/example/pkg1/File1.java", FILE1_STRING);
-        PsiFile psiFile2 = myFixture.configureByText("src/com/example/pkg2/File2.java", FILE2_STRING);
+        PsiFile psiFile1 = myFixture.configureByText("File1.java", FILE1_STRING); // Corrected file name
+        PsiFile psiFile2 = myFixture.configureByText("File2.java", FILE2_STRING); // Corrected file name
 
         projectModelBuilder.addJavaFileToJavaProject((PsiJavaFile) psiFile1);
         projectModelBuilder.addJavaFileToJavaProject((PsiJavaFile) psiFile2);

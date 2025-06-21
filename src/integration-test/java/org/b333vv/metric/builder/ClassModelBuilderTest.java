@@ -67,7 +67,7 @@ public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed bas
         // MetricsUtils.setCurrentProject(getProject()); // Removed
 
         // Use path that reflects package for configureByText
-        PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.configureByText("com/example/TestClass.java", TEST_CLASS_STRING);
+        PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.configureByText("TestClass.java", TEST_CLASS_STRING); // Corrected file name
         // PsiClass psiClass = psiJavaFile.getClasses()[0]; // Not needed directly for model building via buildJavaFile
 
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(getProject());

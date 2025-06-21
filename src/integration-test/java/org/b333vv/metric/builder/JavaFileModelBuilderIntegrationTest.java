@@ -54,7 +54,7 @@ public class JavaFileModelBuilderIntegrationTest extends BasePlatformTestCase {
         // MetricsUtils.setCurrentProject(getProject()); // Removed
 
         // Configure with a path that reflects the package structure
-        myFixture.configureByText("com/example/TestFile.java", TEST_FILE_STRING);
+        myFixture.configureByText("TestFile.java", TEST_FILE_STRING); // Corrected file name
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
 
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(getProject());
