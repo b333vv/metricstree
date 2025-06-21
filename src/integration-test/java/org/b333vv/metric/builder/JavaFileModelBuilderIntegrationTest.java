@@ -7,7 +7,7 @@ import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
+// import org.b333vv.metric.util.MetricsUtils; // Removed
 
 import java.util.Comparator;
 import java.util.List;
@@ -51,9 +51,10 @@ public class JavaFileModelBuilderIntegrationTest extends BasePlatformTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setCurrentProject(getProject());
+        // MetricsUtils.setCurrentProject(getProject()); // Removed
 
-        myFixture.configureByText("TestFile.java", TEST_FILE_STRING);
+        // Configure with a path that reflects the package structure
+        myFixture.configureByText("com/example/TestFile.java", TEST_FILE_STRING);
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
 
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(getProject());
@@ -78,43 +79,46 @@ public class JavaFileModelBuilderIntegrationTest extends BasePlatformTestCase {
     }
 
     public void testJavaFileModel() {
-        assertNotNull(javaFileModel, "JavaFile model should not be null.");
-        assertEquals("TestFile.java", javaFileModel.getName(), "JavaFile name mismatch.");
+        assertNotNull("JavaFile model should not be null.", javaFileModel);
+        // The name of the JavaFile model might be just "TestFile.java" or the fully qualified path
+        // depending on how ClassModelBuilder.buildJavaFile sets it.
+        // Assuming it's just the file name for now.
+        assertEquals("JavaFile name mismatch.", "TestFile.java", javaFileModel.getName());
         // Expecting PrimaryClass and PackagePrivateClass as top-level classes
-        assertEquals(2, javaFileModel.classes().count(), "Number of top-level classes mismatch.");
+        assertEquals("Number of top-level classes mismatch.", 2L, javaFileModel.classes().count());
     }
 
     public void testPrimaryPublicClassModel() {
-        assertNotNull(primaryClassModel, "PrimaryClass model should not be null.");
-        assertEquals("PrimaryClass", primaryClassModel.getName(), "PrimaryClass name mismatch.");
+        assertNotNull("PrimaryClass model should not be null.", primaryClassModel);
+        assertEquals("PrimaryClass name mismatch.", "PrimaryClass", primaryClassModel.getName());
         // Constructor + primaryMethod = 2 methods
-        assertEquals(2, primaryClassModel.methods().count(), "PrimaryClass method count mismatch.");
-        assertEquals(1, primaryClassModel.innerClasses().count(), "PrimaryClass inner class count mismatch.");
+        assertEquals("PrimaryClass method count mismatch.", 2L, primaryClassModel.methods().count());
+        assertEquals("PrimaryClass inner class count mismatch.", 1L, primaryClassModel.innerClasses().count());
 
         Metric nomMetric = primaryClassModel.metric(MetricType.NOM);
-        assertNotNull(nomMetric, "NOM metric for PrimaryClass should not be null.");
-        assertEquals(Value.of(2), nomMetric.getValue(), "PrimaryClass NOM value mismatch.");
+        assertNotNull("NOM metric for PrimaryClass should not be null.", nomMetric);
+        assertEquals("PrimaryClass NOM value mismatch.", Value.of(2), nomMetric.getValue());
     }
 
     public void testInnerStaticClassModel() {
-        assertNotNull(innerStaticClassModel, "InnerStaticClass model should not be null.");
-        assertEquals("InnerStaticClass", innerStaticClassModel.getName(), "InnerStaticClass name mismatch.");
+        assertNotNull("InnerStaticClass model should not be null.", innerStaticClassModel);
+        assertEquals("InnerStaticClass name mismatch.", "InnerStaticClass", innerStaticClassModel.getName());
         // Constructor + innerMethod = 2 methods
-        assertEquals(2, innerStaticClassModel.methods().count(), "InnerStaticClass method count mismatch.");
+        assertEquals("InnerStaticClass method count mismatch.", 2L, innerStaticClassModel.methods().count());
 
         Metric nomMetric = innerStaticClassModel.metric(MetricType.NOM);
-        assertNotNull(nomMetric, "NOM metric for InnerStaticClass should not be null.");
-        assertEquals(Value.of(2), nomMetric.getValue(), "InnerStaticClass NOM value mismatch.");
+        assertNotNull("NOM metric for InnerStaticClass should not be null.", nomMetric);
+        assertEquals("InnerStaticClass NOM value mismatch.", Value.of(2), nomMetric.getValue());
     }
 
     public void testPackagePrivateClassModel() {
-        assertNotNull(packagePrivateClassModel, "PackagePrivateClass model should not be null.");
-        assertEquals("PackagePrivateClass", packagePrivateClassModel.getName(), "PackagePrivateClass name mismatch.");
+        assertNotNull("PackagePrivateClass model should not be null.", packagePrivateClassModel);
+        assertEquals("PackagePrivateClass name mismatch.", "PackagePrivateClass", packagePrivateClassModel.getName());
         // Constructor + packageMethod = 2 methods
-        assertEquals(2, packagePrivateClassModel.methods().count(), "PackagePrivateClass method count mismatch.");
+        assertEquals("PackagePrivateClass method count mismatch.", 2L, packagePrivateClassModel.methods().count());
 
         Metric nomMetric = packagePrivateClassModel.metric(MetricType.NOM);
-        assertNotNull(nomMetric, "NOM metric for PackagePrivateClass should not be null.");
-        assertEquals(Value.of(2), nomMetric.getValue(), "PackagePrivateClass NOM value mismatch.");
+        assertNotNull("NOM metric for PackagePrivateClass should not be null.", nomMetric);
+        assertEquals("PackagePrivateClass NOM value mismatch.", Value.of(2), nomMetric.getValue());
     }
 }

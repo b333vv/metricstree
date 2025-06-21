@@ -23,10 +23,11 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
+// import org.b333vv.metric.util.MetricsUtils; // Removed
 
-import java.util.Map;
-import java.util.function.Function;
+import org.b333vv.metric.model.code.JavaFile; // Added for buildJavaFile
+// import java.util.Map; // No longer needed
+// import java.util.function.Function; // No longer needed
 import java.util.stream.Collectors;
 
 public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed base class
@@ -63,30 +64,32 @@ public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed bas
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MetricsUtils.setCurrentProject(getProject()); // Still need this for builder context
+        // MetricsUtils.setCurrentProject(getProject()); // Removed
 
-        myFixture.configureByText("TestClass.java", TEST_CLASS_STRING);
-        PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
-        PsiClass psiClass = psiJavaFile.getClasses()[0];
+        // Use path that reflects package for configureByText
+        PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.configureByText("com/example/TestClass.java", TEST_CLASS_STRING);
+        // PsiClass psiClass = psiJavaFile.getClasses()[0]; // Not needed directly for model building via buildJavaFile
 
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(getProject());
-        // Build model for the specific PsiClass, not the whole file
-        javaClassModel = classModelBuilder.buildJavaClass(psiClass, null); // Assuming parent JavaFile model not strictly needed for these assertions
+        JavaFile javaFileModel = classModelBuilder.buildJavaFile(psiJavaFile);
+        assertNotNull("JavaFile model should not be null", javaFileModel);
+        this.javaClassModel = javaFileModel.classes().findFirst().orElse(null);
+        assertNotNull("JavaClass model should not be null", this.javaClassModel);
     }
 
     public void testClassName() {
-        assertNotNull(javaClassModel);
-        assertEquals("TestClass", javaClassModel.getName());
+        assertNotNull("JavaClass model should not be null after setup", javaClassModel);
+        assertEquals("Class name mismatch", "TestClass", javaClassModel.getName());
     }
 
     public void testNumberOfMethods() {
-        assertNotNull(javaClassModel);
+        assertNotNull("JavaClass model should not be null for method count test", javaClassModel);
         // Expecting: constructor, method1, method2, helperMethod
-        assertEquals(4, javaClassModel.methods().count());
+        assertEquals("Method count mismatch", 4L, javaClassModel.methods().count());
     }
 
     public void testWeightedMethodsPerClass() {
-        assertNotNull(javaClassModel);
+        assertNotNull("JavaClass model should not be null for WMC test", javaClassModel);
         Metric wmcMetric = javaClassModel.metric(MetricType.WMC);
         assertNotNull("WMC Metric should be present", wmcMetric);
         // Manual WMC calculation for TEST_CLASS_STRING:
@@ -95,11 +98,11 @@ public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed bas
         // method2: 1 (for method itself) + 1 (for if statement) = 2
         // helperMethod: 1
         // Total WMC = 1 + 1 + 2 + 1 = 5
-        assertEquals(Value.of(5), wmcMetric.getValue(), "WMC value mismatch");
+        assertEquals("WMC value mismatch", Value.of(5), wmcMetric.getValue());
     }
 
     public void testNumberOfMethodsMetric() {
-        assertNotNull(javaClassModel);
+        assertNotNull("JavaClass model should not be null for NOM test", javaClassModel);
         Metric nomMetric = javaClassModel.metric(MetricType.NOM);
         assertNotNull("NOM Metric should be present", nomMetric);
         // NOM counts user-defined methods.
@@ -108,7 +111,7 @@ public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed bas
         // TestClass (constructor), method1, method2, helperMethod => 4 methods
         // If constructors are excluded by default by the underlying tools, it would be 3.
         // Let's assume it counts all PsiMethod entries in the class.
-        assertEquals(Value.of(4), nomMetric.getValue(), "NOM value mismatch");
+        assertEquals("NOM value mismatch", Value.of(4), nomMetric.getValue());
     }
 
     // getTestDataPath is not needed if we are not loading from external files.
