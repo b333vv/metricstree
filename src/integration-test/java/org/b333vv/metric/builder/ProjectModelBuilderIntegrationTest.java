@@ -74,8 +74,8 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
         // ProjectModelBuilder.findOrCreateJavaPackage likely creates a hierarchy and adds only the
         // top-most non-existent package part as a direct child of JavaProject (e.g. "com").
         // Let's check allPackages for the specific ones we expect.
-        assertEquals("Should have two 'com.example.pkgX' packages in allPackages",
-                2L, javaProject.allPackages().filter(p -> p.getName().startsWith("com.example.pkg")).count());
+        assertEquals("Should have two 'com.example.pkgX' packages in allPackages", 2L,
+                javaProject.allPackages().filter(p -> p.getPsiPackage() != null && p.getPsiPackage().getQualifiedName().startsWith("com.example.pkg")).count());
 
 
         Set<String> expectedClassNames = Set.of("ClassA", "ClassB", "InnerB1");
@@ -88,7 +88,9 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
     public void testPackage1Contents() {
         JavaPackage pkg1 = javaProject.getFromAllPackages("com.example.pkg1");
         assertNotNull("Package 'com.example.pkg1' should exist.", pkg1);
-        assertEquals("Package name mismatch for pkg1.", "com.example.pkg1", pkg1.getName());
+        assertEquals("Package name mismatch for pkg1 (short name).", "pkg1", pkg1.getName());
+        assertNotNull("PsiPackage for pkg1 should not be null.", pkg1.getPsiPackage());
+        assertEquals("Package FQN mismatch for pkg1.", "com.example.pkg1", pkg1.getPsiPackage().getQualifiedName());
 
         assertEquals("Package pkg1 should contain one file.", 1L, pkg1.files().count());
         JavaFile file1 = pkg1.files().findFirst().orElse(null);
@@ -110,7 +112,9 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
     public void testPackage2ContentsAndInnerClasses() {
         JavaPackage pkg2 = javaProject.getFromAllPackages("com.example.pkg2");
         assertNotNull("Package 'com.example.pkg2' should exist.", pkg2);
-        assertEquals("Package name mismatch for pkg2.", "com.example.pkg2", pkg2.getName());
+        assertEquals("Package name mismatch for pkg2 (short name).", "pkg2", pkg2.getName());
+        assertNotNull("PsiPackage for pkg2 should not be null.", pkg2.getPsiPackage());
+        assertEquals("Package FQN mismatch for pkg2.", "com.example.pkg2", pkg2.getPsiPackage().getQualifiedName());
 
         assertEquals("Package pkg2 should contain one file.", 1L, pkg2.files().count());
         JavaFile file2 = pkg2.files().findFirst().orElse(null);
