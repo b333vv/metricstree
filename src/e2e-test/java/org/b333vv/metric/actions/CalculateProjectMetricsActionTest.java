@@ -31,8 +31,7 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
 
     // realMetricTaskCache will be spied by spyMetricTaskCache
     private MetricTaskCache realMetricTaskCache;
-    @Spy
-    private MetricTaskCache spyMetricTaskCache;
+    private MetricTaskCache spyMetricTaskCache; // @Spy annotation removed
 
     private CalculateProjectMetricsAction action;
     private AnActionEvent event;
@@ -40,21 +39,20 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp(); // Handles BasePlatformTestCase setup
-        MockitoAnnotations.openMocks(this); // Added for manual initialization
+        MockitoAnnotations.openMocks(this); // Initialize @Mock fields like mockMetricsEventListener
 
-        // Initialize the instance to be spied upon
+        // Manually create the real MetricTaskCache instance and then spy on it
         realMetricTaskCache = new MetricTaskCache(getProject());
-        // @Spy field will be initialized by openMocks(this) if it's not final or if it's an interface.
-        // Since we need to spy on a concrete instance, manual spy creation after mock init is better.
         spyMetricTaskCache = Mockito.spy(realMetricTaskCache);
 
+        // Register the spy as the service instance
         ServiceContainerUtil.replaceService(getProject(), MetricTaskCache.class, spyMetricTaskCache, getTestRootDisposable());
 
         getProject().getMessageBus().connect(getTestRootDisposable())
                 .subscribe(MetricsEventListener.TOPIC, mockMetricsEventListener);
 
-        action = new CalculateProjectMetricsAction();
-        event = new TestActionEvent(); // Corrected instantiation
+        action = new CalculateProjectMetricsAction(); // Action initialization
+        event = new TestActionEvent();
     }
 
     @Test
