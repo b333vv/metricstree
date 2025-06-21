@@ -21,45 +21,45 @@ public class SetProjectAutoScrollableActionTest extends BasePlatformTestCase {
         MetricsUtils.setProjectAutoScrollable(true);
         action = new SetProjectAutoScrollableAction();
         // Create a TestActionEvent
-        event = TestActionEvent.createTestEvent(); // Simplified creation
+        event = new TestActionEvent(); // Corrected instantiation
     }
 
     public void testIsSelectedReflectsMetricsUtilsState() {
         MetricsUtils.setProjectAutoScrollable(true);
-        assertTrue(action.isSelected(event), "Action should be selected when MetricsUtils.isProjectAutoScrollable is true.");
+        assertTrue("Action should be selected when MetricsUtils.isProjectAutoScrollable is true.", action.isSelected(event));
 
         MetricsUtils.setProjectAutoScrollable(false);
-        assertFalse(action.isSelected(event), "Action should not be selected when MetricsUtils.isProjectAutoScrollable is false.");
+        assertFalse("Action should not be selected when MetricsUtils.isProjectAutoScrollable is false.", action.isSelected(event));
     }
 
     public void testSetSelectedUpdatesMetricsUtilsState() {
         // Initial state set to true in setUp()
-        assertTrue(MetricsUtils.isProjectAutoScrollable(), "Initial MetricsUtils state should be true (from setUp).");
-        assertTrue(action.isSelected(event), "Action should initially be selected (from setUp).");
+        assertTrue("Initial MetricsUtils state should be true (from setUp).", MetricsUtils.isProjectAutoScrollable());
+        assertTrue("Action should initially be selected (from setUp).", action.isSelected(event));
 
         action.setSelected(event, false);
-        assertFalse(MetricsUtils.isProjectAutoScrollable(), "MetricsUtils state should be false after setSelected(false).");
-        assertFalse(action.isSelected(event), "Action should not be selected after setSelected(false).");
+        assertFalse("MetricsUtils state should be false after setSelected(false).", MetricsUtils.isProjectAutoScrollable());
+        assertFalse("Action should not be selected after setSelected(false).", action.isSelected(event));
 
         action.setSelected(event, true);
-        assertTrue(MetricsUtils.isProjectAutoScrollable(), "MetricsUtils state should be true after setSelected(true).");
-        assertTrue(action.isSelected(event), "Action should be selected after setSelected(true).");
+        assertTrue("MetricsUtils state should be true after setSelected(true).", MetricsUtils.isProjectAutoScrollable());
+        assertTrue("Action should be selected after setSelected(true).", action.isSelected(event));
     }
 
     public void testActionPerformedTogglesState() {
         // Initial state set to true in setUp()
-        assertTrue(MetricsUtils.isProjectAutoScrollable(), "Initial MetricsUtils state should be true (from setUp).");
+        assertTrue("Initial MetricsUtils state should be true (from setUp).", MetricsUtils.isProjectAutoScrollable());
         boolean initialActionSelectedState = action.isSelected(event);
-        assertTrue(initialActionSelectedState, "Action should be selected initially (from setUp).");
+        assertTrue("Action should be selected initially (from setUp).", initialActionSelectedState);
 
         // First toggle: true -> false
         action.actionPerformed(event);
-        assertFalse(MetricsUtils.isProjectAutoScrollable(), "MetricsUtils state should be false after first actionPerformed.");
-        assertFalse(action.isSelected(event), "Action should not be selected after first actionPerformed.");
+        assertFalse("MetricsUtils state should be false after first actionPerformed.", MetricsUtils.isProjectAutoScrollable());
+        assertFalse("Action should not be selected after first actionPerformed.", action.isSelected(event));
 
         // Second toggle: false -> true
         action.actionPerformed(event);
-        assertTrue(MetricsUtils.isProjectAutoScrollable(), "MetricsUtils state should be true after second actionPerformed.");
-        assertTrue(action.isSelected(event), "Action should be selected after second actionPerformed.");
+        assertTrue("MetricsUtils state should be true after second actionPerformed.", MetricsUtils.isProjectAutoScrollable());
+        assertTrue("Action should be selected after second actionPerformed.", action.isSelected(event));
     }
 }

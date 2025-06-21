@@ -55,7 +55,7 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
                 .subscribe(MetricsEventListener.TOPIC, mockMetricsEventListener);
 
         action = new CalculateProjectMetricsAction();
-        event = TestActionEvent.createTestEvent(); // Simplified creation
+        event = new TestActionEvent(); // Corrected instantiation
     }
 
     @Test
@@ -63,7 +63,7 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
         // The spyMetricTaskCache initially has an empty queue and isProcessing is false by default.
         // The static MetricTaskCache.isQueueEmpty(project) will use this spied instance.
         action.update(event);
-        assertTrue(event.getPresentation().isEnabled(), "Action should be enabled when task queue is initially empty and not processing.");
+        assertTrue("Action should be enabled when task queue is initially empty and not processing.", event.getPresentation().isEnabled());
     }
 
     // Removed testUpdateLogic_whenQueueIsNotEmpty_actionDisabled
@@ -73,7 +73,7 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
         // Static MetricTaskCache.isQueueEmpty(project) will use the spy.
         // Initial state of spy: queue is empty, isProcessing is false.
         action.update(event);
-        assertTrue(event.getPresentation().isEnabled(), "Action should be enabled before performing."); // Corrected assertion args
+        assertTrue("Action should be enabled before performing.", event.getPresentation().isEnabled());
 
         // Perform the action
         action.actionPerformed(event);

@@ -32,7 +32,7 @@ public class CleanConsoleActionTest extends BasePlatformTestCase {
         CleanConsoleAction action = new CleanConsoleAction();
 
         // Create a test AnActionEvent
-        AnActionEvent event = TestActionEvent.createTestEvent(); // Simplified creation
+        AnActionEvent event = new TestActionEvent(); // Corrected instantiation
 
         // Call actionPerformed
         action.actionPerformed(event);
