@@ -9,17 +9,23 @@ import com.intellij.testFramework.TestActionEvent;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import org.b333vv.metric.ui.log.MetricsConsole;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+// import org.junit.jupiter.api.extension.ExtendWith; // Removed
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations; // Added
+// import org.mockito.junit.jupiter.MockitoExtension; // Removed
 
-// It's an E2E test, but if it uses Mockito for the service, MockitoExtension is useful.
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class) // Removed
 public class CleanConsoleActionTest extends BasePlatformTestCase {
 
     @Mock
     private MetricsConsole mockMetricsConsole;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        MockitoAnnotations.openMocks(this); // Added for manual initialization
+    }
 
     @Test
     public void testActionPerformed() {

@@ -12,17 +12,18 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.task.MetricTaskCache;
 // import org.b333vv.metric.task.ProjectTreeTask; // No longer peeking at task type
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+// import org.junit.jupiter.api.extension.ExtendWith; // Removed
 // import org.mockito.ArgumentCaptor; // No longer needed
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations; // Added
 import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+// import org.mockito.junit.jupiter.MockitoExtension; // Removed
 
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class) // Removed
 public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
 
     @Mock
@@ -39,14 +40,12 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp(); // Handles BasePlatformTestCase setup
+        MockitoAnnotations.openMocks(this); // Added for manual initialization
 
         // Initialize the instance to be spied upon
         realMetricTaskCache = new MetricTaskCache(getProject());
-        // @Spy field will be initialized by MockitoExtension using this instance if we assign it,
-        // but it's cleaner to let Mockito create the spy if possible or use spy() method.
-        // However, @Spy on a field typically requires Mockito to instantiate it, which is not what we want here.
-        // So, manual spy creation and service replacement is better.
-        // Mockito.reset(spyMetricTaskCache); // Not needed with @ExtendWith and proper spy init
+        // @Spy field will be initialized by openMocks(this) if it's not final or if it's an interface.
+        // Since we need to spy on a concrete instance, manual spy creation after mock init is better.
         spyMetricTaskCache = Mockito.spy(realMetricTaskCache);
 
         ServiceContainerUtil.replaceService(getProject(), MetricTaskCache.class, spyMetricTaskCache, getTestRootDisposable());
