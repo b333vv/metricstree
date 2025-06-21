@@ -20,23 +20,22 @@ public class SetProjectAutoScrollableActionTest extends BasePlatformTestCase {
         // Set default state before each test
         MetricsUtils.setProjectAutoScrollable(true);
         action = new SetProjectAutoScrollableAction();
-        // Create a TestActionEvent that provides the project
-        DataContext dataContext = dataId -> CommonDataKeys.PROJECT.is(dataId) ? getProject() : null;
-        event = TestActionEvent.createTestEvent(dataContext);
+        // Create a TestActionEvent
+        event = TestActionEvent.createTestEvent(); // Simplified creation
     }
 
     public void testIsSelectedReflectsMetricsUtilsState() {
         MetricsUtils.setProjectAutoScrollable(true);
-        assertTrue("Action should be selected when MetricsUtils.isProjectAutoScrollable is true.", action.isSelected(event));
+        assertTrue(action.isSelected(event), "Action should be selected when MetricsUtils.isProjectAutoScrollable is true.");
 
         MetricsUtils.setProjectAutoScrollable(false);
-        assertFalse("Action should not be selected when MetricsUtils.isProjectAutoScrollable is false.", action.isSelected(event));
+        assertFalse(action.isSelected(event), "Action should not be selected when MetricsUtils.isProjectAutoScrollable is false.");
     }
 
     public void testSetSelectedUpdatesMetricsUtilsState() {
         // Initial state set to true in setUp()
-        assertTrue(MetricsUtils.isProjectAutoScrollable(), "Initial MetricsUtils state should be true.");
-        assertTrue(action.isSelected(event), "Action should initially be selected.");
+        assertTrue(MetricsUtils.isProjectAutoScrollable(), "Initial MetricsUtils state should be true (from setUp).");
+        assertTrue(action.isSelected(event), "Action should initially be selected (from setUp).");
 
         action.setSelected(event, false);
         assertFalse(MetricsUtils.isProjectAutoScrollable(), "MetricsUtils state should be false after setSelected(false).");
@@ -49,9 +48,9 @@ public class SetProjectAutoScrollableActionTest extends BasePlatformTestCase {
 
     public void testActionPerformedTogglesState() {
         // Initial state set to true in setUp()
-        assertTrue(MetricsUtils.isProjectAutoScrollable(), "Initial MetricsUtils state should be true.");
+        assertTrue(MetricsUtils.isProjectAutoScrollable(), "Initial MetricsUtils state should be true (from setUp).");
         boolean initialActionSelectedState = action.isSelected(event);
-        assertTrue(initialActionSelectedState, "Action should be selected initially.");
+        assertTrue(initialActionSelectedState, "Action should be selected initially (from setUp).");
 
         // First toggle: true -> false
         action.actionPerformed(event);
