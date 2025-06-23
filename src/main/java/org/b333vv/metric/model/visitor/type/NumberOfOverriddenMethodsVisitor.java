@@ -22,12 +22,13 @@ import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.util.MethodUtils;
+import org.jetbrains.annotations.NotNull;
 
 import static org.b333vv.metric.model.metric.MetricType.NOOM;
 
 public class NumberOfOverriddenMethodsVisitor extends JavaClassVisitor {
     @Override
-    public void visitClass(PsiClass psiClass) {
+    public void visitClass(@NotNull PsiClass psiClass) {
         super.visitClass(psiClass);
         long overriddenMethodsNumber = 0;
         metric = Metric.of(NOOM, Value.UNDEFINED);

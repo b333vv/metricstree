@@ -88,7 +88,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfAddedMethodsVisitor numberOfAddedMethodsVisitor = new NumberOfAddedMethodsVisitor();
         javaClass.accept(numberOfAddedMethodsVisitor);
 
-        Metric metric = Metric.of(NOAM, 47);
+        Metric metric = Metric.of(NOAM, 46);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
@@ -112,7 +112,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfOperationsVisitor numberOfOperationsVisitor = new NumberOfOperationsVisitor();
         javaClass.accept(numberOfOperationsVisitor);
 
-        Metric metric = Metric.of(NOO, 51);
+        Metric metric = Metric.of(NOO, 64);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
@@ -124,7 +124,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfOverriddenMethodsVisitor numberOfOverriddenMethodsVisitor = new NumberOfOverriddenMethodsVisitor();
         javaClass.accept(numberOfOverriddenMethodsVisitor);
 
-        Metric metric = Metric.of(NOOM, 0);
+        Metric metric = Metric.of(NOOM, 1);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
@@ -136,7 +136,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfAttributesAndMethodsVisitor numberOfAttributesAndMethodsVisitor = new NumberOfAttributesAndMethodsVisitor();
         javaClass.accept(numberOfAttributesAndMethodsVisitor);
 
-        Metric metric = Metric.of(SIZE2, 64);
+        Metric metric = Metric.of(SIZE2, 76);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
