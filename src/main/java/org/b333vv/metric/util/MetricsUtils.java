@@ -48,7 +48,16 @@ public final class MetricsUtils {
     private final static MetricsTreeFilter classMetricsTreeFilter = new MetricsTreeFilter();
     private final static MetricsTreeFilter projectMetricsTreeFilter = new MetricsTreeFilter();
 
+    /**
+     * @deprecated Use {@link org.b333vv.metric.service.UIStateService#isProjectAutoScrollable()} instead.
+     */
+    @Deprecated(forRemoval = true)
     private static boolean projectAutoScrollable = true;
+    
+    /**
+     * @deprecated Use {@link org.b333vv.metric.service.UIStateService#isProfileAutoScrollable()} instead.
+     */
+    @Deprecated(forRemoval = true)
     private static boolean profileAutoScrollable = true;
     private static boolean classMetricsTreeExists = true;
     //    private static boolean classMetricsTreeExists = false;
@@ -90,18 +99,34 @@ public final class MetricsUtils {
         return projectMetricsTreeFilter;
     }
 
+    /**
+     * @deprecated Use {@link org.b333vv.metric.service.UIStateService#isProjectAutoScrollable()} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static boolean isProjectAutoScrollable() {
         return projectAutoScrollable;
     }
 
+    /**
+     * @deprecated Use {@link org.b333vv.metric.service.UIStateService#setProjectAutoScrollable(boolean)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static void setProjectAutoScrollable(boolean value) {
         projectAutoScrollable = value;
     }
 
+    /**
+     * @deprecated Use {@link org.b333vv.metric.service.UIStateService#isProfileAutoScrollable()} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static boolean isProfileAutoScrollable() {
         return profileAutoScrollable;
     }
 
+    /**
+     * @deprecated Use {@link org.b333vv.metric.service.UIStateService#setProfileAutoScrollable(boolean)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static void setProfileAutoScrollable(boolean value) {
         profileAutoScrollable = value;
     }

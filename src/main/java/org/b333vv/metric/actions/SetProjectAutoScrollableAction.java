@@ -17,20 +17,24 @@
 package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.ToggleAction;
-import org.b333vv.metric.util.MetricsUtils;
+import com.intellij.openapi.project.Project;
+import org.b333vv.metric.service.UIStateService;
 import org.jetbrains.annotations.NotNull;
 
 class SetProjectAutoScrollableAction extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent event) {
-        return MetricsUtils.isProjectAutoScrollable();
+        Project project = event.getProject();
+        return project != null && project.getService(UIStateService.class).isProjectAutoScrollable();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent event, boolean autoScrollable) {
-        MetricsUtils.setProjectAutoScrollable(autoScrollable);
+        Project project = event.getProject();
+        if (project != null) {
+            project.getService(UIStateService.class).setProjectAutoScrollable(autoScrollable);
+        }
     }
 
 }
