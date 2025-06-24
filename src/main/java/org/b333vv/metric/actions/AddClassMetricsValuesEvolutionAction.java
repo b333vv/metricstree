@@ -23,7 +23,7 @@ import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
 import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,7 @@ class AddClassMetricsValuesEvolutionAction extends AbstractAction {
             ClassMetricsValuesEvolutionProcessor classMetricsValuesEvolutionProcessor = new ClassMetricsValuesEvolutionProcessor(psiJavaFile);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassMetricsValuesEvolutionTree();
             MetricsUtils.getDumbService(project).runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
-            MetricsUtils.setClassMetricsValuesEvolutionAdded(true);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionAdded(true);
         }
     }
 
@@ -48,12 +48,13 @@ class AddClassMetricsValuesEvolutionAction extends AbstractAction {
         if (project != null) {
             ApplicationManager.getApplication().invokeLater(() -> {
                 psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
+                UIStateService uiStateService = project.getService(UIStateService.class);
                 event.getPresentation().setEnabled(
-                        !MetricsUtils.isMetricsEvolutionCalculationPerforming()
-                                && project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()
+                        !uiStateService.isClassMetricsValuesEvolutionCalculationPerforming()
+                                && uiStateService.isClassMetricsTreeExists()
                                 && psiJavaFile != null
                                 && GitUtil.isUnderGit(psiJavaFile.getVirtualFile())
-                                && !MetricsUtils.isClassMetricsValuesEvolutionAdded());
+                                && !uiStateService.isClassMetricsValuesEvolutionAdded());
 
             });
         }

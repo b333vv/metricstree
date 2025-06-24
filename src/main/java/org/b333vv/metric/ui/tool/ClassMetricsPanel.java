@@ -32,6 +32,7 @@ import com.intellij.psi.util.CachedValuesManager;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
@@ -57,7 +58,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     @Override
     public void update(@NotNull PsiJavaFile file) {
-        MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
+        project.getService(UIStateService.class).setClassMetricsValuesEvolutionAdded(false);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
         // psiJavaFile = file; // Удаляем кеширование PSI-элемента
         if (project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree()) {
@@ -77,7 +78,8 @@ public class ClassMetricsPanel extends MetricsTreePanel {
     }
 
     private void calculateMetrics(@NotNull PsiJavaFile psiJavaFile) {
-        MetricsUtils.setClassMetricsTreeExists(false);
+        UIStateService uiStateService = project.getService(UIStateService.class);
+        uiStateService.setClassMetricsTreeExists(false);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .printInfo("Built metrics tree for " + psiJavaFile.getName());
         JavaFile jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
@@ -87,13 +89,13 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
         metricTreeBuilder = new ClassMetricTreeBuilder(jf, psiJavaFile.getProject());
         buildTreeModel();
-        MetricsUtils.setClassMetricsTreeExists(true);
+        uiStateService.setClassMetricsTreeExists(true);
     }
 
     private class ClassMetricsEventListener implements MetricsEventListener {
         @Override
         public void buildClassMetricsTree() {
-            MetricsUtils.setClassMetricsValuesEvolutionAdded(false);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionAdded(false);
             buildTreeModel();
         }
 

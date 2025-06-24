@@ -20,8 +20,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import org.b333vv.metric.ui.tool.ClassMetricsPanel;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.service.UIStateService;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.MouseEvent;
@@ -37,7 +36,8 @@ public class FilterClassMetricsTreeAction extends AbstractAction {
 
     @Override
     public void update (AnActionEvent e) {
-        e.getPresentation().setEnabled(MetricsUtils.isClassMetricsTreeExists());
+        Project project = e.getProject();
+        e.getPresentation().setEnabled(project != null && project.getService(UIStateService.class).isClassMetricsTreeExists());
     }
 
     private void showPopup(@NotNull AnActionEvent e) {

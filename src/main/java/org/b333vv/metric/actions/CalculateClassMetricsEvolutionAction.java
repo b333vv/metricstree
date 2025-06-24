@@ -22,6 +22,7 @@ import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
 import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,11 +43,11 @@ public class CalculateClassMetricsEvolutionAction extends AbstractAction {
     }
 
     @Override
-    public void update (AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
             psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
-            e.getPresentation().setEnabled(!MetricsUtils.isMetricsEvolutionCalculationPerforming()
+            e.getPresentation().setEnabled(!project.getService(UIStateService.class).isClassMetricsValuesEvolutionCalculationPerforming()
                     && psiJavaFile != null
                     && GitUtil.isUnderGit(psiJavaFile.getVirtualFile()));
         }
