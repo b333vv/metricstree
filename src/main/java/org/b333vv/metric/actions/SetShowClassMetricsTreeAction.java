@@ -18,7 +18,7 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,9 +30,9 @@ class SetShowClassMetricsTreeAction extends AbstractToggleAction {
         if (project == null) {
             return false;
         }
-        MetricsService metricsService = project.getService(MetricsService.class);
+        SettingsService settingsService = project.getService(SettingsService.class);
 //        return Objects.requireNonNull(event.getProject()).getService(ClassMetricsTreeSettings1.class).isShowClassMetricsTree();
-        return metricsService.isShowClassMetricsTree();
+        return settingsService.isShowClassMetricsTree();
     }
 
     @Override
@@ -41,8 +41,8 @@ class SetShowClassMetricsTreeAction extends AbstractToggleAction {
         if (project == null) {
             return;
         }
-        MetricsService metricsService = project.getService(MetricsService.class);
-        metricsService.setShowClassMetricsTree(showClassMetricsTree);
+        SettingsService settingsService = project.getService(SettingsService.class);
+        settingsService.setShowClassMetricsTree(showClassMetricsTree);
         MetricsUtils.setClassMetricsTreeExists(showClassMetricsTree);
     }
 }

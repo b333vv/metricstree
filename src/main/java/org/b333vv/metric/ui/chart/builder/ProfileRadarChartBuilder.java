@@ -28,7 +28,7 @@ import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 
@@ -141,7 +141,7 @@ public class ProfileRadarChartBuilder {
                 .get().getValue().stream()
                 .flatMap(JavaClass::metrics)
                 .filter(m -> m.getType() == metricType)
-                .filter(metric -> project.getService(MetricsService.class).getRangeForMetric(metric.getType())
+                .filter(metric -> project.getService(SettingsService.class).getRangeForMetric(metric.getType())
                         .getRangeType(metric.getValue()) != RangeType.REGULAR)
                 .count();
 

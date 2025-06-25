@@ -29,7 +29,7 @@ import org.b333vv.metric.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -133,7 +133,7 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
         List<MetricType> metricTypes = new ArrayList<>();
         if (ojc.isPresent()) {
             String hint = ojc.get().metrics()
-                    .filter(m -> psiClass.getProject().getService(MetricsService.class).isNotRegularValue(m.getType(), m.getValue()))
+                    .filter(m -> psiClass.getProject().getService(SettingsService.class).isNotRegularValue(m.getType(), m.getValue()))
                     .peek(m -> {
                         metricTypes.add(m.getType());
                     })

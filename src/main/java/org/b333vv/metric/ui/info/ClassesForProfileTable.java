@@ -29,7 +29,7 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.EditorController;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.*;
@@ -143,13 +143,13 @@ public class ClassesForProfileTable {
                 cell.setForeground(UIUtil.getPanelBackground());
                 Metric metric = (Metric) value;
                 setHorizontalAlignment(SwingConstants.CENTER);
-                if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+                if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                     cell.setBackground(regularColor);
-                } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                     cell.setBackground(highColor);
-                } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                     cell.setBackground(veryHighColor);
-                } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                     cell.setBackground(extremeColor);
                 }
             } else {

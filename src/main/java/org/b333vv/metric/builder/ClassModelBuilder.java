@@ -21,7 +21,7 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -39,14 +39,14 @@ public class ClassModelBuilder extends ModelBuilder {
     @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
-        return project.getService(MetricsService.class).classVisitorsForClassMetricsTree();
+        return project.getService(SettingsService.class).classVisitorsForClassMetricsTree();
     }
 
     @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
 
-        return project.getService(MetricsService.class).methodsVisitorsForClassMetricsTree();
+        return project.getService(SettingsService.class).methodsVisitorsForClassMetricsTree();
     }
 
     @Override

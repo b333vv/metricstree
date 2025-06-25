@@ -22,7 +22,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import java.util.*;
@@ -40,7 +40,7 @@ public class ClassesByMetricsValuesDistributor {
         return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> metric.getType().isLongValue()
-                                && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
+                                && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()
                         .stream())

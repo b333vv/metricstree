@@ -24,7 +24,7 @@ import org.b333vv.metric.builder.ProjectMetricsSet2Json;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +53,7 @@ public class ProjectMetricTask extends Task.Backgroundable {
             ProjectMetricsSetCalculator projectMetricsSetCalculator = new ProjectMetricsSetCalculator(scope,
                     myProject.getService(CacheService.class).getUserData(CacheService.DEPENDENCIES), javaProject);
             projectMetricsSetCalculator.calculate();
-            if (myProject.getService(MetricsService.class).isProjectMetricsStampStored()) {
+            if (myProject.getService(SettingsService.class).isProjectMetricsStampStored()) {
                 ProjectMetricsSet2Json.takeProjectMetricsSnapshot(myProject, javaProject);
             }
             myProject.getService(CacheService.class).putUserData(CacheService.PROJECT_METRICS, javaProject);

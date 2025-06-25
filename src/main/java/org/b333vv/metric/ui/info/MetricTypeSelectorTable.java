@@ -28,7 +28,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -168,7 +168,7 @@ public class MetricTypeSelectorTable {
             return javaClasses.stream()
                     .map(javaClass -> javaClass.metric(metricType))
                     .filter(Objects::nonNull)
-                    .anyMatch(metric -> project.getService(MetricsService.class).getRangeForMetric(metricType)
+                    .anyMatch(metric -> project.getService(SettingsService.class).getRangeForMetric(metricType)
                             .getRangeType(metric.getValue()) == rangeType);
         }
     }

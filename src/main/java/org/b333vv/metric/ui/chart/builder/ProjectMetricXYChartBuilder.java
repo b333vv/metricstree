@@ -24,7 +24,7 @@ import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.knowm.xchart.*;
 import org.knowm.xchart.internal.chartpart.Chart;
@@ -91,7 +91,7 @@ public class ProjectMetricXYChartBuilder {
 
         instability.forEach((k, v) -> {
             XYSeries xySeries = chart.addSeries(k, List.of(v), List.of(abstractness.get(k)));
-            if (project.getService(MetricsService.class).getRangeForMetric(MetricType.D)
+            if (project.getService(SettingsService.class).getRangeForMetric(MetricType.D)
                     .getRangeType(Value.of(Math.abs(1.0 - v - abstractness.get(k)))) == RangeType.REGULAR) {
                 xySeries.setMarkerColor(new JBColor(new Color(0x499C54), new Color(0x499C54)));
             } else {
