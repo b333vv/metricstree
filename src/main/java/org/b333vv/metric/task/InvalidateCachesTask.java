@@ -36,10 +36,19 @@ public class InvalidateCachesTask extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
+        // The project can become disposed in unit-test light projects before this background task is executed.
+        // Guard against accessing the message bus or services of a disposed project to avoid PluginException.
+        if (myProject == null || myProject.isDisposed()) {
+            return;
+        }
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
         CacheService cacheService = myProject.getService(CacheService.class);
-        cacheService.invalidateUserData();
-        cacheService.removeJavaFile(virtualFile);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
+        if (cacheService != null) {
+            cacheService.invalidateUserData();
+            cacheService.removeJavaFile(virtualFile);
+        }
+        if (!myProject.isDisposed()) {
+            myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
+        }
     }
 }

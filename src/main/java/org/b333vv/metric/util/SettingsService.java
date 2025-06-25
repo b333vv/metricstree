@@ -20,12 +20,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.psi.JavaRecursiveElementVisitor;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.*;
-import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
-import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.ui.settings.other.OtherSettings;
@@ -71,31 +68,6 @@ public final class SettingsService {
     public boolean isNotRegularValue(MetricType type, Value value) {
         return getRangeTypeByMetricTypeAndValue(type, value) != RangeType.UNDEFINED
                 && getRangeTypeByMetricTypeAndValue(type, value) != RangeType.REGULAR;
-    }
-
-    public Stream<JavaRecursiveElementVisitor> classVisitorsForClassMetricsTree() {
-//        return project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
-//                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-//                .map(m -> m.getType().visitor())
-//                .filter(m -> m instanceof JavaClassVisitor);
-
-        return this.project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
-                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> m.getType().visitor())
-                .filter(m -> m instanceof JavaClassVisitor);
-    }
-
-    public Stream<JavaRecursiveElementVisitor> methodsVisitorsForClassMetricsTree() {
-        return this.project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
-                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-                .map(m -> m.getType().visitor())
-                .filter(m -> m instanceof JavaMethodVisitor);
-
-//        return project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
-//        return project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
-//                .filter(MetricsTreeSettingsStub::isNeedToConsider)
-//                .map(m -> m.getType().visitor())
-//                .filter(m -> m instanceof JavaMethodVisitor);
     }
 
     public boolean isControlValidRanges() {

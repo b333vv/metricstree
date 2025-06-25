@@ -50,14 +50,14 @@ public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestC
         return "testData";
     }
 
-//    public void testRootNode() {
-//        assertEquals(rootJavaClass, rootClassNode.getJavaClass());
-//    }
-//
-//    public void testNodeCount() {
-//        assertEquals(rootJavaClass.innerClasses().count()
-//                + rootJavaClass.methods().count()
-//                + rootJavaClass.metrics().count(),
-//                treeModel.getChildCount(rootClassNode));
-//    }
+    public void testRootNode() {
+        assertEquals(rootJavaClass, rootClassNode.getJavaClass());
+    }
+
+    public void testNodeCount() {
+        assertEquals(rootJavaClass.innerClasses().count()
+                + rootJavaClass.methods().count()
+                + rootJavaClass.metrics().count(),
+                treeModel.getChildCount(rootClassNode));
+    }
 }

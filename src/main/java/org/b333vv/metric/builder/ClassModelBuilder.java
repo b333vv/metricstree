@@ -21,6 +21,10 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
+import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
+import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
+import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,14 +43,24 @@ public class ClassModelBuilder extends ModelBuilder {
     @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
-        return project.getService(SettingsService.class).classVisitorsForClassMetricsTree();
+        return project.getService(SettingsService.class)
+                .getClassMetricsTreeSettings()
+                .getMetricsList().stream()
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                .map(m -> m.getType().visitor())
+                .filter(m -> m instanceof JavaClassVisitor);
     }
 
     @Deprecated
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
 
-        return project.getService(SettingsService.class).methodsVisitorsForClassMetricsTree();
+        return project.getService(SettingsService.class)
+                .getClassMetricsTreeSettings()
+                .getMetricsList().stream()
+                .filter(MetricsTreeSettingsStub::isNeedToConsider)
+                .map(m -> m.getType().visitor())
+                .filter(m -> m instanceof JavaMethodVisitor);
     }
 
     @Override
