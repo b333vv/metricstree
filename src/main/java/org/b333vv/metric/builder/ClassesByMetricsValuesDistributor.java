@@ -39,7 +39,7 @@ public class ClassesByMetricsValuesDistributor {
     public static Map<MetricType, Map<JavaClass, Metric>> classesByMetricsValuesDistribution(JavaProject javaProject, Project project) {
         return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
-                        .filter(metric -> project.getService(MetricsService.class).isLongValueMetricType(metric.getType())
+                        .filter(metric -> metric.getType().isLongValue()
                                 && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()

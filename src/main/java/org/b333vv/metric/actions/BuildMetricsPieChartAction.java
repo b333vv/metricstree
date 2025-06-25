@@ -22,7 +22,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.PieChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildMetricsPieChartAction extends AbstractAction {
@@ -44,7 +44,7 @@ public class BuildMetricsPieChartAction extends AbstractAction {
             BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
                     BasicMetricsValidRangesSettings.class);
             e.getPresentation().setEnabled(
-                    project.getService(MetricsService.class).isControlValidRanges()
+                    project.getService(SettingsService.class).isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                             .anyMatch(s -> s.getLevel().equals("Class Level")) &&
                             project.getService(TaskQueueService.class).isQueueEmpty());

@@ -56,7 +56,7 @@ public class AddMetricProfileItemDialog extends DialogWrapper {
         metricType.addItemListener(arg -> {
             String metricTypeName = (String) metricType.getSelectedItem();
 
-            boolean isLongFromCombo = project.getService(MetricsService.class).isLongValueMetricType(MetricType.valueOf(metricTypeName));
+            boolean isLongFromCombo = MetricType.valueOf(metricTypeName).isLongValue();
             if (isLongFromCombo != isLong) {
                 isLong = isLongFromCombo;
                 resetSpinnerModels();

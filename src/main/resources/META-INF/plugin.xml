@@ -268,6 +268,7 @@
         <projectService serviceImplementation="org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings"/>
         <projectService serviceImplementation="org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions"/>
         <projectService serviceImplementation="org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions"/>
+        <projectService serviceImplementation="org.b333vv.metric.util.SettingsService"/>
     </extensions>
 
     <project-components>

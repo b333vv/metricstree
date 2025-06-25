@@ -22,7 +22,7 @@ import git4idea.GitUtil;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.ProjectMetricsHistoryXyChartTask;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
@@ -44,7 +44,7 @@ public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
             e.getPresentation().setEnabled(false);
             return;
         }
-        e.getPresentation().setEnabled(project.getService(MetricsService.class).isProjectMetricsStampStored()
+        e.getPresentation().setEnabled(project.getService(SettingsService.class).isProjectMetricsStampStored()
                 && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }

@@ -24,6 +24,8 @@ import static org.b333vv.metric.model.metric.MetricLevel.*;
 import static org.b333vv.metric.model.metric.MetricSet.*;
 import static org.b333vv.metric.model.metric.MetricSet.UNDEFINED;
 
+import java.util.Set; // Added import
+
 public enum MetricType {
     //Method level metrics
     CND("Condition Nesting Depth", UNDEFINED, METHOD, new ConditionNestingDepthVisitor()),
@@ -176,5 +178,10 @@ public enum MetricType {
 
     public JavaRecursiveElementVisitor visitor() {
         return visitor;
+    }
+
+    public boolean isLongValue() {
+        Set<MetricType> doubleValueMetricTypes = Set.of(TCC, I, A, D, MHF, AHF, MIF, AIF, CF, PF, LAA, CDISP, WOC, CCC, CCM);
+        return !doubleValueMetricTypes.contains(this);
     }
 }

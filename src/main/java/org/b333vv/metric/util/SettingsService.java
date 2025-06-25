@@ -40,11 +40,11 @@ import java.util.stream.Stream;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 @Service(Service.Level.PROJECT)
-public final class MetricsService {
+public final class SettingsService {
 
     private final Project project;
 
-    public MetricsService(Project project) {
+    public SettingsService(Project project) {
         this.project = project;
     }
 
@@ -130,9 +130,28 @@ public final class MetricsService {
         return Set.of();
     }
 
+    // Facade getter methods
+    public BasicMetricsValidRangesSettings getBasicMetricsSettings() {
+        return project.getService(BasicMetricsValidRangesSettings.class);
+    }
 
-    public boolean isLongValueMetricType(MetricType metricType) {
-        Set<MetricType> doubleValueMetricTypes = Set.of(TCC, I, A, D, MHF, AHF, MIF, AIF, CF, PF, LAA, CDISP, WOC, CCC, CCM);
-        return !doubleValueMetricTypes.contains(metricType);
+    public DerivativeMetricsValidRangesSettings getDerivativeMetricsSettings() {
+        return project.getService(DerivativeMetricsValidRangesSettings.class);
+    }
+
+    public ClassMetricsTreeSettings getClassMetricsTreeSettings() {
+        return project.getService(ClassMetricsTreeSettings.class);
+    }
+
+    public OtherSettings getOtherSettings() {
+        return project.getService(OtherSettings.class);
+    }
+
+    public org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions getClassLevelFitnessFunctions() {
+        return project.getService(org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions.class);
+    }
+
+    public org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions getPackageLevelFitnessFunctions() {
+        return project.getService(org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions.class);
     }
 }
