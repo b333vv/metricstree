@@ -21,6 +21,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 
 public class InvalidateCachesTask extends Task.Backgroundable {
@@ -36,8 +37,9 @@ public class InvalidateCachesTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-        myProject.getService(MetricTaskCache.class).invalidateUserData();
-        myProject.getService(MetricTaskCache.class).removeJavaFile(virtualFile);
+        CacheService cacheService = myProject.getService(CacheService.class);
+        cacheService.invalidateUserData();
+        cacheService.removeJavaFile(virtualFile);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
     }
 }

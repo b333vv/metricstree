@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.AsyncFileListener;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.events.*;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
@@ -50,6 +51,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+/**
+ * @deprecated This class is deprecated and will be removed in a future release.
+ * Use {@link org.b333vv.metric.service.CacheService} instead.
+ */
+@Deprecated
 @Service(Service.Level.PROJECT)
 public final class MetricTaskCache implements UserDataHolder, Disposable {
     public static final Key<DependenciesBuilder> DEPENDENCIES = Key.create("DEPENDENCIES");

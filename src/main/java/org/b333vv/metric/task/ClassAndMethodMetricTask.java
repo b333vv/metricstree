@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ClassAndMethodsMetricsCalculator;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +42,8 @@ public class ClassAndMethodMetricTask extends Task.Backgroundable {
         MetricTaskManager metricTaskManager = myProject.getService(MetricTaskManager.class);
         metricTaskManager.sureDependenciesAreInCache(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
+        CacheService cacheService = myProject.getService(CacheService.class);
+        JavaProject javaProject = cacheService.getUserData(CacheService.CLASS_AND_METHODS_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             AnalysisScope scope = new AnalysisScope(myProject);
@@ -49,7 +51,7 @@ public class ClassAndMethodMetricTask extends Task.Backgroundable {
             javaProject = new JavaProject(myProject.getName());
             ClassAndMethodsMetricsCalculator metricsCalculator = new ClassAndMethodsMetricsCalculator(scope, javaProject);
             metricsCalculator.calculateMetrics();
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS, javaProject);
+            cacheService.putUserData(CacheService.CLASS_AND_METHODS_METRICS, javaProject);
         }
     }
 

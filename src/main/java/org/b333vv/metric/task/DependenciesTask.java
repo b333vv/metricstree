@@ -23,6 +23,7 @@ import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.builder.DependenciesCalculator;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +40,8 @@ public class DependenciesTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DependenciesBuilder dependenciesBuilder = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES);
+        CacheService cacheService = myProject.getService(CacheService.class);
+        DependenciesBuilder dependenciesBuilder = cacheService.getUserData(CacheService.DEPENDENCIES);
         if (dependenciesBuilder == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             AnalysisScope scope = new AnalysisScope(myProject);
@@ -47,7 +49,7 @@ public class DependenciesTask extends Task.Backgroundable {
             dependenciesBuilder = new DependenciesBuilder();
             DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
             dependenciesCalculator.calculateDependencies();
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.DEPENDENCIES, dependenciesBuilder);
+            cacheService.putUserData(CacheService.DEPENDENCIES, dependenciesBuilder);
         }
     }
 

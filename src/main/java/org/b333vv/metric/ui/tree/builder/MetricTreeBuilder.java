@@ -24,6 +24,7 @@ import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
 import org.b333vv.metric.util.MetricsService;
@@ -94,7 +95,6 @@ public abstract class MetricTreeBuilder {
     protected void storeMetric(MethodNode methodNode, MetricNode metricNode) {}
 
     protected MetricsTreeFilter getMetricsTreeFilter() {
-//        return MetricsUtils.getClassMetricsTreeFilter();
         return MetricsUtils.getClassMetricsTreeFilter();
     }
 

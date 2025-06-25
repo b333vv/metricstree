@@ -22,7 +22,6 @@ import org.b333vv.metric.builder.ClassModelBuilder;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.tree.node.ClassNode;
-import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
 

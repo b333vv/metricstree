@@ -26,6 +26,7 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.service.UIStateService;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -51,7 +52,7 @@ public class PackageLevelFitnessFunctionClassTable {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
-                if (MetricsUtils.isProfileAutoScrollable()) {
+                if (this.project.getService(UIStateService.class).isProfileAutoScrollable()) {
                     MetricsUtils.openInEditor(this.project, javaClass.getPsiClass());
                 }
                 this.project.getMessageBus()
