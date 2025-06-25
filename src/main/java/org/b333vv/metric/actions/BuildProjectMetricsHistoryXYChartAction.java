@@ -20,7 +20,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.ProjectMetricsHistoryXyChartTask;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             ProjectMetricsHistoryXyChartTask projectMetricsHistoryXyChartTask = new ProjectMetricsHistoryXyChartTask(project);
-            MetricTaskCache.runTask(project, projectMetricsHistoryXyChartTask);
+            project.getService(TaskQueueService.class).queue(projectMetricsHistoryXyChartTask);
         }
     }
 
@@ -45,6 +45,6 @@ public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
             return;
         }
         e.getPresentation().setEnabled(project.getService(MetricsService.class).isProjectMetricsStampStored()
-                && MetricTaskCache.isQueueEmpty(project));
+                && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }

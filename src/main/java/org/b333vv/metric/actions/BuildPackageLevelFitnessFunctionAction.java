@@ -19,8 +19,8 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.ClassFitnessFunctionsTask;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.task.PackageFitnessFunctionsTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,13 +32,13 @@ public class BuildPackageLevelFitnessFunctionAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearPackageFitnessFunctionPanel();
             PackageFitnessFunctionsTask packageFitnessFunctionsTask = new PackageFitnessFunctionsTask(project);
-            MetricTaskCache.runTask(project, packageFitnessFunctionsTask);
+            project.getService(TaskQueueService.class).queue(packageFitnessFunctionsTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
         Project project = e.getProject();
-        e.getPresentation().setEnabled(project != null && MetricTaskCache.isQueueEmpty(project));
+        e.getPresentation().setEnabled(project != null && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }

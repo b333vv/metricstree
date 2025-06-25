@@ -32,9 +32,9 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.ui.log.MetricsConsole;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -136,14 +136,13 @@ public class ClassMetricsValuesEvolutionProcessor {
         MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(psiJavaFile.getProject(),
                 "Get Metrics History for " + psiJavaFile.getName() + "...", true,
                 getFileFromGitCalculateMetricsAndPutThemToMap, buildTree,
-                cancel, null);
-        MetricTaskCache.runTask(psiJavaFile.getProject(),classMetricsTask);
+                cancel, null);        psiJavaFile.getProject().getService(TaskQueueService.class).queue(classMetricsTask);
     }
 
     private class ClassMetricsEvolutionEventListener implements MetricsEventListener {
         @Override
         public void cancelMetricsValuesEvolutionCalculation() {
-            if (!MetricTaskCache.isQueueEmpty(project)) {
+            if (!project.getService(TaskQueueService.class).isQueueEmpty()) {
                 getFileFromGitCalculateMetricsAndPutThemToMap.cancel(false);
                 buildTree.cancel(false);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)

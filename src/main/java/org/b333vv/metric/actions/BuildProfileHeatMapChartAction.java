@@ -19,7 +19,7 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.ProfilesHeatMapChartTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,13 +31,13 @@ public class BuildProfileHeatMapChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfilesHeatMapChartTask heatMapChartTask = new ProfilesHeatMapChartTask(project);
-            MetricTaskCache.runTask(project, heatMapChartTask);
+            project.getService(TaskQueueService.class).queue(heatMapChartTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
         Project project = e.getProject();
-        e.getPresentation().setEnabled(project != null && MetricTaskCache.isQueueEmpty(project));
+        e.getPresentation().setEnabled(project != null && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }

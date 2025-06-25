@@ -254,8 +254,8 @@
                     factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
         <applicationService serviceImplementation="org.b333vv.metric.util.MetricsUtils"/>
         <projectService serviceImplementation="org.b333vv.metric.service.UIStateService"/>
-<!--        <projectService serviceImplementation="org.b333vv.metric.util.MetricsService"/>-->
-<!--        <projectService serviceImplementation="org.b333vv.metric.task.MetricTaskCache"/>-->
+        <projectService serviceImplementation="org.b333vv.metric.service.TaskQueueService"/>
+        <projectService serviceImplementation="org.b333vv.metric.task.MetricTaskCache"/>
         <codeInsight.daemonBoundCodeVisionProvider implementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionProvider"/>
         <applicationService serviceImplementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionSettings"/>
         <applicationConfigurable instance="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionConfigurable"

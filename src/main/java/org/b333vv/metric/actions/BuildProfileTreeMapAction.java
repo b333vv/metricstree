@@ -19,7 +19,8 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.*;
+import org.b333vv.metric.service.TaskQueueService;
+import org.b333vv.metric.task.ProfileTreeMapTask;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildProfileTreeMapAction extends AbstractAction {
@@ -30,13 +31,13 @@ public class BuildProfileTreeMapAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
             ProfileTreeMapTask profileTreeMapTask = new ProfileTreeMapTask(project);
-            MetricTaskCache.runTask(project, profileTreeMapTask);
+            project.getService(TaskQueueService.class).queue(profileTreeMapTask);
         }
     }
 
     @Override
     public void update(AnActionEvent e) {
         Project project = e.getProject();
-        e.getPresentation().setEnabled(project != null && MetricTaskCache.isQueueEmpty(project));
+        e.getPresentation().setEnabled(project != null && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }
