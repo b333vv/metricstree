@@ -15,8 +15,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations; // Added
 import org.mockito.Spy;
 
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 // @ExtendWith(MockitoExtension.class) // Removed
 public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
@@ -43,6 +44,10 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
 
         action = new CalculateProjectMetricsAction(); // Action initialization
         event = new TestActionEvent();
+
+        // Мокаем асинхронное выполнение очереди задач, чтобы избежать Already disposed
+        doAnswer(invocation -> null)
+                .when(spyTaskQueueService).queue(any(ProjectTreeTask.class));
     }
 
     @Test

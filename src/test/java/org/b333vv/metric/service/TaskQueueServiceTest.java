@@ -77,3 +77,4 @@ public class TaskQueueServiceTest {
 
         assertTrue(service.isQueueEmpty(), "Queue should be empty after task is processed.");
     }
+}

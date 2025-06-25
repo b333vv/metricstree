@@ -18,6 +18,7 @@ package org.b333vv.metric.task;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolder;
@@ -31,6 +32,7 @@ import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;

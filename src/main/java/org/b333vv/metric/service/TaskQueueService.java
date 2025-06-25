@@ -35,7 +35,25 @@ public final class TaskQueueService {
     }
 
     private void processNextTask() {
-        if (isProcessing) return;
+        if (isProcessing) {
+            return;
+        }
         Task.Backgroundable nextTask = taskQueue.poll();
         if (nextTask != null) {
             isProcessing = true;
+            try {
+                ProgressManager.getInstance().run(nextTask);
+            } finally {
+                isProcessing = false;
+                // Process next task if queue is not empty
+                if (!taskQueue.isEmpty()) {
+                    ApplicationManager.getApplication().invokeLater(this::processNextTask, ModalityState.NON_MODAL);
+                }
+            }
+        }
+    }
+
+    public boolean isQueueEmpty() {
+        return taskQueue.isEmpty() && !isProcessing;
+    }
+}
