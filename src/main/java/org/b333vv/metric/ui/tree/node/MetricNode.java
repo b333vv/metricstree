@@ -27,7 +27,7 @@ import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.CompositeIcon;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -75,28 +75,28 @@ public class MetricNode extends AbstractNode {
     public void render(TreeCellRenderer renderer) {
         int gap = JBUIScale.isUsrHiDPI() ? 8 : 4;
         renderer.append(getMetricName());
-        if (project.getService(MetricsService.class).isControlValidRanges()) {
+        if (project.getService(SettingsService.class).isControlValidRanges()) {
             if (metric.getValue() == Value.UNDEFINED) {
                 renderer.setIconToolTip("This metric was not calculated");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NA));
                 renderer.append(getMetricValue());
-            } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                 renderer.setIconToolTip("This metric has very-high value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.VERY_HIGH_COLOR));
                 renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
-            } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                 renderer.setIconToolTip("This metric has extreme value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.EXTREME_COLOR));
                 renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
-            } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                 renderer.setIconToolTip("This metric has high value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.HIGH_COLOR));
                 renderer.append(getMetricValue());
-            } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 renderer.setIconToolTip("This metric has regular value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.REGULAR_COLOR));
                 renderer.append(getMetricValue());
-            } else if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
                 renderer.setIconToolTip("The desired value range is not set for this metric");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NOT_TRACKED));
                 renderer.append(getMetricValue());

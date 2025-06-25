@@ -27,7 +27,7 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -102,14 +102,14 @@ public abstract class MetricTreeBuilder {
         MetricsTreeFilter metricsTreeFilter = getMetricsTreeFilter();
         return metricsTreeFilter.isAllowedValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
-                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR
                 || metricsTreeFilter.isDisallowedValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
-                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
-                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED
                 || metricsTreeFilter.isNotSetValueMetricsVisible()
                     && metric.getValue() != Value.UNDEFINED
-                    && project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
                 || metricsTreeFilter.isNotApplicableMetricsVisible()
                     && metric.getValue() == Value.UNDEFINED;
     }

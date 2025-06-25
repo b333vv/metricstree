@@ -22,7 +22,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;

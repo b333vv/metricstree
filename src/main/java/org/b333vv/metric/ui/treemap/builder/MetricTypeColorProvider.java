@@ -27,7 +27,7 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.treemap.model.ColorProvider;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.TreeModel;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 
 import java.awt.*;
@@ -59,19 +59,19 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
 
             Value value = rectangle.getNode().metric(metricType).getValue();
 
-            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.UNDEFINED) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.UNDEFINED) {
                 return UNDEFINED;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.REGULAR) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.REGULAR) {
                 return REGULAR;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.HIGH) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.HIGH) {
                 return HIGH;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.VERY_HIGH) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.VERY_HIGH) {
                 return VERY_HIGH;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.EXTREME) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.EXTREME) {
                 return EXTREME;
             }
         }

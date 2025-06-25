@@ -38,7 +38,7 @@ import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.settings.MetricsConfigurable;
 import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
@@ -198,10 +198,10 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     @NotNull
     private JBPanel<?> getJbPanel(Map<JavaClass, Metric> classesByMetric, RangeType rangeType) {
         List<ClassesByRangesTable.ClassByRange> classesByRanges = classesByMetric.entrySet().stream()
-                .filter(e -> project.getService(MetricsService.class).getRangeForMetric(e.getValue().getType())
+                .filter(e -> project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType())
                         .getRangeType(e.getValue().getValue()) == rangeType)
                 .map(e -> new ClassesByRangesTable.ClassByRange(e.getKey(),
-                        project.getService(MetricsService.class).getRangeForMetric(e.getValue().getType()).getRangeByRangeType(rangeType),
+                        project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType()).getRangeByRangeType(rangeType),
                         e.getValue().getValue()))
                 .collect(toList());
         ClassesByRangesTable classesByRangesTable = new ClassesByRangesTable(classesByRanges, project);

@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.ui.settings.ConfigurationPanel;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -100,6 +100,6 @@ public class DerivativeMetricsValidRangesPanel implements ConfigurationPanel<Der
         panel.add(tablePanel, new GridBagConstraints(0, 1, 4, 2, 1.0, 1.0,
                 NORTHWEST, BOTH, insets, 40, 40));
 
-        derivativeMetricsValidRangesTable.enableComponents(tablePanel, project.getService(MetricsService.class).isControlValidRanges());
+        derivativeMetricsValidRangesTable.enableComponents(tablePanel, project.getService(SettingsService.class).isControlValidRanges());
     }
 }

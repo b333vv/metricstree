@@ -25,7 +25,7 @@ import icons.MetricsIcons;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -173,7 +173,7 @@ public class PackageMetricsTable {
         }
 
         private Icon getImageForRow(double distance) {
-            if (project.getService(MetricsService.class).getRangeForMetric(MetricType.D)
+            if (project.getService(SettingsService.class).getRangeForMetric(MetricType.D)
                     .getRangeType(Value.of(distance)) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }

@@ -27,7 +27,7 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricSet;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -120,7 +120,7 @@ public class MetricsSummaryTable {
                 .sorted(Comparator.comparing(Metric::getType))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);
-        hideOrShowValidValuesColumn(project.getService(MetricsService.class).isControlValidRanges());
+        hideOrShowValidValuesColumn(project.getService(SettingsService.class).isControlValidRanges());
         model.fireTableDataChanged();
     }
 
@@ -194,9 +194,7 @@ public class MetricsSummaryTable {
                     }
                 case 5:
                     if (metric.getType().set() == MetricSet.MOOD) {
-                        return project.getService(MetricsService.class).getRangeForMetric(metric.getType()).percentageFormat();
-                    } else {
-                        return project.getService(MetricsService.class).getRangeForMetric(metric.getType()).toString();
+                        return project.getService(SettingsService.class).getRangeForMetric(metric.getType()).percentageFormat();
                     }
                 default:
                     return metric;
@@ -207,16 +205,16 @@ public class MetricsSummaryTable {
             if (metric.getValue() == Value.UNDEFINED) {
                 return MetricsIcons.NA;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
                 return MetricsIcons.HIGH_COLOR;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
                 return MetricsIcons.VERY_HIGH_COLOR;
             }
-            if (project.getService(MetricsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
                 return MetricsIcons.EXTREME_COLOR;
             }
             return MetricsIcons.NOT_TRACKED;

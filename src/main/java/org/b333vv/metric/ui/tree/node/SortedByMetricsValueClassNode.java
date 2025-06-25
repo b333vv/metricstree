@@ -21,7 +21,7 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 
 public class SortedByMetricsValueClassNode extends ClassNode {
 
@@ -39,7 +39,7 @@ public class SortedByMetricsValueClassNode extends ClassNode {
     private String getDelta() {
         return " [+" + metric.getValue()
                 .minus(javaClass.getPsiClass().getProject().getService(
-                        MetricsService.class
+                        SettingsService.class
                 ).getRangeForMetric(metric.getType()).getRegularTo())
                 .plus(Value.ONE) + "]";
     }

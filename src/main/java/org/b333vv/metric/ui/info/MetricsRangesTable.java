@@ -26,8 +26,8 @@ import icons.MetricsIcons;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
-import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.SettingsService;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -104,7 +104,7 @@ public class MetricsRangesTable {
     private List<MetricTypeRange> metricTypeRanges() {
         List<MetricTypeRange> result = new ArrayList<>();
         metricTypes.forEach(mt -> {
-            Range range = project.getService(MetricsService.class).getRangeForMetric(mt);
+            Range range = project.getService(SettingsService.class).getRangeForMetric(mt);
             MetricTypeRange metricTypeRange = new MetricTypeRange(mt, range);
             result.add(metricTypeRange);
         });

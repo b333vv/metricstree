@@ -27,7 +27,7 @@ import org.b333vv.metric.ui.tree.node.GrouppingNode;
 import org.b333vv.metric.ui.tree.node.MetricTypeNode;
 import org.b333vv.metric.ui.tree.node.ProjectNode;
 import org.b333vv.metric.ui.tree.node.SortedByMetricsValueClassNode;
-import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -47,7 +47,7 @@ public class SortedByMetricsValuesClassesTreeBuilder {
 
         classesByMetricTypes.forEach((key, value) -> {
             if (value.values().stream()
-                    .anyMatch(m -> project.getService(MetricsService.class).getRangeForMetric(m.getType()).getRangeType(m.getValue()) != RangeType.REGULAR)) {
+                    .anyMatch(m -> project.getService(SettingsService.class).getRangeForMetric(m.getType()).getRangeType(m.getValue()) != RangeType.REGULAR)) {
                 MetricTypeNode metricTypeNode = new MetricTypeNode(key);
                 projectNode.add(metricTypeNode);
                 GrouppingNode high = new GrouppingNode("high", MetricsIcons.HIGH_COLOR);
@@ -58,15 +58,15 @@ public class SortedByMetricsValuesClassesTreeBuilder {
                 metricTypeNode.add(extreme);
 
                 value.forEach((k, v) -> {
-                    if (project.getService(MetricsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.HIGH) {
+                    if (project.getService(SettingsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.HIGH) {
                         SortedByMetricsValueClassNode sortedByMetricsValueClassNode = new SortedByMetricsValueClassNode(k, v);
                         high.add(sortedByMetricsValueClassNode);
                     }
-                    if (project.getService(MetricsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.VERY_HIGH) {
+                    if (project.getService(SettingsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.VERY_HIGH) {
                         SortedByMetricsValueClassNode sortedByMetricsValueClassNode = new SortedByMetricsValueClassNode(k, v);
                         veryHigh.add(sortedByMetricsValueClassNode);
                     }
-                    if (project.getService(MetricsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.EXTREME) {
+                    if (project.getService(SettingsService.class).getRangeForMetric(v.getType()).getRangeType(v.getValue()) == RangeType.EXTREME) {
                         SortedByMetricsValueClassNode sortedByMetricsValueClassNode = new SortedByMetricsValueClassNode(k, v);
                         extreme.add(sortedByMetricsValueClassNode);
                     }
