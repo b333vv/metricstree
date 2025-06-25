@@ -19,11 +19,10 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.PieChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildMetricsPieChartAction extends AbstractAction {
@@ -34,7 +33,7 @@ public class BuildMetricsPieChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             PieChartTask pieChartTask = new PieChartTask(project);
-            MetricTaskCache.runTask(project, pieChartTask);
+            project.getService(TaskQueueService.class).queue(pieChartTask);
         }
     }
 
@@ -47,8 +46,8 @@ public class BuildMetricsPieChartAction extends AbstractAction {
             e.getPresentation().setEnabled(
                     project.getService(MetricsService.class).isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
-                            .anyMatch(s -> s.getLevel().equals("Class Level"))
-                            && MetricTaskCache.isQueueEmpty(project));
+                            .anyMatch(s -> s.getLevel().equals("Class Level")) &&
+                            project.getService(TaskQueueService.class).isQueueEmpty());
         }
     }
 }

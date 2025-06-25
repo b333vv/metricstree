@@ -19,8 +19,8 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.CategoryChartTask;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             CategoryChartTask categoryChartTask = new CategoryChartTask(project);
-            MetricTaskCache.runTask(project, categoryChartTask);
+            project.getService(TaskQueueService.class).queue(categoryChartTask);
         }
     }
 
@@ -46,8 +46,8 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
             e.getPresentation().setEnabled(
                     project.getService(MetricsService.class).isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
-                            .anyMatch(s -> s.getLevel().equals("Class Level"))
-                            && MetricTaskCache.isQueueEmpty(project));
+                            .anyMatch(s -> s.getLevel().equals("Class Level")) &&
+                            project.getService(TaskQueueService.class).isQueueEmpty());
         }
     }
 }

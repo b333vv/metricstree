@@ -19,7 +19,7 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.task.XyChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.MetricsService;
@@ -33,7 +33,7 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
             XyChartTask xyChartTask = new XyChartTask(project);
-            MetricTaskCache.runTask(project, xyChartTask);
+            project.getService(TaskQueueService.class).queue(xyChartTask);
         }
     }
 
@@ -46,8 +46,8 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
             e.getPresentation().setEnabled(
                     project.getService(MetricsService.class).isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
-                            .anyMatch(s -> s.getLevel().equals("Package Level"))
-                            && MetricTaskCache.isQueueEmpty(project));
+                            .anyMatch(s -> s.getLevel().equals("Package Level")) &&
+                            project.getService(TaskQueueService.class).isQueueEmpty());
         }
     }
 }

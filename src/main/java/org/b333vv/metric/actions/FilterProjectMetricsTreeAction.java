@@ -20,8 +20,8 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.service.UIStateService;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.MouseEvent;
@@ -38,8 +38,8 @@ public class FilterProjectMetricsTreeAction extends AbstractAction {
     @Override
     public void update(AnActionEvent e) {
         Project project = e.getProject();
-        e.getPresentation().setEnabled(project != null
-                && project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.TREE_BUILDER) != null
+        e.getPresentation().setEnabled(project != null &&
+                project.getService(TaskQueueService.class).isQueueEmpty()
                 && project.getService(UIStateService.class).isProjectTreeActive());
     }
 
