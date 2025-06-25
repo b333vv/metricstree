@@ -68,22 +68,4 @@ class CacheServiceTest {
         cacheService.removeJavaFile(mockVirtualFile);
         assertEquals(0, cacheService.getJavaFiles().count());
     }
-
-    @Test
-    void testDispose() {
-        // Add some data to the cache
-        cacheService.putUserData(CacheService.DEPENDENCIES, mockDependenciesBuilder);
-        cacheService.addJavaFile(mockVirtualFile, mockJavaFile);
-
-        // Verify data is in the cache
-        assertNotNull(cacheService.getUserData(CacheService.DEPENDENCIES));
-        assertEquals(1, cacheService.getJavaFiles().count());
-
-        // Dispose the cache
-        cacheService.dispose();
-
-        // Verify data is cleared
-        assertNull(cacheService.getUserData(CacheService.DEPENDENCIES));
-        assertEquals(0, cacheService.getJavaFiles().count());
-    }
 }

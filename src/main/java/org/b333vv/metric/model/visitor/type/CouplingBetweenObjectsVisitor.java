@@ -17,12 +17,11 @@
 package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.service.CacheService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,8 +34,8 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
         super.visitClass(psiClass);
         metric = Metric.of(CBO, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            DependenciesBuilder dependenciesBuilder = psiClass.getProject().getService(MetricTaskCache.class)
-                    .getUserData(MetricTaskCache.DEPENDENCIES);
+            DependenciesBuilder dependenciesBuilder = psiClass.getProject().getService(CacheService.class)
+                    .getUserData(CacheService.DEPENDENCIES);
             if (dependenciesBuilder != null) {
                 Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
                 Set<PsiClass> dependents = dependenciesBuilder.getClassesDependents(psiClass);

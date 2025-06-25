@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.ProfileHeatMapChartBuilder;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
@@ -42,13 +43,13 @@ public class ProfilesHeatMapChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        HeatMapChart heatMapChart = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.HEAT_MAP_CHART);
+        HeatMapChart heatMapChart = myProject.getService(CacheService.class).getUserData(CacheService.HEAT_MAP_CHART);
         if (heatMapChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
             ProfileHeatMapChartBuilder profileHeatMapChartBuilder = new ProfileHeatMapChartBuilder();
             heatMapChart = profileHeatMapChartBuilder.createChart(classesByMetricProfile);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.HEAT_MAP_CHART, heatMapChart);
+            myProject.getService(CacheService.class).putUserData(CacheService.HEAT_MAP_CHART, heatMapChart);
         }
 
     }

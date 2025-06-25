@@ -32,7 +32,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.settings.MetricsConfigurable;
@@ -270,51 +270,45 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void projectMetricsTreeIsReady() {
-            metricTreeBuilder = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.TREE_BUILDER);
-            showResults(project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_TREE));
+            metricTreeBuilder = project.getService(CacheService.class).getUserData(CacheService.TREE_BUILDER);
+            showResults(project.getService(CacheService.class).getUserData(CacheService.PROJECT_TREE));
             buildProjectMetricsTree();
             setProjectTreeActive(true);
         }
 
         @Override
         public void classByMetricTreeIsReady() {
-            showResults(project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE));
+            showResults(project.getService(CacheService.class).getUserData(CacheService.CLASSES_BY_METRIC_TREE));
         }
 
         @Override
         public void pieChartIsReady() {
-            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = project.getService(MetricTaskCache.class)
-                    .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES);
-            List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(MetricTaskCache.class)
-                    .getUserData(MetricTaskCache.PIE_CHART_LIST);
+            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = project.getService(CacheService.class)
+                    .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+            List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(CacheService.class)
+                    .getUserData(CacheService.PIE_CHART_LIST);
             showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
         }
 
         @Override
         public void categoryChartIsReady() {
-            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(MetricTaskCache.class)
-                    .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
-            CategoryChart categoryChart = project.getService(MetricTaskCache.class)
-                    .getUserData(MetricTaskCache.CATEGORY_CHART);
+            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(CacheService.class)
+                    .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+            CategoryChart categoryChart = project.getService(CacheService.class)
+                    .getUserData(CacheService.CATEGORY_CHART);
             showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
         }
 
         @Override
         public void projectMetricsHistoryXyChartIsReady() {
-            XYChart xyChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
+            XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
             showResults(xyChart);
         }
 
         @Override
-        public void clearProjectPanel() {
-            projectPanelClear();
-            setProjectTreeActive(false);
-        }
-
-        @Override
         public void metricTreeMapIsReady() {
-            JavaProject javaProject = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_AND_METHODS_METRICS);
-            MetricTreeMap<JavaCode> treeMap = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.METRIC_TREE_MAP);
+            JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+            MetricTreeMap<JavaCode> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
             if (treeMap != null && javaProject != null) {
                 showResults(treeMap, javaProject);
             }

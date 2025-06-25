@@ -24,6 +24,7 @@ import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.PackagesCalculator;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +43,7 @@ public class PackageOnlyMetricTask extends Task.Backgroundable {
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getService(MetricTaskManager.class).sureDependenciesAreInCache(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_ONLY_METRICS);
+        JavaProject javaProject = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_ONLY_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             AnalysisScope scope = new AnalysisScope(myProject);
@@ -50,9 +51,9 @@ public class PackageOnlyMetricTask extends Task.Backgroundable {
             PackagesCalculator packagesCalculator = new PackagesCalculator(scope);
             javaProject = packagesCalculator.calculatePackagesStructure();
             PackageMetricsSetCalculator packageMetricsSetCalculator = new PackageMetricsSetCalculator(scope,
-                    myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
+                    myProject.getService(CacheService.class).getUserData(CacheService.DEPENDENCIES), javaProject);
             packageMetricsSetCalculator.calculate();
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PACKAGE_ONLY_METRICS, javaProject);
+            myProject.getService(CacheService.class).putUserData(CacheService.PACKAGE_ONLY_METRICS, javaProject);
         }
     }
 

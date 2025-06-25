@@ -30,7 +30,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.fitnessfunction.*;
 import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
@@ -228,7 +228,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void packageLevelFitnessFunctionIsReady() {
             createProfileUIComponents();
-            fitnessFunctionResult = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
+            fitnessFunctionResult = project.getService(CacheService.class).getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
             if (fitnessFunctionResult != null) {
                 showResult();
             }
@@ -236,9 +236,9 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void xyChartIsReady() {
-            Map<String, Double> instability = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.INSTABILITY);
-            Map<String, Double> abstractness = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.ABSTRACTNESS);
-            XYChart xyChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.XY_CHART);
+            Map<String, Double> instability = project.getService(CacheService.class).getUserData(CacheService.INSTABILITY);
+            Map<String, Double> abstractness = project.getService(CacheService.class).getUserData(CacheService.ABSTRACTNESS);
+            XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.XY_CHART);
             showResults(xyChart, instability, abstractness);
         }
 

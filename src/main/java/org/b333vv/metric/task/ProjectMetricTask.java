@@ -25,6 +25,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.util.MetricsService;
+import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
@@ -43,19 +44,19 @@ public class ProjectMetricTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS);
+        JavaProject javaProject = myProject.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             javaProject = myProject.getService(MetricTaskManager.class).getPackageModel(indicator);
             AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
             ProjectMetricsSetCalculator projectMetricsSetCalculator = new ProjectMetricsSetCalculator(scope,
-                    myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.DEPENDENCIES), javaProject);
+                    myProject.getService(CacheService.class).getUserData(CacheService.DEPENDENCIES), javaProject);
             projectMetricsSetCalculator.calculate();
             if (myProject.getService(MetricsService.class).isProjectMetricsStampStored()) {
                 ProjectMetricsSet2Json.takeProjectMetricsSnapshot(myProject, javaProject);
             }
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_METRICS, javaProject);
+            myProject.getService(CacheService.class).putUserData(CacheService.PROJECT_METRICS, javaProject);
         }
     }
 

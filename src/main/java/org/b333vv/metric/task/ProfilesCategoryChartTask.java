@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.ProfileCategoryChartBuilder;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
@@ -42,13 +43,13 @@ public class ProfilesCategoryChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        CategoryChart categoryChart = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_CATEGORY_CHART);
+        CategoryChart categoryChart = myProject.getService(CacheService.class).getUserData(CacheService.PROFILE_CATEGORY_CHART);
         if (categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
             ProfileCategoryChartBuilder profileCategoryChartBuilder = new ProfileCategoryChartBuilder();
             categoryChart = profileCategoryChartBuilder.createChart(classesByMetricProfile);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROFILE_CATEGORY_CHART, categoryChart);
+            myProject.getService(CacheService.class).putUserData(CacheService.PROFILE_CATEGORY_CHART, categoryChart);
         }
 
     }

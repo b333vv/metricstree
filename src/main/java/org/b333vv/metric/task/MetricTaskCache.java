@@ -19,10 +19,6 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.b333vv.metric.service.TaskQueueService;
-
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  * @deprecated This class is deprecated and will be removed in a future release.
@@ -30,6 +26,7 @@ import javax.swing.tree.DefaultTreeModel;
  */
 @Deprecated
 @Service(Service.Level.PROJECT)
+// Класс больше не используется, все обращения заменены на CacheService
 public final class MetricTaskCache implements Disposable {
     private final Project project;
 
@@ -39,10 +36,5 @@ public final class MetricTaskCache implements Disposable {
 
     @Override
     public void dispose() {
-    }
-
-    private void invalidateCaches(VirtualFile file) {
-        InvalidateCachesTask invalidateCachesTask = new InvalidateCachesTask(this.project, file);
-        project.getService(TaskQueueService.class).queue(invalidateCachesTask);
     }
 }

@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.ProjectMetricsSet2Json;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.ProjectMetricsHistoryXYChartBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -41,7 +42,7 @@ public class ProjectMetricsHistoryXyChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        XYChart xyChart = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART);
+        XYChart xyChart = myProject.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
         if (xyChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             TreeSet<JSONObject> metricsStampSet = ProjectMetricsSet2Json.parseStoredMetricsSnapshots(myProject);
@@ -51,7 +52,7 @@ public class ProjectMetricsHistoryXyChartTask extends Task.Backgroundable {
             }
             ProjectMetricsHistoryXYChartBuilder builder = new ProjectMetricsHistoryXYChartBuilder();
             xyChart = builder.createChart(metricsStampSet);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_METRICS_HISTORY_XY_CHART, xyChart);
+            myProject.getService(CacheService.class).putUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART, xyChart);
         }
     }
 

@@ -23,6 +23,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ProjectMetricXYChartDataBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.chart.builder.ProjectMetricXYChartBuilder;
+import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.XYChart;
 
@@ -42,9 +43,9 @@ public class XyChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<String, Double> instability = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.INSTABILITY);
-        Map<String, Double> abstractness = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.ABSTRACTNESS);
-        XYChart xyChart = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.XY_CHART);
+        Map<String, Double> instability = myProject.getService(CacheService.class).getUserData(CacheService.INSTABILITY);
+        Map<String, Double> abstractness = myProject.getService(CacheService.class).getUserData(CacheService.ABSTRACTNESS);
+        XYChart xyChart = myProject.getService(CacheService.class).getUserData(CacheService.XY_CHART);
         if (instability == null || abstractness == null || xyChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getPackageOnlyModel(indicator);
@@ -53,9 +54,9 @@ public class XyChartTask extends Task.Backgroundable {
             ProjectMetricXYChartDataBuilder.build(javaProject, instability, abstractness);
             ProjectMetricXYChartBuilder builder = new ProjectMetricXYChartBuilder(myProject);
             xyChart = builder.createChart(instability, abstractness);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.INSTABILITY, instability);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.ABSTRACTNESS, abstractness);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.XY_CHART, xyChart);
+            myProject.getService(CacheService.class).putUserData(CacheService.INSTABILITY, instability);
+            myProject.getService(CacheService.class).putUserData(CacheService.ABSTRACTNESS, abstractness);
+            myProject.getService(CacheService.class).putUserData(CacheService.XY_CHART, xyChart);
         }
     }
 

@@ -31,7 +31,7 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.task.MetricTaskCache;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
 import org.b333vv.metric.ui.info.*;
@@ -338,7 +338,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void classLevelFitnessFunctionIsReady() {
             createProfileUIComponents();
-            distribution = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+            distribution = project.getService(CacheService.class).getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
             if (distribution != null) {
                 showProfiles();
             }
@@ -365,26 +365,26 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void profilesBoxChartIsReady() {
-            List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList = project.getService(MetricTaskCache.class)
-                    .getUserData(MetricTaskCache.BOX_CHARTS);
+            List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList = project.getService(CacheService.class)
+                    .getUserData(CacheService.BOX_CHARTS);
             showBoxCharts(Objects.requireNonNull(boxChartList));
         }
 
         @Override
         public void profilesHeatMapChartIsReady() {
-            HeatMapChart heatMapChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.HEAT_MAP_CHART);
+            HeatMapChart heatMapChart = project.getService(CacheService.class).getUserData(CacheService.HEAT_MAP_CHART);
             showResults(Objects.requireNonNull(heatMapChart));
         }
 
         @Override
         public void profilesRadarChartIsReady() {
-            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.RADAR_CHART);
+            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = project.getService(CacheService.class).getUserData(CacheService.RADAR_CHART);
             showRadarCharts(Objects.requireNonNull(radarCharts));
         }
 
         @Override
         public void profilesCategoryChartIsReady() {
-            CategoryChart categoryChart = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_CATEGORY_CHART);
+            CategoryChart categoryChart = project.getService(CacheService.class).getUserData(CacheService.PROFILE_CATEGORY_CHART);
             showResults(Objects.requireNonNull(categoryChart));
         }
 
@@ -400,8 +400,8 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void profileTreeMapIsReady() {
-            treeMap = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_TREE_MAP);
-            distribution = project.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+            treeMap = project.getService(CacheService.class).getUserData(CacheService.PROFILE_TREE_MAP);
+            distribution = project.getService(CacheService.class).getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
             if (treeMap != null && distribution != null) {
                 showTreeMap();
             }

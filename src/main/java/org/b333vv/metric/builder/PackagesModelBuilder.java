@@ -21,12 +21,12 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.impl.file.PsiPackageImpl;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -108,7 +108,7 @@ public class PackagesModelBuilder extends ModelBuilder {
 
     @Override
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
-        JavaFile javaFile = psiJavaFile.getProject().getService(MetricTaskCache.class).getJavaFile(psiJavaFile.getVirtualFile());
+        JavaFile javaFile = psiJavaFile.getProject().getService(CacheService.class).getJavaFile(psiJavaFile.getVirtualFile());
         if (javaFile != null) {
             return javaFile;
         }

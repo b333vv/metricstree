@@ -23,6 +23,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -43,12 +44,12 @@ public class ClassFitnessFunctionsTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<FitnessFunction, Set<JavaClass>> classFitnessFunctions = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION);
+        Map<FitnessFunction, Set<JavaClass>> classFitnessFunctions = myProject.getService(CacheService.class).getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             classFitnessFunctions = classesByMetricsProfileDistribution(myProject, javaProject);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASS_LEVEL_FITNESS_FUNCTION, classFitnessFunctions);
+            myProject.getService(CacheService.class).putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classFitnessFunctions);
         }
     }
 

@@ -25,6 +25,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.service.CacheService;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -42,8 +43,8 @@ public class  ProjectTreeTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DefaultTreeModel metricsTreeModel = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROJECT_TREE);
-        ProjectMetricTreeBuilder projectMetricTreeBuilder = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.TREE_BUILDER);
+        DefaultTreeModel metricsTreeModel = myProject.getService(CacheService.class).getUserData(CacheService.PROJECT_TREE);
+        ProjectMetricTreeBuilder projectMetricTreeBuilder = myProject.getService(CacheService.class).getUserData(CacheService.TREE_BUILDER);
         if (metricsTreeModel == null || projectMetricTreeBuilder == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
 //            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
@@ -52,8 +53,8 @@ public class  ProjectTreeTask extends Task.Backgroundable {
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getProjectModel(indicator);
             projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject, myProject);
             metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROJECT_TREE, metricsTreeModel);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.TREE_BUILDER, projectMetricTreeBuilder);
+            myProject.getService(CacheService.class).putUserData(CacheService.PROJECT_TREE, metricsTreeModel);
+            myProject.getService(CacheService.class).putUserData(CacheService.TREE_BUILDER, projectMetricTreeBuilder);
         }
     }
 

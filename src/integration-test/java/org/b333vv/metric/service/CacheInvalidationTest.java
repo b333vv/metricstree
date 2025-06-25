@@ -27,14 +27,7 @@ public class CacheInvalidationTest extends BasePlatformTestCase {
         ApplicationManager.getApplication().runWriteAction(() -> document.setText("class B {}"));
         FileDocumentManager.getInstance().saveAllDocuments();
 
-        // Ждем срабатывания асинхронного слушателя VFS
-        UIUtil.dispatchAllInvocationEvents();
-        try {
-            Thread.sleep(200); // небольшой запас для асинхронности
-        } catch (InterruptedException ignored) {}
-
         // Проверяем, что кэш был сброшен
         assertNull(cacheService.getUserData(DUMMY_KEY));
     }
 }
-

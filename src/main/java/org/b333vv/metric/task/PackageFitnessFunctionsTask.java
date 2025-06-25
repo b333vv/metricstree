@@ -22,6 +22,7 @@ import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,12 +42,12 @@ public class PackageFitnessFunctionsTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION);
+        Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
         if (packageFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getPackageModel(indicator);
             packageFitnessFunctions = org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packageLevelFitnessFunctionResult(myProject, javaProject);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PACKAGE_LEVEL_FITNESS_FUNCTION, packageFitnessFunctions);
+            myProject.getService(CacheService.class).putUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION, packageFitnessFunctions);
         }
     }
 

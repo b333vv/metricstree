@@ -24,6 +24,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.MetricCategoryChartBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
@@ -43,10 +44,10 @@ public class CategoryChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = myProject.getService(MetricTaskCache.class)
-                .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
-        CategoryChart categoryChart = myProject.getService(MetricTaskCache.class)
-                .getUserData(MetricTaskCache.CATEGORY_CHART);
+        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = myProject.getService(CacheService.class)
+                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+        CategoryChart categoryChart = myProject.getService(CacheService.class)
+                .getUserData(CacheService.CATEGORY_CHART);
         if (classesByMetricTypes == null || categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
@@ -54,8 +55,8 @@ public class CategoryChartTask extends Task.Backgroundable {
             classesByMetricTypes = classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
             MetricCategoryChartBuilder builder = new MetricCategoryChartBuilder();
             categoryChart = builder.createChart(classesByMetricTypes);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART, classesByMetricTypes);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CATEGORY_CHART, categoryChart);
+            myProject.getService(CacheService.class).putUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART, classesByMetricTypes);
+            myProject.getService(CacheService.class).putUserData(CacheService.CATEGORY_CHART, categoryChart);
         }
     }
 

@@ -23,6 +23,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -42,13 +43,13 @@ public class ProfilesBoxChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.BOX_CHARTS);
+        List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(CacheService.class).getUserData(CacheService.BOX_CHARTS);
         if (boxChartStructures == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
             ProfileBoxChartBuilder profileBoxChartBuilder = new ProfileBoxChartBuilder();
             boxChartStructures = profileBoxChartBuilder.createChart(classesByMetricProfile);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.BOX_CHARTS, boxChartStructures);
+            myProject.getService(CacheService.class).putUserData(CacheService.BOX_CHARTS, boxChartStructures);
         }
 
     }

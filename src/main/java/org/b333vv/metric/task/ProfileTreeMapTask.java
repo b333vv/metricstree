@@ -24,6 +24,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.treemap.builder.ProfileColorProvider;
 import org.b333vv.metric.ui.treemap.builder.TreeMapBuilder;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
@@ -45,7 +46,7 @@ public class ProfileTreeMapTask extends Task.Backgroundable {
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        MetricTreeMap<JavaCode> metricTreeMap = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.PROFILE_TREE_MAP);
+        MetricTreeMap<JavaCode> metricTreeMap = myProject.getService(CacheService.class).getUserData(CacheService.PROFILE_TREE_MAP);
         if (metricTreeMap == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             AnalysisScope scope = new AnalysisScope(myProject);
@@ -60,7 +61,7 @@ public class ProfileTreeMapTask extends Task.Backgroundable {
             metricTreeMap.setClickedAction((JavaClass javaClass) ->
                     myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                             .profileTreeMapCellClicked(javaClass));
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PROFILE_TREE_MAP, metricTreeMap);
+            myProject.getService(CacheService.class).putUserData(CacheService.PROFILE_TREE_MAP, metricTreeMap);
         }
     }
 

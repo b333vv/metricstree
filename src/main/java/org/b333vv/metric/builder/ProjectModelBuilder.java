@@ -26,12 +26,12 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
-import org.b333vv.metric.task.MetricTaskCache;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +58,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     @Override
     protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         Project project = psiJavaFile.getProject();
-        JavaFile javaFile = project.getService(MetricTaskCache.class).getJavaFile(psiJavaFile.getVirtualFile());
+        JavaFile javaFile = project.getService(CacheService.class).getJavaFile(psiJavaFile.getVirtualFile());
         if (javaFile != null) {
             javaFile.classes().forEach(c -> {
                 addToAllClasses(c);
@@ -93,7 +93,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
             addToAllClasses(javaClass);
         }
-        project.getService(MetricTaskCache.class).putJavaFile(psiJavaFile.getVirtualFile(), javaFile);
+        project.getService(CacheService.class).addJavaFile(psiJavaFile.getVirtualFile(), javaFile);
         return javaFile;
     }
 

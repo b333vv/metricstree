@@ -24,6 +24,7 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,18 +47,18 @@ public class PieChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = myProject.getService(MetricTaskCache.class)
-                .getUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES);
-        List<MetricPieChartBuilder.PieChartStructure> pieChartList = myProject.getService(MetricTaskCache.class)
-                .getUserData(MetricTaskCache.PIE_CHART_LIST);
+        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = myProject.getService(CacheService.class)
+                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+        List<MetricPieChartBuilder.PieChartStructure> pieChartList = myProject.getService(CacheService.class)
+                .getUserData(CacheService.PIE_CHART_LIST);
         if (classesByMetricTypes == null || pieChartList == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             classesByMetricTypes = classesByMetricsValuesDistribution(Objects.requireNonNull(javaProject), myProject);
             MetricPieChartBuilder builder = new MetricPieChartBuilder();
             pieChartList = builder.createChart(javaProject, myProject);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASSES_BY_METRIC_TYPES, classesByMetricTypes);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.PIE_CHART_LIST, pieChartList);
+            myProject.getService(CacheService.class).putUserData(CacheService.CLASSES_BY_METRIC_TYPES, classesByMetricTypes);
+            myProject.getService(CacheService.class).putUserData(CacheService.PIE_CHART_LIST, pieChartList);
         }
     }
 

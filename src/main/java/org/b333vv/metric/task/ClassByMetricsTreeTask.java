@@ -24,6 +24,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.ui.tree.builder.SortedByMetricsValuesClassesTreeBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.service.CacheService;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -40,13 +41,13 @@ public class ClassByMetricsTreeTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DefaultTreeModel treeModel = myProject.getService(MetricTaskCache.class).getUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE);
+        DefaultTreeModel treeModel = myProject.getService(CacheService.class).getUserData(CacheService.CLASSES_BY_METRIC_TREE);
         if (treeModel == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
             SortedByMetricsValuesClassesTreeBuilder builder = new SortedByMetricsValuesClassesTreeBuilder();
             treeModel = builder.createMetricTreeModel(javaProject, myProject);
-            myProject.getService(MetricTaskCache.class).putUserData(MetricTaskCache.CLASSES_BY_METRIC_TREE, treeModel);
+            myProject.getService(CacheService.class).putUserData(CacheService.CLASSES_BY_METRIC_TREE, treeModel);
         }
     }
 
