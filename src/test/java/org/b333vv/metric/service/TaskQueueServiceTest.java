@@ -71,9 +71,9 @@ public class TaskQueueServiceTest {
 
         service.queue(mockTask);
 
-        verify(mockProgressManager).run(mockTask);
-
         runnableCaptor.getValue().run();
+
+        verify(mockProgressManager).run(mockTask);
 
         assertTrue(service.isQueueEmpty(), "Queue should be empty after task is processed.");
     }
