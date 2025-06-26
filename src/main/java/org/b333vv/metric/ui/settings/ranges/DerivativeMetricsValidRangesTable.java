@@ -21,6 +21,7 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -133,7 +134,7 @@ public class DerivativeMetricsValidRangesTable {
         if (selectedIndex >= 0) {
             DerivativeMetricsValidRangeStub value = model.items().get(selectedIndex);
             DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
-                    project.getService(DerivativeMetricsValidRangesSettings.class);
+                    project.getService(SettingsService.class).getDerivativeMetricsSettings();
             derivativeMetricsValidRangesSettings.addToUnControlledMetrics(value);
             model.items().remove(value);
             panel.revalidate();
@@ -144,7 +145,7 @@ public class DerivativeMetricsValidRangesTable {
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 5;
         final DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
-                project.getService(DerivativeMetricsValidRangesSettings.class);
+                project.getService(SettingsService.class).getDerivativeMetricsSettings();
         private List<DerivativeMetricsValidRangeStub> rows = derivativeMetricsValidRangesSettings.getControlledMetricsList();
 
         @Override

@@ -41,8 +41,8 @@ public class BuildMetricsCategoryChartAction extends AbstractAction {
     public void update(AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(
-                    BasicMetricsValidRangesSettings.class);
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(SettingsService.class)
+                    .getBasicMetricsSettings();
             e.getPresentation().setEnabled(
                     project.getService(SettingsService.class).isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()

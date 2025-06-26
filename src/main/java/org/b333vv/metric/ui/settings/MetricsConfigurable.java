@@ -24,6 +24,7 @@ import org.b333vv.metric.ui.settings.other.OtherSettings;
 import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.Nls;
 
 import javax.annotation.Nullable;
@@ -42,12 +43,13 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
 
     public MetricsConfigurable(Project project) {
         this.project = project;
-        this.basicMetricsValidRangesSettings = project.getService(BasicMetricsValidRangesSettings.class);
-        this.derivativeMetricsValidRangesSettings = project.getService(DerivativeMetricsValidRangesSettings.class);
-        this.classMetricsTreeSettings = project.getService(ClassMetricsTreeSettings.class);
-        this.classLevelFitnessFunctions = project.getService(ClassLevelFitnessFunctions.class);
-        this.packageLevelFitnessFunctions = project.getService(PackageLevelFitnessFunctions.class);
-        this.otherSettings = project.getService(OtherSettings.class);
+        SettingsService settingsService = project.getService(SettingsService.class);
+        this.basicMetricsValidRangesSettings = settingsService.getBasicMetricsSettings();
+        this.derivativeMetricsValidRangesSettings = settingsService.getDerivativeMetricsSettings();
+        this.classMetricsTreeSettings = settingsService.getClassMetricsTreeSettings();
+        this.classLevelFitnessFunctions = settingsService.getClassLevelFitnessFunctions();
+        this.packageLevelFitnessFunctions = settingsService.getPackageLevelFitnessFunctions();
+        this.otherSettings = settingsService.getOtherSettings();
     }
 
     @Nls

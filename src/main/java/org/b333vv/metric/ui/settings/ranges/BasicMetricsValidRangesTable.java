@@ -21,6 +21,7 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -133,7 +134,7 @@ public class BasicMetricsValidRangesTable {
         int selectedIndex = table.getSelectedRow();
         if (selectedIndex >= 0) {
             BasicMetricsValidRangeStub value = model.items().get(selectedIndex);
-            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(BasicMetricsValidRangesSettings.class);
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(SettingsService.class).getBasicMetricsSettings();
             basicMetricsValidRangesSettings.addToUnControlledMetrics(value);
             model.items().remove(value);
             panel.revalidate();
@@ -144,7 +145,7 @@ public class BasicMetricsValidRangesTable {
     private class Model extends AbstractTableModel {
         private static final int COLUMN_COUNT = 6;
         final BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                project.getService(BasicMetricsValidRangesSettings.class);
+                project.getService(SettingsService.class).getBasicMetricsSettings();
         private List<BasicMetricsValidRangeStub> rows = basicMetricsValidRangesSettings.getControlledMetricsList();
 
         @Override

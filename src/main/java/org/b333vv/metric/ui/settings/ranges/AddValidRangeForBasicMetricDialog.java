@@ -22,6 +22,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -45,7 +46,7 @@ public class AddValidRangeForBasicMetricDialog extends DialogWrapper {
         super(project, false);
         setTitle("Add Range For Basic Metric");
 
-        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(BasicMetricsValidRangesSettings.class);
+        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(SettingsService.class).getBasicMetricsSettings();
         List<BasicMetricsValidRangeStub> uncontrolledMetrics = basicMetricsValidRangesSettings.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 

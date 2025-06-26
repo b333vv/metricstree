@@ -24,6 +24,7 @@ import org.b333vv.metric.ui.settings.fitnessfunction.*;
 import org.b333vv.metric.ui.settings.other.OtherSettings;
 import org.b333vv.metric.ui.settings.other.OtherSettingsPanel;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesPanel;
+import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesPanel;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
@@ -51,17 +52,17 @@ public class SettingsPanel {
         JBTabbedPane tabs = new JBTabbedPane();
 
         BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
-                project.getService(BasicMetricsValidRangesSettings.class);
+                project.getService(SettingsService.class).getBasicMetricsSettings();
         DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
-                project.getService(DerivativeMetricsValidRangesSettings.class);
+                project.getService(SettingsService.class).getDerivativeMetricsSettings();
         ClassMetricsTreeSettings classMetricsTreeSettings =
-                project.getService(ClassMetricsTreeSettings.class);
+                project.getService(SettingsService.class).getClassMetricsTreeSettings();
         ClassLevelFitnessFunctions classLevelFitnessFunctions =
-                project.getService(ClassLevelFitnessFunctions.class);
+                project.getService(SettingsService.class).getClassLevelFitnessFunctions();
         PackageLevelFitnessFunctions packageLevelFitnessFunctions =
-                project.getService(PackageLevelFitnessFunctions.class);
+                project.getService(SettingsService.class).getPackageLevelFitnessFunctions();
         OtherSettings otherSettings =
-                project.getService(OtherSettings.class);
+                project.getService(SettingsService.class).getOtherSettings();
 
         basicMetricsValidRangesPanel = new BasicMetricsValidRangesPanel(project, basicMetricsValidRangesSettings);
         derivativeMetricsValidRangesPanel = new DerivativeMetricsValidRangesPanel(project, derivativeMetricsValidRangesSettings);
