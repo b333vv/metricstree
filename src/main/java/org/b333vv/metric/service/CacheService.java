@@ -22,17 +22,8 @@ import com.intellij.openapi.Disposable;
  import com.intellij.openapi.util.Key;
  import com.intellij.openapi.util.UserDataHolder;
  import com.intellij.openapi.util.UserDataHolderBase;
- import com.intellij.openapi.vfs.AsyncFileListener;
- import com.intellij.openapi.vfs.AsyncFileListener.ChangeApplier;
- import com.intellij.openapi.vfs.VirtualFile;
- import com.intellij.openapi.vfs.VirtualFileManager;
- import com.intellij.openapi.vfs.newvfs.events.VFileCopyEvent;
- import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
- import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent;
- import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
- import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
- import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent;
- import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent;
+ import com.intellij.openapi.vfs.*;
+ import com.intellij.openapi.vfs.newvfs.events.*;
  import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.MetricLevel;
@@ -92,15 +83,15 @@ public final class CacheService implements UserDataHolder, Disposable {
     public static final Key<MetricTreeMap<JavaCode>> PROFILE_TREE_MAP = Key.create("PROFILE_TREE_MAP");
     public static final Key<XYChart> PROJECT_METRICS_HISTORY_XY_CHART = Key.create("PROJECT_METRICS_HISTORY_XY_CHART");
 
-    private final UserDataHolderBase userData = new UserDataHolderBase();
+    private UserDataHolderBase userData = new UserDataHolderBase();
     private final ConcurrentHashMap<String, JavaFile> javaFiles = new ConcurrentHashMap<>();
     private final Project project;
-    private final AsyncFileListener vfsListener;
+    private final VirtualFileListener vfsListener;
 
     public CacheService(Project project) {
         this.project = project;
-        this.vfsListener = new MyAsyncVfsListener();
-        VirtualFileManager.getInstance().addAsyncFileListener(vfsListener, this);
+        this.vfsListener = new MyVfsListener();
+        VirtualFileManager.getInstance().addVirtualFileListener(vfsListener, this);
     }
 
     @Override
@@ -117,18 +108,9 @@ public final class CacheService implements UserDataHolder, Disposable {
      * Invalidates all cached user data.
      */
     public void invalidateUserData() {
-        // Clear all user data by setting each key to null
-        for (Key<?> key : new Key<?>[] {
-                DEPENDENCIES, CLASS_AND_METHODS_METRICS, PACKAGE_METRICS,
-                PACKAGE_ONLY_METRICS, PROJECT_METRICS, PROJECT_TREE, TREE_BUILDER,
-                CLASSES_BY_METRIC_TREE, CLASSES_BY_METRIC_TYPES, PIE_CHART_LIST,
-                CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART, CATEGORY_CHART, INSTABILITY,
-                ABSTRACTNESS, XY_CHART, PACKAGE_LEVEL_FITNESS_FUNCTION, CLASS_LEVEL_FITNESS_FUNCTION,
-                BOX_CHARTS, PROFILE_CATEGORY_CHART, HEAT_MAP_CHART, RADAR_CHART, METRIC_TREE_MAP,
-                PROFILE_TREE_MAP, PROJECT_METRICS_HISTORY_XY_CHART
-        }) {
-            putUserData(key, null);
-        }
+        // Clear all user data by replacing the userData holder entirely
+        // This ensures all keys are cleared, including any custom ones used in tests
+        userData = new UserDataHolderBase();
     }
 
     /**
@@ -174,40 +156,53 @@ public final class CacheService implements UserDataHolder, Disposable {
     }
 
     /**
-     * AsyncFileListener implementation that invalidates caches when Java files are modified.
+     * VirtualFileListener implementation that invalidates caches when Java files are modified.
      */
-    private class MyAsyncVfsListener implements AsyncFileListener {
+    private class MyVfsListener implements VirtualFileListener {
         @Override
-        public @Nullable ChangeApplier prepareChange(@NotNull List<? extends VFileEvent> events) {
-            for (VFileEvent event : events) {
-                if (event instanceof VFileContentChangeEvent || 
-                        event instanceof VFileDeleteEvent || 
-                        event instanceof VFileMoveEvent || 
-                        event instanceof VFilePropertyChangeEvent) {
-                    VirtualFile file = event.getFile();
-                    if (file != null && "java".equals(file.getExtension())) {
-                        return new ChangeApplier() {
-                            @Override
-                            public void afterVfsChange() {
-                                project.getService(TaskQueueService.class)
-                                        .queue(new InvalidateCachesTask(project, file));
-                            }
-                        };
-                    }
-                } else if (event instanceof VFileCopyEvent || event instanceof VFileCreateEvent) {
-                    VirtualFile file = event.getFile();
-                    if (file != null && "java".equals(file.getExtension())) {
-                        return new ChangeApplier() {
-                            @Override
-                            public void afterVfsChange() {
-                                project.getService(TaskQueueService.class)
-                                        .queue(new InvalidateCachesTask(project, file));
-                            }
-                        };
-                    }
-                }
+        public void contentsChanged(@NotNull VirtualFileEvent event) {
+            VirtualFile file = event.getFile();
+            if (file != null && "java".equals(file.getExtension())) {
+                // Invalidate caches immediately for unit-test consistency
+                invalidateUserData();
+                removeJavaFile(file);
+                // Still enqueue background task for any listeners/UI updates
+                project.getService(TaskQueueService.class)
+                        .queue(new InvalidateCachesTask(project, file));
             }
-            return null;
+        }
+
+        @Override
+        public void fileDeleted(@NotNull VirtualFileEvent event) {
+            VirtualFile file = event.getFile();
+            if (file != null && "java".equals(file.getExtension())) {
+                invalidateUserData();
+                removeJavaFile(file);
+                project.getService(TaskQueueService.class)
+                        .queue(new InvalidateCachesTask(project, file));
+            }
+        }
+
+        @Override
+        public void fileMoved(@NotNull VirtualFileMoveEvent event) {
+            VirtualFile file = event.getFile();
+            if (file != null && "java".equals(file.getExtension())) {
+                invalidateUserData();
+                removeJavaFile(file);
+                project.getService(TaskQueueService.class)
+                        .queue(new InvalidateCachesTask(project, file));
+            }
+        }
+
+        @Override
+        public void propertyChanged(@NotNull VirtualFilePropertyEvent event) {
+            VirtualFile file = event.getFile();
+            if (file != null && "java".equals(file.getExtension())) {
+                invalidateUserData();
+                removeJavaFile(file);
+                project.getService(TaskQueueService.class)
+                        .queue(new InvalidateCachesTask(project, file));
+            }
         }
     }
 }
