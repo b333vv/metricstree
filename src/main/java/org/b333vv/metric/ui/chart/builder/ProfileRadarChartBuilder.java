@@ -51,13 +51,13 @@ public class ProfileRadarChartBuilder {
         this.classesByMetricProfile = classesByMetricProfile;
 
         BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project
-                .getService(BasicMetricsValidRangesSettings.class);
+                .getService(SettingsService.class).getBasicMetricsSettings();
 //        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
 //                BasicMetricsValidRangesSettings.class);
 //        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
 //                DerivativeMetricsValidRangesSettings.class);
         DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = project
-                .getService(DerivativeMetricsValidRangesSettings.class);
+                .getService(SettingsService.class).getDerivativeMetricsSettings();
         List<MetricType> metrics = new ArrayList<>();
         for (MetricType mt : MetricType.values()) {
             if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings.getControlledMetricsList().stream()

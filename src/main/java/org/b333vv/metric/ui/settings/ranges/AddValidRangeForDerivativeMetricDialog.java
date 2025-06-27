@@ -21,7 +21,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -44,7 +44,7 @@ public class AddValidRangeForDerivativeMetricDialog extends DialogWrapper {
         super(project, false);
         setTitle("Add Range For Metric");
 
-        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = project.getService(DerivativeMetricsValidRangesSettings.class);
+        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = project.getService(SettingsService.class).getDerivativeMetricsSettings();
         List<DerivativeMetricsValidRangeStub> uncontrolledMetrics = derivativeMetricsValidRangesSettings.getUnControlledMetricsList();
         metricsAllowableValuesRangeStubCombo = new ComboBox(uncontrolledMetrics.toArray());
 

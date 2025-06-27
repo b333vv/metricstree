@@ -35,6 +35,7 @@ import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.util.SettingsService;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -48,7 +49,7 @@ public abstract class ModelBuilder {
 
     protected List<JavaClassVisitor> getClassVisitorList(Project project) {
         if (javaClassVisitorList == null) {
-            javaClassVisitorList = project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
+            javaClassVisitorList = project.getService(SettingsService.class).getClassMetricsTreeSettings().getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
                     .filter(m -> m instanceof JavaClassVisitor)
@@ -60,7 +61,7 @@ public abstract class ModelBuilder {
 
     protected List<JavaMethodVisitor> getMethodVisitorList(Project project) {
         if (javaMethodVisitorList == null) {
-            javaMethodVisitorList = project.getService(ClassMetricsTreeSettings.class).getMetricsList().stream()
+            javaMethodVisitorList = project.getService(SettingsService.class).getClassMetricsTreeSettings().getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
                     .map(m -> m.getType().visitor())
                     .filter(m -> m instanceof JavaMethodVisitor)
