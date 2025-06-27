@@ -67,7 +67,7 @@ public class PackageLevelFitnessFunctionBuilder {
 
 
     private static Set<FitnessFunction> fitnessFunctionResult(Project project) {
-        PackageLevelFitnessFunctions packageLevelFitnessFunctions = project.getService(PackageLevelFitnessFunctions.class);
+        PackageLevelFitnessFunctions packageLevelFitnessFunctions = project.getService(SettingsService.class).getPackageLevelFitnessFunctions();
         Map<String, List<FitnessFunctionItem>> fitnessFunction = packageLevelFitnessFunctions.getProfiles();
         Set<FitnessFunction> result = new HashSet<>();
         for (Map.Entry<String, List<FitnessFunctionItem>> entry : fitnessFunction.entrySet()) {
