@@ -29,6 +29,7 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.ui.settings.fitnessfunction.FitnessFunctionItem;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
+import  org.b333vv.metric.util.SettingsService;
 
 import java.util.*;
 
