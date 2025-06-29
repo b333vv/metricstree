@@ -10,6 +10,8 @@ classes
 out
 .gitignore
 
+gemini.md
+
 *.iml
 *.ipr
 *.iws
