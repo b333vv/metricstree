@@ -16,54 +16,46 @@
 
 package org.b333vv.metric.task;
 
-import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
+
 import org.b333vv.metric.service.CacheService;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.util.function.Supplier;
 
 
 public class  ProjectTreeTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles tree model from cache";
     private static final String STARTED_MESSAGE = "Building tree model started";
     private static final String FINISHED_MESSAGE = "Building tree model finished";
     private static final String CANCELED_MESSAGE = "Building tree model canceled";
 
-    public ProjectTreeTask(Project project) {
+    private final Supplier<DefaultTreeModel> modelSupplier;
+    private final CacheService cacheService;
+    private DefaultTreeModel treeModel;
+
+    public ProjectTreeTask(Project project, Supplier<DefaultTreeModel> modelSupplier, CacheService cacheService) {
         super(project, "Build Project Tree");
+        this.modelSupplier = modelSupplier;
+        this.cacheService = cacheService;
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        DefaultTreeModel metricsTreeModel = myProject.getService(CacheService.class).getUserData(CacheService.PROJECT_TREE);
-        ProjectMetricTreeBuilder projectMetricTreeBuilder = myProject.getService(CacheService.class).getUserData(CacheService.TREE_BUILDER);
-        if (metricsTreeModel == null || projectMetricTreeBuilder == null) {
-            myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-//            AnalysisScope scope = new AnalysisScope(MetricsUtils.getCurrentProject());
-            AnalysisScope scope = new AnalysisScope(myProject);
-            scope.setIncludeTestSource(false);
-            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getProjectModel(indicator);
-            projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject, myProject);
-            metricsTreeModel = projectMetricTreeBuilder.createMetricTreeModel();
-            myProject.getService(CacheService.class).putUserData(CacheService.PROJECT_TREE, metricsTreeModel);
-            myProject.getService(CacheService.class).putUserData(CacheService.TREE_BUILDER, projectMetricTreeBuilder);
-        }
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
+        treeModel = modelSupplier.get();
     }
 
     @Override
     public void onSuccess() {
         super.onSuccess();
+        cacheService.putUserData(CacheService.PROJECT_TREE, treeModel);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                .projectMetricsTreeIsReady();
+                .projectMetricsTreeIsReady(treeModel);
     }
 
     @Override

@@ -18,9 +18,8 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.task.ProjectTreeTask;
 import org.jetbrains.annotations.NotNull;
 
 public class CalculateProjectMetricsAction extends AbstractAction {
@@ -30,9 +29,7 @@ public class CalculateProjectMetricsAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            ProjectTreeTask projectTreeTask = new ProjectTreeTask(project);
-            project.getService(TaskQueueService.class).queue(projectTreeTask);
+            project.getService(CalculationService.class).calculateProjectTree();
         }
     }
 
@@ -42,3 +39,4 @@ public class CalculateProjectMetricsAction extends AbstractAction {
         e.getPresentation().setEnabled(project != null && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }
+

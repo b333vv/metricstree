@@ -129,4 +129,9 @@ tasks {
         dependsOn(named("integrationTest"))
         dependsOn(named("e2eTest"))
     }
+
+    named("classpathIndexCleanup") {
+        mustRunAfter(named("compileIntegrationTestJava"))
+        mustRunAfter(named("compileE2eTestJava"))
+    }
 }

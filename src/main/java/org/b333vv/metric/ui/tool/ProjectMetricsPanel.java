@@ -269,9 +269,9 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void projectMetricsTreeIsReady() {
-            metricTreeBuilder = project.getService(CacheService.class).getUserData(CacheService.TREE_BUILDER);
-            showResults(project.getService(CacheService.class).getUserData(CacheService.PROJECT_TREE));
+        public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
+            metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(null, project);
+            showResults(treeModel);
             buildProjectMetricsTree();
             setProjectTreeActive(true);
         }

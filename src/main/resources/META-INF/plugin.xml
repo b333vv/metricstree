@@ -255,6 +255,7 @@
         <applicationService serviceImplementation="org.b333vv.metric.util.MetricsUtils"/>
         <projectService serviceImplementation="org.b333vv.metric.service.UIStateService"/>
         <projectService serviceImplementation="org.b333vv.metric.service.TaskQueueService"/>
+        <projectService serviceInterface="org.b333vv.metric.service.CalculationService" serviceImplementation="org.b333vv.metric.service.CalculationServiceImpl"/>
         <projectService serviceImplementation="org.b333vv.metric.service.CacheService"/>
         <projectService serviceImplementation="org.b333vv.metric.task.MetricTaskCache"/>
         <codeInsight.daemonBoundCodeVisionProvider implementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionProvider"/>

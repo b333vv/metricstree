@@ -71,7 +71,7 @@ public interface MetricsEventListener {
     default void javaPackageSelected(JavaPackage javaPackage) {
     }
 
-    default void projectMetricsTreeIsReady() {
+    default void projectMetricsTreeIsReady(DefaultTreeModel treeModel) {
     }
 
     default void pieChartIsReady() {
