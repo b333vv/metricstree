@@ -4,4 +4,6 @@ public interface CalculationService {
     void calculateProjectTree();
 
     void calculatePieChart();
+
+    void calculateCategoryChart();
 }

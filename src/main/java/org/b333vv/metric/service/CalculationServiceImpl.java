@@ -15,6 +15,8 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.task.MetricTaskManager;
 import org.b333vv.metric.task.PieChartTask;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
+import org.b333vv.metric.task.CategoryChartTask;
+import org.knowm.xchart.CategoryChart;
 
 import java.util.List;
 
@@ -53,6 +55,17 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
         } else {
             PieChartTask task = new PieChartTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateCategoryChart() {
+        CategoryChart categoryChart = cacheService.getUserData(CacheService.CATEGORY_CHART);
+        if (categoryChart != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
+        } else {
+            CategoryChartTask task = new CategoryChartTask(project);
             taskQueueService.queue(task);
         }
     }

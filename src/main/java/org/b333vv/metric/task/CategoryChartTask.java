@@ -19,17 +19,14 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
-import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
+import org.b333vv.metric.builder.CategoryChartDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.ui.chart.builder.MetricCategoryChartBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 
-import java.util.Map;
+import java.util.Objects;
 
 public class CategoryChartTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values category chart from cache";
@@ -44,18 +41,13 @@ public class CategoryChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = myProject.getService(CacheService.class)
-                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
         CategoryChart categoryChart = myProject.getService(CacheService.class)
                 .getUserData(CacheService.CATEGORY_CHART);
-        if (classesByMetricTypes == null || categoryChart == null) {
+        if (categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            ClassesByMetricsValuesCounter classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter(myProject);
-            classesByMetricTypes = classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
-            MetricCategoryChartBuilder builder = new MetricCategoryChartBuilder();
-            categoryChart = builder.createChart(classesByMetricTypes);
-            myProject.getService(CacheService.class).putUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART, classesByMetricTypes);
+            CategoryChartDataCalculator calculator = new CategoryChartDataCalculator(myProject);
+            categoryChart = calculator.calculate(Objects.requireNonNull(javaProject));
             myProject.getService(CacheService.class).putUserData(CacheService.CATEGORY_CHART, categoryChart);
         }
     }
