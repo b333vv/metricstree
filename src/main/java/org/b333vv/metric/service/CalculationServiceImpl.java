@@ -19,6 +19,9 @@ import org.b333vv.metric.task.CategoryChartTask;
 import org.knowm.xchart.CategoryChart;
 
 import java.util.List;
+import org.b333vv.metric.model.code.JavaCode;
+import org.b333vv.metric.task.MetricTreeMapTask;
+import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 
 public class CalculationServiceImpl implements CalculationService {
     private final Project project;
@@ -66,6 +69,17 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
         } else {
             CategoryChartTask task = new CategoryChartTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateMetricTreeMap() {
+        MetricTreeMap<JavaCode> metricTreeMap = cacheService.getUserData(CacheService.METRIC_TREE_MAP);
+        if (metricTreeMap != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady();
+        } else {
+            MetricTreeMapTask task = new MetricTreeMapTask(project);
             taskQueueService.queue(task);
         }
     }

@@ -6,4 +6,6 @@ public interface CalculationService {
     void calculatePieChart();
 
     void calculateCategoryChart();
+
+    void calculateMetricTreeMap();
 }

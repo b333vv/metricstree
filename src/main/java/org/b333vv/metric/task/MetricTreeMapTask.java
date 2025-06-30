@@ -16,21 +16,15 @@
 
 package org.b333vv.metric.task;
 
-import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.MetricTreeMapModelCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
-import org.b333vv.metric.ui.treemap.builder.TreeMapBuilder;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.jetbrains.annotations.NotNull;
-
 
 public class MetricTreeMapTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles treemap with metric types distribution from cache";
@@ -44,23 +38,12 @@ public class MetricTreeMapTask extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
         MetricTreeMap<JavaCode> metricTreeMap = myProject.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
         if (metricTreeMap == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            AnalysisScope scope = new AnalysisScope(myProject);
-            scope.setIncludeTestSource(false);
-            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            TreeMapBuilder treeMapBuilder = new TreeMapBuilder(javaProject);
-            metricTreeMap = treeMapBuilder.getTreeMap();
-            metricTreeMap.setColorProvider(new MetricTypeColorProvider(MetricType.NCSS, myProject));
-            metricTreeMap.setSelectionChangedAction((String text) ->
-                    myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                            .setProjectPanelBottomText(text));
-            metricTreeMap.setClickedAction((JavaClass javaClass) ->
-                    myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                            .projectTreeMapCellClicked(javaClass));
+            MetricTreeMapModelCalculator calculator = new MetricTreeMapModelCalculator(myProject);
+            metricTreeMap = calculator.calculate(indicator);
             myProject.getService(CacheService.class).putUserData(CacheService.METRIC_TREE_MAP, metricTreeMap);
         }
     }
