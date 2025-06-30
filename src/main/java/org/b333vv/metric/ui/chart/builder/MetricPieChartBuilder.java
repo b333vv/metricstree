@@ -38,13 +38,9 @@ import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class MetricPieChartBuilder {
 
-    public List<PieChartStructure> createChart(JavaProject javaProject, Project project) {
+    public List<PieChartStructure> createChart(Map<MetricType, Map<RangeType, Double>> valuesByMetricTypes) {
 
         List<PieChartStructure> pieCharts = new ArrayList<>();
-
-        var classesByMetricsValuesCounter = new ClassesByMetricsValuesCounter(project);
-        var valuesByMetricTypes =
-                classesByMetricsValuesCounter.classesByMetricsValuesDistribution(javaProject);
 
         for (var valuesByMetricType : valuesByMetricTypes.entrySet()) {
             var chart = new PieChartBuilder()
@@ -69,7 +65,7 @@ public class MetricPieChartBuilder {
             chart.getStyler().setChartTitleFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
             chart.getStyler().setChartFontColor(annotationColor);
 
-            var sliceColors = new JBColor[] {
+            var sliceColors = new JBColor[]{
                     new JBColor(new Color(0x499C54), new Color(0x499C54)),
                     new JBColor(new Color(0xf9c784), new Color(0xf9c784)),
                     new JBColor(new Color(0xfc7a1e), new Color(0xfc7a1e)),

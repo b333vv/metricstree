@@ -10,6 +10,14 @@ import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.tree.DefaultTreeModel;
 
+import org.b333vv.metric.builder.PieChartDataCalculator;
+import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.task.MetricTaskManager;
+import org.b333vv.metric.task.PieChartTask;
+import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
+
+import java.util.List;
+
 public class CalculationServiceImpl implements CalculationService {
     private final Project project;
     private final TaskQueueService taskQueueService;
@@ -34,6 +42,17 @@ public class CalculationServiceImpl implements CalculationService {
         } else {
             ProjectTreeModelCalculator calculator = new ProjectTreeModelCalculator(project);
             ProjectTreeTask task = new ProjectTreeTask(project, () -> calculator.calculate(), cacheService);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculatePieChart() {
+        List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService.getUserData(CacheService.PIE_CHART_LIST);
+        if (pieChartList != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
+        } else {
+            PieChartTask task = new PieChartTask(project);
             taskQueueService.queue(task);
         }
     }
