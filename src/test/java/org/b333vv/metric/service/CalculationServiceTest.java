@@ -1,7 +1,9 @@
 package org.b333vv.metric.service;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.task.ProjectTreeTask;
+import org.b333vv.metric.builder.MetricsBackgroundableTask;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -40,7 +42,7 @@ public class CalculationServiceTest {
     private ProgressIndicator mockProgressIndicator;
 
     @Captor
-    private ArgumentCaptor<ProjectTreeTask> projectTreeTaskCaptor;
+    private ArgumentCaptor<MetricsBackgroundableTask> projectTreeTaskCaptor;
 
     @BeforeEach
     public void setUp() {
@@ -59,7 +61,7 @@ public class CalculationServiceTest {
         calculationService.calculateProjectTree();
 
         verify(mockCacheService, times(1)).getUserData(CacheService.PROJECT_TREE);
-        verify(mockTaskQueueService, never()).queue(any(ProjectTreeTask.class));
+        verify(mockTaskQueueService, never()).queue(any(MetricsBackgroundableTask.class));
     }
 
     @Test
@@ -78,7 +80,8 @@ public class CalculationServiceTest {
             verify(mockCacheService, times(1)).getUserData(CacheService.PROJECT_TREE);
             verify(mockTaskQueueService, times(1)).queue(projectTreeTaskCaptor.capture());
 
-            ProjectTreeTask capturedTask = projectTreeTaskCaptor.getValue();
+            MetricsBackgroundableTask capturedTask = projectTreeTaskCaptor.getValue();
+            // Simulate task execution
             capturedTask.run(mockProgressIndicator);
             capturedTask.onSuccess();
 

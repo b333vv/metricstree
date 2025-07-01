@@ -23,20 +23,24 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MetricsBackgroundableTask extends Task.Backgroundable {
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-    private final Runnable task;
+public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
+
+    private final Supplier<T> task;
+    private T result;
     private final Runnable onCancel;
-    private Runnable onSuccess;
+    private Consumer<T> onSuccess;
     private Runnable onFinished;
 
     public MetricsBackgroundableTask(@Nullable Project project,
                                      @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
                                      boolean canBeCancelled,
-                                     @NotNull Runnable task,
-                                     Runnable onSuccess,
-                                     Runnable onCancel,
-                                     Runnable onFinished) {
+                                     @NotNull Supplier<T> task,
+                                     @NotNull Consumer<T> onSuccess,
+                                     @Nullable Runnable onCancel,
+                                     @Nullable Runnable onFinished) {
         super(project, title, canBeCancelled);
         this.task = task;
         this.onSuccess = onSuccess;
@@ -46,13 +50,13 @@ public class MetricsBackgroundableTask extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        task.run();
+        result = task.get();
     }
 
     @Override
     public void onSuccess() {
         if (onSuccess != null) {
-            onSuccess.run();
+            onSuccess.accept(result);
         }
     }
 
@@ -74,7 +78,7 @@ public class MetricsBackgroundableTask extends Task.Backgroundable {
         this.onFinished = onFinished;
     }
 
-    public void setOnSuccess(Runnable onSuccess) {
+    public void setOnSuccess(Consumer<T> onSuccess) {
         this.onSuccess = onSuccess;
     }
 }

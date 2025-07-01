@@ -28,6 +28,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.psi.util.CachedValuesManager;
+import org.b333vv.metric.builder.ClassFitnessFunctionCalculator;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.code.JavaProject;
@@ -115,9 +116,8 @@ public final class MetricTaskManager {
         CacheService cacheService = this.project.getService(CacheService.class);
         Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = cacheService.getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classesByMetricProfile == null) {
-            ClassFitnessFunctionsTask classFitnessFunctionsTask = new ClassFitnessFunctionsTask(this.project);
-            classFitnessFunctionsTask.run(indicator);
-            classesByMetricProfile = cacheService.getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+            classesByMetricProfile = new ClassFitnessFunctionCalculator().calculate(this.project, indicator);
+            cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByMetricProfile);
         }
         return classesByMetricProfile;
     }

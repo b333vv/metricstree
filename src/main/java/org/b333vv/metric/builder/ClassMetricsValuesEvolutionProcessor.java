@@ -42,6 +42,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ClassMetricsValuesEvolutionProcessor {
 
@@ -133,10 +135,18 @@ public class ClassMetricsValuesEvolutionProcessor {
     }
 
     public void buildClassMetricsValuesEvolutionMap() {
-        MetricsBackgroundableTask classMetricsTask = new MetricsBackgroundableTask(psiJavaFile.getProject(),
-                "Get Metrics History for " + psiJavaFile.getName() + "...", true,
-                getFileFromGitCalculateMetricsAndPutThemToMap, buildTree,
-                cancel, null);        psiJavaFile.getProject().getService(TaskQueueService.class).queue(classMetricsTask);
+        Supplier<Void> taskLogic = () -> { getFileFromGitCalculateMetricsAndPutThemToMap.run(); return null; };
+        Consumer<Void> onSuccess = (v) -> buildTree.run();
+        MetricsBackgroundableTask<Void> genericTask = new MetricsBackgroundableTask<>(
+            psiJavaFile.getProject(),
+            "Get Metrics History for " + psiJavaFile.getName() + "...",
+            true,
+            taskLogic,
+            onSuccess,
+            cancel, // Existing onCancel Runnable
+            null  // onFinished
+        );
+        psiJavaFile.getProject().getService(TaskQueueService.class).queue(genericTask);
     }
 
     private class ClassMetricsEvolutionEventListener implements MetricsEventListener {
