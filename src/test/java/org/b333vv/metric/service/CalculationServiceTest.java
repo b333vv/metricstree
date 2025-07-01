@@ -13,6 +13,14 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.intellij.analysis.AnalysisScope;
+import com.intellij.openapi.project.DumbService;
+import org.b333vv.metric.builder.DependenciesBuilder;
+import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.builder.DependenciesCalculator;
+import org.b333vv.metric.builder.ClassAndMethodsMetricsCalculator;
+import org.b333vv.metric.builder.PackageMetricsSetCalculator;
+import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -65,27 +73,73 @@ public class CalculationServiceTest {
     }
 
     @Test
-    public void testCalculateProjectTree_cacheMiss() {
-        when(mockCacheService.getUserData(CacheService.PROJECT_TREE)).thenReturn(null);
+    public void testModelBuildingDependencyChain() {
+        // Mock initial cache misses
+        when(mockCacheService.getUserData(CacheService.DEPENDENCIES)).thenReturn(null);
+        when(mockCacheService.getUserData(CacheService.CLASS_AND_METHODS_METRICS)).thenReturn(null);
+        when(mockCacheService.getUserData(CacheService.PACKAGE_METRICS)).thenReturn(null);
+        when(mockCacheService.getUserData(CacheService.PROJECT_METRICS)).thenReturn(null);
 
-        try (MockedStatic<ProjectTreeModelCalculator> mockedCalculator = mockStatic(ProjectTreeModelCalculator.class)) {
-            ProjectTreeModelCalculator mockCalculatorInstance = mock(ProjectTreeModelCalculator.class);
-            DefaultTreeModel mockCalculatedTreeModel = mock(DefaultTreeModel.class);
+        // Mock AnalysisScope and DumbService
+        try (MockedStatic<DumbService> mockedDumbService = mockStatic(DumbService.class);
+             MockedStatic<AnalysisScope> mockedAnalysisScope = mockStatic(AnalysisScope.class)) {
 
-            mockedCalculator.when(() -> new ProjectTreeModelCalculator(any())).thenReturn(mockCalculatorInstance);
-            when(mockCalculatorInstance.calculate()).thenReturn(mockCalculatedTreeModel);
+            DumbService mockDumbService = mock(DumbService.class);
+            doAnswer(invocation -> {
+                Runnable runnable = invocation.getArgument(0);
+                runnable.run(); // Directly run the runnable to simulate immediate execution
+                return null;
+            }).when(mockDumbService).runWhenSmart(any(Runnable.class));
+            mockedDumbService.when(() -> DumbService.getInstance(any())).thenReturn(mockDumbService);
 
-            calculationService.calculateProjectTree();
+            AnalysisScope mockAnalysisScope = mock(AnalysisScope.class);
+            mockedAnalysisScope.when(() -> new AnalysisScope(any(Project.class))).thenReturn(mockAnalysisScope);
 
-            verify(mockCacheService, times(1)).getUserData(CacheService.PROJECT_TREE);
-            verify(mockTaskQueueService, times(1)).queue(projectTreeTaskCaptor.capture());
+            // Mock Calculators and their return values
+            try (MockedStatic<DependenciesCalculator> mockedDependenciesCalculator = mockStatic(DependenciesCalculator.class);
+                 MockedStatic<ClassAndMethodsMetricsCalculator> mockedClassAndMethodsMetricsCalculator = mockStatic(ClassAndMethodsMetricsCalculator.class);
+                 MockedStatic<PackageMetricsSetCalculator> mockedPackageMetricsSetCalculator = mockStatic(PackageMetricsSetCalculator.class);
+                 MockedStatic<ProjectMetricsSetCalculator> mockedProjectMetricsSetCalculator = mockStatic(ProjectMetricsSetCalculator.class)) {
 
-            MetricsBackgroundableTask capturedTask = projectTreeTaskCaptor.getValue();
-            // Simulate task execution
-            capturedTask.run(mockProgressIndicator);
-            capturedTask.onSuccess();
+                DependenciesCalculator mockDependenciesCalculator = mock(DependenciesCalculator.class);
+                DependenciesBuilder mockDependenciesBuilder = mock(DependenciesBuilder.class);
+                when(mockDependenciesCalculator.calculateDependencies()).thenReturn(mockDependenciesBuilder);
+                mockedDependenciesCalculator.when(() -> new DependenciesCalculator(any(), any())).thenReturn(mockDependenciesCalculator);
 
-            verify(mockCacheService, times(1)).putUserData(eq(CacheService.PROJECT_TREE), eq(mockCalculatedTreeModel));
+                ClassAndMethodsMetricsCalculator mockClassAndMethodsMetricsCalculator = mock(ClassAndMethodsMetricsCalculator.class);
+                JavaProject mockClassAndMethodsJavaProject = mock(JavaProject.class);
+                when(mockClassAndMethodsMetricsCalculator.calculateMetrics()).thenReturn(mockClassAndMethodsJavaProject);
+                mockedClassAndMethodsMetricsCalculator.when(() -> new ClassAndMethodsMetricsCalculator(any(), any())).thenReturn(mockClassAndMethodsMetricsCalculator);
+
+                PackageMetricsSetCalculator mockPackageMetricsSetCalculator = mock(PackageMetricsSetCalculator.class);
+                // calculate() returns void, so just verify interaction
+                mockedPackageMetricsSetCalculator.when(() -> new PackageMetricsSetCalculator(any(), any(), any())).thenReturn(mockPackageMetricsSetCalculator);
+
+                ProjectMetricsSetCalculator mockProjectMetricsSetCalculator = mock(ProjectMetricsSetCalculator.class);
+                // calculate() returns void, so just verify interaction
+                mockedProjectMetricsSetCalculator.when(() -> new ProjectMetricsSetCalculator(any(), any(), any())).thenReturn(mockProjectMetricsSetCalculator);
+
+                // Call a public method that triggers the dependency chain
+                calculationService.exportToXml("test.xml");
+
+                // Verify that tasks are queued
+                verify(mockTaskQueueService, times(1)).queue(projectTreeTaskCaptor.capture());
+                MetricsBackgroundableTask capturedTask = projectTreeTaskCaptor.getValue();
+                capturedTask.run(mockProgressIndicator); // Simulate task execution
+
+                // Verify that each model is built and cached in order
+                verify(mockDependenciesCalculator, times(1)).calculateDependencies();
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.DEPENDENCIES), eq(mockDependenciesBuilder));
+
+                verify(mockClassAndMethodsMetricsCalculator, times(1)).calculateMetrics();
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.CLASS_AND_METHODS_METRICS), eq(mockClassAndMethodsJavaProject));
+
+                verify(mockPackageMetricsSetCalculator, times(1)).calculate();
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.PACKAGE_METRICS), any(JavaProject.class)); // PackageMetricsSetCalculator modifies the passed JavaProject
+
+                verify(mockProjectMetricsSetCalculator, times(1)).calculate();
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.PROJECT_METRICS), any(JavaProject.class)); // ProjectMetricsSetCalculator modifies the passed JavaProject
+            }
         }
     }
 }

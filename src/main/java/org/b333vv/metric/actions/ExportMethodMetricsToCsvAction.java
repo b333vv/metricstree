@@ -20,7 +20,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.task.MetricTaskManager;
+
 import org.jetbrains.annotations.NotNull;
 
 public class ExportMethodMetricsToCsvAction extends AbstractAction {
@@ -29,7 +29,8 @@ public class ExportMethodMetricsToCsvAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            String fileName = MetricTaskManager.getFileName("csv", project);
+            String fileName = project.getName() + ".csv";
+            
             if (fileName != null && !fileName.isBlank()) {
                 project.getService(CalculationService.class).exportMethodMetricsToCsv(fileName);
             }

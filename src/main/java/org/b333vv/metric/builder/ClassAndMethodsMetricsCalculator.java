@@ -45,12 +45,13 @@ public class ClassAndMethodsMetricsCalculator {
         projectModelBuilder = new ProjectModelBuilder(javaProject);
     }
 
-    public void calculateMetrics() {
+    public JavaProject calculateMetrics() {
         indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();
         indicator.setText("Calculating metrics");
         scope.accept(new PsiJavaFileVisitor());
+        return javaProject;
     }
 
     private class PsiJavaFileVisitor extends PsiElementVisitor {

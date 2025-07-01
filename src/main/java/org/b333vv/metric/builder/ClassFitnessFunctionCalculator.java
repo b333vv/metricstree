@@ -20,7 +20,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.task.MetricTaskManager;
+
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 
 import java.util.Map;
@@ -30,8 +30,7 @@ import static org.b333vv.metric.builder.ClassLevelFitnessFunctionBuilder.classes
 
 public class ClassFitnessFunctionCalculator {
 
-    public Map<FitnessFunction, Set<JavaClass>> calculate(Project project, ProgressIndicator indicator) {
-        JavaProject javaProject = project.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
+    public Map<FitnessFunction, Set<JavaClass>> calculate(Project project, JavaProject javaProject) {
         return classesByMetricsProfileDistribution(project, javaProject);
     }
 }

@@ -43,11 +43,12 @@ public class DependenciesCalculator {
         this.dependenciesBuilder = dependenciesBuilder;
     }
 
-    public void calculateDependencies() {
+    public DependenciesBuilder calculateDependencies() {
         indicator = ProgressManager.getInstance().getProgressIndicator();
         filesCount = scope.getFileCount();
         indicator.setText("Calculating dependencies");
         scope.accept(new PsiJavaFileVisitor());
+        return dependenciesBuilder;
     }
 
     private class PsiJavaFileVisitor extends PsiElementVisitor {

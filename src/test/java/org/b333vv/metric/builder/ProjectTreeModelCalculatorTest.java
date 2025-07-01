@@ -4,11 +4,12 @@ import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.task.MetricTaskManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.b333vv.metric.service.CacheService;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -22,9 +23,6 @@ public class ProjectTreeModelCalculatorTest {
     private Project mockProject;
 
     @Mock
-    private MetricTaskManager mockMetricTaskManager;
-
-    @Mock
     private JavaProject mockJavaProject;
 
     private ProjectTreeModelCalculator calculator;
@@ -32,8 +30,8 @@ public class ProjectTreeModelCalculatorTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(mockProject.getService(MetricTaskManager.class)).thenReturn(mockMetricTaskManager);
-        when(mockMetricTaskManager.getProjectModel(any(ProgressIndicator.class))).thenReturn(mockJavaProject);
+        
+        when(mockProject.getService(CacheService.class).getProject()).thenReturn(mockJavaProject);
         calculator = new ProjectTreeModelCalculator(mockProject);
     }
 

@@ -41,7 +41,7 @@ public class PackageOnlyMetricTask extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        myProject.getService(MetricTaskManager.class).sureDependenciesAreInCache(indicator);
+        
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
         JavaProject javaProject = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_ONLY_METRICS);
         if (javaProject == null) {

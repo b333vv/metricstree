@@ -24,11 +24,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
 
-    private final Supplier<T> task;
+    private final Function<ProgressIndicator, T> task;
     private T result;
     private final Runnable onCancel;
     private Consumer<T> onSuccess;
@@ -37,7 +37,7 @@ public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
     public MetricsBackgroundableTask(@Nullable Project project,
                                      @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
                                      boolean canBeCancelled,
-                                     @NotNull Supplier<T> task,
+                                     @NotNull Function<ProgressIndicator, T> task,
                                      @NotNull Consumer<T> onSuccess,
                                      @Nullable Runnable onCancel,
                                      @Nullable Runnable onFinished) {
@@ -50,7 +50,7 @@ public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        result = task.get();
+        result = task.apply(indicator);
     }
 
     @Override

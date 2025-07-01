@@ -20,7 +20,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.task.MetricTaskManager;
+
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 
 import java.util.Map;
@@ -30,8 +30,7 @@ import static org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packa
 
 public class PackageFitnessFunctionCalculator {
 
-    public Map<FitnessFunction, Set<JavaPackage>> calculate(Project project, ProgressIndicator indicator) {
-        JavaProject javaProject = project.getService(MetricTaskManager.class).getPackageModel(indicator);
+    public Map<FitnessFunction, Set<JavaPackage>> calculate(Project project, JavaProject javaProject) {
         return packageLevelFitnessFunctionResult(project, javaProject);
     }
 }

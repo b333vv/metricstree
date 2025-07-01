@@ -44,6 +44,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.function.Function;
+import com.intellij.openapi.progress.ProgressIndicator;
 
 public class ClassMetricsValuesEvolutionProcessor {
 
@@ -135,16 +137,64 @@ public class ClassMetricsValuesEvolutionProcessor {
     }
 
     public void buildClassMetricsValuesEvolutionMap() {
-        Supplier<Void> taskLogic = () -> { getFileFromGitCalculateMetricsAndPutThemToMap.run(); return null; };
-        Consumer<Void> onSuccess = (v) -> buildTree.run();
+        Function<ProgressIndicator, Void> taskLogic = (indicator) -> {
+            if (!GitUtil.isUnderGit(psiJavaFile.getVirtualFile())) {
+                return null;
+            }
+            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(true);
+
+            GitRepositoryManager gitRepositoryManager = GitUtil.getRepositoryManager(psiJavaFile.getProject());
+            VirtualFile root = Objects.requireNonNull(gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile())).getRoot();
+            List<? extends TimedVcsCommit> commits;
+
+            try {
+                commits = GitHistoryUtils.collectTimedCommits(psiJavaFile.getProject(), root,
+                        "--", VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()));
+                if (commits.isEmpty()) {
+                    return null;
+                }
+                for (TimedVcsCommit commit : commits) {
+                    indicator.checkCanceled();
+                    indicator.setText("Processing commit " + commit.getId().toShortString());
+                    ReadAction.run(() ->
+                    {
+                        PsiJavaFile gitPsiJavaFile = (PsiJavaFile) PsiFileFactory.getInstance(psiJavaFile.getProject()).createFileFromText(
+                                psiJavaFile.getName(),
+                                psiJavaFile.getFileType(),
+                                new String(GitFileUtils.getFileContent(psiJavaFile.getProject(), root, commit.getId().toShortString(),
+                                        VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()))));
+                        JavaFile javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
+                        javaFile.classes()
+                                .forEach(c -> classMetricsEvolution.computeIfAbsent(commit, (unused) -> new HashSet<>()).add(c));
+                    });
+                }
+            } catch (VcsException e) {
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
+            }
+
+            ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
+            JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+            ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
+                    new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution), project);
+            metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();
+            if (metricsTreeModel != null) {
+                psiJavaFile.getProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .classMetricsValuesEvolutionCalculated(metricsTreeModel);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
+            }
+            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+            return null;
+        };
+
         MetricsBackgroundableTask<Void> genericTask = new MetricsBackgroundableTask<>(
             psiJavaFile.getProject(),
             "Get Metrics History for " + psiJavaFile.getName() + "...",
             true,
             taskLogic,
-            onSuccess,
-            cancel, // Existing onCancel Runnable
-            null  // onFinished
+            (v) -> {},
+            cancel,
+            null
         );
         psiJavaFile.getProject().getService(TaskQueueService.class).queue(genericTask);
     }

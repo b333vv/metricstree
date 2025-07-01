@@ -4,7 +4,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.task.MetricTaskManager;
+
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +26,6 @@ public class ClassFitnessFunctionCalculatorTest {
     @Mock
     private ProgressIndicator mockIndicator;
     @Mock
-    private MetricTaskManager mockMetricTaskManager;
-    @Mock
     private JavaProject mockJavaProject;
 
     private ClassFitnessFunctionCalculator calculator;
@@ -36,8 +34,8 @@ public class ClassFitnessFunctionCalculatorTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         calculator = new ClassFitnessFunctionCalculator();
-        when(mockProject.getService(MetricTaskManager.class)).thenReturn(mockMetricTaskManager);
-        when(mockMetricTaskManager.getClassAndMethodModel(mockIndicator)).thenReturn(mockJavaProject);
+        
+        
     }
 
     @Test
@@ -48,7 +46,7 @@ public class ClassFitnessFunctionCalculatorTest {
         // In a real scenario, you'd need to ensure this static method is testable or mockable.
         // For the purpose of this test, we'll assume it works as expected and focus on the calculator's interaction.
 
-        Map<FitnessFunction, Set<JavaClass>> result = calculator.calculate(mockProject, mockIndicator);
+        Map<FitnessFunction, Set<JavaClass>> result = calculator.calculate(mockProject, mockJavaProject);
 
         assertNotNull(result);
         // Further assertions can be added if the static method's behavior can be controlled or verified.
