@@ -69,6 +69,8 @@ public final class CacheService implements UserDataHolder, Disposable {
     public static final Key<List<MetricPieChartBuilder.PieChartStructure>> PIE_CHART_LIST = Key.create("PIE_CHART_LIST");
     public static final Key<Map<MetricType, Map<RangeType, Double>>> CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART = Key.create("CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART");
     public static final Key<CategoryChart> CATEGORY_CHART = Key.create("CATEGORY_CHART");
+    public static final Key<Map<String, Double>> INSTABILITY = Key.create("INSTABILITY");
+    public static final Key<Map<String, Double>> ABSTRACTNESS = Key.create("ABSTRACTNESS");
     public static final Key<XYChart> XY_CHART = Key.create("XY_CHART");
     public static final Key<Map<FitnessFunction, Set<JavaPackage>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key.create("PACKAGE_LEVEL_FITNESS_FUNCTION");
     public static final Key<Map<FitnessFunction, Set<JavaClass>>> CLASS_LEVEL_FITNESS_FUNCTION =

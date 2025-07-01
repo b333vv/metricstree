@@ -236,9 +236,9 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void xyChartIsReady() {
+            XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.XY_CHART);
             Map<String, Double> instability = project.getService(CacheService.class).getUserData(CacheService.INSTABILITY);
             Map<String, Double> abstractness = project.getService(CacheService.class).getUserData(CacheService.ABSTRACTNESS);
-            XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.XY_CHART);
             showResults(xyChart, instability, abstractness);
         }
 

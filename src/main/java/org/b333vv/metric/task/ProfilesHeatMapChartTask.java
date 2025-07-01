@@ -23,7 +23,7 @@ import org.b333vv.metric.builder.ProfileHeatMapDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.ui.profile.FitnessFunction;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.HeatMapChart;
 

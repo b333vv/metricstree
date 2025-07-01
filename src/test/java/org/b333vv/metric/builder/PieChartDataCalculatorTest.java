@@ -14,7 +14,7 @@ public class PieChartDataCalculatorTest {
 
     @Test
     public void testCalculate() {
-        JavaProject javaProject = new JavaProject();
+        JavaProject javaProject = new JavaProject("testProject");
         Project project = Mockito.mock(Project.class);
 
         PieChartDataCalculator calculator = new PieChartDataCalculator();

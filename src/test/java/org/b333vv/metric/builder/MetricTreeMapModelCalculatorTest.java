@@ -11,7 +11,7 @@ public class MetricTreeMapModelCalculatorTest {
 
     @Test
     public void testCalculate() {
-        JavaProject javaProject = new JavaProject();
+        JavaProject javaProject = new JavaProject("testProject");
 
         MetricTreeMapModelCalculator calculator = new MetricTreeMapModelCalculator();
         MetricTreeMap<JavaCode> result = calculator.calculate(javaProject);

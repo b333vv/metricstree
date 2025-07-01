@@ -22,6 +22,17 @@ import java.util.List;
 import org.b333vv.metric.model.code.JavaCode;
 import org.b333vv.metric.task.MetricTreeMapTask;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.HeatMapChart;
+import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
+import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
+import org.b333vv.metric.task.XyChartTask;
+import org.b333vv.metric.task.ProfileBoxChartsTask;
+import org.b333vv.metric.task.ProfileCategoryChartTask;
+import org.b333vv.metric.task.ProfileHeatMapChartTask;
+import org.b333vv.metric.task.ProfileRadarChartsTask;
+import org.b333vv.metric.task.ProfileTreeMapTask;
+import org.b333vv.metric.task.ProjectMetricsHistoryChartTask;
 
 public class CalculationServiceImpl implements CalculationService {
     private final Project project;
@@ -80,6 +91,83 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady();
         } else {
             MetricTreeMapTask task = new MetricTreeMapTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateXyChart() {
+        XYChart xyChart = cacheService.getUserData(CacheService.XY_CHART);
+        if (xyChart != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady();
+        } else {
+            XyChartTask task = new XyChartTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateProfileBoxCharts() {
+        List<ProfileBoxChartBuilder.BoxChartStructure> boxCharts = cacheService.getUserData(CacheService.BOX_CHARTS);
+        if (boxCharts != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
+        } else {
+            ProfileBoxChartsTask task = new ProfileBoxChartsTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateProfileCategoryChart() {
+        CategoryChart profileCategoryChart = cacheService.getUserData(CacheService.PROFILE_CATEGORY_CHART);
+        if (profileCategoryChart != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
+        } else {
+            ProfileCategoryChartTask task = new ProfileCategoryChartTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateProfileHeatMapChart() {
+        HeatMapChart heatMapChart = cacheService.getUserData(CacheService.HEAT_MAP_CHART);
+        if (heatMapChart != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
+        } else {
+            ProfileHeatMapChartTask task = new ProfileHeatMapChartTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateProfileRadarCharts() {
+        List<ProfileRadarChartBuilder.RadarChartStructure> radarChart = cacheService.getUserData(CacheService.RADAR_CHART);
+        if (radarChart != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
+        } else {
+            ProfileRadarChartsTask task = new ProfileRadarChartsTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateProfileTreeMap() {
+        MetricTreeMap<JavaCode> profileTreeMap = cacheService.getUserData(CacheService.PROFILE_TREE_MAP);
+        if (profileTreeMap != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
+        } else {
+            ProfileTreeMapTask task = new ProfileTreeMapTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculateProjectMetricsHistoryChart() {
+        XYChart projectMetricsHistoryChart = cacheService.getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
+        if (projectMetricsHistoryChart != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsHistoryXyChartIsReady();
+        } else {
+            ProjectMetricsHistoryChartTask task = new ProjectMetricsHistoryChartTask(project);
             taskQueueService.queue(task);
         }
     }

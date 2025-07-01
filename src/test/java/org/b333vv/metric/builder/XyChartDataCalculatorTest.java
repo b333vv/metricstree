@@ -12,7 +12,7 @@ public class XyChartDataCalculatorTest {
 
     @Test
     public void testCalculate() {
-        JavaProject javaProject = new JavaProject();
+        JavaProject javaProject = new JavaProject("testProject");
         Project project = Mockito.mock(Project.class);
 
         XyChartDataCalculator calculator = new XyChartDataCalculator();

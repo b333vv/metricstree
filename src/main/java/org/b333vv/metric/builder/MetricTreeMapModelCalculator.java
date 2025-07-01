@@ -7,7 +7,7 @@ import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 
 public class MetricTreeMapModelCalculator {
     public MetricTreeMap<JavaCode> calculate(JavaProject javaProject) {
-        TreeMapBuilder treeMapBuilder = new TreeMapBuilder();
-        return treeMapBuilder.build(javaProject);
+        TreeMapBuilder treeMapBuilder = new TreeMapBuilder(javaProject);
+        return treeMapBuilder.getTreeMap();
     }
 }
