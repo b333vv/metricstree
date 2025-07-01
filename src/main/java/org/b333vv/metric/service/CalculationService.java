@@ -30,4 +30,8 @@ public interface CalculationService {
     void exportMethodMetricsToCsv(String fileName);
 
     void exportPackageMetricsToCsv(String fileName);
+
+    void calculateClassFitnessFunctions();
+
+    void calculatePackageFitnessFunctions();
 }

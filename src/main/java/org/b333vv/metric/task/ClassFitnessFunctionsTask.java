@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Set;
 
-import static org.b333vv.metric.builder.ClassLevelFitnessFunctionBuilder.classesByMetricsProfileDistribution;
+import org.b333vv.metric.builder.ClassFitnessFunctionCalculator;
 
 public class ClassFitnessFunctionsTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles class level fitness functions from cache";
@@ -47,8 +47,7 @@ public class ClassFitnessFunctionsTask extends Task.Backgroundable {
         Map<FitnessFunction, Set<JavaClass>> classFitnessFunctions = myProject.getService(CacheService.class).getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            classFitnessFunctions = classesByMetricsProfileDistribution(myProject, javaProject);
+            classFitnessFunctions = new ClassFitnessFunctionCalculator().calculate(myProject, indicator);
             myProject.getService(CacheService.class).putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classFitnessFunctions);
         }
     }

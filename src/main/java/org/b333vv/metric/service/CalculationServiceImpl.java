@@ -37,6 +37,13 @@ import org.b333vv.metric.task.ExportToXmlTask;
 import org.b333vv.metric.task.ExportClassMetricsToCsvTask;
 import org.b333vv.metric.task.ExportMethodMetricsToCsvTask;
 import org.b333vv.metric.task.ExportPackageMetricsToCsvTask;
+import java.util.Map;
+import java.util.Set;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.task.ClassFitnessFunctionsTask;
+import org.b333vv.metric.task.PackageFitnessFunctionsTask;
 
 public class CalculationServiceImpl implements CalculationService {
     private final Project project;
@@ -198,5 +205,27 @@ public class CalculationServiceImpl implements CalculationService {
     public void exportPackageMetricsToCsv(String fileName) {
         ExportPackageMetricsToCsvTask task = new ExportPackageMetricsToCsvTask(project, fileName);
         taskQueueService.queue(task);
+    }
+
+    @Override
+    public void calculateClassFitnessFunctions() {
+        Map<FitnessFunction, Set<JavaClass>> classFitnessFunctions = cacheService.getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+        if (classFitnessFunctions != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady();
+        } else {
+            ClassFitnessFunctionsTask task = new ClassFitnessFunctionsTask(project);
+            taskQueueService.queue(task);
+        }
+    }
+
+    @Override
+    public void calculatePackageFitnessFunctions() {
+        Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = cacheService.getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
+        if (packageFitnessFunctions != null) {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionIsReady();
+        } else {
+            PackageFitnessFunctionsTask task = new PackageFitnessFunctionsTask(project);
+            taskQueueService.queue(task);
+        }
     }
 }

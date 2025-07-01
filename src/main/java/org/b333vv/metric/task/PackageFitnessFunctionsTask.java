@@ -25,6 +25,7 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.builder.PackageFitnessFunctionCalculator;
 
 import java.util.Map;
 import java.util.Set;
@@ -45,8 +46,7 @@ public class PackageFitnessFunctionsTask extends Task.Backgroundable {
         Map<FitnessFunction, Set<JavaPackage>> packageFitnessFunctions = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
         if (packageFitnessFunctions == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getPackageModel(indicator);
-            packageFitnessFunctions = org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packageLevelFitnessFunctionResult(myProject, javaProject);
+            packageFitnessFunctions = new PackageFitnessFunctionCalculator().calculate(myProject, indicator);
             myProject.getService(CacheService.class).putUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION, packageFitnessFunctions);
         }
     }
