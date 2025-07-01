@@ -258,6 +258,7 @@
         <projectService serviceInterface="org.b333vv.metric.service.CalculationService" serviceImplementation="org.b333vv.metric.service.CalculationServiceImpl"/>
         <projectService serviceImplementation="org.b333vv.metric.service.CacheService"/>
         <projectService serviceImplementation="org.b333vv.metric.task.MetricTaskCache"/>
+        <projectService serviceImplementation="org.b333vv.metric.service.ClassMetricsTreeService"/>
         <codeInsight.daemonBoundCodeVisionProvider implementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionProvider"/>
         <applicationService serviceImplementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionSettings"/>
         <applicationConfigurable instance="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionConfigurable"

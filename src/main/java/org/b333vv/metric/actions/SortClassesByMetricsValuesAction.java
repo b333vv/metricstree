@@ -32,8 +32,7 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            ClassByMetricsTreeTask classByMetricsTreeTask = new ClassByMetricsTreeTask(project);
-            project.getService(TaskQueueService.class).queue(classByMetricsTreeTask);
+            project.getService(TaskQueueService.class).queue(new ClassByMetricsTreeTask(project));
         }
     }
 
