@@ -7,6 +7,7 @@ import org.b333vv.metric.task.BuildMetricTreeTask;
 import org.b333vv.metric.task.CategoryChartTask;
 import org.b333vv.metric.task.MetricTreeMapTask;
 import org.b333vv.metric.task.PieChartTask;
+import org.b333vv.metric.task.ProfileTreeMapTask;
 import org.b333vv.metric.task.ProfilesBoxChartTask;
 import org.b333vv.metric.task.ProfilesCategoryChartTask;
 import org.b333vv.metric.task.ProfilesHeatMapChartTask;
@@ -63,5 +64,10 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculateMetricTreeMap() {
         project.getService(TaskQueueService.class).queue(new MetricTreeMapTask(project));
+    }
+
+    @Override
+    public void calculateProfileTreeMap() {
+        project.getService(TaskQueueService.class).queue(new ProfileTreeMapTask(project));
     }
 }

@@ -18,4 +18,6 @@ public interface CalculationService {
     void calculateProfileRadarCharts();
 
     void calculateMetricTreeMap();
+
+    void calculateProfileTreeMap();
 }
