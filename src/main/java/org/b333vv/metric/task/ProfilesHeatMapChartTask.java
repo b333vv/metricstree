@@ -19,11 +19,11 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.ProfileHeatMapDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.ui.chart.builder.ProfileHeatMapChartBuilder;
-import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.ui.profile.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.HeatMapChart;
 
@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ProfilesHeatMapChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles metric profiles correlation chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get metric profiles correlation chart from cache";
     private static final String STARTED_MESSAGE = "Building metric profiles correlation chart started";
     private static final String FINISHED_MESSAGE = "Building metric profiles correlation chart finished";
     private static final String CANCELED_MESSAGE = "Building metric profiles correlation chart canceled";
@@ -46,9 +46,9 @@ public class ProfilesHeatMapChartTask extends Task.Backgroundable {
         HeatMapChart heatMapChart = myProject.getService(CacheService.class).getUserData(CacheService.HEAT_MAP_CHART);
         if (heatMapChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
-            ProfileHeatMapChartBuilder profileHeatMapChartBuilder = new ProfileHeatMapChartBuilder();
-            heatMapChart = profileHeatMapChartBuilder.createChart(classesByMetricProfile);
+            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            ProfileHeatMapDataCalculator calculator = new ProfileHeatMapDataCalculator();
+            heatMapChart = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.HEAT_MAP_CHART, heatMapChart);
         }
 

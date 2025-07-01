@@ -13,5 +13,7 @@ public interface CalculationService {
 
     void calculateProfileCategoryChart();
 
+    void calculateProfileHeatMapChart();
+
     void calculateMetricTreeMap();
 }
