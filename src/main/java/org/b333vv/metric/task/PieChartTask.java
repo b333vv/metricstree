@@ -20,18 +20,16 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.builder.PieChartDataCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.task.MetricTaskManager;
+import org.b333vv.metric.builder.PieChartDataCalculator;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 public class PieChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values pie chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes distribution by metric values pie chart from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values pie chart started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values pie chart finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values pie chart canceled";
@@ -47,10 +45,9 @@ public class PieChartTask extends Task.Backgroundable {
                 .getUserData(CacheService.PIE_CHART_LIST);
         if (pieChartList == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            PieChartDataCalculator calculator = new PieChartDataCalculator(myProject);
-            MetricPieChartBuilder builder = new MetricPieChartBuilder();
-            pieChartList = builder.createChart(calculator.calculate(Objects.requireNonNull(javaProject)));
+            JavaProject javaProject = myProject.getService(CacheService.class).getProject();
+            PieChartDataCalculator calculator = new PieChartDataCalculator();
+            pieChartList = calculator.calculate(javaProject, myProject);
             myProject.getService(CacheService.class).putUserData(CacheService.PIE_CHART_LIST, pieChartList);
         }
     }
