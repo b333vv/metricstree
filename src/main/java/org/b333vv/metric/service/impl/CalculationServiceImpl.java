@@ -12,6 +12,7 @@ import org.b333vv.metric.task.ProfilesBoxChartTask;
 import org.b333vv.metric.task.ProfilesCategoryChartTask;
 import org.b333vv.metric.task.ProfilesHeatMapChartTask;
 import org.b333vv.metric.task.ProfilesRadarChartTask;
+import org.b333vv.metric.task.ProjectMetricsHistoryXyChartTask;
 import org.b333vv.metric.task.XyChartTask;
 
 public class CalculationServiceImpl implements CalculationService {
@@ -69,5 +70,10 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculateProfileTreeMap() {
         project.getService(TaskQueueService.class).queue(new ProfileTreeMapTask(project));
+    }
+
+    @Override
+    public void calculateProjectMetricsHistoryChart() {
+        project.getService(TaskQueueService.class).queue(new ProjectMetricsHistoryXyChartTask(project));
     }
 }

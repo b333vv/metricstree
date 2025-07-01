@@ -19,18 +19,14 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
-import org.b333vv.metric.builder.ProjectMetricsSet2Json;
+import org.b333vv.metric.builder.ProjectHistoryChartDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.ui.chart.builder.ProjectMetricsHistoryXYChartBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import org.knowm.xchart.XYChart;
 
-import java.util.*;
-
 public class ProjectMetricsHistoryXyChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles project metrics history chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get project metrics history chart from cache";
     private static final String STARTED_MESSAGE = "Building project metrics history chart started";
     private static final String FINISHED_MESSAGE = "Building project metrics history chart finished";
     private static final String CANCELED_MESSAGE = "Building project metrics history chart canceled";
@@ -45,13 +41,8 @@ public class ProjectMetricsHistoryXyChartTask extends Task.Backgroundable {
         XYChart xyChart = myProject.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
         if (xyChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            TreeSet<JSONObject> metricsStampSet = ProjectMetricsSet2Json.parseStoredMetricsSnapshots(myProject);
-            if (metricsStampSet == null) {
-                indicator.cancel();
-                return;
-            }
-            ProjectMetricsHistoryXYChartBuilder builder = new ProjectMetricsHistoryXYChartBuilder();
-            xyChart = builder.createChart(metricsStampSet);
+            ProjectHistoryChartDataCalculator calculator = new ProjectHistoryChartDataCalculator();
+            xyChart = calculator.calculate(myProject);
             myProject.getService(CacheService.class).putUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART, xyChart);
         }
     }

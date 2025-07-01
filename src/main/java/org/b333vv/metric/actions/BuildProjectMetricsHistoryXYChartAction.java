@@ -20,8 +20,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.task.ProjectMetricsHistoryXyChartTask;
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,8 +32,7 @@ public class BuildProjectMetricsHistoryXYChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            ProjectMetricsHistoryXyChartTask projectMetricsHistoryXyChartTask = new ProjectMetricsHistoryXyChartTask(project);
-            project.getService(TaskQueueService.class).queue(projectMetricsHistoryXyChartTask);
+            project.getService(CalculationService.class).calculateProjectMetricsHistoryChart();
         }
     }
 

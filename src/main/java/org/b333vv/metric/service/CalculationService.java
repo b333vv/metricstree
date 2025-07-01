@@ -20,4 +20,6 @@ public interface CalculationService {
     void calculateMetricTreeMap();
 
     void calculateProfileTreeMap();
+
+    void calculateProjectMetricsHistoryChart();
 }
