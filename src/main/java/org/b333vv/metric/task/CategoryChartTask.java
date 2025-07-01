@@ -26,10 +26,8 @@ import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 
-import java.util.Objects;
-
 public class CategoryChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values category chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes distribution by metric values category chart from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values category chart started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values category chart finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values category chart canceled";
@@ -45,9 +43,9 @@ public class CategoryChartTask extends Task.Backgroundable {
                 .getUserData(CacheService.CATEGORY_CHART);
         if (categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            JavaProject javaProject = myProject.getService(MetricTaskManager.class).getClassAndMethodModel(indicator);
-            CategoryChartDataCalculator calculator = new CategoryChartDataCalculator(myProject);
-            categoryChart = calculator.calculate(Objects.requireNonNull(javaProject));
+            JavaProject javaProject = myProject.getService(CacheService.class).getProject();
+            CategoryChartDataCalculator calculator = new CategoryChartDataCalculator();
+            categoryChart = calculator.calculate(javaProject, myProject);
             myProject.getService(CacheService.class).putUserData(CacheService.CATEGORY_CHART, categoryChart);
         }
     }
