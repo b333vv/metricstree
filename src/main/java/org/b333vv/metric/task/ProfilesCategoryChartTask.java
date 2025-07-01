@@ -19,11 +19,11 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.ProfileCategoryChartDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.ui.chart.builder.ProfileCategoryChartBuilder;
-import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.ui.profile.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 
@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ProfilesCategoryChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles distribution of classes by metric profiles chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get distribution of classes by metric profiles chart from cache";
     private static final String STARTED_MESSAGE = "Building distribution of classes by metric profiles chart started";
     private static final String FINISHED_MESSAGE = "Building distribution of classes by metric profiles chart finished";
     private static final String CANCELED_MESSAGE = "Building distribution of classes by metric profiles chart canceled";
@@ -46,9 +46,9 @@ public class ProfilesCategoryChartTask extends Task.Backgroundable {
         CategoryChart categoryChart = myProject.getService(CacheService.class).getUserData(CacheService.PROFILE_CATEGORY_CHART);
         if (categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
-            ProfileCategoryChartBuilder profileCategoryChartBuilder = new ProfileCategoryChartBuilder();
-            categoryChart = profileCategoryChartBuilder.createChart(classesByMetricProfile);
+            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            ProfileCategoryChartDataCalculator calculator = new ProfileCategoryChartDataCalculator();
+            categoryChart = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.PROFILE_CATEGORY_CHART, categoryChart);
         }
 

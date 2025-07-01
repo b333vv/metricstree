@@ -11,5 +11,7 @@ public interface CalculationService {
 
     void calculateProfileBoxCharts();
 
+    void calculateProfileCategoryChart();
+
     void calculateMetricTreeMap();
 }
