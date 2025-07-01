@@ -19,8 +19,8 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.task.ProfilesBoxChartTask;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildProfileBoxChartAction extends AbstractAction {
@@ -30,8 +30,7 @@ public class BuildProfileBoxChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
-            ProfilesBoxChartTask boxChartTask = new ProfilesBoxChartTask(project);
-            project.getService(TaskQueueService.class).queue(boxChartTask);
+            project.getService(CalculationService.class).calculateProfileBoxCharts();
         }
     }
 

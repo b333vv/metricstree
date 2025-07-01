@@ -7,6 +7,7 @@ import org.b333vv.metric.task.BuildMetricTreeTask;
 import org.b333vv.metric.task.CategoryChartTask;
 import org.b333vv.metric.task.MetricTreeMapTask;
 import org.b333vv.metric.task.PieChartTask;
+import org.b333vv.metric.task.ProfilesBoxChartTask;
 import org.b333vv.metric.task.XyChartTask;
 
 public class CalculationServiceImpl implements CalculationService {
@@ -34,6 +35,11 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculateXyChart() {
         project.getService(TaskQueueService.class).queue(new XyChartTask(project));
+    }
+
+    @Override
+    public void calculateProfileBoxCharts() {
+        project.getService(TaskQueueService.class).queue(new ProfilesBoxChartTask(project));
     }
 
     @Override

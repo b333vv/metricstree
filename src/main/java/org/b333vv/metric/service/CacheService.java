@@ -69,12 +69,11 @@ public final class CacheService implements UserDataHolder, Disposable {
     public static final Key<List<MetricPieChartBuilder.PieChartStructure>> PIE_CHART_LIST = Key.create("PIE_CHART_LIST");
     public static final Key<Map<MetricType, Map<RangeType, Double>>> CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART = Key.create("CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART");
     public static final Key<CategoryChart> CATEGORY_CHART = Key.create("CATEGORY_CHART");
-    public static final Key<Map<String, Double>> INSTABILITY = Key.create("INSTABILITY");
-    public static final Key<Map<String, Double>> ABSTRACTNESS = Key.create("ABSTRACTNESS");
     public static final Key<XYChart> XY_CHART = Key.create("XY_CHART");
     public static final Key<Map<FitnessFunction, Set<JavaPackage>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key.create("PACKAGE_LEVEL_FITNESS_FUNCTION");
     public static final Key<Map<FitnessFunction, Set<JavaClass>>> CLASS_LEVEL_FITNESS_FUNCTION =
             Key.create("CLASS_LEVEL_FITNESS_FUNCTION");
+    public static final Key<Map<FitnessFunction, Set<JavaClass>>> CLASSES_BY_PROFILE = Key.create("CLASSES_BY_PROFILE");
     public static final Key<List<ProfileBoxChartBuilder.BoxChartStructure>> BOX_CHARTS = Key.create("BOX_CHARTS");
     public static final Key<CategoryChart> PROFILE_CATEGORY_CHART = Key.create("PROFILE_CATEGORY_CHART");
     public static final Key<HeatMapChart> HEAT_MAP_CHART = Key.create("HEAT_MAP_CHART");
@@ -102,6 +101,14 @@ public final class CacheService implements UserDataHolder, Disposable {
     @Override
     public <T> T getUserData(@NotNull Key<T> key) {
         return userData.getUserData(key);
+    }
+
+    public JavaProject getProject() {
+        return getUserData(CLASS_AND_METHODS_METRICS);
+    }
+
+    public Map<FitnessFunction, Set<JavaClass>> getClassesByProfile() {
+        return getUserData(CLASSES_BY_PROFILE);
     }
 
     /**

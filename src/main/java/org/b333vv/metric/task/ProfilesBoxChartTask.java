@@ -19,11 +19,12 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.ProfileBoxChartDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
-import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.service.CacheService;
+import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
+import org.b333vv.metric.ui.profile.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ProfilesBoxChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles metrics values by metric profiles distribution charts from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get metrics values by metric profiles distribution charts from cache";
     private static final String STARTED_MESSAGE = "Building metrics values by metric profiles distribution charts started";
     private static final String FINISHED_MESSAGE = "Building metrics values by metric profiles distribution charts finished";
     private static final String CANCELED_MESSAGE = "Building metrics values by metric profiles distribution charts canceled";
@@ -46,9 +47,9 @@ public class ProfilesBoxChartTask extends Task.Backgroundable {
         List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(CacheService.class).getUserData(CacheService.BOX_CHARTS);
         if (boxChartStructures == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
-            ProfileBoxChartBuilder profileBoxChartBuilder = new ProfileBoxChartBuilder();
-            boxChartStructures = profileBoxChartBuilder.createChart(classesByMetricProfile);
+            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            ProfileBoxChartDataCalculator calculator = new ProfileBoxChartDataCalculator();
+            boxChartStructures = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.BOX_CHARTS, boxChartStructures);
         }
 

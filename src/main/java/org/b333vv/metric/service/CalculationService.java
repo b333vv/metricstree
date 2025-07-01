@@ -9,5 +9,7 @@ public interface CalculationService {
 
     void calculateXyChart();
 
+    void calculateProfileBoxCharts();
+
     void calculateMetricTreeMap();
 }
