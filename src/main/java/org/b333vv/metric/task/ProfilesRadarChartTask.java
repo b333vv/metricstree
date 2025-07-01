@@ -19,11 +19,12 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
+import org.b333vv.metric.builder.ProfileRadarDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
-import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.service.CacheService;
+import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
+import org.b333vv.metric.ui.profile.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ProfilesRadarChartTask extends Task.Backgroundable {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles invalid metrics values and metric profiles correlation chart from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get invalid metrics values and metric profiles correlation chart from cache";
     private static final String STARTED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart started";
     private static final String FINISHED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart  finished";
     private static final String CANCELED_MESSAGE = "Building invalid metrics values and metric profiles correlation chart  canceled";
@@ -46,9 +47,9 @@ public class ProfilesRadarChartTask extends Task.Backgroundable {
         List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = myProject.getService(CacheService.class).getUserData(CacheService.RADAR_CHART);
         if (radarCharts == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile = myProject.getService(MetricTaskManager.class).getMetricProfilesDistribution(indicator);
-            ProfileRadarChartBuilder profileRadarChartBuilder = new ProfileRadarChartBuilder(myProject);
-            radarCharts = profileRadarChartBuilder.createChart(classesByMetricProfile, myProject);
+            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            ProfileRadarDataCalculator calculator = new ProfileRadarDataCalculator();
+            radarCharts = calculator.calculate(classesByProfile, myProject);
             myProject.getService(CacheService.class).putUserData(CacheService.RADAR_CHART, radarCharts);
         }
 
