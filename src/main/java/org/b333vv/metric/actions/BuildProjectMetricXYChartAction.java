@@ -19,8 +19,8 @@ package org.b333vv.metric.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
+import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.task.XyChartTask;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +32,7 @@ public class BuildProjectMetricXYChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            XyChartTask xyChartTask = new XyChartTask(project);
-            project.getService(TaskQueueService.class).queue(xyChartTask);
+            project.getService(CalculationService.class).calculateXyChart();
         }
     }
 

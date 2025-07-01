@@ -7,5 +7,7 @@ public interface CalculationService {
 
     void calculateCategoryChart();
 
+    void calculateXyChart();
+
     void calculateMetricTreeMap();
 }
