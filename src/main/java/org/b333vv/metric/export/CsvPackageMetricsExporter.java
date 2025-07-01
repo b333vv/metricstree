@@ -17,20 +17,9 @@
 package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.model.metric.Metric;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-public class CsvPackageMetricsExporter implements Exporter {
+public class CsvPackageMetricsExporter {
 
     private final Project project;
 
@@ -39,38 +28,6 @@ public class CsvPackageMetricsExporter implements Exporter {
     }
 
     public void export(String fileName, JavaProject javaProject) {
-        File csvOutputFile = new File(fileName);
-        try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<JavaPackage> headerSupplierOpt = javaProject.allPackages().findAny();
-            if (headerSupplierOpt.isEmpty()) {
-                return;
-            }
-            JavaPackage headerSupplier = headerSupplierOpt.get();
-            String header = "Package Name;" + headerSupplier.metrics()
-                    .map(m -> m.getType().name())
-                    .collect(Collectors.joining(";"));
-            printWriter.println(header);
-            javaProject.allPackages()
-                    .sorted((c1, c2) -> Objects.requireNonNull(c1.getPsiPackage().getQualifiedName())
-                            .compareTo(Objects.requireNonNull(c2.getPsiPackage().getQualifiedName())))
-                    .map(this::convertToCsv)
-                    .forEach(printWriter::println);
-        } catch (FileNotFoundException e) {
-            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
-//            MetricsUtils.getConsole().error(e.getMessage());
-        }
-        if (csvOutputFile.exists()) {
-            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                    .printInfo("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
-//            MetricsUtils.getConsole().info("Package metrics have been exported in " + csvOutputFile.getAbsolutePath());
-        }
-    }
-
-    private String convertToCsv(JavaPackage javaPackage) {
-        String packageName = Objects.requireNonNull(javaPackage.getPsiPackage().getQualifiedName()) + ";";
-        String metrics = javaPackage.metrics()
-                .map(Metric::getFormattedValue)
-                .collect(Collectors.joining(";"));
-        return packageName + metrics;
+        new CsvPackageMetricsBuilder(project).buildAndExport(fileName, javaProject);
     }
 }

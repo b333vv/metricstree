@@ -16,13 +16,11 @@
 
 package org.b333vv.metric.task;
 
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.export.CsvClassMetricsExporter;
-import org.b333vv.metric.export.Exporter;
 import org.b333vv.metric.model.code.JavaProject;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,8 +41,8 @@ public class ExportClassMetricsToCsvTask extends Task.Backgroundable {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
         JavaProject javaProject = myProject.getService(MetricTaskManager.class).getProjectModel(indicator);
         if (fileName != null) {
-            Exporter exporter = new CsvClassMetricsExporter(myProject);
-            ReadAction.run(() -> exporter.export(fileName, javaProject));
+            CsvClassMetricsExporter exporter = new CsvClassMetricsExporter(myProject);
+            exporter.export(fileName, javaProject);
         }
     }
 
@@ -52,7 +50,6 @@ public class ExportClassMetricsToCsvTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-//        MetricsUtils.instance().notify("Class level metrics have been successfully exported to " + fileName, myProject);
     }
 
     @Override
@@ -60,6 +57,4 @@ public class ExportClassMetricsToCsvTask extends Task.Backgroundable {
         super.onCancel();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(CANCELED_MESSAGE);
     }
-
-
 }

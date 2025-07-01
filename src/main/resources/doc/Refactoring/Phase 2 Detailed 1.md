@@ -121,7 +121,7 @@ The remaining work is broken down into logical phases based on functionality. Ea
 - **Task 2.2:** Refactor CSV Export Tasks
     - **Rationale/Goal:** Isolate CSV generation logic for class, method, and package metrics.
     - **Estimated Effort (Optional):** L
-    - **Deliverable/Criteria for Completion:** Repeat the pattern from Task 2.1 for `ExportClassMetricsToCsvTask`, `ExportMethodMetricsToCsvTask`, and `ExportPackageMetricsToCsvTask`, creating corresponding `*CsvBuilder` classes and service methods.
+    - **Deliverable/Criteria for Completion:** Repeat the pattern from previous tasks for `ExportClassMetricsToCsvTask`, `ExportMethodMetricsToCsvTask`, and `ExportPackageMetricsToCsvTask`, creating corresponding `*CsvBuilder` classes and service methods.
 
 #### Phase 3: Refactor Fitness Function and Other Tasks
 - **Objective(s):** Decouple the remaining calculation logic.

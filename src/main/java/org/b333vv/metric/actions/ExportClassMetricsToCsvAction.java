@@ -18,8 +18,8 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.task.ExportClassMetricsToCsvTask;
 import org.b333vv.metric.task.MetricTaskManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,8 +31,7 @@ public class ExportClassMetricsToCsvAction extends AbstractAction {
         if (project != null) {
             String fileName = MetricTaskManager.getFileName("csv", project);
             if (fileName != null && !fileName.isBlank()) {
-                ExportClassMetricsToCsvTask exportToCsvTask = new ExportClassMetricsToCsvTask(project, fileName);
-                project.getService(TaskQueueService.class).queue(exportToCsvTask);
+                project.getService(CalculationService.class).exportClassMetricsToCsv(fileName);
             }
         }
     }

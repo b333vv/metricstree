@@ -33,6 +33,10 @@ import org.b333vv.metric.task.ProfileHeatMapChartTask;
 import org.b333vv.metric.task.ProfileRadarChartsTask;
 import org.b333vv.metric.task.ProfileTreeMapTask;
 import org.b333vv.metric.task.ProjectMetricsHistoryChartTask;
+import org.b333vv.metric.task.ExportToXmlTask;
+import org.b333vv.metric.task.ExportClassMetricsToCsvTask;
+import org.b333vv.metric.task.ExportMethodMetricsToCsvTask;
+import org.b333vv.metric.task.ExportPackageMetricsToCsvTask;
 
 public class CalculationServiceImpl implements CalculationService {
     private final Project project;
@@ -170,5 +174,29 @@ public class CalculationServiceImpl implements CalculationService {
             ProjectMetricsHistoryChartTask task = new ProjectMetricsHistoryChartTask(project);
             taskQueueService.queue(task);
         }
+    }
+
+    @Override
+    public void exportToXml(String fileName) {
+        ExportToXmlTask task = new ExportToXmlTask(project, fileName);
+        taskQueueService.queue(task);
+    }
+
+    @Override
+    public void exportClassMetricsToCsv(String fileName) {
+        ExportClassMetricsToCsvTask task = new ExportClassMetricsToCsvTask(project, fileName);
+        taskQueueService.queue(task);
+    }
+
+    @Override
+    public void exportMethodMetricsToCsv(String fileName) {
+        ExportMethodMetricsToCsvTask task = new ExportMethodMetricsToCsvTask(project, fileName);
+        taskQueueService.queue(task);
+    }
+
+    @Override
+    public void exportPackageMetricsToCsv(String fileName) {
+        ExportPackageMetricsToCsvTask task = new ExportPackageMetricsToCsvTask(project, fileName);
+        taskQueueService.queue(task);
     }
 }

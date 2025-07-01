@@ -22,4 +22,12 @@ public interface CalculationService {
     void calculateProfileTreeMap();
 
     void calculateProjectMetricsHistoryChart();
+
+    void exportToXml(String fileName);
+
+    void exportClassMetricsToCsv(String fileName);
+
+    void exportMethodMetricsToCsv(String fileName);
+
+    void exportPackageMetricsToCsv(String fileName);
 }

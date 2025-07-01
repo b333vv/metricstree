@@ -17,24 +17,9 @@
 package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiSubstitutor;
-import com.intellij.psi.PsiType;
-import com.intellij.psi.util.MethodSignature;
-import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
 import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.model.metric.Metric;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-public class CsvMethodMetricsExporter implements Exporter {
+public class CsvMethodMetricsExporter {
 
     private final Project project;
 
@@ -43,53 +28,6 @@ public class CsvMethodMetricsExporter implements Exporter {
     }
 
     public void export(String fileName, JavaProject javaProject) {
-        File csvOutputFile = new File(fileName);
-        try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<JavaMethod> headerSupplierOpt = javaProject.allClasses().flatMap(JavaClass::methods).findAny();
-            if (headerSupplierOpt.isEmpty()) {
-                return;
-            }
-            JavaMethod headerSupplier = headerSupplierOpt.get();
-            String header = "Method Name;" + headerSupplier.metrics()
-                    .map(m -> m.getType().name())
-                    .collect(Collectors.joining(";"));
-            printWriter.println(header);
-            javaProject.allClasses()
-                    .flatMap(JavaClass::methods)
-                    .sorted((c1, c2) -> Objects.requireNonNull(c1.getJavaClass().getPsiClass().getQualifiedName())
-                            .compareTo(Objects.requireNonNull(c2.getJavaClass().getPsiClass().getQualifiedName())))
-                    .map(this::convertToCsv)
-                    .forEach(printWriter::println);
-        } catch (FileNotFoundException e) {
-//            MetricsUtils.getConsole().error(e.getMessage());
-            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
-        }
-        if (csvOutputFile.exists()) {
-            this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                    .printInfo("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
-//            MetricsUtils.getConsole().info("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
-        }
-    }
-
-    private String convertToCsv(JavaMethod javaMethod) {
-        StringBuilder signature = new StringBuilder();
-        MethodSignature methodSignature = javaMethod.getPsiMethod().getSignature(PsiSubstitutor.EMPTY);
-        signature.append(javaMethod.getPsiMethod().getName());
-        signature.append("(");
-        signature.append(Arrays.stream(
-                        methodSignature.getParameterTypes())
-                .map(PsiType::getPresentableText)
-                .collect(Collectors.joining(", ")));
-        signature.append(")");
-        String methodName = javaMethod
-                .getJavaClass()
-                .getPsiClass()
-                .getQualifiedName()
-                + "." +
-                signature + ";";
-        String metrics = javaMethod.metrics()
-                .map(Metric::getFormattedValue)
-                .collect(Collectors.joining(";"));
-        return methodName + metrics;
+        new CsvMethodMetricsBuilder(project).buildAndExport(fileName, javaProject);
     }
 }
