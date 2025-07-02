@@ -1,18 +1,18 @@
 package org.b333vv.metric.util;
 
 import org.junit.jupiter.api.Test;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MetricsUtilsTest {
+public class CollectionUtilsTest {
 
     @Test
     void testSortByValueReversed() {
@@ -29,9 +29,8 @@ public class MetricsUtilsTest {
         // Create a copy for checking non-modification
         Map<String, Integer> copyOfOriginalMap = new HashMap<>(originalMap);
 
-        // 3. Call MetricsUtils.sortByValueReversed with this map
-        // Assuming MetricsUtils.sortByValueReversed returns a LinkedHashMap to preserve order
-        Map<String, Integer> sortedMap = MetricsUtils.sortByValueReversed(originalMap); // Corrected type
+        // 3. Call CollectionUtils.sortByValueReversed with this map
+        Map<String, Integer> sortedMap = CollectionUtils.sortByValueReversed(originalMap);
 
         // 4. Assert that the returned map has the entries sorted in descending order of their values
         assertNotSame(originalMap, sortedMap, "The returned map should be a new instance.");

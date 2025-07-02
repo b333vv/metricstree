@@ -23,7 +23,7 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -68,7 +68,7 @@ public class ClassesByMetricsValuesDistributor {
 
         @Override
         public Function<Map<JavaClass, Metric>, Map<JavaClass, Metric>> finisher() {
-            return MetricsUtils::sortByValueReversed;
+            return CollectionUtils::sortByValueReversed;
         }
 
         @Override

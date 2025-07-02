@@ -30,7 +30,7 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -75,7 +75,7 @@ public class ClassesForProfileTable {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
                 JavaClass javaClass = (JavaClass) selectedCell;
-                MetricsUtils.openInEditor(project, javaClass.getPsiClass());
+                EditorUtils.openInEditor(project, javaClass.getPsiClass());
             }
         });
         panel = new JBScrollPane(table);

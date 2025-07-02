@@ -47,7 +47,7 @@ public class PackagesCalculator {
     }
 
     public JavaProject calculatePackagesStructure() {
-//        MetricsUtils.setProjectMetricsCalculationPerforming(true);
+
         indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();

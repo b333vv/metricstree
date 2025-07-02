@@ -31,10 +31,10 @@ import git4idea.util.GitFileUtils;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.ui.tree.builder.ClassMetricsValuesEvolutionTreeBuilder;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -76,7 +76,7 @@ public class ClassMetricsValuesEvolutionProcessor {
             if (!GitUtil.isUnderGit(psiJavaFile.getVirtualFile())) {
                 return null;
             }
-            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(true);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionCalculationPerforming(true);
 
             GitRepositoryManager gitRepositoryManager = GitUtil.getRepositoryManager(psiJavaFile.getProject());
             VirtualFile root = Objects.requireNonNull(gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile())).getRoot();
@@ -123,7 +123,7 @@ public class ClassMetricsValuesEvolutionProcessor {
                         .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
 //                MetricsUtils.getConsole().info("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
             }
-            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionCalculationPerforming(false);
             return null;
         };
 
@@ -132,7 +132,7 @@ public class ClassMetricsValuesEvolutionProcessor {
         cancel = () -> {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
-            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionCalculationPerforming(false);
         };
     }
 
@@ -141,7 +141,7 @@ public class ClassMetricsValuesEvolutionProcessor {
             if (!GitUtil.isUnderGit(psiJavaFile.getVirtualFile())) {
                 return null;
             }
-            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(true);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionCalculationPerforming(true);
 
             GitRepositoryManager gitRepositoryManager = GitUtil.getRepositoryManager(psiJavaFile.getProject());
             VirtualFile root = Objects.requireNonNull(gitRepositoryManager.getRepositoryForFile(psiJavaFile.getVirtualFile())).getRoot();
@@ -183,7 +183,7 @@ public class ClassMetricsValuesEvolutionProcessor {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " finished");
             }
-            MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+            project.getService(UIStateService.class).setClassMetricsValuesEvolutionCalculationPerforming(false);
             return null;
         };
 
@@ -207,7 +207,7 @@ public class ClassMetricsValuesEvolutionProcessor {
                 buildTree.cancel(false);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Adding metrics values evolution tree for " + psiJavaFile.getName() + " canceled");
-                MetricsUtils.setClassMetricsValuesEvolutionCalculationPerforming(false);
+                project.getService(UIStateService.class).setClassMetricsValuesEvolutionCalculationPerforming(false);
             }
         }
     }

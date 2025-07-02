@@ -36,7 +36,7 @@ import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -69,7 +69,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
     public void refresh() {
         // Вместо использования кеша, получаем PsiJavaFile по VirtualFile
-        VirtualFile selectedFile = MetricsUtils.getSelectedFile(project);
+        VirtualFile selectedFile = EditorUtils.getSelectedFile(project);
         if (selectedFile != null) {
             PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
             if (psiFile instanceof PsiJavaFile) {

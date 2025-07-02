@@ -28,7 +28,7 @@ import org.b333vv.metric.ui.treemap.model.ColorProvider;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.TreeModel;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+
 
 import java.awt.*;
 import java.util.Map;

@@ -30,7 +30,7 @@ import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaFile;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

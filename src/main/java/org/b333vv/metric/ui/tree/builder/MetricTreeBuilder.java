@@ -25,10 +25,10 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.service.UIStateService;
-import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+
+import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -95,7 +95,7 @@ public abstract class MetricTreeBuilder {
     protected void storeMetric(MethodNode methodNode, MetricNode metricNode) {}
 
     protected MetricsTreeFilter getMetricsTreeFilter() {
-        return MetricsUtils.getClassMetricsTreeFilter();
+        return project.getService(UIStateService.class).getClassMetricsTreeFilter();
     }
 
     protected boolean mustBeShown(Metric metric) {

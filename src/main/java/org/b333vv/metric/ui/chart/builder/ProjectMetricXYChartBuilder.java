@@ -25,7 +25,7 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.knowm.xchart.*;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;

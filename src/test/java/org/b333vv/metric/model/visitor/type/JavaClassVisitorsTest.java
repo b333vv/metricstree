@@ -2,7 +2,7 @@ package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
 

@@ -25,7 +25,7 @@ import org.b333vv.metric.ui.treemap.model.*;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.presentation.CushionRectangleRendererEx;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;

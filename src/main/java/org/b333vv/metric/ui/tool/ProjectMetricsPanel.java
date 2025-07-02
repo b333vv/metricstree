@@ -38,8 +38,10 @@ import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.settings.MetricsConfigurable;
 import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
+import org.b333vv.metric.service.UIStateService;
+import org.b333vv.metric.ui.tool.MetricsTreePanel;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.XChartPanel;
@@ -54,7 +56,7 @@ import java.util.*;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.b333vv.metric.util.MetricsUtils.setProjectTreeActive;
+
 
 public class ProjectMetricsPanel extends MetricsTreePanel {
     private static final String SPLIT_PROPORTION_2PANELS = "PROJECT_2PANELS_PROPORTION";
@@ -82,7 +84,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     @Override
     protected void openInEditor(PsiElement psiElement) {
-        MetricsUtils.openInEditor(project, psiElement);
+        EditorUtils.openInEditor(project, psiElement);
     }
 
     private void createTreeMapUIComponents() {
@@ -265,7 +267,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void clearProjectMetricsTree() {
             clear();
-            setProjectTreeActive(false);
+            project.getService(UIStateService.class).setProjectTreeActive(false);
         }
 
         @Override
@@ -273,7 +275,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
             metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(null, project);
             showResults(treeModel);
             buildProjectMetricsTree();
-            setProjectTreeActive(true);
+            project.getService(UIStateService.class).setProjectTreeActive(true);
         }
 
         @Override

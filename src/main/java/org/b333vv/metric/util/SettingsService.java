@@ -85,7 +85,7 @@ public final class SettingsService {
     }
 
     public boolean isShowClassMetricsTree() {
-////        return MetricsUtils.getForProject(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
+
 ////        return project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
         return this.project.getService(ClassMetricsTreeSettings.class).isShowClassMetricsTree();
     }

@@ -21,7 +21,7 @@ import com.intellij.util.ui.UIUtil;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.json.JSONObject;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
@@ -88,9 +88,7 @@ public class ProjectMetricsHistoryXYChartBuilder {
                                     .map(jsonObject -> Double.valueOf(jsonObject.getString(mt.name()).replace(",", ".")))
                                     .collect(Collectors.toList()));
                 } catch (Exception e) {
-//                    MetricsUtils.getCurrentProject().getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-//                            .printInfo(e.getClass() + " " + mt.name() + " " + e.getMessage());
-//                    MetricsUtils.getConsole().error(e.getClass() + " " + mt.name() + " " + e.getMessage());
+
                 }
             }
         }

@@ -18,8 +18,8 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.NotNull;
 
 class SetShowClassMetricsTreeAction extends AbstractToggleAction {
@@ -43,6 +43,6 @@ class SetShowClassMetricsTreeAction extends AbstractToggleAction {
         }
         SettingsService settingsService = project.getService(SettingsService.class);
         settingsService.setShowClassMetricsTree(showClassMetricsTree);
-        MetricsUtils.setClassMetricsTreeExists(showClassMetricsTree);
+        project.getService(UIStateService.class).setClassMetricsTreeExists(showClassMetricsTree);
     }
 }

@@ -22,7 +22,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.actions.AbstractToggleAction;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.service.UIStateService;
 import org.jetbrains.annotations.NotNull;
 
 public class ShowNotSetValueMetrics extends AbstractToggleAction {
@@ -36,12 +36,12 @@ public class ShowNotSetValueMetrics extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getClassMetricsTreeFilter().isNotSetValueMetricsVisible();
+        return e.getProject().getService(UIStateService.class).getClassMetricsTreeFilter().isNotSetValueMetricsVisible();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getClassMetricsTreeFilter().setNotSetValueMetricsVisible(state);
+        e.getProject().getService(UIStateService.class).getClassMetricsTreeFilter().setNotSetValueMetricsVisible(state);
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).buildClassMetricsTree();

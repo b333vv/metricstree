@@ -40,7 +40,7 @@ import org.b333vv.metric.ui.info.MetricsSummaryTable;
 import org.b333vv.metric.ui.tree.MetricsTree;
 import org.b333vv.metric.ui.tree.builder.MetricTreeBuilder;
 import org.b333vv.metric.ui.tree.node.*;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -135,7 +135,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     @Override
     public Object getData(@NotNull String dataId) {
         if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
-            return MetricsUtils.getSelectedFile(project);
+            return EditorUtils.getSelectedFile(project);
         }
         return null;
     }

@@ -162,7 +162,7 @@ public class MetricsDescriptionPanel {
             metricDescription.setPage(url);
         } catch (Exception e) {
             this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
-//            MetricsUtils.getConsole().error(e.getMessage());
+
             metricDescription.setContentType("text/html");
             metricDescription.setText("<html>Page not found.</html>");
         }

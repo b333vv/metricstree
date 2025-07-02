@@ -42,7 +42,7 @@ import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
 import org.b333vv.metric.ui.treemap.builder.ProfileColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.b333vv.metric.service.UIStateService;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.BoxChart;
@@ -415,7 +415,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void profileTreeMapCellClicked(JavaClass javaClass) {
             if (project.getService(UIStateService.class).isProfileAutoScrollable()) {
-                MetricsUtils.openInEditor(project, javaClass.getPsiClass());
+                EditorUtils.openInEditor(project, javaClass.getPsiClass());
             }
             metricsTrimmedSummaryTable.set(javaClass);
         }

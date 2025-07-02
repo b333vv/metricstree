@@ -21,7 +21,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.Nullable;
 

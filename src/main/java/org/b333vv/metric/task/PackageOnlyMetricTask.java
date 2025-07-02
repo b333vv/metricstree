@@ -25,7 +25,7 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.PackagesCalculator;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.jetbrains.annotations.NotNull;
 
 

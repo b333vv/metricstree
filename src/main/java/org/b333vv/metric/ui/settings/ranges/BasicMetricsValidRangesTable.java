@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.b333vv.metric.util.SettingsService;
 
 import javax.swing.*;

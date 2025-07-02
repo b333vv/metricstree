@@ -28,7 +28,7 @@ import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesPanel;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
-import org.b333vv.metric.util.MetricsUtils;
+
 
 import javax.swing.*;
 import java.awt.*;

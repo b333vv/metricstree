@@ -23,7 +23,7 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.ui.content.Content;
 import org.b333vv.metric.ui.log.MetricsLogPanel;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class MetricsToolWindowFactory implements ToolWindowFactory {
@@ -35,7 +35,7 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
 
     private static void addClassMetricsTreeTab(Project project, ToolWindow toolWindow) {
         ClassMetricsPanel classMetricsPanel = ClassMetricsPanel.newInstance(project);
-        PsiJavaFile psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
+        PsiJavaFile psiJavaFile = EditorUtils.getSelectedPsiJavaFile(project);
         if (psiJavaFile != null) {
             classMetricsPanel.update(psiJavaFile);
         }

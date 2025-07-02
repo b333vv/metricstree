@@ -21,7 +21,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.actions.AbstractToggleAction;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.service.UIStateService;
 import org.jetbrains.annotations.NotNull;
 
 public class ProjectTreeShowLorenzKiddMetrics extends AbstractToggleAction {
@@ -34,12 +34,12 @@ public class ProjectTreeShowLorenzKiddMetrics extends AbstractToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        return MetricsUtils.getProjectMetricsTreeFilter().isLorenzKiddMetricsSetVisible();
+        return e.getProject().getService(UIStateService.class).getProjectMetricsTreeFilter().isLorenzKiddMetricsSetVisible();
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
-        MetricsUtils.getProjectMetricsTreeFilter().setLorenzKiddMetricsSetVisible(state);
+        e.getProject().getService(UIStateService.class).getProjectMetricsTreeFilter().setLorenzKiddMetricsSetVisible(state);
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).buildProjectMetricsTree();

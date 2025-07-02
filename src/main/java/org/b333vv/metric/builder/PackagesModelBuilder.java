@@ -27,7 +27,7 @@ import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.service.CacheService;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

@@ -252,7 +252,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree13.svg"
                     factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
-        <applicationService serviceImplementation="org.b333vv.metric.util.MetricsUtils"/>
+        
         <projectService serviceImplementation="org.b333vv.metric.service.UIStateService"/>
         <projectService serviceImplementation="org.b333vv.metric.service.TaskQueueService"/>
         <projectService serviceInterface="org.b333vv.metric.service.CalculationService" serviceImplementation="org.b333vv.metric.service.CalculationServiceImpl"/>

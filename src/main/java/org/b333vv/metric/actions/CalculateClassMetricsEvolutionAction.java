@@ -20,10 +20,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
 import git4idea.GitUtil;
+import com.intellij.openapi.project.DumbService;
 import org.b333vv.metric.builder.ClassMetricsValuesEvolutionProcessor;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.UIStateService;
-import org.b333vv.metric.util.MetricsUtils;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class CalculateClassMetricsEvolutionAction extends AbstractAction {
@@ -37,7 +38,7 @@ public class CalculateClassMetricsEvolutionAction extends AbstractAction {
             if (psiJavaFile != null) {
                 ClassMetricsValuesEvolutionProcessor classMetricsValuesEvolutionProcessor = new ClassMetricsValuesEvolutionProcessor(psiJavaFile);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassMetricsValuesEvolutionTree();
-                MetricsUtils.getDumbService(project).runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
+                DumbService.getInstance(project).runWhenSmart(classMetricsValuesEvolutionProcessor::buildClassMetricsValuesEvolutionMap);
             }
         }
     }
@@ -46,7 +47,7 @@ public class CalculateClassMetricsEvolutionAction extends AbstractAction {
     public void update(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-            psiJavaFile = MetricsUtils.getSelectedPsiJavaFile(project);
+            psiJavaFile = EditorUtils.getSelectedPsiJavaFile(project);
             e.getPresentation().setEnabled(!project.getService(UIStateService.class).isClassMetricsValuesEvolutionCalculationPerforming()
                     && psiJavaFile != null
                     && GitUtil.isUnderGit(psiJavaFile.getVirtualFile()));

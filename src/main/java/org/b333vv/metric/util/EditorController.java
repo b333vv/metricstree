@@ -23,6 +23,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.Nullable;
 
 public class EditorController {
@@ -59,12 +60,12 @@ public class EditorController {
 
     private boolean shouldMoveCaret(PsiElement element) {
         return shouldMoveCaret &&
-                MetricsUtils.isElementInSelectedFile(project, element);
+                EditorUtils.isElementInSelectedFile(project, element);
     }
 
     @Nullable
     private Editor getEditor(PsiElement element) {
-        return MetricsUtils.getEditorIfSelected(project, element);
+        return EditorUtils.getEditorIfSelected(project, element);
     }
 
     @Nullable

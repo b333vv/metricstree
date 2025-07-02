@@ -26,9 +26,9 @@ import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricSet;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 import org.b333vv.metric.ui.tree.node.*;
-import org.b333vv.metric.util.MetricsUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -230,7 +230,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 
     @Override
     protected MetricsTreeFilter getMetricsTreeFilter() {
-//        return MetricsUtils.getProjectMetricsTreeFilter();
-        return ServiceManager.getService(MetricsUtils.class).getProjectMetricsTreeFilter();
+        return project.getService(UIStateService.class).getProjectMetricsTreeFilter();
     }
 }

@@ -20,7 +20,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.b333vv.metric.util.MetricsUtils;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

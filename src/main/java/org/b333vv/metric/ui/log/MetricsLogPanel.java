@@ -22,8 +22,6 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import org.b333vv.metric.util.MetricsUtils;
-
 import javax.swing.*;
 
 public class MetricsLogPanel extends SimpleToolWindowPanel {
@@ -40,7 +38,7 @@ public class MetricsLogPanel extends SimpleToolWindowPanel {
   }
 
   private void addConsole() {
-//    ConsoleView consoleView = MetricsUtils.getProfiles(project, MetricsConsole.class).getConsoleView();
+
     ConsoleView consoleView = project.getService(MetricsConsole.class).getConsoleView();
 //    ConsoleView consoleView = project.getComponent(MetricsConsole.class).getConsoleView();
     super.setContent(consoleView.getComponent());
