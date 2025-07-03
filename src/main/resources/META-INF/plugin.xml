@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2025.1.4:
+                <ul>
+                    <li>Improvement of internal structure continued.</li>
+                </ul>
+            </li>
             <li>2025.1.3:
                 <ul>
                     <li>Improvement of internal structure.</li>
@@ -237,7 +242,7 @@
       ]]>
     </change-notes>
 
-    <version>2025.1.3</version>
+    <version>2025.1.4</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
@@ -253,12 +258,11 @@
         <toolWindow id="MetricsTree" anchor="bottom" icon="/icons/metricsTree13.svg"
                     factoryClass="org.b333vv.metric.ui.tool.MetricsToolWindowFactory"/>
         
-        <projectService serviceImplementation="org.b333vv.metric.service.UIStateService"/>
-        <projectService serviceImplementation="org.b333vv.metric.service.TaskQueueService"/>
+<!--        <projectService serviceImplementation="org.b333vv.metric.service.UIStateService"/>-->
+<!--        <projectService serviceImplementation="org.b333vv.metric.service.TaskQueueService"/>-->
         <projectService serviceInterface="org.b333vv.metric.service.CalculationService" serviceImplementation="org.b333vv.metric.service.CalculationServiceImpl"/>
-        <projectService serviceImplementation="org.b333vv.metric.service.CacheService"/>
-        <projectService serviceImplementation="org.b333vv.metric.task.MetricTaskCache"/>
-        <projectService serviceImplementation="org.b333vv.metric.service.ClassMetricsTreeService"/>
+<!--        <projectService serviceImplementation="org.b333vv.metric.service.CacheService"/>-->
+<!--        <projectService serviceImplementation="org.b333vv.metric.service.ClassMetricsTreeService"/>-->
         <codeInsight.daemonBoundCodeVisionProvider implementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionProvider"/>
         <applicationService serviceImplementation="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionSettings"/>
         <applicationConfigurable instance="org.b333vv.metric.ui.hints.MetricsTreeCodeVisionConfigurable"
@@ -270,7 +274,7 @@
         <projectService serviceImplementation="org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings"/>
         <projectService serviceImplementation="org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions"/>
         <projectService serviceImplementation="org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions"/>
-        <projectService serviceImplementation="org.b333vv.metric.util.SettingsService"/>
+<!--        <projectService serviceImplementation="org.b333vv.metric.util.SettingsService"/>-->
     </extensions>
 
     <project-components>
