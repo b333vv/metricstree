@@ -407,8 +407,22 @@ public class CalculationServiceImpl implements CalculationService {
             Function<ProgressIndicator, List<ProfileBoxChartBuilder.BoxChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile box charts started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Ensure class fitness functions are calculated first
+                Map<FitnessFunction, Set<JavaClass>> classesByProfile = cacheService.getClassesByProfile();
+                if (classesByProfile == null) {
+                    // Calculate class fitness functions synchronously
+                    classesByProfile = runTaskSynchronously(
+                            "Building class level fitness functions for profile box charts",
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, javaProject),
+                            indicator
+                    );
+                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
+                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                }
+                
                 ProfileBoxChartDataCalculator calculator = new ProfileBoxChartDataCalculator();
-                List<ProfileBoxChartBuilder.BoxChartStructure> newBoxCharts = calculator.calculate(cacheService.getClassesByProfile());
+                List<ProfileBoxChartBuilder.BoxChartStructure> newBoxCharts = calculator.calculate(classesByProfile);
                 cacheService.putUserData(CacheService.BOX_CHARTS, newBoxCharts);
                 return newBoxCharts;
             };
@@ -440,8 +454,22 @@ public class CalculationServiceImpl implements CalculationService {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile category chart started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Ensure class fitness functions are calculated first
+                Map<FitnessFunction, Set<JavaClass>> classesByProfile = cacheService.getClassesByProfile();
+                if (classesByProfile == null) {
+                    // Calculate class fitness functions synchronously
+                    classesByProfile = runTaskSynchronously(
+                            "Building class level fitness functions for profile chart",
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, javaProject),
+                            indicator
+                    );
+                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
+                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                }
+                
                 ProfileCategoryChartDataCalculator calculator = new ProfileCategoryChartDataCalculator();
-                CategoryChart newCategoryChart = calculator.calculate(cacheService.getClassesByProfile());
+                CategoryChart newCategoryChart = calculator.calculate(classesByProfile);
                 cacheService.putUserData(CacheService.PROFILE_CATEGORY_CHART, newCategoryChart);
                 return newCategoryChart;
             };
@@ -473,8 +501,22 @@ public class CalculationServiceImpl implements CalculationService {
             Function<ProgressIndicator, HeatMapChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile heat map chart started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Ensure class fitness functions are calculated first
+                Map<FitnessFunction, Set<JavaClass>> classesByProfile = cacheService.getClassesByProfile();
+                if (classesByProfile == null) {
+                    // Calculate class fitness functions synchronously
+                    classesByProfile = runTaskSynchronously(
+                            "Building class level fitness functions for profile heat map chart",
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, javaProject),
+                            indicator
+                    );
+                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
+                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                }
+                
                 ProfileHeatMapDataCalculator calculator = new ProfileHeatMapDataCalculator();
-                HeatMapChart newHeatMapChart = calculator.calculate(cacheService.getClassesByProfile());
+                HeatMapChart newHeatMapChart = calculator.calculate(classesByProfile);
                 cacheService.putUserData(CacheService.HEAT_MAP_CHART, newHeatMapChart);
                 return newHeatMapChart;
             };
@@ -506,8 +548,22 @@ public class CalculationServiceImpl implements CalculationService {
             Function<ProgressIndicator, List<ProfileRadarChartBuilder.RadarChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile radar charts started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Ensure class fitness functions are calculated first
+                Map<FitnessFunction, Set<JavaClass>> classesByProfile = cacheService.getClassesByProfile();
+                if (classesByProfile == null) {
+                    // Calculate class fitness functions synchronously
+                    classesByProfile = runTaskSynchronously(
+                            "Building class level fitness functions for profile radar charts",
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, javaProject),
+                            indicator
+                    );
+                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
+                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                }
+                
                 ProfileRadarDataCalculator calculator = new ProfileRadarDataCalculator();
-                List<ProfileRadarChartBuilder.RadarChartStructure> newRadarCharts = calculator.calculate(cacheService.getClassesByProfile(), project);
+                List<ProfileRadarChartBuilder.RadarChartStructure> newRadarCharts = calculator.calculate(classesByProfile, project);
                 cacheService.putUserData(CacheService.RADAR_CHART, newRadarCharts);
                 return newRadarCharts;
             };
@@ -703,6 +759,7 @@ public class CalculationServiceImpl implements CalculationService {
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
                 Map<FitnessFunction, Set<JavaClass>> newClassFitnessFunctions = new ClassFitnessFunctionCalculator().calculate(project, javaProject);
                 cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, newClassFitnessFunctions);
+                cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, newClassFitnessFunctions);
                 return newClassFitnessFunctions;
             };
             Consumer<Map<FitnessFunction, Set<JavaClass>>> onSuccessCallback = (newClassFitnessFunctions) -> {

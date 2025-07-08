@@ -61,9 +61,10 @@ public class CsvMethodMetricsBuilder {
                 javaProject.allClasses()
                         .flatMap(JavaClass::methods)
                         .sorted((c1, c2) -> {
-                            String name1 = c1.getJavaClass().getPsiClass().getQualifiedName();
-                            String name2 = c2.getJavaClass().getPsiClass().getQualifiedName();
-                            return Objects.requireNonNull(name1).compareTo(Objects.requireNonNull(name2));
+                            // Safely get qualified names with null checks
+                            String name1 = getQualifiedNameSafely(c1);
+                            String name2 = getQualifiedNameSafely(c2);
+                            return name1.compareTo(name2);
                         })
                         .map(this::convertToCsv)
                         .forEach(printWriter::println);
@@ -76,26 +77,41 @@ public class CsvMethodMetricsBuilder {
                     .printInfo("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }
     }
+    
+    private String getQualifiedNameSafely(JavaMethod javaMethod) {
+        try {
+            String qualifiedName = javaMethod.getJavaClass().getPsiClass().getQualifiedName();
+            return qualifiedName != null ? qualifiedName : "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
+        }
+    }
 
     private String convertToCsv(JavaMethod javaMethod) {
-        StringBuilder signature = new StringBuilder();
-        MethodSignature methodSignature = javaMethod.getPsiMethod().getSignature(PsiSubstitutor.EMPTY);
-        signature.append(javaMethod.getPsiMethod().getName());
-        signature.append("(");
-        signature.append(Arrays.stream(
-                        methodSignature.getParameterTypes())
-                .map(PsiType::getPresentableText)
-                .collect(Collectors.joining(", ")));
-        signature.append(")");
-        String methodName = javaMethod
-                .getJavaClass()
-                .getPsiClass()
-                .getQualifiedName()
-                + "." +
-                signature + ";";
-        String metrics = javaMethod.metrics()
-                .map(Metric::getFormattedValue)
-                .collect(Collectors.joining(";"));
-        return methodName + metrics;
+        try {
+            StringBuilder signature = new StringBuilder();
+            MethodSignature methodSignature = javaMethod.getPsiMethod().getSignature(PsiSubstitutor.EMPTY);
+            signature.append(javaMethod.getPsiMethod().getName());
+            signature.append("(");
+            signature.append(Arrays.stream(
+                            methodSignature.getParameterTypes())
+                    .map(PsiType::getPresentableText)
+                    .collect(Collectors.joining(", ")));
+            signature.append(")");
+            
+            String qualifiedName = javaMethod.getJavaClass().getPsiClass().getQualifiedName();
+            String methodName = (qualifiedName != null ? qualifiedName : "Unknown") + "." + signature + ";";
+            
+            String metrics = javaMethod.metrics()
+                    .map(Metric::getFormattedValue)
+                    .collect(Collectors.joining(";"));
+            return methodName + metrics;
+        } catch (Exception e) {
+            // Fallback in case of PSI access issues
+            String metrics = javaMethod.metrics()
+                    .map(Metric::getFormattedValue)
+                    .collect(Collectors.joining(";"));
+            return "Unknown.unknownMethod();" + metrics;
+        }
     }
 }

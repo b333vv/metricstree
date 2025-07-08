@@ -32,6 +32,10 @@ import java.util.*;
 public class ProfileCategoryChartBuilder {
 
     public CategoryChart createChart(Map<FitnessFunction, Set<JavaClass>> classesByProfiles) {
+        // Check for null input to prevent NullPointerException
+        if (classesByProfiles == null) {
+            classesByProfiles = new HashMap<>();
+        }
 
         CategoryChart chart = new CategoryChartBuilder()
                 .width(50)
