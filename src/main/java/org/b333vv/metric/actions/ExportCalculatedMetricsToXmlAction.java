@@ -21,6 +21,11 @@ import com.intellij.openapi.project.Project;
 import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
 
+import com.intellij.openapi.vfs.VirtualFileWrapper;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.ui.Messages;
+
 import org.jetbrains.annotations.NotNull;
 
 public class ExportCalculatedMetricsToXmlAction extends AbstractAction {
@@ -29,10 +34,21 @@ public class ExportCalculatedMetricsToXmlAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            
-            String fileName = project.getName() + ".xml";
-            if (fileName != null && !fileName.isBlank()) {
-                project.getService(CalculationService.class).exportToXml(fileName);
+            FileSaverDescriptor descriptor = new FileSaverDescriptor(
+                    "Export Metrics to XML",
+                "Select the directory and file name for export",
+                "xml"
+            );
+            VirtualFileWrapper fileWrapper = FileChooserFactory.getInstance()
+                .createSaveFileDialog(descriptor, project)
+                .save(project.getName() + ".xml");
+            if (fileWrapper != null && fileWrapper.getFile() != null) {
+                String filePath = fileWrapper.getFile().getAbsolutePath();
+                if (!filePath.isBlank()) {
+                    project.getService(CalculationService.class).exportToXml(filePath);
+                }
+            } else {
+                Messages.showInfoMessage(project, "Export canceled by user.", "Export Metrics");
             }
         }
     }

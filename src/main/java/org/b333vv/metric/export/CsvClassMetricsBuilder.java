@@ -17,6 +17,7 @@
 package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaProject;
@@ -50,8 +51,9 @@ public class CsvClassMetricsBuilder {
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
             javaProject.allClasses()
-                    .sorted((c1, c2) -> Objects.requireNonNull(c1.getPsiClass().getQualifiedName())
-                            .compareTo(Objects.requireNonNull(c2.getPsiClass().getQualifiedName())))
+                    .sorted((c1, c2) -> com.intellij.openapi.application.ApplicationManager.getApplication().<Integer>runReadAction(
+                            (Computable<Integer>) () -> Objects.requireNonNull(c1.getPsiClass().getQualifiedName())
+                                    .compareTo(Objects.requireNonNull(c2.getPsiClass().getQualifiedName()))))
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
@@ -65,10 +67,12 @@ public class CsvClassMetricsBuilder {
     }
 
     private String convertToCsv(JavaClass javaClass) {
-        String className = Objects.requireNonNull(javaClass.getPsiClass().getQualifiedName()) + ";";
-        String metrics = javaClass.metrics()
-                .map(Metric::getFormattedValue)
-                .collect(Collectors.joining(";"));
-        return className + metrics;
+        return com.intellij.openapi.application.ApplicationManager.getApplication().runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
+            String className = Objects.requireNonNull(javaClass.getPsiClass().getQualifiedName()) + ";";
+            String metrics = javaClass.metrics()
+                    .map(Metric::getFormattedValue)
+                    .collect(Collectors.joining(";"));
+            return className + metrics;
+        });
     }
 }

@@ -18,8 +18,13 @@ package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
+
+import com.intellij.openapi.vfs.VirtualFileWrapper;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -29,10 +34,19 @@ public class ExportMethodMetricsToCsvAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
-            String fileName = project.getName() + ".csv";
-            
-            if (fileName != null && !fileName.isBlank()) {
-                project.getService(CalculationService.class).exportMethodMetricsToCsv(fileName);
+            FileSaverDescriptor descriptor = new FileSaverDescriptor(
+                    "Export Method Metrics to CSV",
+                    "Select the directory and file name for export",
+                    "csv"
+            );
+            VirtualFileWrapper fileWrapper = FileChooserFactory.getInstance()
+                    .createSaveFileDialog(descriptor, project)
+                    .save(project.getName() + ".csv");
+            if (fileWrapper != null && fileWrapper.getFile() != null) {
+                String filePath = fileWrapper.getFile().getAbsolutePath();
+                project.getService(CalculationService.class).exportMethodMetricsToCsv(filePath);
+            } else {
+                Messages.showInfoMessage(project, "Export canceled by user.", "Export Metrics");
             }
         }
     }

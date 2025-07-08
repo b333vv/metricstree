@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.export;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
@@ -54,12 +55,19 @@ public class CsvMethodMetricsBuilder {
                     .map(m -> m.getType().name())
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
-            javaProject.allClasses()
-                    .flatMap(JavaClass::methods)
-                    .sorted((c1, c2) -> Objects.requireNonNull(c1.getJavaClass().getPsiClass().getQualifiedName())
-                            .compareTo(Objects.requireNonNull(c2.getJavaClass().getPsiClass().getQualifiedName())))
-                    .map(this::convertToCsv)
-                    .forEach(printWriter::println);
+            
+            // Wrap PSI access in read action
+            ApplicationManager.getApplication().runReadAction(() -> {
+                javaProject.allClasses()
+                        .flatMap(JavaClass::methods)
+                        .sorted((c1, c2) -> {
+                            String name1 = c1.getJavaClass().getPsiClass().getQualifiedName();
+                            String name2 = c2.getJavaClass().getPsiClass().getQualifiedName();
+                            return Objects.requireNonNull(name1).compareTo(Objects.requireNonNull(name2));
+                        })
+                        .map(this::convertToCsv)
+                        .forEach(printWriter::println);
+            });
         } catch (FileNotFoundException e) {
             this.project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(e.getMessage());
         }
