@@ -34,6 +34,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class PackageMetricsTable {
     private static final DecimalFormat METRIC_VALUE_FORMAT = new DecimalFormat("0.0###");
@@ -46,8 +47,8 @@ public class PackageMetricsTable {
 
     public PackageMetricsTable(Map<String, Double> instability, Map<String, Double> abstractness, Project project) {
         this.project = project;
-        this.instability = instability;
-        this.abstractness = abstractness;
+        this.instability = instability != null ? instability : new TreeMap<>();
+        this.abstractness = abstractness != null ? abstractness : new TreeMap<>();
 
         model = new Model();
         table = new JBTable(model);

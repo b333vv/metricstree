@@ -49,11 +49,16 @@ import org.b333vv.metric.export.CsvMethodMetricsExporter;
 import org.b333vv.metric.export.CsvPackageMetricsExporter;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.builder.ClassFitnessFunctionCalculator;
 import org.b333vv.metric.builder.PackageFitnessFunctionCalculator;
+import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
 
 // New imports for model builders
 import org.b333vv.metric.builder.DependenciesBuilder;
@@ -225,15 +230,24 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculatePieChart() {
         List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService.getUserData(CacheService.PIE_CHART_LIST);
-        if (pieChartList != null) {
+        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+        
+        if (pieChartList != null && classesByMetricTypes != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
         } else {
             Function<ProgressIndicator, List<MetricPieChartBuilder.PieChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values pie chart started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Generate classes by metric types data
+                Map<MetricType, Map<JavaClass, Metric>> newClassesByMetricTypes = generateClassesByMetricTypes(javaProject);
+                cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES, newClassesByMetricTypes);
+                
+                // Generate pie chart data
                 PieChartDataCalculator calculator = new PieChartDataCalculator();
                 List<MetricPieChartBuilder.PieChartStructure> newPieChartList = calculator.calculate(javaProject, project);
                 cacheService.putUserData(CacheService.PIE_CHART_LIST, newPieChartList);
+                
                 return newPieChartList;
             };
             Consumer<List<MetricPieChartBuilder.PieChartStructure>> onSuccessCallback = (newPieChartList) -> {
@@ -254,22 +268,44 @@ public class CalculationServiceImpl implements CalculationService {
             taskQueueService.queue(genericTask);
         }
     }
+    
+    private Map<MetricType, Map<JavaClass, Metric>> generateClassesByMetricTypes(JavaProject javaProject) {
+        Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = new HashMap<>();
+        
+        javaProject.allClasses().forEach(javaClass -> {
+            javaClass.metrics().forEach(metric -> {
+                classesByMetricTypes.computeIfAbsent(metric.getType(), k -> new HashMap<>())
+                                   .put(javaClass, metric);
+            });
+        });
+        
+        return classesByMetricTypes;
+    }
 
     @Override
     public void calculateCategoryChart() {
         CategoryChart categoryChart = cacheService.getUserData(CacheService.CATEGORY_CHART);
-        if (categoryChart != null) {
+        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+        
+        if (categoryChart != null && classesByMetricTypes != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
         } else {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values category chart started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Generate the distribution data first
+                ClassesByMetricsValuesCounter distributor = new ClassesByMetricsValuesCounter(project);
+                Map<MetricType, Map<RangeType, Double>> newClassesByMetricTypes = distributor.classesByMetricsValuesDistribution(javaProject);
+                cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART, newClassesByMetricTypes);
+                
+                // Then generate the chart
                 CategoryChartDataCalculator calculator = new CategoryChartDataCalculator();
                 CategoryChart newCategoryChart = calculator.calculate(javaProject, project);
                 cacheService.putUserData(CacheService.CATEGORY_CHART, newCategoryChart);
                 return newCategoryChart;
             };
-                        Consumer<CategoryChart> onSuccessCallback = (calculatedCategoryChart) -> {
+            Consumer<CategoryChart> onSuccessCallback = (calculatedCategoryChart) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values category chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
             };
@@ -324,16 +360,24 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculateXyChart() {
         XYChart xyChart = cacheService.getUserData(CacheService.XY_CHART);
-        if (xyChart != null) {
+        Map<String, Double> instability = cacheService.getUserData(CacheService.INSTABILITY);
+        Map<String, Double> abstractness = cacheService.getUserData(CacheService.ABSTRACTNESS);
+        
+        if (xyChart != null && instability != null && abstractness != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady();
         } else {
             Function<ProgressIndicator, XYChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building XY chart started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
                 XyChartDataCalculator calculator = new XyChartDataCalculator();
-                XYChart newXyChart = calculator.calculate(javaProject, project);
-                cacheService.putUserData(CacheService.XY_CHART, newXyChart);
-                return newXyChart;
+                XyChartDataCalculator.XyChartResult result = calculator.calculate(javaProject, project);
+                
+                // Store all data in cache
+                cacheService.putUserData(CacheService.XY_CHART, result.getChart());
+                cacheService.putUserData(CacheService.INSTABILITY, result.getInstability());
+                cacheService.putUserData(CacheService.ABSTRACTNESS, result.getAbstractness());
+                
+                return result.getChart();
             };
             Consumer<XYChart> onSuccessCallback = (newXyChart) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building XY chart finished");

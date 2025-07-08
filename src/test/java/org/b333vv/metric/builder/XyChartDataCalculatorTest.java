@@ -16,8 +16,11 @@ public class XyChartDataCalculatorTest {
         Project project = Mockito.mock(Project.class);
 
         XyChartDataCalculator calculator = new XyChartDataCalculator();
-        XYChart result = calculator.calculate(javaProject, project);
+        XyChartDataCalculator.XyChartResult result = calculator.calculate(javaProject, project);
 
         assertNotNull(result);
+        assertNotNull(result.getChart());
+        assertNotNull(result.getInstability());
+        assertNotNull(result.getAbstractness());
     }
 }
