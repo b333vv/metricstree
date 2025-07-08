@@ -223,6 +223,13 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     private void showResults(@NotNull MetricTreeMap<JavaCode> treeMap, JavaProject javaProject) {
         createTreeMapUIComponents();
+        
+        // Set up TreeMap actions to communicate with the UI
+        treeMap.setSelectionChangedAction(text -> treeMapBottomPanel.setData(text));
+        treeMap.setClickedAction(javaClass -> {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectTreeMapCellClicked(javaClass);
+        });
+        
         MetricTypeSelectorTable metricTypeSelectorTable = new MetricTypeSelectorTable(javaProject, metricType -> {
             treeMap.setColorProvider(new MetricTypeColorProvider(metricType, project));
             treeMap.updateUI();
@@ -272,10 +279,23 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
-            metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(null, project);
-            showResults(treeModel);
-            buildProjectMetricsTree();
-            project.getService(UIStateService.class).setProjectTreeActive(true);
+            // Get the JavaProject from the cache service - it should be available since the tree was just built
+            JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
+            if (javaProject == null) {
+                // Fallback to class and methods metrics if project metrics not available
+                javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+            }
+            
+            if (javaProject != null) {
+                metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(javaProject, project);
+                showResults(treeModel);
+                buildProjectMetricsTree();
+                project.getService(UIStateService.class).setProjectTreeActive(true);
+            } else {
+                // If still null, log an error and don't proceed
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                       .printInfo("Error: JavaProject is null when trying to display metrics tree");
+            }
         }
 
         @Override

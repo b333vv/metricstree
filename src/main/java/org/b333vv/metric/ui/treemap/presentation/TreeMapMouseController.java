@@ -39,7 +39,7 @@ public class TreeMapMouseController<N> implements MouseListener, MouseMotionList
             if (mouseevent.getButton() == MouseEvent.BUTTON1) {
                 if (treemap.selected != null) {
                     N cell = treemap.selected.getNode();
-                    if (cell instanceof JavaClass) {
+                    if (cell instanceof JavaClass && treemap.getClickedAction() != null) {
                         treemap.getClickedAction().accept((JavaClass) cell);
                     }
                 }

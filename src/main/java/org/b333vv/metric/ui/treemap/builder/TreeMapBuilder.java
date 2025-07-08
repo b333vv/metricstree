@@ -61,7 +61,10 @@ public class TreeMapBuilder implements SelectionChangeListener<JavaCode>, LabelP
             final JavaCode node = rectangle.getNode();
             if (node instanceof JavaClass) {
                 String name = ((JavaClass) node).getPsiClass().getQualifiedName();
-                treeMap.getSelectionChangedAction().accept("Class: " + name);
+                Consumer<String> selectionAction = treeMap.getSelectionChangedAction();
+                if (selectionAction != null) {
+                    selectionAction.accept("Class: " + name);
+                }
             }
         }
     }

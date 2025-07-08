@@ -108,13 +108,14 @@ public class CalculationServiceImpl implements CalculationService {
     public DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator) {
         DependenciesBuilder dependencies = cacheService.getUserData(CacheService.DEPENDENCIES);
         if (dependencies == null) {
-            AtomicReference<AnalysisScope> analysisScopeRef = new AtomicReference<>();
-            DumbService.getInstance(project).runWhenSmart(() -> analysisScopeRef.set(new AnalysisScope(project)));
-            AnalysisScope analysisScope = analysisScopeRef.get();
-
             dependencies = runTaskSynchronously(
                     "Building Dependencies Model",
-                    (progressIndicator) -> new DependenciesCalculator(analysisScope, new DependenciesBuilder()).calculateDependencies(),
+                    (progressIndicator) -> {
+                        // Create AnalysisScope within the task to ensure proper initialization
+                        AnalysisScope analysisScope = new AnalysisScope(project);
+                        analysisScope.setIncludeTestSource(false);
+                        return new DependenciesCalculator(analysisScope, new DependenciesBuilder()).calculateDependencies();
+                    },
                     indicator
             );
             cacheService.putUserData(CacheService.DEPENDENCIES, dependencies);
@@ -128,13 +129,12 @@ public class CalculationServiceImpl implements CalculationService {
             // Ensure dependencies are built first
             DependenciesBuilder dependencies = getOrBuildDependencies(indicator);
 
-            AtomicReference<AnalysisScope> analysisScopeRef = new AtomicReference<>();
-            DumbService.getInstance(project).runWhenSmart(() -> analysisScopeRef.set(new AnalysisScope(project)));
-            AnalysisScope analysisScope = analysisScopeRef.get();
-
             javaProject = runTaskSynchronously(
                     "Building Class and Method Metrics Model",
                     (progressIndicator) -> {
+                        // Create AnalysisScope within the task to ensure proper initialization
+                        AnalysisScope analysisScope = new AnalysisScope(project);
+                        analysisScope.setIncludeTestSource(false);
                         JavaProject newJavaProject = new JavaProject(project.getName());
                         new ClassAndMethodsMetricsCalculator(analysisScope, newJavaProject).calculateMetrics();
                         return newJavaProject;
@@ -155,9 +155,9 @@ public class CalculationServiceImpl implements CalculationService {
             javaProject = runTaskSynchronously(
                     "Building Package Metrics Model",
                     (progressIndicator) -> {
-                        AtomicReference<AnalysisScope> analysisScopeRef = new AtomicReference<>();
-                        DumbService.getInstance(project).runWhenSmart(() -> analysisScopeRef.set(new AnalysisScope(project)));
-                        AnalysisScope analysisScope = analysisScopeRef.get();
+                        // Create AnalysisScope within the task to ensure proper initialization
+                        AnalysisScope analysisScope = new AnalysisScope(project);
+                        analysisScope.setIncludeTestSource(false);
                         DependenciesBuilder dependencies = getOrBuildDependencies(progressIndicator);
                         new PackageMetricsSetCalculator(analysisScope, dependencies, classAndMethodModel).calculate();
                         return classAndMethodModel;
@@ -178,9 +178,9 @@ public class CalculationServiceImpl implements CalculationService {
             javaProject = runTaskSynchronously(
                     "Building Project Metrics Model",
                     (progressIndicator) -> {
-                        AtomicReference<AnalysisScope> analysisScopeRef = new AtomicReference<>();
-                        DumbService.getInstance(project).runWhenSmart(() -> analysisScopeRef.set(new AnalysisScope(project)));
-                        AnalysisScope analysisScope = analysisScopeRef.get();
+                        // Create AnalysisScope within the task to ensure proper initialization
+                        AnalysisScope analysisScope = new AnalysisScope(project);
+                        analysisScope.setIncludeTestSource(false);
                         DependenciesBuilder dependencies = getOrBuildDependencies(progressIndicator);
                         new ProjectMetricsSetCalculator(analysisScope, dependencies, packageMetricsModel).calculate();
                         return packageMetricsModel;

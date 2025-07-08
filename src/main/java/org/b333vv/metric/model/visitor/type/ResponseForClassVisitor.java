@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.model.visitor.type;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiCallExpression;
 import com.intellij.psi.PsiClass;
