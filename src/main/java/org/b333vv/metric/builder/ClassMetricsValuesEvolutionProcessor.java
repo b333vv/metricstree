@@ -112,7 +112,7 @@ public class ClassMetricsValuesEvolutionProcessor {
 
         Callable<Void> buildingTree = () -> {
             ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
-            JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+            JavaFile javaFile = ReadAction.compute(() -> classModelBuilder.buildJavaFile(psiJavaFile));
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
                     new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution), project);
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();
@@ -173,7 +173,7 @@ public class ClassMetricsValuesEvolutionProcessor {
             }
 
             ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
-            JavaFile javaFile = classModelBuilder.buildJavaFile(psiJavaFile);
+            JavaFile javaFile = ReadAction.compute(() -> classModelBuilder.buildJavaFile(psiJavaFile));
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
                     new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution), project);
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();

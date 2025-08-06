@@ -16,6 +16,7 @@
 
 package org.b333vv.metric.ui.tree.builder;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.TimedVcsCommit;
 import org.b333vv.metric.model.code.JavaClass;
@@ -45,7 +46,7 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
     public ClassMetricsValuesEvolutionTreeBuilder(JavaFile javaFile,
                                                   Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution,
                                                   Project project) {
-        super(javaFile, javaFile.classes().findAny().get().getPsiClass().getProject());
+        super(javaFile, project);
         this.classMetricsEvolution = classMetricsEvolution;
     }
 
@@ -98,13 +99,17 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
     }
 
     private EvolutionKey getKeyForClass(JavaClass javaClass, Metric metric) {
-        return new EvolutionKey(javaClass.getPsiClass().getQualifiedName(), metric.getType());
+        return ReadAction.compute(() -> 
+            new EvolutionKey(javaClass.getPsiClass().getQualifiedName(), metric.getType())
+        );
     }
 
     private EvolutionKey getKeyForMethod(JavaMethod javaMethod, Metric metric) {
-        return new EvolutionKey(Objects.requireNonNull(javaMethod.getPsiMethod().getContainingClass()).getQualifiedName(),
-                JavaMethod.signature(javaMethod.getPsiMethod()),
-                metric.getType());
+        return ReadAction.compute(() -> 
+            new EvolutionKey(Objects.requireNonNull(javaMethod.getPsiMethod().getContainingClass()).getQualifiedName(),
+                    JavaMethod.signature(javaMethod.getPsiMethod()),
+                    metric.getType())
+        );
     }
 
     private static class EvolutionKey {
