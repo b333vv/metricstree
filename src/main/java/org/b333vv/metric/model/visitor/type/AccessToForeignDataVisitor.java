@@ -46,26 +46,52 @@ public class AccessToForeignDataVisitor extends JavaClassVisitor {
 
     @Override
     public void visitMethodCallExpression(PsiMethodCallExpression psiMethodCallExpression) {
-        super.visitMethodCallExpression(psiMethodCallExpression);
+        if (psiMethodCallExpression == null) {
+            return;
+        }
+        
+        try {
+            super.visitMethodCallExpression(psiMethodCallExpression);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+            // Continue processing without the super call
+        }
+        
         final PsiMethod method = psiMethodCallExpression.resolveMethod();
         if (method == null) {
             return;
         }
         if (PropertyUtil.isSimpleGetter(method) || PropertyUtil.isSimpleSetter(method)) {
-            usedClasses.add(method.getContainingClass());
+            final PsiClass containingClass = method.getContainingClass();
+            if (containingClass != null) {
+                usedClasses.add(containingClass);
+            }
         }
     }
 
     @Override
     public void visitReferenceExpression(PsiReferenceExpression psiReferenceExpression) {
-        super.visitReferenceExpression(psiReferenceExpression);
+        if (psiReferenceExpression == null) {
+            return;
+        }
+        
+        try {
+            super.visitReferenceExpression(psiReferenceExpression);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+            // Continue processing without the super call
+        }
+        
         final PsiElement element = psiReferenceExpression.resolve();
         if (element == null) {
             return;
         }
         if (element instanceof PsiField) {
             final PsiField field = (PsiField) element;
-            usedClasses.add(field.getContainingClass());
+            final PsiClass containingClass = field.getContainingClass();
+            if (containingClass != null) {
+                usedClasses.add(containingClass);
+            }
         }
     }
 }

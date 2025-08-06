@@ -29,24 +29,35 @@ import static org.b333vv.metric.model.metric.MetricType.NOAM;
 public class NumberOfAddedMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        super.visitClass(psiClass);
-        metric = Metric.of(NOAM, Value.UNDEFINED);
-        if (ClassUtils.isConcrete(psiClass)) {
-            int addedMethodsNumber = 0;
-            PsiMethod[] methods = psiClass.getMethods();
-            for (PsiMethod method : methods) {
-                if (method.isConstructor() || method.hasModifierProperty(PsiModifier.ABSTRACT)) {
-                    continue;
+        try {
+            super.visitClass(psiClass);
+            metric = Metric.of(NOAM, Value.UNDEFINED);
+            if (ClassUtils.isConcrete(psiClass)) {
+                int addedMethodsNumber = 0;
+                PsiMethod[] methods = psiClass.getMethods();
+                for (PsiMethod method : methods) {
+                    if (method.isConstructor() || method.hasModifierProperty(PsiModifier.ABSTRACT)) {
+                        continue;
+                    }
+                    if (method.hasModifierProperty(PsiModifier.PRIVATE) || method.hasModifierProperty(PsiModifier.STATIC)) {
+                        addedMethodsNumber++;
+                        continue;
+                    }
+                    try {
+                        if (!MethodUtils.hasConcreteSuperMethod(method)) {
+                            addedMethodsNumber++;
+                        }
+                    } catch (Exception e) {
+                        // Skip this method if there's an issue with PSI traversal
+                        // This can happen with malformed PSI trees or during indexing
+                        addedMethodsNumber++; // Assume it's an added method if we can't determine otherwise
+                    }
                 }
-                if (method.hasModifierProperty(PsiModifier.PRIVATE) || method.hasModifierProperty(PsiModifier.STATIC)) {
-                    addedMethodsNumber++;
-                    continue;
-                }
-                if (!MethodUtils.hasConcreteSuperMethod(method)) {
-                    addedMethodsNumber++;
-                }
+                metric = Metric.of(NOAM, addedMethodsNumber);
             }
-            metric = Metric.of(NOAM, addedMethodsNumber);
+        } catch (Exception e) {
+            // If there's any issue with the visitor, set metric to undefined
+            metric = Metric.of(NOAM, Value.UNDEFINED);
         }
     }
 }

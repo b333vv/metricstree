@@ -35,26 +35,40 @@ import static org.b333vv.metric.model.metric.MetricType.RFC;
 public class ResponseForClassVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(PsiClass psiClass) {
-        metric = Metric.of(RFC, Value.UNDEFINED);
-        if (ClassUtils.isConcrete(psiClass)) {
-            Set<PsiMethod> methodsCalled = new HashSet<>();
-            super.visitClass(psiClass);
-            Collections.addAll(methodsCalled, psiClass.getMethods());
-            psiClass.acceptChildren(new JavaRecursiveElementVisitor() {
+        try {
+            metric = Metric.of(RFC, Value.UNDEFINED);
+            if (ClassUtils.isConcrete(psiClass)) {
+                Set<PsiMethod> methodsCalled = new HashSet<>();
+                super.visitClass(psiClass);
+                Collections.addAll(methodsCalled, psiClass.getMethods());
+                try {
+                    psiClass.acceptChildren(new JavaRecursiveElementVisitor() {
 
-                @Override
-                public void visitClass(PsiClass psiClass) {}
+                        @Override
+                        public void visitClass(PsiClass psiClass) {}
 
-                @Override
-                public void visitCallExpression(PsiCallExpression callExpression) {
-                    super.visitCallExpression(callExpression);
-                    final PsiMethod target = callExpression.resolveMethod();
-                    if (target != null) {
-                        methodsCalled.add(target);
-                    }
+                        @Override
+                        public void visitCallExpression(PsiCallExpression callExpression) {
+                            try {
+                                super.visitCallExpression(callExpression);
+                                final PsiMethod target = callExpression.resolveMethod();
+                                if (target != null) {
+                                    methodsCalled.add(target);
+                                }
+                            } catch (Exception e) {
+                                // Skip this call expression if there's an issue with PSI traversal
+                                // This can happen with malformed PSI trees or during indexing
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    // If there's an issue with PSI traversal, continue with just the class methods
                 }
-            });
-            metric = Metric.of(RFC, methodsCalled.size());
+                metric = Metric.of(RFC, methodsCalled.size());
+            }
+        } catch (Exception e) {
+            // If there's any issue with the visitor, set metric to undefined
+            metric = Metric.of(RFC, Value.UNDEFINED);
         }
     }
 }

@@ -37,7 +37,9 @@ public class CouplingDispersionVisitor extends JavaMethodVisitor {
         metric = Metric.of(CDISP, Value.UNDEFINED);
         super.visitMethod(method);
         int usedMethodsNumber = usedMethods.size();
-        long classesNumber = usedMethods.stream()
+        // Create a defensive copy to avoid ConcurrentModificationException
+        Set<PsiMethod> usedMethodsCopy = new HashSet<>(usedMethods);
+        long classesNumber = usedMethodsCopy.stream()
                 .map(PsiJvmMember::getContainingClass)
                 .filter(c -> c != null && !c.equals(method.getContainingClass()))
                 .collect(Collectors.toSet())

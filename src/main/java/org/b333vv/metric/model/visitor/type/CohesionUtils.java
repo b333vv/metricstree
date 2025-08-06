@@ -127,9 +127,14 @@ public final class CohesionUtils {
     }
 
     public static Set<PsiField> calculateUsedFields(PsiMethod method) {
-        final FieldsUsedVisitor visitor = new FieldsUsedVisitor();
-        method.accept(visitor);
-        return visitor.getFieldsUsed();
+        try {
+            final FieldsUsedVisitor visitor = new FieldsUsedVisitor();
+            method.accept(visitor);
+            return visitor.getFieldsUsed();
+        } catch (Exception e) {
+            // Return empty set if there's an issue with PSI traversal
+            return new HashSet<>();
+        }
     }
 
 
@@ -150,9 +155,14 @@ public final class CohesionUtils {
     }
 
     public static Set<PsiMethod> calculateLinkedMethods(PsiMethod method, Set<PsiMethod> applicableMethods) {
-        final MethodsUsedVisitor visitor = new MethodsUsedVisitor(applicableMethods);
-        method.accept(visitor);
-        return visitor.getMethodsUsed();
+        try {
+            final MethodsUsedVisitor visitor = new MethodsUsedVisitor(applicableMethods);
+            method.accept(visitor);
+            return visitor.getMethodsUsed();
+        } catch (Exception e) {
+            // Return empty set if there's an issue with PSI traversal
+            return new HashSet<>();
+        }
     }
 
     private static class MethodsUsedVisitor extends JavaRecursiveElementVisitor {
@@ -165,10 +175,16 @@ public final class CohesionUtils {
 
         @Override
         public void visitMethodCallExpression(PsiMethodCallExpression callExpression) {
-            super.visitMethodCallExpression(callExpression);
-            final PsiMethod testMethod = callExpression.resolveMethod();
-            if (applicableMethods.contains(testMethod)) {
-                methodsUsed.add(testMethod);
+            try {
+                final PsiMethod testMethod = callExpression.resolveMethod();
+                if (applicableMethods.contains(testMethod)) {
+                    methodsUsed.add(testMethod);
+                }
+                // Continue visiting children
+                super.visitMethodCallExpression(callExpression);
+            } catch (Exception e) {
+                // Skip this method call if there's an issue with PSI traversal
+                // This can happen with malformed PSI trees or during indexing
             }
         }
 
@@ -185,13 +201,18 @@ public final class CohesionUtils {
 
         @Override
         public void visitReferenceExpression(PsiReferenceExpression referenceExpression) {
-            super.visitReferenceExpression(referenceExpression);
-            final PsiElement referent = referenceExpression.resolve();
-            if (!(referent instanceof PsiField)) {
-                return;
+            try {
+                final PsiElement referent = referenceExpression.resolve();
+                if (referent instanceof PsiField) {
+                    final PsiField field = (PsiField) referent;
+                    fieldsUsed.add(field);
+                }
+                // Continue visiting children
+                super.visitReferenceExpression(referenceExpression);
+            } catch (Exception e) {
+                // Skip this reference expression if there's an issue with PSI traversal
+                // This can happen with malformed PSI trees or during indexing
             }
-            final PsiField field = (PsiField) referent;
-            fieldsUsed.add(field);
         }
 
         public Set<PsiField> getFieldsUsed() {

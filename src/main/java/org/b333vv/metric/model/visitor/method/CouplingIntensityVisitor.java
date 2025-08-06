@@ -34,7 +34,9 @@ public class CouplingIntensityVisitor extends JavaMethodVisitor {
         usedMethods.clear();
         metric = Metric.of(CINT, Value.UNDEFINED);
         super.visitMethod(method);
-        long usedMethodsNumber = usedMethods.stream()
+        // Create a defensive copy to avoid ConcurrentModificationException
+        Set<PsiMethod> usedMethodsCopy = new HashSet<>(usedMethods);
+        long usedMethodsNumber = usedMethodsCopy.stream()
                 .filter(m -> !Objects.equals(m.getContainingClass(), method.getContainingClass()))
                 .count();
         metric = Metric.of(CINT, usedMethodsNumber);

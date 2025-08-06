@@ -29,20 +29,31 @@ import static org.b333vv.metric.model.metric.MetricType.NOOM;
 public class NumberOfOverriddenMethodsVisitor extends JavaClassVisitor {
     @Override
     public void visitClass(@NotNull PsiClass psiClass) {
-        super.visitClass(psiClass);
-        long overriddenMethodsNumber = 0;
-        metric = Metric.of(NOOM, Value.UNDEFINED);
-        if (ClassUtils.isConcrete(psiClass)) {
-            PsiMethod[] methods = psiClass.getMethods();
-            for (PsiMethod method : methods) {
-                if (!MethodUtils.isConcrete(method)) {
-                    continue;
+        try {
+            super.visitClass(psiClass);
+            long overriddenMethodsNumber = 0;
+            metric = Metric.of(NOOM, Value.UNDEFINED);
+            if (ClassUtils.isConcrete(psiClass)) {
+                PsiMethod[] methods = psiClass.getMethods();
+                for (PsiMethod method : methods) {
+                    if (!MethodUtils.isConcrete(method)) {
+                        continue;
+                    }
+                    try {
+                        if (MethodUtils.hasConcreteSuperMethod(method)) {
+                            overriddenMethodsNumber++;
+                        }
+                    } catch (Exception e) {
+                        // Skip this method if there's an issue with PSI traversal
+                        // This can happen with malformed PSI trees or during indexing
+                        continue;
+                    }
                 }
-                if (MethodUtils.hasConcreteSuperMethod(method)) {
-                    overriddenMethodsNumber++;
-                }
+                metric = Metric.of(NOOM, overriddenMethodsNumber);
             }
-            metric = Metric.of(NOOM, overriddenMethodsNumber);
+        } catch (Exception e) {
+            // If there's any issue with the visitor, set metric to undefined
+            metric = Metric.of(NOOM, Value.UNDEFINED);
         }
     }
 }
