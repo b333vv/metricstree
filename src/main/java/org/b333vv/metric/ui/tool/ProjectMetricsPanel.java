@@ -279,72 +279,88 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
-            // Get the JavaProject from the cache service - it should be available since the tree was just built
-            JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
-            if (javaProject == null) {
-                // Fallback to class and methods metrics if project metrics not available
-                javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
-            }
-            
-            if (javaProject != null) {
-                metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(javaProject, project);
-                showResults(treeModel);
-                buildProjectMetricsTree();
-                project.getService(UIStateService.class).setProjectTreeActive(true);
-            } else {
-                // If still null, log an error and don't proceed
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                       .printInfo("Error: JavaProject is null when trying to display metrics tree");
-            }
+            SwingUtilities.invokeLater(() -> {
+                // Get the JavaProject from the cache service - it should be available since the tree was just built
+                JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
+                if (javaProject == null) {
+                    // Fallback to class and methods metrics if project metrics not available
+                    javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                }
+                
+                if (javaProject != null) {
+                    metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(javaProject, project);
+                    showResults(treeModel);
+                    buildProjectMetricsTree();
+                    project.getService(UIStateService.class).setProjectTreeActive(true);
+                } else {
+                    // If still null, log an error and don't proceed
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                           .printInfo("Error: JavaProject is null when trying to display metrics tree");
+                }
+            });
         }
 
         @Override
         public void classByMetricTreeIsReady() {
-            showResults(project.getService(CacheService.class).getUserData(CacheService.CLASSES_BY_METRIC_TREE));
+            SwingUtilities.invokeLater(() -> {
+                showResults(project.getService(CacheService.class).getUserData(CacheService.CLASSES_BY_METRIC_TREE));
+            });
         }
 
         @Override
         public void pieChartIsReady() {
-            Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = project.getService(CacheService.class)
-                    .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
-            List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(CacheService.class)
-                    .getUserData(CacheService.PIE_CHART_LIST);
-            showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
+            SwingUtilities.invokeLater(() -> {
+                Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = project.getService(CacheService.class)
+                        .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+                List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(CacheService.class)
+                        .getUserData(CacheService.PIE_CHART_LIST);
+                showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
+            });
         }
 
         @Override
         public void categoryChartIsReady() {
-            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(CacheService.class)
-                    .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
-            CategoryChart categoryChart = project.getService(CacheService.class)
-                    .getUserData(CacheService.CATEGORY_CHART);
-            showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
+            SwingUtilities.invokeLater(() -> {
+                Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(CacheService.class)
+                        .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+                CategoryChart categoryChart = project.getService(CacheService.class)
+                        .getUserData(CacheService.CATEGORY_CHART);
+                showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
+            });
         }
 
         @Override
         public void projectMetricsHistoryXyChartIsReady() {
-            XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
-            showResults(xyChart);
+            SwingUtilities.invokeLater(() -> {
+                XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
+                showResults(xyChart);
+            });
         }
 
         @Override
         public void metricTreeMapIsReady() {
-            JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
-            MetricTreeMap<JavaCode> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
-            if (treeMap != null && javaProject != null) {
-                showResults(treeMap, javaProject);
-            }
+            SwingUtilities.invokeLater(() -> {
+                JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                MetricTreeMap<JavaCode> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
+                if (treeMap != null && javaProject != null) {
+                    showResults(treeMap, javaProject);
+                }
+            });
         }
 
         @Override
         public void setProjectPanelBottomText(String text) {
-            treeMapBottomPanel.setData(text);
+            SwingUtilities.invokeLater(() -> {
+                treeMapBottomPanel.setData(text);
+            });
         }
 
         @Override
         public void projectTreeMapCellClicked(JavaClass javaClass) {
-            openInEditor(javaClass.getPsiClass());
-            metricsTrimmedSummaryTable.set(javaClass);
+            SwingUtilities.invokeLater(() -> {
+                openInEditor(javaClass.getPsiClass());
+                metricsTrimmedSummaryTable.set(javaClass);
+            });
         }
     }
 

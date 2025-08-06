@@ -303,6 +303,12 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_TREE_MAP_1"), rightPanel,
                 "PROFILE_TREE_MAP_2"));
 
+
+        treeMap.setSelectionChangedAction(text -> treeMapBottomPanel.setData(text));
+        treeMap.setClickedAction(javaClass -> {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapCellClicked(javaClass);
+        });
+
         classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList(project);
         classLevelFitnessFunctionList.hideColumn(2);
         classLevelFitnessFunctionList.setBorder("Select Profile");

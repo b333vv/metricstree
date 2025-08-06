@@ -220,19 +220,23 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     }
 
     protected void showResults(DefaultTreeModel metricsTreeModel) {
-        metricsTree.setModel(metricsTreeModel);
-        if (metricsTreeModel == null) {
-            metricsSummaryTable.clear();
-        } else {
-            metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
-        }
+        SwingUtilities.invokeLater(() -> {
+            metricsTree.setModel(metricsTreeModel);
+            if (metricsTreeModel == null) {
+                metricsSummaryTable.clear();
+            } else {
+                metricsTree.setSelectionPath(new TreePath(metricsTreeModel.getRoot()));
+            }
+        });
     }
 
     protected void clear() {
-        rightPanel.removeAll();
-        mainPanel.removeAll();
-        updateUI();
-        createUIComponents(splitProportionProperty);
+        SwingUtilities.invokeLater(() -> {
+            rightPanel.removeAll();
+            mainPanel.removeAll();
+            updateUI();
+            createUIComponents(splitProportionProperty);
+        });
     }
 
     abstract public void update(@NotNull PsiJavaFile file);

@@ -39,6 +39,7 @@ import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricsPanel extends MetricsTreePanel {
@@ -105,8 +106,10 @@ public class ClassMetricsPanel extends MetricsTreePanel {
             if (!showClassMetricsTree) {
                 clear();
             } else {
-                createUIComponents(SPLIT_PROPORTION_PROPERTY);
-                refresh();
+                SwingUtilities.invokeLater(() -> {
+                    createUIComponents(SPLIT_PROPORTION_PROPERTY);
+                    refresh();
+                });
             }
         }
 
