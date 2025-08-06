@@ -127,12 +127,11 @@ public final class EditorUtils {
     }
 
     public static void openInEditor(Project project, PsiElement psiElement) {
-        final EditorController caretMover = new EditorController(project);
         if (psiElement != null) {
-            Editor editor = caretMover.openInEditor(psiElement);
-            if (editor != null) {
-                caretMover.moveEditorCaret(psiElement);
-            }
+            final EditorController caretMover = new EditorController(project);
+            caretMover.openInEditor(psiElement);
+            // Note: openInEditor now runs asynchronously with proper modality state
+            // to avoid write-unsafe context issues
         }
     }
 }

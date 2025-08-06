@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.util;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -82,9 +84,21 @@ public class EditorController {
         if (psiFile == null) {
             return null;
         }
+        
         final OpenFileDescriptor fileDesc = new OpenFileDescriptor(project, psiFile.getVirtualFile(), i);
         disableMovementOneTime();
-        final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        return fileEditorManager.openTextEditor(fileDesc, false);
+        
+        // Use invokeLater with proper modality state to ensure write-safe context
+        ApplicationManager.getApplication().invokeLater(() -> {
+            final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+            Editor editor = fileEditorManager.openTextEditor(fileDesc, false);
+            
+            // Move caret after opening the file
+            if (editor != null && i >= 0) {
+                moveEditorCaret(element);
+            }
+        }, ModalityState.NON_MODAL);
+        
+        return null; // Cannot return editor when invoked asynchronously
     }
 }
