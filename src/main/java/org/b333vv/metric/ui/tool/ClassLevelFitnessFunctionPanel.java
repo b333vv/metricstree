@@ -303,7 +303,6 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROFILE_TREE_MAP_1"), rightPanel,
                 "PROFILE_TREE_MAP_2"));
 
-
         treeMap.setSelectionChangedAction(text -> treeMapBottomPanel.setData(text));
         treeMap.setClickedAction(javaClass -> {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapCellClicked(javaClass);
@@ -311,7 +310,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         classLevelFitnessFunctionList = new ClassLevelFitnessFunctionList(project);
         classLevelFitnessFunctionList.hideColumn(2);
-        classLevelFitnessFunctionList.setBorder("Select Profile");
+        classLevelFitnessFunctionList.setBorder("Fitness Function");
         classLevelFitnessFunctionList.setProfiles(new TreeMap<>(distribution));
         leftPanel.add(classLevelFitnessFunctionList.getComponent());
 
@@ -336,7 +335,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         treeMap.setColorProvider(new ProfileColorProvider(distribution.getOrDefault(profile, Set.of())));
         treeMap.updateUI();
         treeMap.refresh();
-        treeMapBottomPanel.setData("Metric Profile: " + profile.name());
+        treeMapBottomPanel.setData("Fitness Function: " + profile.name());
     }
 
     private class ClassLevelFitnessFunctionEventListener implements MetricsEventListener {
