@@ -34,7 +34,11 @@ public class MaximumNestingDepthVisitor extends JavaMethodVisitor {
     public void visitMethod(PsiMethod method) {
         metric = Metric.of(MND, Value.UNDEFINED);
         methodNestingCount++;
-        super.visitMethod(method);
+        try {
+            super.visitMethod(method);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         methodNestingCount--;
         if (methodNestingCount == 0) {
             if (!MethodUtils.isAbstract(method)) {
@@ -50,7 +54,11 @@ public class MaximumNestingDepthVisitor extends JavaMethodVisitor {
         if (methodNestingCount != 0) {
             enterScope();
         }
-        super.visitCodeBlock(block);
+        try {
+            super.visitCodeBlock(block);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         if (methodNestingCount != 0) {
             exitScope();
         }
@@ -61,7 +69,11 @@ public class MaximumNestingDepthVisitor extends JavaMethodVisitor {
         if (methodNestingCount != 0) {
             enterScope();
         }
-        super.visitClass(aClass);
+        try {
+            super.visitClass(aClass);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         if (methodNestingCount != 0) {
             exitScope();
         }

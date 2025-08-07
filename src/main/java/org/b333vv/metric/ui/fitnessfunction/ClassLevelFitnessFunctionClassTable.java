@@ -16,7 +16,9 @@
 
 package org.b333vv.metric.ui.fitnessfunction;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -123,11 +125,13 @@ public class ClassLevelFitnessFunctionClassTable {
         }
 
         private Object getPackage(JavaClass javaClass) {
-            PsiPackage psiPackage = ClassUtils.findPackage(javaClass.getPsiClass());
-            if (psiPackage == null) {
-                return "";
-            }
-            return psiPackage.getQualifiedName();
+            return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+                PsiPackage psiPackage = ClassUtils.findPackage(javaClass.getPsiClass());
+                if (psiPackage == null) {
+                    return "";
+                }
+                return psiPackage.getQualifiedName();
+            });
         }
 
         @Override

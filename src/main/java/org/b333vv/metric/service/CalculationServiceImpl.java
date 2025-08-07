@@ -589,14 +589,29 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculateProfileTreeMap() {
         MetricTreeMap<JavaCode> profileTreeMap = cacheService.getUserData(CacheService.PROFILE_TREE_MAP);
-        if (profileTreeMap != null) {
+        Map<FitnessFunction, Set<JavaClass>> classesByProfile = cacheService.getClassesByProfile();
+        if (profileTreeMap != null && classesByProfile != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
         } else {
             Function<ProgressIndicator, MetricTreeMap<JavaCode>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile tree map started");
                 JavaProject javaProject = getOrBuildProjectMetricsModel(indicator);
+                
+                // Ensure class fitness functions are calculated first
+                Map<FitnessFunction, Set<JavaClass>> newClassesByProfile = cacheService.getClassesByProfile();
+                if (newClassesByProfile == null) {
+                    // Calculate class fitness functions synchronously
+                    newClassesByProfile = runTaskSynchronously(
+                            "Building class level fitness functions for profile tree map",
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, javaProject),
+                            indicator
+                    );
+                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, newClassesByProfile);
+                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, newClassesByProfile);
+                }
+                
                 ProfileTreeMapModelCalculator calculator = new ProfileTreeMapModelCalculator();
-                MetricTreeMap<JavaCode> newProfileTreeMap = calculator.calculate(cacheService.getProject());
+                MetricTreeMap<JavaCode> newProfileTreeMap = calculator.calculate(javaProject);
                 cacheService.putUserData(CacheService.PROFILE_TREE_MAP, newProfileTreeMap);
                 return newProfileTreeMap;
             };

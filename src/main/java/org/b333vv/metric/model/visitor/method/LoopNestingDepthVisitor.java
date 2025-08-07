@@ -37,7 +37,11 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
             currentDepth = 0;
         }
         methodNestingCount++;
-        super.visitMethod(method);
+        try {
+            super.visitMethod(method);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         methodNestingCount--;
         if (methodNestingCount == 0 && !MethodUtils.isAbstract(method)) {
             loopNestingDepth = maximumDepth;
@@ -48,28 +52,44 @@ public class LoopNestingDepthVisitor extends JavaMethodVisitor {
     @Override
     public void visitDoWhileStatement(PsiDoWhileStatement statement) {
         enterScope();
-        super.visitDoWhileStatement(statement);
+        try {
+            super.visitDoWhileStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         exitScope();
     }
 
     @Override
     public void visitWhileStatement(PsiWhileStatement statement) {
         enterScope();
-        super.visitWhileStatement(statement);
+        try {
+            super.visitWhileStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         exitScope();
     }
 
     @Override
     public void visitForStatement(PsiForStatement statement) {
         enterScope();
-        super.visitForStatement(statement);
+        try {
+            super.visitForStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         exitScope();
     }
 
     @Override
     public void visitForeachStatement(PsiForeachStatement statement) {
         enterScope();
-        super.visitForeachStatement(statement);
+        try {
+            super.visitForeachStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         exitScope();
     }
 

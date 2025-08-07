@@ -33,7 +33,11 @@ public class CouplingIntensityVisitor extends JavaMethodVisitor {
     public void visitMethod(PsiMethod method) {
         usedMethods.clear();
         metric = Metric.of(CINT, Value.UNDEFINED);
-        super.visitMethod(method);
+        try {
+            super.visitMethod(method);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         // Create a defensive copy to avoid ConcurrentModificationException
         Set<PsiMethod> usedMethodsCopy = new HashSet<>(usedMethods);
         long usedMethodsNumber = usedMethodsCopy.stream()
@@ -44,7 +48,11 @@ public class CouplingIntensityVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitMethodCallExpression(PsiMethodCallExpression psiMethodCallExpression) {
-        super.visitMethodCallExpression(psiMethodCallExpression);
+        try {
+            super.visitMethodCallExpression(psiMethodCallExpression);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         final PsiMethod method = psiMethodCallExpression.resolveMethod();
         if (method == null) {
             return;

@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.ui.tree.node;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.ui.SimpleTextAttributes;
 import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
@@ -37,11 +39,13 @@ public class SortedByMetricsValueClassNode extends ClassNode {
     }
 
     private String getDelta() {
-        return " [+" + metric.getValue()
-                .minus(javaClass.getPsiClass().getProject().getService(
-                        SettingsService.class
-                ).getRangeForMetric(metric.getType()).getRegularTo())
-                .plus(Value.ONE) + "]";
+        return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> 
+            " [+" + metric.getValue()
+                    .minus(javaClass.getPsiClass().getProject().getService(
+                            SettingsService.class
+                    ).getRangeForMetric(metric.getType()).getRegularTo())
+                    .plus(Value.ONE) + "]"
+        );
     }
 
     @Override

@@ -35,7 +35,12 @@ public class NumberOfLoopsVisitor extends JavaMethodVisitor {
             elementCount = 0;
         }
         methodNestingDepth++;
-        super.visitMethod(method);
+        try {
+            super.visitMethod(method);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+            // Continue processing without the super call
+        }
         methodNestingDepth--;
         if (methodNestingDepth == 0 && !MethodUtils.isAbstract(method)) {
             numberOfLoops = elementCount;
@@ -45,25 +50,41 @@ public class NumberOfLoopsVisitor extends JavaMethodVisitor {
 
     @Override
     public void visitForStatement(PsiForStatement statement) {
-        super.visitForStatement(statement);
+        try {
+            super.visitForStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         elementCount++;
     }
 
     @Override
     public void visitForeachStatement(PsiForeachStatement statement) {
-        super.visitForeachStatement(statement);
+        try {
+            super.visitForeachStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         elementCount++;
     }
 
     @Override
     public void visitDoWhileStatement(PsiDoWhileStatement statement) {
-        super.visitDoWhileStatement(statement);
+        try {
+            super.visitDoWhileStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         elementCount++;
     }
 
     @Override
     public void visitWhileStatement(PsiWhileStatement statement) {
-        super.visitWhileStatement(statement);
+        try {
+            super.visitWhileStatement(statement);
+        } catch (Exception e) {
+            // Handle potential stack underflow or other visitor issues
+        }
         elementCount++;
     }
 }

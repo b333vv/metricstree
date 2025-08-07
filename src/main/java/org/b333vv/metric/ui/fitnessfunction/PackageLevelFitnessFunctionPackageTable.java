@@ -16,7 +16,9 @@
 
 package org.b333vv.metric.ui.fitnessfunction;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
@@ -117,7 +119,9 @@ public class PackageLevelFitnessFunctionPackageTable {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             if (value instanceof JavaPackage javaPackage) {
-                value = javaPackage.getPsiPackage().getQualifiedName();
+                value = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> 
+                    javaPackage.getPsiPackage().getQualifiedName()
+                );
             }
             return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         }
