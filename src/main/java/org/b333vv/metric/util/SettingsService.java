@@ -26,6 +26,7 @@ import org.b333vv.metric.model.metric.value.*;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.ui.settings.other.OtherSettings;
+import org.b333vv.metric.ui.settings.other.CalculationEngine;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
@@ -82,6 +83,10 @@ public final class SettingsService {
 //                .isProjectMetricsStampStored();
         return this.project.getService(OtherSettings.class)
                 .isProjectMetricsStampStored();
+    }
+
+    public CalculationEngine getCalculationEngine() {
+        return this.project.getService(OtherSettings.class).getCalculationEngine();
     }
 
     public boolean isShowClassMetricsTree() {

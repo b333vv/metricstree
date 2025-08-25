@@ -1,25 +1,10 @@
-/*
- * Copyright 2020 b333vv
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.b333vv.metric.builder;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -29,32 +14,34 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.code.JavaProject;
 
-public class ClassAndMethodsMetricsCalculator {
-
-    private final AnalysisScope scope;
-    private final ProjectModelBuilder projectModelBuilder;
-    private final JavaProject javaProject;
+public class PsiCalculationStrategy implements MetricCalculationStrategy {
 
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
 
-    public ClassAndMethodsMetricsCalculator(AnalysisScope scope, JavaProject javaProject) {
-        this.scope = scope;
-        this.javaProject = javaProject;
-        projectModelBuilder = new ProjectModelBuilder(javaProject);
-    }
+    @Override
+    public JavaProject calculate(Project project, ProgressIndicator indicator) {
+        this.indicator = indicator;
+        AnalysisScope scope = new AnalysisScope(project);
+        scope.setIncludeTestSource(false);
+        JavaProject javaProject = new JavaProject(project.getName());
+        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
 
-    public JavaProject calculateMetrics() {
-        indicator = ProgressManager.getInstance().getProgressIndicator();
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();
         indicator.setText("Calculating metrics");
-        scope.accept(new PsiJavaFileVisitor());
+        scope.accept(new PsiJavaFileVisitor(projectModelBuilder));
         return javaProject;
     }
 
     private class PsiJavaFileVisitor extends PsiElementVisitor {
+        private final ProjectModelBuilder projectModelBuilder;
+
+        public PsiJavaFileVisitor(ProjectModelBuilder projectModelBuilder) {
+            this.projectModelBuilder = projectModelBuilder;
+        }
+
         @Override
         public void visitFile(PsiFile psiFile) {
             super.visitFile(psiFile);

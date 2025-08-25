@@ -20,11 +20,13 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
+import org.b333vv.metric.ui.settings.other.CalculationEngine;
 import org.b333vv.metric.ui.settings.other.OtherSettings;
 import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
 import org.b333vv.metric.util.SettingsService;
+import org.b333vv.metric.service.CacheService;
 import org.jetbrains.annotations.Nls;
 
 import javax.annotation.Nullable;
@@ -38,11 +40,13 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
     private final ClassLevelFitnessFunctions classLevelFitnessFunctions;
     private final PackageLevelFitnessFunctions packageLevelFitnessFunctions;
     private final OtherSettings otherSettings;
+    private final CacheService cacheService;
 
     private SettingsPanel panel;
 
     public MetricsConfigurable(Project project) {
         this.project = project;
+        this.cacheService = project.getService(CacheService.class);
         SettingsService settingsService = project.getService(SettingsService.class);
         this.basicMetricsValidRangesSettings = settingsService.getBasicMetricsSettings();
         this.derivativeMetricsValidRangesSettings = settingsService.getDerivativeMetricsSettings();
@@ -86,6 +90,8 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
     @Override
     public void apply() {
         if (panel != null) {
+            CalculationEngine oldCalculationEngine = otherSettings.getCalculationEngine();
+
             panel.save(basicMetricsValidRangesSettings);
             panel.save(derivativeMetricsValidRangesSettings);
             basicMetricsValidRangesSettings.clearTemporaryControlledMetrics();
@@ -94,6 +100,10 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
             panel.save(classLevelFitnessFunctions);
             panel.save(packageLevelFitnessFunctions);
             panel.save(otherSettings);
+
+            if (oldCalculationEngine != otherSettings.getCalculationEngine()) {
+                cacheService.invalidateUserData();
+            }
         }
     }
 

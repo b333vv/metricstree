@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 public final class OtherSettings implements PersistentStateComponent<OtherSettings> {
 
     private boolean projectMetricsStampStored;
+    private CalculationEngine calculationEngine = CalculationEngine.PSI;
 
     public OtherSettings() {
         loadInitialValues();
@@ -46,6 +47,14 @@ public final class OtherSettings implements PersistentStateComponent<OtherSettin
 
     public void setProjectMetricsStampStored(boolean projectMetricsStampStored) {
         this.projectMetricsStampStored = projectMetricsStampStored;
+    }
+
+    public CalculationEngine getCalculationEngine() {
+        return calculationEngine;
+    }
+
+    public void setCalculationEngine(CalculationEngine calculationEngine) {
+        this.calculationEngine = calculationEngine;
     }
 
     @Override

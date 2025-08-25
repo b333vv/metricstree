@@ -63,9 +63,11 @@ import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
 // New imports for model builders
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.builder.DependenciesCalculator;
-import org.b333vv.metric.builder.ClassAndMethodsMetricsCalculator;
+import org.b333vv.metric.builder.MetricCalculationStrategy;
+import org.b333vv.metric.builder.PsiCalculationStrategy;
 import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
+import org.b333vv.metric.ui.settings.other.CalculationEngine;
 
 
 public class CalculationServiceImpl implements CalculationService {
@@ -73,12 +75,23 @@ public class CalculationServiceImpl implements CalculationService {
     private final TaskQueueService taskQueueService;
     private final CacheService cacheService;
     private final SettingsService settingsService;
+    private final MetricCalculationStrategy metricCalculationStrategy;
 
     public CalculationServiceImpl(Project project) {
         this.project = project;
         this.taskQueueService = project.getService(TaskQueueService.class);
         this.cacheService = project.getService(CacheService.class);
         this.settingsService = project.getService(SettingsService.class);
+        this.metricCalculationStrategy = createStrategy();
+    }
+
+    private MetricCalculationStrategy createStrategy() {
+        if (settingsService.getCalculationEngine() == CalculationEngine.PSI) {
+            return new PsiCalculationStrategy();
+        }
+        // In the future, we will have a JavaParserCalculationStrategy
+        // For now, we'll just return the PSI strategy as a default
+        return new PsiCalculationStrategy();
     }
 
     // Helper method to run a task synchronously and get its result
@@ -136,14 +149,7 @@ public class CalculationServiceImpl implements CalculationService {
 
             javaProject = runTaskSynchronously(
                     "Building Class and Method Metrics Model",
-                    (progressIndicator) -> {
-                        // Create AnalysisScope within the task to ensure proper initialization
-                        AnalysisScope analysisScope = new AnalysisScope(project);
-                        analysisScope.setIncludeTestSource(false);
-                        JavaProject newJavaProject = new JavaProject(project.getName());
-                        new ClassAndMethodsMetricsCalculator(analysisScope, newJavaProject).calculateMetrics();
-                        return newJavaProject;
-                    },
+                    (progressIndicator) -> metricCalculationStrategy.calculate(project, progressIndicator),
                     indicator
             );
             cacheService.putUserData(CacheService.CLASS_AND_METHODS_METRICS, javaProject);
