@@ -201,10 +201,10 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     private JBPanel<?> getJbPanel(Map<JavaClass, Metric> classesByMetric, RangeType rangeType) {
         List<ClassesByRangesTable.ClassByRange> classesByRanges = classesByMetric.entrySet().stream()
                 .filter(e -> project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType())
-                        .getRangeType(e.getValue().getValue()) == rangeType)
+                        .getRangeType(e.getValue().getPsiValue()) == rangeType)
                 .map(e -> new ClassesByRangesTable.ClassByRange(e.getKey(),
                         project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType()).getRangeByRangeType(rangeType),
-                        e.getValue().getValue()))
+                        e.getValue().getPsiValue()))
                 .collect(toList());
         ClassesByRangesTable classesByRangesTable = new ClassesByRangesTable(classesByRanges, project);
         JBPanel<?> jbPanel = new JBPanel<>(new BorderLayout());

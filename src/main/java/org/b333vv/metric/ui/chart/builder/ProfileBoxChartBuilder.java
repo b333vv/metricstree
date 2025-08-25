@@ -48,7 +48,7 @@ public class ProfileBoxChartBuilder {
                     var values = profileEntry.getValue().stream()
                             .flatMap(JavaCode::metrics)
                             .filter(metric -> metric.getType() == mt)
-                            .map(metric -> metric.getValue() == null ? 0.0 : metric.getValue().doubleValue())
+                            .map(metric -> metric.getPsiValue() == null ? 0.0 : metric.getPsiValue().doubleValue())
                             .toList();
                     if (!values.isEmpty()) {
                         series.put(profileEntry.getKey().name(), values);

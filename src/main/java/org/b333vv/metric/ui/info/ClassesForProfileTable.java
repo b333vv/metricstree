@@ -143,13 +143,13 @@ public class ClassesForProfileTable {
                 cell.setForeground(UIUtil.getPanelBackground());
                 Metric metric = (Metric) value;
                 setHorizontalAlignment(SwingConstants.CENTER);
-                if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+                if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.REGULAR) {
                     cell.setBackground(regularColor);
-                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.HIGH) {
                     cell.setBackground(highColor);
-                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.VERY_HIGH) {
                     cell.setBackground(veryHighColor);
-                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.EXTREME) {
                     cell.setBackground(extremeColor);
                 }
             } else {
@@ -164,7 +164,7 @@ public class ClassesForProfileTable {
 
         protected void setValue(Object value) {
             if (value instanceof Metric) {
-                setText(((Metric) value).getValue().toString());
+                setText(((Metric) value).getPsiValue().toString());
             } else {
                 setText(((JavaClass) value).getName());
             }

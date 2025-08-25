@@ -56,7 +56,7 @@ public class ProjectMetricXYChartDataBuilder {
 
     private static Map.Entry<String, Double> convert(Map.Entry<JavaPackage, List<Metric>> e) {
         String packageName = e.getKey().getPsiPackage().getQualifiedName();
-        Double value = e.getValue().get(0).getValue().doubleValue();
+        Double value = e.getValue().get(0).getPsiValue().doubleValue();
         return new Map.Entry<>() {
             @Override
             public String getKey() {

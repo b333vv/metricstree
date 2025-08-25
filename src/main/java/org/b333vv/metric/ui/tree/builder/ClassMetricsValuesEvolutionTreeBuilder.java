@@ -94,7 +94,7 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
         MetricHistoryNode historyNode = new MetricHistoryNode(dateTime, hash, m, previousValue.getOrDefault(key, Value.UNDEFINED), project);
         if (classesAndMethodsMetrics.get(key) != null) {
             classesAndMethodsMetrics.get(key).insert(historyNode, 0);
-            previousValue.put(key, m.getValue());
+            previousValue.put(key, m.getPsiValue());
         }
     }
 

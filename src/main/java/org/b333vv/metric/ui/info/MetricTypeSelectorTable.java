@@ -169,7 +169,7 @@ public class MetricTypeSelectorTable {
                     .map(javaClass -> javaClass.metric(metricType))
                     .filter(Objects::nonNull)
                     .anyMatch(metric -> project.getService(SettingsService.class).getRangeForMetric(metricType)
-                            .getRangeType(metric.getValue()) == rangeType);
+                            .getRangeType(metric.getPsiValue()) == rangeType);
         }
     }
 }

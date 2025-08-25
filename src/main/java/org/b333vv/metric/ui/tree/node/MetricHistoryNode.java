@@ -37,7 +37,7 @@ public class MetricHistoryNode extends MetricNode {
         super(metric, project);
         this.dateTime = dateTime;
         this.id = id;
-        this.currentValue = metric.getValue();
+        this.currentValue = metric.getPsiValue();
         this.previousValue = previousValue;
     }
 

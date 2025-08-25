@@ -54,7 +54,7 @@ public class ProjectMetricsSet2Json {
         LocalDateTime dateTime = Instant.ofEpochMilli(epoch1).atZone(ZoneId.systemDefault()).toLocalDateTime();
         Map<String, String> projectMetrics = javaProject.metrics()
                 .filter(m -> m.getType().level() == MetricLevel.PROJECT)
-                .collect(Collectors.toMap(m -> m.getType().name(), m -> m.getValue().toString()));
+                .collect(Collectors.toMap(m -> m.getType().name(), m -> m.getPsiValue().toString()));
 
         projectMetrics.put("time", snapshotTime);
 

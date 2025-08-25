@@ -150,7 +150,7 @@ public class MetricsTrimmedSummaryTable {
         }
 
         private String getExcess(Metric metric) {
-            if (metric.getValue() == Value.UNDEFINED) {
+            if (metric.getPsiValue() == Value.UNDEFINED) {
                 return "-";
             }
             Value to = MetricsTrimmedSummaryTable.this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRegularTo();
@@ -158,35 +158,35 @@ public class MetricsTrimmedSummaryTable {
             if (to == Value.UNDEFINED || from == Value.UNDEFINED) {
                 return "-";
             }
-            if (metric.getValue().isLessThan(from)) {
-                return "-" + from.minus(metric.getValue());
+            if (metric.getPsiValue().isLessThan(from)) {
+                return "-" + from.minus(metric.getPsiValue());
             }
             if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()) instanceof BasicMetricsRange) {
-                if (metric.getValue().isEqualsOrGreaterThan(to)) {
-                    return "+" + metric.getValue().minus(to).plus(Value.ONE);
+                if (metric.getPsiValue().isEqualsOrGreaterThan(to)) {
+                    return "+" + metric.getPsiValue().minus(to).plus(Value.ONE);
                 }
             } else {
-                if (metric.getValue().isGreaterThan(to)) {
-                    return "+" + metric.getValue().minus(to);
+                if (metric.getPsiValue().isGreaterThan(to)) {
+                    return "+" + metric.getPsiValue().minus(to);
                 }
             }
             return "";
         }
 
         private Icon getRowIcon(Metric metric) {
-            if (metric.getValue() == Value.UNDEFINED) {
+            if (metric.getPsiValue() == Value.UNDEFINED) {
                 return MetricsIcons.NA;
             }
-            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.REGULAR) {
                 return MetricsIcons.REGULAR_COLOR;
             }
-            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.HIGH) {
                 return MetricsIcons.HIGH_COLOR;
             }
-            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.VERY_HIGH) {
                 return MetricsIcons.VERY_HIGH_COLOR;
             }
-            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.EXTREME) {
                 return MetricsIcons.EXTREME_COLOR;
             }
             return MetricsIcons.NOT_TRACKED;

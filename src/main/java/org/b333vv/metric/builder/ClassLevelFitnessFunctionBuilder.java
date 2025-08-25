@@ -54,7 +54,7 @@ public class ClassLevelFitnessFunctionBuilder {
         for (Map.Entry<MetricType, Range> entry : profile.profile().entrySet()) {
             if (entry.getKey().level() == MetricLevel.CLASS) {
                 Metric m = javaClass.metric(entry.getKey());
-                if (m != null && entry.getValue().getRangeType(m.getValue()) != RangeType.REGULAR) {
+                if (m != null && entry.getValue().getRangeType(m.getPsiValue()) != RangeType.REGULAR) {
                     return false;
                 }
             } else if (entry.getKey().level() == MetricLevel.METHOD) {
@@ -73,7 +73,7 @@ public class ClassLevelFitnessFunctionBuilder {
 
     private static boolean checkMethod(JavaMethod javaMethod, Map.Entry<MetricType, Range> entry) {
         Metric m = javaMethod.metric(entry.getKey());
-        return m == null || entry.getValue().getRangeType(m.getValue()) == RangeType.REGULAR;
+        return m == null || entry.getValue().getRangeType(m.getPsiValue()) == RangeType.REGULAR;
     }
 
 

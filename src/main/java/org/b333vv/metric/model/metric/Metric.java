@@ -22,38 +22,59 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static org.b333vv.metric.model.metric.value.Value.UNDEFINED;
+
 public class Metric implements Comparable<Metric> {
     private final MetricType type;
-    private final Value value;
+    private Value psiValue;
+    private Value javaParserValue;
 
-    private Metric(MetricType type, Value value) {
+    private Metric(MetricType type, Value psiValue) {
         this.type = type;
-        this.value = value;
+        this.psiValue = psiValue;
+        this.javaParserValue = Value.UNDEFINED;
     }
 
-    public static Metric of(MetricType type, Value value) {
-        return new Metric(type, value);
+    public static Metric of(MetricType type, Value psiValue) {
+        return new Metric(type, psiValue);
     }
 
-    public static Metric of(MetricType type, long value) {
-        return new Metric(type, Value.of(value));
+    public static Metric of(MetricType type, long psiValue) {
+        return new Metric(type, Value.of(psiValue));
     }
 
-    public static Metric of(MetricType type, double value) {
-        return new Metric(type, Value.of(value));
+    public static Metric of(MetricType type, double psiValue) {
+        return new Metric(type, Value.of(psiValue));
     }
 
     public MetricType getType() {
         return type;
     }
 
+    @Deprecated
     public Value getValue() {
-        return value;
+        return getPsiValue();
+    }
+
+    public Value getPsiValue() {
+        return psiValue;
+    }
+
+    public void setPsiValue(Value psiValue) {
+        this.psiValue = psiValue;
+    }
+
+    public Value getJavaParserValue() {
+        return javaParserValue;
+    }
+
+    public void setJavaParserValue(Value javaParserValue) {
+        this.javaParserValue = javaParserValue;
     }
 
     @Override
     public String toString() {
-        return type.name() + ": " + value;
+        return type.name() + ": " + psiValue;
     }
 
     @Override
@@ -62,21 +83,22 @@ public class Metric implements Comparable<Metric> {
         if (!(o instanceof Metric)) return false;
         Metric metric = (Metric) o;
         return getType() == metric.getType() &&
-                Objects.equals(getValue(), metric.getValue());
+                Objects.equals(getPsiValue(), metric.getPsiValue()) &&
+                Objects.equals(getJavaParserValue(), metric.getJavaParserValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getType(), getValue());
+        return Objects.hash(getType(), getPsiValue(), getJavaParserValue());
     }
 
     public String getFormattedValue() {
-        return value.toString();
+        return psiValue.toString();
     }
 
     @Override
     public int compareTo(@NotNull Metric o) {
-        Value that = o.getValue();
-        return this.getValue().compareTo(that);
+        Value that = o.getPsiValue();
+        return this.getPsiValue().compareTo(that);
     }
 }

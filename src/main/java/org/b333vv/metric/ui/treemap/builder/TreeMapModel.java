@@ -30,10 +30,10 @@ public class TreeMapModel extends GenericTreeModel<JavaCode> {
 		if (javaClass.metric(MetricType.NCSS) == null) {
 			return 0;
 		}
-		if (javaClass.metric(MetricType.NCSS).getValue() == Value.UNDEFINED) {
+		if (javaClass.metric(MetricType.NCSS).getPsiValue() == Value.UNDEFINED) {
 			return 0;
 		} else {
-			return javaClass.metric(MetricType.NCSS).getValue().longValue();
+			return javaClass.metric(MetricType.NCSS).getPsiValue().longValue();
 		}
 	}
 }

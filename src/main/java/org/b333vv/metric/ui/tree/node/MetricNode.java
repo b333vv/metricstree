@@ -61,7 +61,7 @@ public class MetricNode extends AbstractNode {
     @NotNull
     private String getMetricValue() {
         if (metric.getType().set() == MetricSet.MOOD) {
-            return metric.getValue().percentageFormat();
+            return metric.getPsiValue().percentageFormat();
         } else {
             return metric.getFormattedValue();
         }
@@ -76,33 +76,33 @@ public class MetricNode extends AbstractNode {
         int gap = JBUIScale.isUsrHiDPI() ? 8 : 4;
         renderer.append(getMetricName());
         if (project.getService(SettingsService.class).isControlValidRanges()) {
-            if (metric.getValue() == Value.UNDEFINED) {
+            if (metric.getPsiValue() == Value.UNDEFINED) {
                 renderer.setIconToolTip("This metric was not calculated");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NA));
                 renderer.append(getMetricValue());
-            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.VERY_HIGH) {
                 renderer.setIconToolTip("This metric has very-high value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.VERY_HIGH_COLOR));
                 renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
-            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.EXTREME) {
                 renderer.setIconToolTip("This metric has extreme value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.EXTREME_COLOR));
                 renderer.append(getMetricValue(), SimpleTextAttributes.ERROR_ATTRIBUTES);
-            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.HIGH) {
                 renderer.setIconToolTip("This metric has high value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.HIGH_COLOR));
                 renderer.append(getMetricValue());
-            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.REGULAR) {
                 renderer.setIconToolTip("This metric has regular value");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.REGULAR_COLOR));
                 renderer.append(getMetricValue());
-            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
+            } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.UNDEFINED) {
                 renderer.setIconToolTip("The desired value range is not set for this metric");
                 renderer.setIcon(new CompositeIcon(CompositeIcon.Axis.X_AXIS, gap, getIcon(), MetricsIcons.NOT_TRACKED));
                 renderer.append(getMetricValue());
             }
         } else {
-            if (metric.getValue() == Value.UNDEFINED) {
+            if (metric.getPsiValue() == Value.UNDEFINED) {
                 renderer.setIconToolTip("This metric was not calculated");
                 renderer.setIcon(MetricsIcons.NA);
             } else {

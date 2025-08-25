@@ -57,7 +57,7 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
                 return UNDEFINED;
             }
 
-            Value value = rectangle.getNode().metric(metricType).getValue();
+            Value value = rectangle.getNode().metric(metricType).getPsiValue();
 
             if (project.getService(SettingsService.class).getRangeForMetric(metricType).getRangeType(value) == RangeType.UNDEFINED) {
                 return UNDEFINED;

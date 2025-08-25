@@ -133,7 +133,7 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
         List<MetricType> metricTypes = new ArrayList<>();
         if (ojc.isPresent()) {
             String hint = ojc.get().metrics()
-                    .filter(m -> psiClass.getProject().getService(SettingsService.class).isNotRegularValue(m.getType(), m.getValue()))
+                    .filter(m -> psiClass.getProject().getService(SettingsService.class).isNotRegularValue(m.getType(), m.getPsiValue()))
                     .peek(m -> {
                         metricTypes.add(m.getType());
                     })

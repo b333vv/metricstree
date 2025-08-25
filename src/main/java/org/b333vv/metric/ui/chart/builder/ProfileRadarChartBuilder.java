@@ -142,7 +142,7 @@ public class ProfileRadarChartBuilder {
                 .flatMap(JavaClass::metrics)
                 .filter(m -> m.getType() == metricType)
                 .filter(metric -> project.getService(SettingsService.class).getRangeForMetric(metric.getType())
-                        .getRangeType(metric.getValue()) != RangeType.REGULAR)
+                        .getRangeType(metric.getPsiValue()) != RangeType.REGULAR)
                 .count();
 
         return Math.floor((double) invalidMetricValueClassesNumber / (double) classesNumber * 100) / 100;

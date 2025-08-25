@@ -116,7 +116,7 @@ public class PackageMetricsSetCalculator {
         long linesOfCode = p
                 .classes()
                 .flatMap(JavaClass::methods)
-                .map(javaMethod -> javaMethod.metric(LOC).getValue())
+                .map(javaMethod -> javaMethod.metric(LOC).getPsiValue())
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();

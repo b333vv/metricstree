@@ -101,17 +101,17 @@ public abstract class MetricTreeBuilder {
     protected boolean mustBeShown(Metric metric) {
         MetricsTreeFilter metricsTreeFilter = getMetricsTreeFilter();
         return metricsTreeFilter.isAllowedValueMetricsVisible()
-                    && metric.getValue() != Value.UNDEFINED
-                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR
+                    && metric.getPsiValue() != Value.UNDEFINED
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.REGULAR
                 || metricsTreeFilter.isDisallowedValueMetricsVisible()
-                    && metric.getValue() != Value.UNDEFINED
-                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.REGULAR
-                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED
+                    && metric.getPsiValue() != Value.UNDEFINED
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) != RangeType.REGULAR
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) != RangeType.UNDEFINED
                 || metricsTreeFilter.isNotSetValueMetricsVisible()
-                    && metric.getValue() != Value.UNDEFINED
-                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED
+                    && metric.getPsiValue() != Value.UNDEFINED
+                    && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.UNDEFINED
                 || metricsTreeFilter.isNotApplicableMetricsVisible()
-                    && metric.getValue() == Value.UNDEFINED;
+                    && metric.getPsiValue() == Value.UNDEFINED;
     }
 
     protected boolean checkClassMetricsSets(MetricType type) {

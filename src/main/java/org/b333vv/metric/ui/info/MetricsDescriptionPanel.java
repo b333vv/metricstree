@@ -105,28 +105,28 @@ public class MetricsDescriptionPanel {
         metricSet.setText(metric.getType().set().set());
         if (metric.getType().set() == MetricSet.MOOD) {
             allowableRangeValue.setText(this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).percentageFormat());
-            currentValue.setText(metric.getValue().percentageFormat());
+            currentValue.setText(metric.getPsiValue().percentageFormat());
         } else {
             allowableRangeValue.setText(this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).toString());
-            currentValue.setText(metric.getValue().toString());
+            currentValue.setText(metric.getPsiValue().toString());
         }
 
         showDescription(metric.getType().url());
 
         if (this.project.getService(SettingsService.class).isControlValidRanges()) {
-            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.REGULAR) {
+            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.REGULAR) {
                 currentValue.setIcon(MetricsIcons.REGULAR_COLOR);
             }
-            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.HIGH) {
+            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.HIGH) {
                 currentValue.setIcon(MetricsIcons.HIGH_COLOR);
             }
-            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.VERY_HIGH) {
+            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.VERY_HIGH) {
                 currentValue.setIcon(MetricsIcons.VERY_HIGH_COLOR);
             }
-            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.EXTREME) {
+            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.EXTREME) {
                 currentValue.setIcon(MetricsIcons.EXTREME_COLOR);
             }
-            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) == RangeType.UNDEFINED) {
+            if (this.project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.UNDEFINED) {
                 currentValue.setIcon(MetricsIcons.NOT_TRACKED);
             }
         } else {

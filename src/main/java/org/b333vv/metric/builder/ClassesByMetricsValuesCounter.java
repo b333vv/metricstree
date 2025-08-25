@@ -48,7 +48,7 @@ public class ClassesByMetricsValuesCounter {
         return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> metric.getType().isLongValue()
-                                && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue()) != RangeType.UNDEFINED)
+                                && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) != RangeType.UNDEFINED)
                         .collect(groupingBy(Metric::getType, groupingBy(i -> inner)))
                         .entrySet()
                         .stream())
@@ -69,7 +69,7 @@ public class ClassesByMetricsValuesCounter {
             return (map, val) -> {
                 Map.Entry<JavaClass, List<Metric>> entry = val.entrySet().iterator().next();
                 Metric metric = entry.getValue().get(0);
-                RangeType rangeType = project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getValue());
+                RangeType rangeType = project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue());
                 map.merge(rangeType, 1L, Long::sum);
             };
         }

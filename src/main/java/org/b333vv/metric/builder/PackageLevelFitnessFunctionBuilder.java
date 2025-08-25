@@ -57,7 +57,7 @@ public class PackageLevelFitnessFunctionBuilder {
             if (entry.getKey().level() == MetricLevel.PACKAGE) {
                 Metric m = javaPackage.metric(entry.getKey());
                 if (m != null
-                        && entry.getValue().getRangeType(m.getValue()) != RangeType.REGULAR
+                        && entry.getValue().getRangeType(m.getPsiValue()) != RangeType.REGULAR
                 ) {
                     return false;
                 }

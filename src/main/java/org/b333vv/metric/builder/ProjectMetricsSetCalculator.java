@@ -310,8 +310,8 @@ public class ProjectMetricsSetCalculator {
             if (aClass.metric(MetricType.NOM) == null) {
                 continue;
             }
-            Value nom = aClass.metric(NOM).getValue();
-            Value noom = aClass.metric(NOOM).getValue();
+            Value nom = aClass.metric(NOM).getPsiValue();
+            Value noom = aClass.metric(NOOM).getPsiValue();
             if (nom.isGreaterThan(Value.of(0))) {
                 zInheritance = zInheritance + (noom.divide(nom.times(Value.of(100)))).doubleValue();
             }
@@ -346,7 +346,7 @@ public class ProjectMetricsSetCalculator {
     private void addLinesOfCode() {
         linesOfCode = javaProject.allClasses()
                 .flatMap(JavaClass::methods)
-                .map(javaMethod -> javaMethod.metric(LOC).getValue())
+                .map(javaMethod -> javaMethod.metric(LOC).getPsiValue())
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();

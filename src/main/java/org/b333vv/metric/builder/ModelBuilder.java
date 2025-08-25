@@ -183,7 +183,7 @@ public abstract class ModelBuilder {
 
     void addLinesOfCodeIndexForClass(JavaClass javaClass) {
         long linesOfCode = javaClass.methods()
-                .map(javaMethod ->  javaMethod.metric(LOC).getValue())
+                .map(javaMethod ->  javaMethod.metric(LOC).getPsiValue())
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();
@@ -193,7 +193,7 @@ public abstract class ModelBuilder {
 
     void addCognitiveComplexityForClass(JavaClass javaClass) {
         long cognitiveComplexity = javaClass.methods()
-                .map(javaMethod ->  javaMethod.metric(CCM).getValue())
+                .map(javaMethod ->  javaMethod.metric(CCM).getPsiValue())
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();

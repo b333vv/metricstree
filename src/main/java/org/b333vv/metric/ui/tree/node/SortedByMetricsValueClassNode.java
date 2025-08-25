@@ -40,7 +40,7 @@ public class SortedByMetricsValueClassNode extends ClassNode {
 
     private String getDelta() {
         return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> 
-            " [+" + metric.getValue()
+            " [+" + metric.getPsiValue()
                     .minus(javaClass.getPsiClass().getProject().getService(
                             SettingsService.class
                     ).getRangeForMetric(metric.getType()).getRegularTo())

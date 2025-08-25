@@ -62,7 +62,7 @@ public class BottomPanel {
                 + " [" + metric.getType().name()
                 + " = "
                 + (metric.getType().set() == MetricSet.MOOD
-                        ? metric.getValue().percentageFormat()
+                        ? metric.getPsiValue().percentageFormat()
                         : metric.getFormattedValue())
                 + "]");
     }
