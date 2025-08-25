@@ -18,9 +18,11 @@ import com.intellij.openapi.project.DumbService;
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.builder.DependenciesCalculator;
-import org.b333vv.metric.builder.ClassAndMethodsMetricsCalculator;
+
 import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
+import org.b333vv.metric.builder.MetricCalculationStrategy;
+import org.b333vv.metric.ui.settings.other.CalculationEngine;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -57,6 +59,7 @@ public class CalculationServiceTest {
         when(mockProject.getService(CacheService.class)).thenReturn(mockCacheService);
         when(mockProject.getService(TaskQueueService.class)).thenReturn(mockTaskQueueService);
         when(mockProject.getService(SettingsService.class)).thenReturn(mockSettingsService);
+        when(mockSettingsService.getCalculationEngine()).thenReturn(CalculationEngine.JAVAPARSER);
 
         calculationService = new CalculationServiceImpl(mockProject);
     }
@@ -97,7 +100,6 @@ public class CalculationServiceTest {
 
             // Mock Calculators and their return values
             try (MockedStatic<DependenciesCalculator> mockedDependenciesCalculator = mockStatic(DependenciesCalculator.class);
-                 MockedStatic<ClassAndMethodsMetricsCalculator> mockedClassAndMethodsMetricsCalculator = mockStatic(ClassAndMethodsMetricsCalculator.class);
                  MockedStatic<PackageMetricsSetCalculator> mockedPackageMetricsSetCalculator = mockStatic(PackageMetricsSetCalculator.class);
                  MockedStatic<ProjectMetricsSetCalculator> mockedProjectMetricsSetCalculator = mockStatic(ProjectMetricsSetCalculator.class)) {
 
@@ -106,10 +108,12 @@ public class CalculationServiceTest {
                 when(mockDependenciesCalculator.calculateDependencies()).thenReturn(mockDependenciesBuilder);
                 mockedDependenciesCalculator.when(() -> new DependenciesCalculator(any(), any())).thenReturn(mockDependenciesCalculator);
 
-                ClassAndMethodsMetricsCalculator mockClassAndMethodsMetricsCalculator = mock(ClassAndMethodsMetricsCalculator.class);
-                JavaProject mockClassAndMethodsJavaProject = mock(JavaProject.class);
-                when(mockClassAndMethodsMetricsCalculator.calculateMetrics()).thenReturn(mockClassAndMethodsJavaProject);
-                mockedClassAndMethodsMetricsCalculator.when(() -> new ClassAndMethodsMetricsCalculator(any(), any())).thenReturn(mockClassAndMethodsMetricsCalculator);
+                // Mock the MetricCalculationStrategy
+                MetricCalculationStrategy mockMetricCalculationStrategy = mock(MetricCalculationStrategy.class);
+                JavaProject mockJavaProject = mock(JavaProject.class);
+                when(mockMetricCalculationStrategy.calculate(any(), any())).thenReturn(mockJavaProject);
+                // Need to ensure that the CalculationServiceImpl uses this mocked strategy
+                // This will be handled by mocking SettingsService to return JAVAPARSER and then injecting the mockMetricCalculationStrategy
 
                 PackageMetricsSetCalculator mockPackageMetricsSetCalculator = mock(PackageMetricsSetCalculator.class);
                 // calculate() returns void, so just verify interaction
@@ -131,8 +135,8 @@ public class CalculationServiceTest {
                 verify(mockDependenciesCalculator, times(1)).calculateDependencies();
                 verify(mockCacheService, times(1)).putUserData(eq(CacheService.DEPENDENCIES), eq(mockDependenciesBuilder));
 
-                verify(mockClassAndMethodsMetricsCalculator, times(1)).calculateMetrics();
-                verify(mockCacheService, times(1)).putUserData(eq(CacheService.CLASS_AND_METHODS_METRICS), eq(mockClassAndMethodsJavaProject));
+                verify(mockMetricCalculationStrategy, times(1)).calculate(any(), any());
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.CLASS_AND_METHODS_METRICS), eq(mockJavaProject));
 
                 verify(mockPackageMetricsSetCalculator, times(1)).calculate();
                 verify(mockCacheService, times(1)).putUserData(eq(CacheService.PACKAGE_METRICS), any(JavaProject.class)); // PackageMetricsSetCalculator modifies the passed JavaProject

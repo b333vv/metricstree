@@ -68,6 +68,7 @@ import org.b333vv.metric.builder.PsiCalculationStrategy;
 import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.ui.settings.other.CalculationEngine;
+import org.b333vv.metric.builder.JavaParserCalculationStrategy;
 
 
 public class CalculationServiceImpl implements CalculationService {
@@ -86,11 +87,10 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     private MetricCalculationStrategy createStrategy() {
-        if (settingsService.getCalculationEngine() == CalculationEngine.PSI) {
-            return new PsiCalculationStrategy();
+        if (settingsService.getCalculationEngine() == CalculationEngine.JAVAPARSER) {
+            return new JavaParserCalculationStrategy();
         }
-        // In the future, we will have a JavaParserCalculationStrategy
-        // For now, we'll just return the PSI strategy as a default
+        // Default to PSI strategy
         return new PsiCalculationStrategy();
     }
 
