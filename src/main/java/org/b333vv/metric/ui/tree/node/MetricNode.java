@@ -60,10 +60,26 @@ public class MetricNode extends AbstractNode {
 
     @NotNull
     private String getMetricValue() {
+        Value psiValue = metric.getPsiValue();
+        Value javaParserValue = metric.getJavaParserValue();
+
+        String psiValueString;
         if (metric.getType().set() == MetricSet.MOOD) {
-            return metric.getPsiValue().percentageFormat();
+            psiValueString = psiValue.percentageFormat();
         } else {
-            return metric.getFormattedValue();
+            psiValueString = psiValue.toString();
+        }
+
+        if (javaParserValue != null && javaParserValue != Value.UNDEFINED) {
+            String javaParserValueString;
+            if (metric.getType().set() == MetricSet.MOOD) {
+                javaParserValueString = javaParserValue.percentageFormat();
+            } else {
+                javaParserValueString = javaParserValue.toString();
+            }
+            return psiValueString + " (" + javaParserValueString + ")";
+        } else {
+            return psiValueString;
         }
     }
 

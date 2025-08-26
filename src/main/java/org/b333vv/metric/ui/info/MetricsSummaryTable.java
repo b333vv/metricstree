@@ -186,12 +186,29 @@ public class MetricsSummaryTable {
                     return metric.getType().set().set();
                 case 3:
                     return metric.getType().description();
-                case 4:
+                case 4: {
+                    Value psiValue = metric.getPsiValue();
+                    Value javaParserValue = metric.getJavaParserValue();
+
+                    String psiValueString;
                     if (metric.getType().set() == MetricSet.MOOD) {
-                        return metric.getPsiValue().percentageFormat();
+                        psiValueString = psiValue.percentageFormat();
                     } else {
-                        return metric.getFormattedValue();
+                        psiValueString = psiValue.toString();
                     }
+
+                    if (javaParserValue != null && javaParserValue != Value.UNDEFINED) {
+                        String javaParserValueString;
+                        if (metric.getType().set() == MetricSet.MOOD) {
+                            javaParserValueString = javaParserValue.percentageFormat();
+                        } else {
+                            javaParserValueString = javaParserValue.toString();
+                        }
+                        return psiValueString + " (" + javaParserValueString + ")";
+                    } else {
+                        return psiValueString;
+                    }
+                }
                 case 5:
                     if (metric.getType().set() == MetricSet.MOOD) {
                         return project.getService(SettingsService.class).getRangeForMetric(metric.getType()).percentageFormat();
