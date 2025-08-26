@@ -6,4 +6,8 @@ import org.b333vv.metric.model.code.JavaProject;
 
 public interface MetricCalculationStrategy {
     JavaProject calculate(Project project, ProgressIndicator indicator);
+
+    default void augment(JavaProject javaProject, Project project, ProgressIndicator indicator) {
+        // default implementation does nothing
+    }
 }
