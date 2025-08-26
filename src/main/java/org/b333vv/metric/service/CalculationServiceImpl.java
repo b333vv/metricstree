@@ -76,22 +76,12 @@ public class CalculationServiceImpl implements CalculationService {
     private final TaskQueueService taskQueueService;
     private final CacheService cacheService;
     private final SettingsService settingsService;
-    private final MetricCalculationStrategy metricCalculationStrategy;
 
     public CalculationServiceImpl(Project project) {
         this.project = project;
         this.taskQueueService = project.getService(TaskQueueService.class);
         this.cacheService = project.getService(CacheService.class);
         this.settingsService = project.getService(SettingsService.class);
-        this.metricCalculationStrategy = createStrategy();
-    }
-
-    private MetricCalculationStrategy createStrategy() {
-        if (settingsService.getCalculationEngine() == CalculationEngine.JAVAPARSER) {
-            return new JavaParserCalculationStrategy();
-        }
-        // Default to PSI strategy
-        return new PsiCalculationStrategy();
     }
 
     // Helper method to run a task synchronously and get its result
@@ -149,7 +139,18 @@ public class CalculationServiceImpl implements CalculationService {
 
             javaProject = runTaskSynchronously(
                     "Building Class and Method Metrics Model",
-                    (progressIndicator) -> metricCalculationStrategy.calculate(project, progressIndicator),
+                    (progressIndicator) -> {
+                        // Stage 1: Always run PSI
+                        PsiCalculationStrategy psiStrategy = new PsiCalculationStrategy();
+                        JavaProject newJavaProject = psiStrategy.calculate(project, progressIndicator);
+
+                        // Stage 2: Conditionally augment with JavaParser
+                        if (settingsService.getCalculationEngine() == CalculationEngine.JAVAPARSER) {
+                            JavaParserCalculationStrategy javaParserStrategy = new JavaParserCalculationStrategy();
+                            javaParserStrategy.augment(newJavaProject, project, progressIndicator);
+                        }
+                        return newJavaProject;
+                    },
                     indicator
             );
             cacheService.putUserData(CacheService.CLASS_AND_METHODS_METRICS, javaProject);

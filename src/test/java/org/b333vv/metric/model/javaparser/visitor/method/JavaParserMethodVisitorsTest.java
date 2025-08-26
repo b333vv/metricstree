@@ -95,7 +95,7 @@ public class JavaParserMethodVisitorsTest {
         javaMethod.addMetric(metric);
 
         JavaParserNumberOfLoopsVisitor visitor = new JavaParserNumberOfLoopsVisitor();
-        visitor.visit(methodDeclaration, javaMethod);
+        visitor.visit(methodDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(3.0, metric.getJavaParserValue().doubleValue());
     }
@@ -110,7 +110,7 @@ public class JavaParserMethodVisitorsTest {
         javaMethod.addMetric(metric);
 
         JavaParserNumberOfLoopsVisitor visitor = new JavaParserNumberOfLoopsVisitor();
-        visitor.visit(methodDeclaration, javaMethod);
+        visitor.visit(methodDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(0.0, metric.getJavaParserValue().doubleValue());
     }
@@ -125,7 +125,7 @@ public class JavaParserMethodVisitorsTest {
         javaMethod.addMetric(metric);
 
         JavaParserLinesOfCodeVisitor visitor = new JavaParserLinesOfCodeVisitor();
-        visitor.visit(methodDeclaration, javaMethod);
+        visitor.visit(methodDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         long expectedLines = methodDeclaration.toString().lines().filter(line -> !line.isBlank()).count();
         assertEquals(expectedLines, metric.getJavaParserValue().longValue());
@@ -141,7 +141,7 @@ public class JavaParserMethodVisitorsTest {
         javaMethod.addMetric(metric);
 
         JavaParserNumberOfParametersVisitor visitor = new JavaParserNumberOfParametersVisitor();
-        visitor.visit(methodDeclaration, javaMethod);
+        visitor.visit(methodDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(3.0, metric.getJavaParserValue().doubleValue());
     }

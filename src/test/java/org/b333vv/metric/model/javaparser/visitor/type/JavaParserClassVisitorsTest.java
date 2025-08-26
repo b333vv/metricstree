@@ -81,7 +81,7 @@ public class JavaParserClassVisitorsTest {
         javaClass.addMetric(metric);
 
         JavaParserNumberOfMethodsVisitor visitor = new JavaParserNumberOfMethodsVisitor();
-        visitor.visit(classDeclaration, javaClass);
+        visitor.visit(classDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(5.0, metric.getJavaParserValue().doubleValue());
     }
@@ -92,7 +92,7 @@ public class JavaParserClassVisitorsTest {
         javaClass.addMetric(metric);
 
         JavaParserNumberOfAttributesVisitor visitor = new JavaParserNumberOfAttributesVisitor();
-        visitor.visit(classDeclaration, javaClass);
+        visitor.visit(classDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(4.0, metric.getJavaParserValue().doubleValue());
     }
@@ -103,7 +103,7 @@ public class JavaParserClassVisitorsTest {
         javaClass.addMetric(metric);
 
         JavaParserNumberOfPublicAttributesVisitor visitor = new JavaParserNumberOfPublicAttributesVisitor();
-        visitor.visit(classDeclaration, javaClass);
+        visitor.visit(classDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(1.0, metric.getJavaParserValue().doubleValue());
     }
@@ -114,7 +114,7 @@ public class JavaParserClassVisitorsTest {
         javaClass.addMetric(metric);
 
         JavaParserNumberOfAccessorMethodsVisitor visitor = new JavaParserNumberOfAccessorMethodsVisitor();
-        visitor.visit(classDeclaration, javaClass);
+        visitor.visit(classDeclaration, m -> metric.setJavaParserValue(m.getValue()));
 
         assertEquals(3.0, metric.getJavaParserValue().doubleValue());
     }
