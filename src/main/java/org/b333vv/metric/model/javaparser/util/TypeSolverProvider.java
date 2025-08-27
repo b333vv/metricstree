@@ -27,7 +27,7 @@ public class TypeSolverProvider {
         for (Module module : ModuleManager.getInstance(project).getModules()) {
             Arrays.stream(OrderEnumerator.orderEntries(module).recursively().librariesOnly().getClassesRoots()).forEach(virtualFile -> {
                 try {
-                    combinedTypeSolver.add(new JarTypeSolver(virtualFile.toNioPath()));
+                    combinedTypeSolver.add(new JarTypeSolver(virtualFile.getPath()));
                 } catch (IOException e) {
                     // Log error
                 }

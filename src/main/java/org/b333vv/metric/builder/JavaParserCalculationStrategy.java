@@ -6,8 +6,10 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
@@ -86,9 +88,12 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
 
         List<ClassOrInterfaceDeclaration> allClassDeclarations = javaProject.allClasses()
                 .map(javaClass -> {
+                    String filePath = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+                        PsiClass psiClass = javaClass.getPsiClass();
+                        return psiClass.getContainingFile().getVirtualFile().getPath();
+                    });
                     try {
-                        return javaParser.parse(Paths.get(((PsiJavaFile) javaClass.getPsiClass().getContainingFile()).getVirtualFile().getPath()))
-                                .getResult().orElse(null);
+                        return javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
                     } catch (IOException e) {
                         return null;
                     }
@@ -102,10 +107,12 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
             if (indicator.isCanceled()) {
                 return;
             }
-            try {
+            String filePath = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
                 PsiClass psiClass = javaClass.getPsiClass();
-                String path = ((PsiJavaFile) psiClass.getContainingFile()).getVirtualFile().getPath();
-                CompilationUnit cu = javaParser.parse(Paths.get(path)).getResult().orElse(null);
+                return psiClass.getContainingFile().getVirtualFile().getPath();
+            });
+            try {
+                CompilationUnit cu = javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
                 if (cu != null) {
                     cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals(javaClass.getName()))
                             .ifPresent(classDeclaration -> {
@@ -128,8 +135,10 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
 
                                 javaClass.methods().forEach(javaMethod -> {
                                     PsiMethod psiMethod = javaMethod.getPsiMethod();
-                                    classDeclaration.findFirst(MethodDeclaration.class, m -> m.getNameAsString().equals(psiMethod.getName()) &&
-                                                    m.getParameters().size() == psiMethod.getParameterList().getParametersCount())
+                                    String methodName = ApplicationManager.getApplication().runReadAction((Computable<String>) psiMethod::getName);
+                                    int paramCount = ApplicationManager.getApplication().runReadAction((Computable<Integer>) () -> psiMethod.getParameterList().getParametersCount());
+                                    classDeclaration.findFirst(MethodDeclaration.class, m -> m.getNameAsString().equals(methodName) &&
+                                            m.getParameters().size() == paramCount)
                                             .ifPresent(methodDeclaration -> {
                                                 Consumer<Metric> methodMetricConsumer = (m) -> {
                                                     Metric metric = javaMethod.metric(m.getType());
