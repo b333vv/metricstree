@@ -25,8 +25,12 @@ import org.b333vv.metric.model.javaparser.visitor.type.JavaParserHalsteadClassVi
 import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfAddedMethodsVisitor;
 import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfOverriddenMethodsVisitor;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.Value;
 
 import java.io.IOException;
+
+import static org.b333vv.metric.model.metric.MetricType.*;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Consumer;
@@ -158,11 +162,77 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                                                 }
                                             });
                                 });
+                                calculateDerivativeClassMetrics(javaClass);
                             });
                 }
             } catch (Exception e) {
                 // Log error, e.g., using Logger
             }
         });
+    }
+
+    private void calculateDerivativeClassMetrics(JavaClass javaClass) {
+        // CCC Calculation
+        long cognitiveComplexity = javaClass.methods()
+                .mapToLong(javaMethod -> {
+                    Metric ccmMetric = javaMethod.metric(CCM);
+                    if (ccmMetric != null && ccmMetric.getJavaParserValue() != null && ccmMetric.getJavaParserValue() != Value.UNDEFINED) {
+                        return ccmMetric.getJavaParserValue().longValue();
+                    }
+                    return 0L;
+                })
+                .sum();
+
+        Metric cccMetric = javaClass.metric(CCC);
+        if (cccMetric != null) {
+            cccMetric.setJavaParserValue(Value.of(cognitiveComplexity));
+        }
+
+        // CMI Calculation
+        Metric chvlMetric = javaClass.metric(CHVL);
+        Value halsteadVolumeValue = (chvlMetric != null && chvlMetric.getJavaParserValue() != null)
+                ? chvlMetric.getJavaParserValue() : Value.UNDEFINED;
+
+        Value totalCCValue = javaClass.methods()
+                .map(m -> {
+                    Metric metric = m.metric(CC);
+                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue() : Value.UNDEFINED;
+                })
+                .reduce(Value.ZERO, (acc, next) -> {
+                    if (acc == Value.UNDEFINED || next == Value.UNDEFINED) {
+                        return Value.UNDEFINED;
+                    }
+                    return acc.plus(next);
+                });
+
+        Value totalLOCValue = javaClass.methods()
+                .map(m -> {
+                    Metric metric = m.metric(LOC);
+                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue() : Value.UNDEFINED;
+                })
+                .reduce(Value.ZERO, (acc, next) -> {
+                    if (acc == Value.UNDEFINED || next == Value.UNDEFINED) {
+                        return Value.UNDEFINED;
+                    }
+                    return acc.plus(next);
+                });
+
+        Metric cmiMetric = javaClass.metric(CMI);
+        if (cmiMetric != null) {
+            if (halsteadVolumeValue == Value.UNDEFINED || totalCCValue == Value.UNDEFINED || totalLOCValue == Value.UNDEFINED) {
+                cmiMetric.setJavaParserValue(Value.UNDEFINED);
+            } else {
+                double halsteadVolume = halsteadVolumeValue.doubleValue();
+                long cyclomaticComplexity = totalCCValue.longValue();
+                long linesOfCode = totalLOCValue.longValue();
+
+                double maintainabilityIndex = 0.0;
+                if (cyclomaticComplexity > 0L && linesOfCode > 0L && halsteadVolume > 0.0) {
+                    maintainabilityIndex = Math.max(0.0, (171.0 - 5.2 * Math.log(halsteadVolume)
+                            - 0.23 * Math.log((double) cyclomaticComplexity) - 16.2 * Math.log((double) linesOfCode)) * 100.0 / 171.0);
+                }
+                cmiMetric.setJavaParserValue(Value.of(maintainabilityIndex));
+            }
+        }
     }
 }
