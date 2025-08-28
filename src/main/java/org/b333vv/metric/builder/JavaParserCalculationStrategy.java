@@ -21,6 +21,9 @@ import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserMethodVisitor;
 import org.b333vv.metric.model.javaparser.visitor.method.*;
 import org.b333vv.metric.model.javaparser.visitor.type.*;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserHalsteadClassVisitor;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfAddedMethodsVisitor;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfOverriddenMethodsVisitor;
 import org.b333vv.metric.model.metric.Metric;
 
 import java.io.IOException;
@@ -53,7 +56,10 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 new JavaParserNumberOfAttributesAndMethodsVisitor(),
                 new JavaParserNumberOfOperationsVisitor(),
                 new JavaParserWeightedMethodCountVisitor(),
-                new JavaParserWeightOfAClassVisitor()
+                new JavaParserWeightOfAClassVisitor(),
+                new JavaParserHalsteadClassVisitor(),
+                new JavaParserNumberOfOverriddenMethodsVisitor(),
+                new JavaParserNumberOfAddedMethodsVisitor()
         );
         methodVisitors = List.of(
                 new JavaParserNumberOfLoopsVisitor(),
