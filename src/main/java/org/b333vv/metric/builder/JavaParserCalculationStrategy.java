@@ -21,6 +21,11 @@ import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserMethodVisitor;
 import org.b333vv.metric.model.javaparser.visitor.method.*;
 import org.b333vv.metric.model.javaparser.visitor.type.*;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserForeignDataProvidersVisitor;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserHalsteadClassVisitor;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfAddedMethodsVisitor;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfChildrenVisitor;
+import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfOverriddenMethodsVisitor;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -57,7 +62,10 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 new JavaParserNumberOfAttributesAndMethodsVisitor(),
                 new JavaParserNumberOfOperationsVisitor(),
                 new JavaParserWeightedMethodCountVisitor(),
-                new JavaParserWeightOfAClassVisitor()
+                new JavaParserWeightOfAClassVisitor(),
+                new JavaParserHalsteadClassVisitor(),
+                new JavaParserNumberOfOverriddenMethodsVisitor(),
+                new JavaParserNumberOfAddedMethodsVisitor()
         );
         methodVisitors = List.of(
                 new JavaParserNumberOfLoopsVisitor(),
@@ -129,14 +137,11 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                                 };
 
                                 for (JavaParserClassVisitor visitor : classVisitors) {
-                                    if (visitor instanceof JavaParserNumberOfChildrenVisitor) {
-                                        new JavaParserNumberOfChildrenVisitor(allClassDeclarations).visit(classDeclaration, classMetricConsumer);
-                                    } else if (visitor instanceof JavaParserForeignDataProvidersVisitor) {
-                                        new JavaParserForeignDataProvidersVisitor(allClassDeclarations).visit(classDeclaration, classMetricConsumer);
-                                    } else {
-                                        visitor.visit(classDeclaration, classMetricConsumer);
-                                    }
+                                    visitor.visit(classDeclaration, classMetricConsumer);
                                 }
+                                // Handle context-dependent visitors separately
+                                new JavaParserNumberOfChildrenVisitor(allClassDeclarations).visit(classDeclaration, classMetricConsumer);
+                                new JavaParserForeignDataProvidersVisitor(allClassDeclarations).visit(classDeclaration, classMetricConsumer);
 
                                 javaClass.methods().forEach(javaMethod -> {
                                     PsiMethod psiMethod = javaMethod.getPsiMethod();
@@ -168,6 +173,23 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     }
 
     private void calculateDerivativeClassMetrics(JavaClass javaClass) {
+        // CLOC Calculation
+        Value totalLOCValue = javaClass.methods()
+                .map(m -> {
+                    Metric metric = m.metric(LOC);
+                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue() : Value.UNDEFINED;
+                })
+                .reduce(Value.ZERO, (acc, next) -> {
+                    if (acc == Value.UNDEFINED || next == Value.UNDEFINED) {
+                        return Value.UNDEFINED;
+                    }
+                    return acc.plus(next);
+                });
+        Metric clocMetric = javaClass.metric(CLOC);
+        if (clocMetric != null) {
+            clocMetric.setJavaParserValue(totalLOCValue);
+        }
+
         // CCC Calculation
         long cognitiveComplexity = javaClass.methods()
                 .mapToLong(javaMethod -> {
@@ -201,33 +223,21 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                     return acc.plus(next);
                 });
 
-        Value totalLOCValue = javaClass.methods()
-                .map(m -> {
-                    Metric metric = m.metric(LOC);
-                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue() : Value.UNDEFINED;
-                })
-                .reduce(Value.ZERO, (acc, next) -> {
-                    if (acc == Value.UNDEFINED || next == Value.UNDEFINED) {
-                        return Value.UNDEFINED;
-                    }
-                    return acc.plus(next);
-                });
+        // We can reuse totalLOCValue from the CLOC calculation above.
 
         Metric cmiMetric = javaClass.metric(CMI);
         if (cmiMetric != null) {
-            if (halsteadVolumeValue == Value.UNDEFINED || totalCCValue == Value.UNDEFINED || totalLOCValue == Value.UNDEFINED) {
+            if (halsteadVolumeValue == Value.UNDEFINED || totalCCValue == Value.UNDEFINED || totalLOCValue == Value.UNDEFINED
+                || halsteadVolumeValue.doubleValue() <= 0.0 || totalCCValue.longValue() <= 0L || totalLOCValue.longValue() <= 0L) {
                 cmiMetric.setJavaParserValue(Value.UNDEFINED);
             } else {
                 double halsteadVolume = halsteadVolumeValue.doubleValue();
                 long cyclomaticComplexity = totalCCValue.longValue();
                 long linesOfCode = totalLOCValue.longValue();
 
-                double maintainabilityIndex = 0.0;
-                if (cyclomaticComplexity > 0L && linesOfCode > 0L && halsteadVolume > 0.0) {
-                    maintainabilityIndex = Math.max(0.0, (171.0 - 5.2 * Math.log(halsteadVolume)
-                            - 0.23 * Math.log((double) cyclomaticComplexity)
+                double maintainabilityIndex = Math.max(0.0, (171.0 - 5.2 * Math.log(halsteadVolume)
+                            - 0.23 * cyclomaticComplexity
                             - 16.2 * Math.log((double) linesOfCode)) * 100.0 / 171.0);
-                }
                 cmiMetric.setJavaParserValue(Value.of(maintainabilityIndex));
             }
         }
