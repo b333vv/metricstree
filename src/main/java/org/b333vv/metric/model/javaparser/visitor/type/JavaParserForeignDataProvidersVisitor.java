@@ -21,27 +21,22 @@ public class JavaParserForeignDataProvidersVisitor extends JavaParserClassVisito
 
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
-        Set<String> fdp = new HashSet<>();
         try {
+            Set<String> fdp = new HashSet<>();
             String currentClassName = n.resolve().getQualifiedName();
             for (ClassOrInterfaceDeclaration otherClass : allClasses) {
                 if (otherClass.resolve().getQualifiedName().equals(currentClassName)) {
                     continue;
                 }
                 otherClass.walk(FieldAccessExpr.class, fae -> {
-                    try {
-                        if (fae.resolve().asField().declaringType().getQualifiedName().equals(currentClassName)) {
-                            fdp.add(otherClass.resolve().getQualifiedName());
-                        }
-                    } catch (Exception e) {
-                        // ignore
+                    if (fae.resolve().asField().declaringType().getQualifiedName().equals(currentClassName)) {
+                        fdp.add(otherClass.resolve().getQualifiedName());
                     }
                 });
             }
+            collector.accept(Metric.of(MetricType.FDP, Value.of(fdp.size())));
         } catch (Exception e) {
-            // ignore
+            collector.accept(Metric.of(MetricType.FDP, Value.UNDEFINED));
         }
-        Metric metric = Metric.of(MetricType.FDP, Value.of(fdp.size()));
-        collector.accept(metric);
     }
 }

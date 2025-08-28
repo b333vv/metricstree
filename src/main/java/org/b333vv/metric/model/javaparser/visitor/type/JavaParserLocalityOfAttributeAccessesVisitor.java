@@ -34,23 +34,19 @@ public class JavaParserLocalityOfAttributeAccessesVisitor extends JavaParserClas
             for (BodyDeclaration<?> methodOrConstructor : methodsAndConstructors) {
                 List<FieldAccessExpr> foreignAccesses = new ArrayList<>();
                 methodOrConstructor.walk(FieldAccessExpr.class, fae -> {
-                    try {
-                        String declaringClassName = fae.resolve().asField().declaringType().getQualifiedName();
-                        if (!declaringClassName.equals(currentClassName)) {
-                            foreignAccesses.add(fae);
-                        }
-                    } catch (Exception e) {
-                        // ignore
+                    String declaringClassName = fae.resolve().asField().declaringType().getQualifiedName();
+                    if (!declaringClassName.equals(currentClassName)) {
+                        foreignAccesses.add(fae);
                     }
                 });
                 if (foreignAccesses.isEmpty()) {
                     localMethods++;
                 }
             }
+            double laa = (double) localMethods / methodsAndConstructors.size();
+            collector.accept(Metric.of(MetricType.LAA, Value.of(laa)));
         } catch (Exception e) {
-            // ignore
+            collector.accept(Metric.of(MetricType.LAA, Value.UNDEFINED));
         }
-        double laa = (double) localMethods / methodsAndConstructors.size();
-        collector.accept(Metric.of(MetricType.LAA, Value.of(laa)));
     }
 }

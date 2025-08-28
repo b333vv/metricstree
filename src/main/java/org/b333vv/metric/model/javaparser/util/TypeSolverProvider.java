@@ -25,13 +25,19 @@ public class TypeSolverProvider {
         }
 
         for (Module module : ModuleManager.getInstance(project).getModules()) {
-            Arrays.stream(OrderEnumerator.orderEntries(module).recursively().librariesOnly().getClassesRoots()).forEach(virtualFile -> {
-                try {
-                    combinedTypeSolver.add(new JarTypeSolver(virtualFile.getPath()));
-                } catch (IOException e) {
-                    // Log error
+        for (VirtualFile classesRoot : OrderEnumerator.orderEntries(module).recursively().librariesOnly().getClassesRoots()) {
+            if (!classesRoot.isDirectory()) {
+                String path = classesRoot.getPath();
+                if (path.contains("!/")) {
+                    path = path.substring(0, path.indexOf("!/"));
                 }
-            });
+                try {
+                    combinedTypeSolver.add(new JarTypeSolver(path));
+                } catch (IOException e) {
+                    // Log error, e.g., using Logger
+                }
+                }
+        }
         }
 
         return combinedTypeSolver;
