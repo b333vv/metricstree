@@ -79,7 +79,6 @@ graph TD
 -   **Priority:** High
 -   **Task 2.1: Investigate Coupling Metrics (CBO, RFC, MPC, DAC, ATFD)**
     -   **Rationale/Goal:** These metrics are highly dependent on accurate type resolution and are common sources of discrepancies.
-    -   **Status:** CBO and RFC have been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. MPC, DAC, and ATFD are pending.
     -   **Estimated Effort (Optional):** L
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each coupling metric is completed according to the template from Task 1.3.
     -   **Sub-steps (for each metric, e.g., CBO):**

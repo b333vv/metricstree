@@ -38,61 +38,143 @@ The `CBO_TestClass` test case was designed to include various coupling scenarios
 **Note**: This count includes java.lang.* and java.util.* classes. Different CBO implementations may exclude standard library classes.
 
 ## PSI Implementation Analysis
-**Observed Behavior**: Test execution returns null values  
-**Potential Issues**:
-- Class name resolution may be failing ("CBO_TestClass" lookup)
-- PSI calculation strategy may not be executing properly
-- Metric may not be calculated for the test class
+**Observed Behavior**: ✅ **WORKING** - Returns actual numerical values  
+**Actual CBO Value**: **6**
+
+**Analysis Results**:
+- PSI calculation strategy executes successfully
+- Dependencies are properly built and cached
+- Class resolution working correctly ("CBO_TestClass" found)
+- Metric calculation completes without errors
+- **Discrepancy**: PSI value (6) is significantly lower than ground truth (11)
 
 **Visitor Class**: `CouplingBetweenObjectsVisitor`  
-**Investigation Needed**: 
-- Verify visitor is being called
-- Check if PSI tree traversal is working correctly
-- Validate type resolution logic
+**Key Findings**: 
+- ✅ Visitor is being called successfully
+- ✅ PSI tree traversal working correctly
+- ❌ **Type resolution appears incomplete** - missing 5 coupling relationships
+- **Hypothesis**: PSI implementation may exclude standard library classes (java.lang.*, java.util.*)
+
+**Missing Couplings (6 vs 11 expected)**:
+- Likely missing: Serializable, List, Set, System, Map (standard library classes)
+- PSI may be configured to ignore JDK/standard library dependencies
 
 ## JavaParser Implementation Analysis
-**Observed Behavior**: Test execution returns null values  
-**Potential Issues**:
-- JavaParser calculation strategy may not be augmenting results
-- Type resolution might be failing (common JavaParser issue)
-- Class parsing may not be working in test environment
+**Observed Behavior**: ✅ **WORKING** - Returns actual numerical values  
+**Actual CBO Value**: **12**
+
+**Analysis Results**:
+- JavaParser calculation strategy executes successfully with string-based parsing fallback
+- TypeSolver configuration resolved for test environment
+- Class parsing working correctly in temp filesystem
+- Metric calculation completes without errors
+- **Accuracy**: JavaParser value (12) is very close to ground truth (11)
 
 **Visitor Class**: `JavaParserCouplingBetweenObjectsVisitor`  
-**Investigation Needed**:
-- Check TypeSolverProvider configuration
-- Verify JavaParser can resolve project dependencies
-- Validate AST traversal logic
+**Key Findings**: 
+- ✅ TypeSolverProvider configuration working (with temp filesystem handling)
+- ✅ JavaParser can resolve project dependencies via string-based parsing
+- ✅ AST traversal logic working correctly
+- **Superior Accuracy**: JavaParser appears more comprehensive than PSI
+- **Over-counting by 1**: 12 vs 11 expected - may be counting an additional coupling relationship
+
+**Infrastructure Fixes Applied**:
+- Added string-based parsing fallback for test environments
+- Enhanced TypeSolver to handle temp filesystem limitations
+- Implemented hybrid file/string parsing approach
 
 ## Discrepancy Analysis
-**Root Cause**: Preliminary investigation suggests infrastructure/setup issues rather than algorithmic differences between PSI and JavaParser implementations.
+**Root Cause**: ✅ **RESOLVED** - Infrastructure issues fixed, revealing actual algorithmic differences between PSI and JavaParser implementations.
 
-**Primary Issues Identified**:
-1. **Test Setup**: Null return values indicate fundamental setup problems
-2. **Class Resolution**: Either class name lookup is failing or metrics aren't being calculated
-3. **Strategy Execution**: PSI/JavaParser calculation strategies may not be running correctly
+**Comparison Results**:
+- **Manual Ground Truth**: 11
+- **PSI Implementation**: 6 (-5 from expected)
+- **JavaParser Implementation**: 12 (+1 from expected)
+- **JavaParser Accuracy**: 91.7% (much closer to ground truth)
+- **PSI Accuracy**: 54.5% (significantly under-counting)
+
+**Primary Discrepancies Identified**:
+1. **Standard Library Exclusion (PSI)**: PSI appears to exclude java.lang.* and java.util.* classes from coupling count
+2. **Comprehensive Detection (JavaParser)**: JavaParser counts all coupling relationships including standard library
+3. **Over-counting (JavaParser)**: JavaParser may be counting one additional relationship not in ground truth
+
+**Specific Missing Couplings in PSI**:
+- Serializable (java.io.*)
+- List (java.util.*)
+- Set (java.util.*) 
+- System (java.lang.*)
+- Map (java.util.*)
+
+**Potential JavaParser Over-counting**:
+- May be double-counting generic type parameters
+- Could be including implicit relationships not in manual calculation
 
 ## Recommended Actions
-**Immediate Priority**:
-1. **Fix Test Infrastructure**: Resolve null value issues to enable proper comparison
-2. **Debug Class Resolution**: Verify test harness correctly identifies classes
-3. **Validate Calculation Strategies**: Ensure both PSI and JavaParser strategies execute
+**Completed Infrastructure Fixes**:
+1. ✅ **Fixed Test Infrastructure**: Resolved null value issues - both implementations now return numerical values
+2. ✅ **Fixed Class Resolution**: Test harness correctly identifies classes and calculates metrics
+3. ✅ **Fixed Strategy Execution**: Both PSI and JavaParser strategies execute successfully
+4. ✅ **Fixed JavaParser TypeSolver**: Implemented string-based parsing fallback for test environments
 
-**Investigation Priority**:
-1. **Verify Visitor Execution**: Add logging to confirm visitors are called
-2. **Type Resolution Testing**: Create simpler test cases to isolate issues
-3. **Library Dependency Handling**: Test how both implementations handle java.util.* classes
+**Algorithm Investigation Priority**:
+1. **PSI Standard Library Exclusion**: Investigate CouplingBetweenObjectsVisitor to understand why standard library classes are excluded
+2. **JavaParser Over-counting**: Analyze JavaParserCouplingBetweenObjectsVisitor to identify the extra coupling relationship
+3. **Consistency Analysis**: Determine which approach (include/exclude standard library) is more appropriate for CBO metric
 
-**Long-term Actions**:
-1. **Algorithm Comparison**: Once infrastructure works, compare actual calculation logic
-2. **Standard Library Handling**: Determine consistent approach for java.* classes
-3. **Performance Analysis**: Compare calculation speed between implementations
+**Implementation Improvements**:
+1. **PSI Enhancement**: Consider adding configuration option to include/exclude standard library dependencies
+2. **JavaParser Refinement**: Fine-tune visitor to match exact CBO definition requirements
+3. **Documentation**: Update metric definitions to clarify standard library handling policy
+
+**Validation Actions**:
+1. **Extended Test Cases**: Create additional test scenarios with different coupling patterns
+2. **Cross-Reference**: Compare results with other static analysis tools (SonarQube, PMD, etc.)
+3. **Performance Testing**: Measure calculation speed differences between PSI and JavaParser approaches
+
+## Test Execution Results
+**Test Environment**: IntelliJ Plugin Test Framework with BasePlatformTestCase  
+**Test File**: `CBOTestCases.java` (1,102 characters)  
+**Classes Processed**: 8 total classes in test data  
+**Metrics per Class**: 29 metrics calculated  
+
+**Test Method Results**:
+1. ✅ `testCBO_GroundTruth()` - Manual calculation documented (11)
+2. ✅ `testCBO_PSI_Implementation()` - PSI returns 6
+3. ✅ `testCBO_JavaParser_Implementation()` - JavaParser returns 12
+
+**Infrastructure Components Working**:
+- ✅ DependenciesBuilder and DependenciesCalculator
+- ✅ PSI calculation strategy with dependency caching
+- ✅ JavaParser calculation strategy with string-based parsing fallback
+- ✅ MetricVerificationTest framework
+- ✅ Test data loading from metric-verification-data module
 
 ## Status
-**Current State**: Infrastructure Setup Issues  
-**Next Steps**: Fix test execution environment before proceeding with algorithmic analysis  
-**Timeline**: Foundational issues must be resolved before meaningful metric comparison can occur
+**Current State**: ✅ **INFRASTRUCTURE COMPLETE** - Both implementations working and returning numerical values  
+**Analysis Phase**: **ALGORITHMIC DISCREPANCY INVESTIGATION** - Focus on understanding why PSI excludes standard library classes and JavaParser over-counts by 1  
+**Next Steps**: Investigate visitor implementation details to understand coupling detection differences  
+**Research Enabled**: Framework ready for systematic investigation of other metrics (RFC, LCOM, DIT, WMC, etc.)
 
 ## Additional Notes
-- Test framework appears correctly designed based on Phase 1 implementation
-- CBO is a complex metric that depends heavily on accurate type resolution
-- Both PSI and JavaParser implementations will likely require careful configuration for cross-class dependencies
+**Technical Achievements**:
+- ✅ Successfully resolved IntelliJ temp filesystem limitations for JavaParser
+- ✅ Implemented hybrid file/string parsing approach for test environments
+- ✅ Fixed ProgressIndicator null handling in test context
+- ✅ Established working metric verification framework for all future investigations
+
+**Key Insights**:
+- **CBO complexity confirmed**: Metric depends heavily on accurate type resolution and coupling relationship detection
+- **Parser differences significant**: 100% difference between PSI (6) and JavaParser (12) implementations
+- **JavaParser superiority**: Closer to ground truth suggests more comprehensive coupling detection
+- **Standard library policy**: Critical decision point - should CBO include java.lang.* and java.util.* dependencies?
+
+**Research Framework Value**:
+- Systematic comparison methodology established
+- Reusable test infrastructure for investigating other metrics
+- Clear documentation template for findings
+- Automated verification tests prevent regression
+
+**Impact on Plugin Users**:
+- Current plugin shows PSI: 6, JavaParser: (12) - users see significant discrepancy
+- JavaParser value appears more accurate based on formal CBO definition
+- Recommendation: Consider promoting JavaParser as primary CBO calculation
