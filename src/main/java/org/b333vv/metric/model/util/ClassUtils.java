@@ -17,6 +17,7 @@
 package org.b333vv.metric.model.util;
 
 import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +36,37 @@ public final class ClassUtils {
             psiClass.isEnum() ||
             psiClass instanceof PsiAnonymousClass ||
             psiClass instanceof PsiTypeParameter ||
-            psiClass.getParent() instanceof PsiDeclarationStatement);
+            isLocalClass(psiClass));
+    }
+    
+    /**
+     * Checks if a class is a local class (defined inside a method or initializer block).
+     * This is more precise than checking for PsiDeclarationStatement parent,
+     * as it specifically targets classes that shouldn't have metrics calculated.
+     */
+    private static boolean isLocalClass(PsiClass psiClass) {
+        // Local classes are defined inside methods, constructors, or initializer blocks
+        // They have PsiDeclarationStatement as parent AND that statement is inside a code block
+        PsiElement parent = psiClass.getParent();
+        if (!(parent instanceof PsiDeclarationStatement)) {
+            return false;
+        }
+        
+        // Check if the declaration statement is inside a method, constructor, or initializer
+        PsiElement grandParent = parent.getParent();
+        while (grandParent != null) {
+            if (grandParent instanceof PsiMethod || 
+                grandParent instanceof PsiClassInitializer ||
+                grandParent instanceof PsiCodeBlock) {
+                return true;  // This is a local class inside executable code
+            }
+            if (grandParent instanceof PsiClass) {
+                return false; // This is an inner class, not a local class
+            }
+            grandParent = grandParent.getParent();
+        }
+        
+        return false; // Default to allowing the class
     }
 
     public static boolean isAbstractClass(PsiClass aClass) {

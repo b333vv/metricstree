@@ -29,6 +29,8 @@ public class NumberOfAttributesVisitor extends JavaClassVisitor {
         super.visitClass(psiClass);
         metric = Metric.of(NOA, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
+            // Use getAllFields() to count both inherited and declared fields
+            // This is the correct PSI semantic that JavaParser should align with
             metric = Metric.of(NOA, psiClass.getAllFields().length);
         }
     }
