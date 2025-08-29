@@ -1,6 +1,7 @@
 package org.b333vv.metric.builder;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -10,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
@@ -101,13 +103,10 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
 
         List<ClassOrInterfaceDeclaration> allClassDeclarations = javaProject.allClasses()
                 .map(javaClass -> {
-                    String filePath = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
-                        PsiClass psiClass = javaClass.getPsiClass();
-                        return psiClass.getContainingFile().getVirtualFile().getPath();
-                    });
                     try {
-                        return javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
-                    } catch (IOException e) {
+                        return parseClassCompilationUnit(javaClass, javaParser);
+                    } catch (Exception e) {
+                        System.err.println("Failed to parse class " + javaClass.getName() + ": " + e.getMessage());
                         return null;
                     }
                 })
@@ -120,12 +119,8 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
             if (indicator.isCanceled()) {
                 return;
             }
-            String filePath = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
-                PsiClass psiClass = javaClass.getPsiClass();
-                return psiClass.getContainingFile().getVirtualFile().getPath();
-            });
             try {
-                CompilationUnit cu = javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
+                CompilationUnit cu = parseClassCompilationUnit(javaClass, javaParser);
                 if (cu != null) {
                     cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals(javaClass.getName()))
                             .ifPresent(classDeclaration -> {
@@ -167,7 +162,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                             });
                 }
             } catch (Exception e) {
-                // Log error, e.g., using Logger
+                System.err.println("Failed to process class " + javaClass.getName() + ": " + e.getMessage());
             }
         });
     }
@@ -270,5 +265,47 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 mmiMetric.setJavaParserValue(Value.of(maintainabilityIndex));
             }
         }
+    }
+
+    /**
+     * Parse a compilation unit for a given JavaClass, handling both file-based and string-based parsing.
+     * In test environments with temp filesystem, falls back to string-based parsing.
+     */
+    private CompilationUnit parseClassCompilationUnit(JavaClass javaClass, JavaParser javaParser) {
+        return ApplicationManager.getApplication().runReadAction((Computable<CompilationUnit>) () -> {
+            try {
+                PsiClass psiClass = javaClass.getPsiClass();
+                VirtualFile virtualFile = psiClass.getContainingFile().getVirtualFile();
+                String filePath = virtualFile.getPath();
+                
+                // Try file-based parsing first (for production environment)
+                try {
+                    System.out.println("Attempting file-based parsing for: " + filePath);
+                    return javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
+                } catch (Exception e) {
+                    // Fall back to string-based parsing (for test environment)
+                    System.out.println("File-based parsing failed, trying string-based parsing: " + e.getMessage());
+                    
+                    try {
+                        String sourceCode = new String(virtualFile.contentsToByteArray(), virtualFile.getCharset());
+                        System.out.println("Source code length: " + sourceCode.length() + " characters");
+                        ParseResult<CompilationUnit> parseResult = javaParser.parse(sourceCode);
+                        if (parseResult.isSuccessful()) {
+                            System.out.println("String-based parsing successful for: " + javaClass.getName());
+                            return parseResult.getResult().orElse(null);
+                        } else {
+                            System.err.println("String-based parsing failed for " + javaClass.getName() + ": " + parseResult.getProblems());
+                            return null;
+                        }
+                    } catch (Exception stringParseException) {
+                        System.err.println("Both file and string parsing failed for " + javaClass.getName() + ": " + stringParseException.getMessage());
+                        return null;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to parse class " + javaClass.getName() + ": " + e.getMessage());
+                return null;
+            }
+        });
     }
 }
