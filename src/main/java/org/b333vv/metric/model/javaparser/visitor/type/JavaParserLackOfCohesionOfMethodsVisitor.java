@@ -24,13 +24,30 @@ public class JavaParserLackOfCohesionOfMethodsVisitor extends JavaParserClassVis
             return;
         }
 
-        Map<MethodDeclaration, Set<String>> methodFieldUsage = new HashMap<>();
+        // Filter out static methods - only consider instance methods
+        List<MethodDeclaration> instanceMethods = new ArrayList<>();
         for (MethodDeclaration method : methods) {
+            if (!method.isStatic()) {
+                instanceMethods.add(method);
+            }
+        }
+
+        // If no instance methods, LCOM is 0
+        if (instanceMethods.isEmpty()) {
+            collector.accept(Metric.of(MetricType.LCOM, Value.of(0)));
+            return;
+        }
+
+        Map<MethodDeclaration, Set<String>> methodFieldUsage = new HashMap<>();
+        for (MethodDeclaration method : instanceMethods) {
             Set<String> usedFields = new HashSet<>();
             method.walk(FieldAccessExpr.class, fae -> {
                 try {
                     if (fae.resolve().isField() && n.resolve().getQualifiedName().equals(fae.resolve().asField().declaringType().getQualifiedName())) {
-                        usedFields.add(fae.getNameAsString());
+                        // Only include non-static instance fields
+                        if (!fae.resolve().asField().isStatic()) {
+                            usedFields.add(fae.getNameAsString());
+                        }
                     }
                 } catch (Exception e) {
                     // ignore
@@ -39,11 +56,25 @@ public class JavaParserLackOfCohesionOfMethodsVisitor extends JavaParserClassVis
             methodFieldUsage.put(method, usedFields);
         }
 
-        Graph graph = new Graph(methods.size());
-        for (int i = 0; i < methods.size(); i++) {
-            for (int j = i + 1; j < methods.size(); j++) {
-                MethodDeclaration m1 = methods.get(i);
-                MethodDeclaration m2 = methods.get(j);
+        // Filter out methods that don't use any fields
+        List<MethodDeclaration> methodsUsingFields = new ArrayList<>();
+        for (Map.Entry<MethodDeclaration, Set<String>> entry : methodFieldUsage.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                methodsUsingFields.add(entry.getKey());
+            }
+        }
+        
+        // If no methods use fields, LCOM is 0
+        if (methodsUsingFields.isEmpty()) {
+            collector.accept(Metric.of(MetricType.LCOM, Value.of(0)));
+            return;
+        }
+
+        Graph graph = new Graph(methodsUsingFields.size());
+        for (int i = 0; i < methodsUsingFields.size(); i++) {
+            for (int j = i + 1; j < methodsUsingFields.size(); j++) {
+                MethodDeclaration m1 = methodsUsingFields.get(i);
+                MethodDeclaration m2 = methodsUsingFields.get(j);
                 Set<String> fields1 = methodFieldUsage.get(m1);
                 Set<String> fields2 = methodFieldUsage.get(m2);
                 if (!Collections.disjoint(fields1, fields2)) {

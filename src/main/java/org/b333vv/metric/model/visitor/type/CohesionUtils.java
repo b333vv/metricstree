@@ -49,7 +49,10 @@ public final class CohesionUtils {
     private static Set<PsiMethod> getPsiMethods(PsiMethod[] methods) {
         final Set<PsiMethod> applicableMethods = new HashSet<>();
         for (PsiMethod method : methods) {
-            if (!method.isConstructor() && !boilerplateMethods.contains(method.getName())) {
+            // Only include non-static, non-constructor methods that are not boilerplate
+            if (!method.isConstructor() && 
+                !method.hasModifierProperty(PsiModifier.STATIC) && 
+                !boilerplateMethods.contains(method.getName())) {
                 applicableMethods.add(method);
             }
         }
@@ -60,7 +63,21 @@ public final class CohesionUtils {
                                                           Map<PsiMethod, Set<PsiField>> fieldsPerMethod,
                                                           Map<PsiMethod, Set<PsiMethod>> linkedMethods) {
         final Set<Set<PsiMethod>> components = new HashSet<>();
-        final Set<PsiMethod> unvisited = new HashSet<>(applicableMethods);
+        
+        // Filter out methods that don't use any fields - they don't contribute to LCOM
+        final Set<PsiMethod> methodsUsingFields = new HashSet<>();
+        for (PsiMethod method : applicableMethods) {
+            if (!fieldsPerMethod.get(method).isEmpty()) {
+                methodsUsingFields.add(method);
+            }
+        }
+        
+        // If no methods use fields, LCOM should be 0
+        if (methodsUsingFields.isEmpty()) {
+            return components; // Empty set means 0 components
+        }
+        
+        final Set<PsiMethod> unvisited = new HashSet<>(methodsUsingFields);
         while (!unvisited.isEmpty()) {
             final Set<PsiMethod> component = new HashSet<>();
             final Queue<PsiMethod> queue = new LinkedList<>();
@@ -70,8 +87,8 @@ public final class CohesionUtils {
             while (!queue.isEmpty()) {
                 PsiMethod current = queue.poll();
                 component.add(current);
-                // Связанные методы через поля
-                for (PsiMethod method : applicableMethods) {
+                // Find methods connected through shared field usage or method calls
+                for (PsiMethod method : methodsUsingFields) {
                     if (unvisited.contains(method)) {
                         if (CommonUtils.haveIntersection(fieldsPerMethod.get(method), fieldsPerMethod.get(current)) ||
                             CommonUtils.haveIntersection(linkedMethods.get(method), component)) {
@@ -205,7 +222,10 @@ public final class CohesionUtils {
                 final PsiElement referent = referenceExpression.resolve();
                 if (referent instanceof PsiField) {
                     final PsiField field = (PsiField) referent;
-                    fieldsUsed.add(field);
+                    // Only include non-static instance fields
+                    if (!field.hasModifierProperty(PsiModifier.STATIC)) {
+                        fieldsUsed.add(field);
+                    }
                 }
                 // Continue visiting children
                 super.visitReferenceExpression(referenceExpression);

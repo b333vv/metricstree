@@ -23,6 +23,7 @@ import org.b333vv.metric.model.metric.value.Value;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.LCOM;
 
@@ -34,7 +35,26 @@ public class LackOfCohesionOfMethodsVisitor extends JavaClassVisitor {
         metric = Metric.of(LCOM, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
             Set<PsiMethod> applicableMethods = CohesionUtils.getApplicableMethods(psiClass);
+            
+            // Special case: if no applicable methods (e.g., only static methods), LCOM should be 0
+            if (applicableMethods.isEmpty()) {
+                metric = Metric.of(LCOM, 0);
+                return;
+            }
+            
             Map<PsiMethod, Set<PsiField>> fieldsPerMethod = CohesionUtils.calculateFieldUsage(applicableMethods);
+            
+            // Count methods that actually use instance fields
+            long methodsUsingFields = fieldsPerMethod.values().stream()
+                .mapToLong(fields -> fields.isEmpty() ? 0 : 1)
+                .sum();
+                
+            // If no methods use instance fields, LCOM should be 0
+            if (methodsUsingFields == 0) {
+                metric = Metric.of(LCOM, 0);
+                return;
+            }
+            
             Map<PsiMethod, Set<PsiMethod>> linkedMethods = CohesionUtils.calculateMethodLinkage(applicableMethods);
             Set<Set<PsiMethod>> components = CohesionUtils.calculateComponents(applicableMethods,
                     fieldsPerMethod, linkedMethods);
