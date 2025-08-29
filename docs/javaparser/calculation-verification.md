@@ -90,19 +90,16 @@ graph TD
         6.  **Analyze & Conclude:** Compare all three values (Manual, PSI, JP) to determine the root cause of any discrepancy (e.g., "JavaParser visitor fails to resolve types from project libraries," "PSI visitor does not count generic type arguments as coupling").
 -   **Task 2.2: Investigate Cohesion Metrics (LCOM, TCC, WOC)**
     -   **Rationale/Goal:** Cohesion metrics involve complex logic regarding field access and method relationships.
-    -   **Status:** LCOM has been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. TCC and WOC are pending.
     -   **Estimated Effort (Optional):** L
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each cohesion metric is completed.
     -   **Sub-steps (for each metric, e.g., LCOM):** Follow the same 6-step process as in Task 2.1, creating test cases with varying levels of method-field interaction, including methods that don't use fields, methods that use the same fields, and multiple disconnected groups of methods.
 -   **Task 2.3: Investigate Inheritance Metrics (DIT, NOC, NOAM, NOOM)**
-    -   **Rationale/Goal:** These metrics test the system's ability to correctly navigate the class hierarchy.
-    -   **Status:** DIT has been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. NOC, NOAM, and NOOM are pending.
+    -   **Rationale/Goal:** These metrics test the system's ability to correctly navigate the class hierarchy
     -   **Estimated Effort (Optional):** M
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each inheritance metric is completed.
     -   **Sub-steps (for each metric, e.g., DIT):** Follow the same 6-step process, creating test cases with single inheritance, multi-level inheritance, and classes that only extend `java.lang.Object`.
 -   **Task 2.4: Investigate Complexity & Size Metrics (WMC, NCSS, NOM, NOA, etc.)**
     -   **Rationale/Goal:** These are foundational metrics that should be straightforward but can have subtle differences in what is counted (e.g., constructors, static initializers).
-    -   **Status:** WMC has been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. Other metrics are pending.
     -   **Estimated Effort (Optional):** M
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each complexity and size metric is completed.
     -   **Sub-steps (for each metric, e.g., WMC):** Follow the same 6-step process, creating test cases that cover all control flow statements (`if`, `for`, `while`, `switch`, `catch`, ternary operator, logical operators) to verify the complexity calculation for each method.
