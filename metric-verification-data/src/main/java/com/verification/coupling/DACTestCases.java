@@ -203,13 +203,13 @@ class ComplexGenerics_TestClass {
 /**
  * Class with inheritance to test field attribution
  */
-class InheritanceBase {
+class InheritanceBase1 {
     protected String baseField;
     protected CustomDataType baseCustomField;
     private int basePrivateField; // primitive, shouldn't count
 }
 
-class InheritanceDerived extends InheritanceBase {
+class InheritanceDerived2 extends InheritanceBase {
     private AnotherDataType derivedField;
     private String derivedStringField; // String type already used in base
     

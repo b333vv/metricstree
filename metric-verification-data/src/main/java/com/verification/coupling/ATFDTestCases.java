@@ -232,7 +232,7 @@ class SingleForeignAccess_TestClass {
 /**
  * Class with inheritance to test foreign data access attribution
  */
-class InheritanceBase {
+class InheritanceBase3 {
     protected ForeignDataSource baseSource = new ForeignDataSource();
     
     public void baseAccessForeign() {
@@ -241,7 +241,7 @@ class InheritanceBase {
     }
 }
 
-class InheritanceDerived extends InheritanceBase {
+class InheritanceDerived1 extends InheritanceBase3 {
     private AnotherForeignSource derivedSource = new AnotherForeignSource();
     
     public void derivedAccessForeign() {

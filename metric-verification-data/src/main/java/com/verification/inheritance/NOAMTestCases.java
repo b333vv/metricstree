@@ -107,11 +107,11 @@ class NOAM_ChildClass extends NOAM_BaseClass {
 /**
  * Class with no inheritance (all methods are "added")
  */
-class NoInheritance_TestClass {
+class NoInheritance_TestClass1 {
     private String data;
     private int count;
 
-    public NoInheritance_TestClass() {
+    public NoInheritance_TestClass1() {
         this.data = "default";
         this.count = 0;
     }
@@ -151,8 +151,8 @@ class NoInheritance_TestClass {
 /**
  * Child class that only overrides methods (no new methods added)
  */
-class OnlyOverrides_TestClass extends NOAM_BaseClass {
-    public OnlyOverrides_TestClass(String name) {
+class OnlyOverrides_TestClass1 extends NOAM_BaseClass {
+    public OnlyOverrides_TestClass1(String name) {
         super(name);
     }
 
@@ -186,10 +186,10 @@ class OnlyOverrides_TestClass extends NOAM_BaseClass {
 /**
  * Abstract class with abstract and concrete methods
  */
-abstract class AbstractParent_TestClass {
+abstract class AbstractParent_TestClass2 {
     protected String abstractProperty;
 
-    public AbstractParent_TestClass(String property) {
+    public AbstractParent_TestClass2(String property) {
         this.abstractProperty = property;
     }
 
@@ -212,10 +212,10 @@ abstract class AbstractParent_TestClass {
 /**
  * Concrete implementation of abstract class
  */
-class ConcreteImplementation extends AbstractParent_TestClass {
+class ConcreteImplementation1 extends AbstractParent_TestClass {
     private String implementationData;
 
-    public ConcreteImplementation(String property) {
+    public ConcreteImplementation1(String property) {
         super(property);
         this.implementationData = "implementation";
     }
@@ -242,7 +242,7 @@ class ConcreteImplementation extends AbstractParent_TestClass {
 /**
  * Interface to test method addition with interface implementation
  */
-interface TestInterface {
+interface TestInterface1 {
     void interfaceMethod();
     
     default void defaultMethod() {
@@ -253,10 +253,10 @@ interface TestInterface {
 /**
  * Class that implements interface and extends class
  */
-class MultipleInheritance extends NOAM_BaseClass implements TestInterface {
+class MultipleInheritance1 extends NOAM_BaseClass implements TestInterface {
     private String multipleData;
 
-    public MultipleInheritance(String name) {
+    public MultipleInheritance1(String name) {
         super(name);
         this.multipleData = "multiple";
     }
@@ -290,7 +290,7 @@ class MultipleInheritance extends NOAM_BaseClass implements TestInterface {
 /**
  * Deep inheritance chain to test method addition at different levels
  */
-class DeepInheritance_GrandParent {
+class DeepInheritance_GrandParent1 {
     public void grandParentMethod() {
         System.out.println("Grand parent method");
     }
@@ -300,7 +300,7 @@ class DeepInheritance_GrandParent {
     }
 }
 
-class DeepInheritance_Parent extends DeepInheritance_GrandParent {
+class DeepInheritance_Parent1 extends DeepInheritance_GrandParent {
     // New method at parent level (should count toward parent's NOAM)
     public void parentMethod() {
         System.out.println("Parent method");
@@ -314,7 +314,7 @@ class DeepInheritance_Parent extends DeepInheritance_GrandParent {
     }
 }
 
-class DeepInheritance_Child extends DeepInheritance_Parent {
+class DeepInheritance_Child1 extends DeepInheritance_Parent {
     // New method at child level (should count toward child's NOAM)
     public void childMethod() {
         System.out.println("Child method");

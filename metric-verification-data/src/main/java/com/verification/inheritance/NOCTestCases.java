@@ -170,10 +170,10 @@ class OnlyChild_TestClass extends SingleParent_TestClass {
 /**
  * Abstract class with children (NOC = 2)
  */
-abstract class AbstractParent_TestClass {
+abstract class AbstractParent_TestClass1 {
     protected String abstractProperty;
 
-    public AbstractParent_TestClass(String property) {
+    public AbstractParent_TestClass1(String property) {
         this.abstractProperty = property;
     }
 
@@ -223,7 +223,7 @@ class ConcreteChildB extends AbstractParent_TestClass {
 /**
  * Interface to test interface inheritance (should have NOC = 2)
  */
-interface TestInterface {
+interface TestInterface2 {
     void interfaceMethod();
     
     default void defaultMethod() {
@@ -262,8 +262,8 @@ class InterfaceImplB implements TestInterface {
 /**
  * Class that both extends and implements (multiple inheritance scenario)
  */
-class MultipleInheritance extends NOC_BaseClass implements TestInterface {
-    public MultipleInheritance(String name) {
+class MultipleInheritance3 extends NOC_BaseClass implements TestInterface {
+    public MultipleInheritance3(String name) {
         super(name);
     }
 
