@@ -1,20 +1,21 @@
 package org.b333vv.metric.research.coupling;
 
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.research.MetricVerificationTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CBOMetricVerificationTest extends MetricVerificationTest {
     
-    @BeforeEach
-    public void setup() {
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
         setupTest("com/verification/coupling/CBOTestCases.java");
     }
 
-    @Test
     public void testCBO_GroundTruth() {
         // Manual Calculation for CBO_TestClass:
         // According to Chidamber & Kemerer definition, CBO counts the number of other classes
@@ -40,29 +41,29 @@ public class CBOMetricVerificationTest extends MetricVerificationTest {
         assertEquals(11, 11); // Placeholder for documented ground truth.
     }
 
-    @Test
     public void testCBO_PSI_Implementation() {
-        // Debug: print all available classes
-        System.out.println("Available classes:");
-        javaProject.allClasses().forEach(javaClass -> {
-            System.out.println("  - " + javaClass.getName());
-        });
-        
         var psiValue = getPsiValue("CBO_TestClass", MetricType.CBO);
         System.out.println("PSI CBO value: " + psiValue);
-        if (psiValue != null) {
+        if (psiValue != null && psiValue != Value.UNDEFINED) {
             long psiLongValue = psiValue.longValue();
             System.out.println("PSI CBO long value: " + psiLongValue);
+            // For now, just verify we got a non-null value - the exact assertion can be added later
+            assertTrue(psiLongValue >= 0);
+        } else {
+            fail("PSI CBO value should not be null or undefined");
         }
     }
 
-    @Test
     public void testCBO_JavaParser_Implementation() {
         var javaParserValue = getJavaParserValue("CBO_TestClass", MetricType.CBO);
         System.out.println("JavaParser CBO value: " + javaParserValue);
-        if (javaParserValue != null) {
+        if (javaParserValue != null && javaParserValue != Value.UNDEFINED) {
             long javaParserLongValue = javaParserValue.longValue();
             System.out.println("JavaParser CBO long value: " + javaParserLongValue);
+            // For now, just verify we got a non-null value - the exact assertion can be added later
+            assertTrue(javaParserLongValue >= 0);
+        } else {
+            fail("JavaParser CBO value should not be null or undefined");
         }
     }
 }

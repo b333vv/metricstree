@@ -14,7 +14,7 @@ class Unused {}
 
 interface InterfaceDep {}
 
-public class CBO_TestClass extends Parent implements Serializable { // Coupling to Parent and Serializable
+class CBO_TestClass extends Parent implements Serializable { // Coupling to Parent and Serializable
     private DependencyA fieldA; // Coupling to DependencyA
     private List<String> fieldB; // Coupling to List (from java.util)
     private GenericDependency<DependencyB> fieldC; // Coupling to GenericDependency and DependencyB

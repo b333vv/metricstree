@@ -18,6 +18,7 @@ package org.b333vv.metric.builder;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
@@ -45,6 +46,18 @@ public class DependenciesCalculator {
 
     public DependenciesBuilder calculateDependencies() {
         indicator = ProgressManager.getInstance().getProgressIndicator();
+        if (indicator == null) {
+            // In test environment, use EmptyProgressIndicator
+            indicator = new EmptyProgressIndicator();
+        }
+        filesCount = scope.getFileCount();
+        indicator.setText("Calculating dependencies");
+        scope.accept(new PsiJavaFileVisitor());
+        return dependenciesBuilder;
+    }
+
+    public DependenciesBuilder calculateDependencies(ProgressIndicator progressIndicator) {
+        this.indicator = progressIndicator;
         filesCount = scope.getFileCount();
         indicator.setText("Calculating dependencies");
         scope.accept(new PsiJavaFileVisitor());

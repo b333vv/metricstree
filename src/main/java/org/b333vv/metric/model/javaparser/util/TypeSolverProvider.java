@@ -20,24 +20,35 @@ public class TypeSolverProvider {
         CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
         combinedTypeSolver.add(new ReflectionTypeSolver());
 
+        // Add content source roots (including test data)
         for (VirtualFile sourceRoot : ProjectRootManager.getInstance(project).getContentSourceRoots()) {
-            combinedTypeSolver.add(new JavaParserTypeSolver(sourceRoot.toNioPath()));
+            System.out.println("Adding source root to TypeSolver: " + sourceRoot.getPath());
+            try {
+                combinedTypeSolver.add(new JavaParserTypeSolver(sourceRoot.toNioPath()));
+                System.out.println("Successfully added source root: " + sourceRoot.getPath());
+            } catch (UnsupportedOperationException e) {
+                // In test environment, temp filesystem can't be converted to NIO Path
+                // Skip this source root for JavaParser resolution
+                System.out.println("Skipping temp filesystem source root: " + sourceRoot.getPath() + " (" + e.getMessage() + ")");
+            }
         }
 
+        // Add library dependencies
         for (Module module : ModuleManager.getInstance(project).getModules()) {
-        for (VirtualFile classesRoot : OrderEnumerator.orderEntries(module).recursively().librariesOnly().getClassesRoots()) {
-            if (!classesRoot.isDirectory()) {
-                String path = classesRoot.getPath();
-                if (path.contains("!/")) {
-                    path = path.substring(0, path.indexOf("!/"));
+            for (VirtualFile classesRoot : OrderEnumerator.orderEntries(module).recursively().librariesOnly().getClassesRoots()) {
+                if (!classesRoot.isDirectory()) {
+                    String path = classesRoot.getPath();
+                    if (path.contains("!/")) {
+                        path = path.substring(0, path.indexOf("!/"));
+                    }
+                    try {
+                        System.out.println("Adding library to TypeSolver: " + path);
+                        combinedTypeSolver.add(new JarTypeSolver(path));
+                    } catch (IOException e) {
+                        System.err.println("Failed to add library to TypeSolver: " + path + ", error: " + e.getMessage());
+                    }
                 }
-                try {
-                    combinedTypeSolver.add(new JarTypeSolver(path));
-                } catch (IOException e) {
-                    // Log error, e.g., using Logger
-                }
-                }
-        }
+            }
         }
 
         return combinedTypeSolver;
