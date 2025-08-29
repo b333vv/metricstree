@@ -27,3 +27,5 @@ gemini.md
 /build/
 /classes/
 
+metric-verification-data/bin
+metric-verification-data/build
