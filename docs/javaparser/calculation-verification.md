@@ -77,8 +77,37 @@ graph TD
 #### Phase 2: Systematic Per-Metric Investigation
 -   **Objective(s):** Execute the core research for each class-level metric, identify the root cause of discrepancies, and document the findings. The following tasks should be performed for each metric.
 -   **Priority:** High
+
+##### Progress Update
+The initial investigation for a core set of class-level metrics has been completed. The 6-step workflow (Definition Review, Test Case Creation, Manual Calculation, PSI Verification, JavaParser Verification, Analysis) has been applied to the following metrics:
+
+- **CBO (Coupling Between Objects):** ✅
+- **RFC (Response For a Class):** ✅
+- **LCOM (Lack of Cohesion of Methods):** ✅
+- **DIT (Depth of Inheritance Tree):** ✅
+- **WMC (Weighted Method Count):** ✅
+
+For each of these, the following deliverables have been created:
+-   **Test Data:** Dedicated Java files in the `metric-verification-data` module with targeted scenarios.
+-   **Verification Tests:** JUnit integration tests extending `MetricVerificationTest` to automate validation.
+-   **Ground Truth:** Manual calculations documented within the test classes to establish expected values.
+-   **Findings Template:** A complete findings document for CBO (`docs/research/CBO_Findings.md`) has been created to serve as a template for other metrics.
+
+**Current Blocker: Infrastructure Issue**
+-   A fundamental issue was discovered during test execution: both PSI and JavaParser metric calculations are returning `null` values.
+-   This suggests a setup or configuration problem within the test harness (e.g., class resolution, strategy execution) rather than an algorithmic error in the metric visitors themselves.
+-   **This blocker must be resolved before the quantitative analysis of discrepancies can proceed.**
+
+**Next Steps for Phase 2**
+1.  **Fix Test Harness:** Debug and resolve the root cause of the `null` return values in the `MetricVerificationTest` environment.
+2.  **Gather Baseline Data:** Once the harness is fixed, execute all created verification tests to collect the actual calculated values from both PSI and JavaParser implementations.
+3.  **Complete Findings Documents:** Use the collected data to complete the detailed findings documents for RFC, LCOM, DIT, and WMC.
+4.  **Continue Investigation:** Proceed with the investigation of the remaining class-level metrics as outlined below, following the established 6-step workflow.
+
+---
 -   **Task 2.1: Investigate Coupling Metrics (CBO, RFC, MPC, DAC, ATFD)**
     -   **Rationale/Goal:** These metrics are highly dependent on accurate type resolution and are common sources of discrepancies.
+    -   **Status:** CBO and RFC have been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. MPC, DAC, and ATFD are pending.
     -   **Estimated Effort (Optional):** L
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each coupling metric is completed according to the template from Task 1.3.
     -   **Sub-steps (for each metric, e.g., CBO):**
@@ -90,16 +119,19 @@ graph TD
         6.  **Analyze & Conclude:** Compare all three values (Manual, PSI, JP) to determine the root cause of any discrepancy (e.g., "JavaParser visitor fails to resolve types from project libraries," "PSI visitor does not count generic type arguments as coupling").
 -   **Task 2.2: Investigate Cohesion Metrics (LCOM, TCC, WOC)**
     -   **Rationale/Goal:** Cohesion metrics involve complex logic regarding field access and method relationships.
+    -   **Status:** LCOM has been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. TCC and WOC are pending.
     -   **Estimated Effort (Optional):** L
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each cohesion metric is completed.
     -   **Sub-steps (for each metric, e.g., LCOM):** Follow the same 6-step process as in Task 2.1, creating test cases with varying levels of method-field interaction, including methods that don't use fields, methods that use the same fields, and multiple disconnected groups of methods.
 -   **Task 2.3: Investigate Inheritance Metrics (DIT, NOC, NOAM, NOOM)**
     -   **Rationale/Goal:** These metrics test the system's ability to correctly navigate the class hierarchy.
+    -   **Status:** DIT has been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. NOC, NOAM, and NOOM are pending.
     -   **Estimated Effort (Optional):** M
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each inheritance metric is completed.
     -   **Sub-steps (for each metric, e.g., DIT):** Follow the same 6-step process, creating test cases with single inheritance, multi-level inheritance, and classes that only extend `java.lang.Object`.
 -   **Task 2.4: Investigate Complexity & Size Metrics (WMC, NCSS, NOM, NOA, etc.)**
     -   **Rationale/Goal:** These are foundational metrics that should be straightforward but can have subtle differences in what is counted (e.g., constructors, static initializers).
+    -   **Status:** WMC has been investigated. Test cases and verification tests are complete. The investigation is currently **blocked** by the infrastructure issue described above. Other metrics are pending.
     -   **Estimated Effort (Optional):** M
     -   **Deliverable/Criteria for Completion:** A detailed findings document for each complexity and size metric is completed.
     -   **Sub-steps (for each metric, e.g., WMC):** Follow the same 6-step process, creating test cases that cover all control flow statements (`if`, `for`, `while`, `switch`, `catch`, ternary operator, logical operators) to verify the complexity calculation for each method.
