@@ -60,26 +60,26 @@ public final class CohesionUtils {
                                                           Map<PsiMethod, Set<PsiField>> fieldsPerMethod,
                                                           Map<PsiMethod, Set<PsiMethod>> linkedMethods) {
         final Set<Set<PsiMethod>> components = new HashSet<>();
-        while (applicableMethods.size() > 0) {
+        final Set<PsiMethod> unvisited = new HashSet<>(applicableMethods);
+        while (!unvisited.isEmpty()) {
             final Set<PsiMethod> component = new HashSet<>();
-            final PsiMethod testMethod = applicableMethods.iterator().next();
-            applicableMethods.remove(testMethod);
-            component.add(testMethod);
-            final Set<PsiField> fieldsUsed = new HashSet<>(fieldsPerMethod.get(testMethod));
-            while (true) {
-                final Set<PsiMethod> methodsToAdd = new HashSet<>();
+            final Queue<PsiMethod> queue = new LinkedList<>();
+            PsiMethod start = unvisited.iterator().next();
+            queue.add(start);
+            unvisited.remove(start);
+            while (!queue.isEmpty()) {
+                PsiMethod current = queue.poll();
+                component.add(current);
+                // Связанные методы через поля
                 for (PsiMethod method : applicableMethods) {
-                    if (CommonUtils.haveIntersection(fieldsPerMethod.get(method), fieldsUsed) ||
+                    if (unvisited.contains(method)) {
+                        if (CommonUtils.haveIntersection(fieldsPerMethod.get(method), fieldsPerMethod.get(current)) ||
                             CommonUtils.haveIntersection(linkedMethods.get(method), component)) {
-                        methodsToAdd.add(method);
-                        fieldsUsed.addAll(fieldsPerMethod.get(method));
+                            queue.add(method);
+                            unvisited.remove(method);
+                        }
                     }
                 }
-                if (methodsToAdd.size() == 0) {
-                    break;
-                }
-                applicableMethods.removeAll(methodsToAdd);
-                component.addAll(methodsToAdd);
             }
             components.add(component);
         }

@@ -32,7 +32,7 @@ public class LCOMMetricVerificationTest extends MetricVerificationTest {
         //
         // Field usage analysis:
         // fieldA: methodA1, methodA2, bridgeMethod
-        // fieldB: methodB1, methodB2, bridgeMethod  
+        // fieldB: methodB1, methodB2, bridgeMethod
         // fieldC: methodC1, isolatedMethod
         // no fields: utilityMethod
         //

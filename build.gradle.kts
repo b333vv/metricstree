@@ -86,7 +86,6 @@ tasks {
             targetCompatibility = it
         }
         withType<KotlinCompile> {
-            kotlinOptions.jvmTarget = it
         }
     }
 
@@ -101,17 +100,16 @@ tasks {
     }
 
     dependencies {
-        implementation ("org.knowm.xchart:xchart:3.6.3")
-        implementation ("org.json:json:20211205")
+        implementation("org.knowm.xchart:xchart:3.6.3")
+        implementation("org.json:json:20211205")
 //        testImplementation ("junit:junit:4.9")
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
-        testImplementation ("org.assertj:assertj-core:3.6.2")
+        testImplementation("org.assertj:assertj-core:3.6.2")
         testImplementation("org.mockito:mockito-core:5.11.0")
         testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
         implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.10")
-        "integrationTestImplementation"(project(":metric-verification-data"))
+        testImplementation(project(":metric-verification-data"))
     }
-
     register("integrationTest", org.gradle.api.tasks.testing.Test::class.java) {
         description = "Runs integration tests."
         group = "verification"
