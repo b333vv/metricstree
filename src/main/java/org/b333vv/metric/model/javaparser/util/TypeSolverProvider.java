@@ -2,6 +2,7 @@ package org.b333vv.metric.model.javaparser.util;
 
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -19,6 +20,8 @@ public class TypeSolverProvider {
     public TypeSolver getTypeSolver(Project project) {
         CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
         combinedTypeSolver.add(new ReflectionTypeSolver());
+        // Add the current ClassLoader to resolve classes available at runtime (e.g., IntelliJ SDK)
+        combinedTypeSolver.add(new ClassLoaderTypeSolver(this.getClass().getClassLoader()));
 
         // Add content source roots (including test data)
         for (VirtualFile sourceRoot : ProjectRootManager.getInstance(project).getContentSourceRoots()) {
