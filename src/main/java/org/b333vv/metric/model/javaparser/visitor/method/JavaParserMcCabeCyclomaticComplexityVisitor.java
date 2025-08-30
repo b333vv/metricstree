@@ -1,5 +1,6 @@
 package org.b333vv.metric.model.javaparser.visitor.method;
 
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
@@ -17,6 +18,14 @@ public class JavaParserMcCabeCyclomaticComplexityVisitor extends JavaParserMetho
 
     @Override
     public void visit(MethodDeclaration n, Consumer<Metric> collector) {
+        complexity = 1;
+        super.visit(n, collector);
+        Metric metric = Metric.of(MetricType.CC, Value.of(complexity));
+        collector.accept(metric);
+    }
+
+    @Override
+    public void visit(ConstructorDeclaration n, Consumer<Metric> collector) {
         complexity = 1;
         super.visit(n, collector);
         Metric metric = Metric.of(MetricType.CC, Value.of(complexity));
@@ -55,9 +64,9 @@ public class JavaParserMcCabeCyclomaticComplexityVisitor extends JavaParserMetho
 
     @Override
     public void visit(SwitchEntry n, Consumer<Metric> collector) {
-        if (!n.getLabels().isEmpty()) { // check for case, not default
-            complexity += n.getLabels().size();
-        }
+        // Align with PSI implementation: count one per switch entry (case group),
+        // including default, regardless of how many labels are attached to the entry.
+        complexity++;
         super.visit(n, collector);
     }
 

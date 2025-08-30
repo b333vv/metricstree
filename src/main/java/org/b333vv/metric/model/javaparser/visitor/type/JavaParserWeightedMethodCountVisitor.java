@@ -1,6 +1,7 @@
 package org.b333vv.metric.model.javaparser.visitor.type;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
 import org.b333vv.metric.model.javaparser.visitor.method.JavaParserMcCabeCyclomaticComplexityVisitor;
@@ -20,6 +21,14 @@ public class JavaParserWeightedMethodCountVisitor extends JavaParserClassVisitor
             JavaParserMcCabeCyclomaticComplexityVisitor visitor = new JavaParserMcCabeCyclomaticComplexityVisitor();
             List<Metric> metrics = new ArrayList<>();
             visitor.visit(method, metrics::add);
+            if (!metrics.isEmpty()) {
+                wmc += metrics.get(0).getValue().longValue();
+            }
+        }
+        for (ConstructorDeclaration constructor : n.getConstructors()) {
+            JavaParserMcCabeCyclomaticComplexityVisitor visitor = new JavaParserMcCabeCyclomaticComplexityVisitor();
+            List<Metric> metrics = new ArrayList<>();
+            visitor.visit(constructor, metrics::add);
             if (!metrics.isEmpty()) {
                 wmc += metrics.get(0).getValue().longValue();
             }

@@ -14,7 +14,8 @@ public class JavaParserNumberOfMethodsVisitor extends JavaParserClassVisitor {
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
         super.visit(n, collector);
-        long numberOfMethods = n.getMethods().size();
+        // Count declared methods and constructors to align with PSI behavior
+        long numberOfMethods = n.getMethods().size() + n.getConstructors().size();
         Metric metric = Metric.of(MetricType.NOM, Value.of(numberOfMethods));
         collector.accept(metric);
     }
