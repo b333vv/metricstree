@@ -4,8 +4,10 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
+import org.b333vv.metric.model.visitor.type.CohesionUtils;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -25,10 +27,11 @@ public class JavaParserLackOfCohesionOfMethodsVisitor extends JavaParserClassVis
             return;
         }
 
-        // Filter out static methods - only consider instance methods
+        // Filter out static and boilerplate methods - only consider applicable instance methods
         List<MethodDeclaration> instanceMethods = new ArrayList<>();
+        Set<String> boilerplate = CohesionUtils.getBoilerplateMethods();
         for (MethodDeclaration method : methods) {
-            if (!method.isStatic()) {
+            if (!method.isStatic() && !boilerplate.contains(method.getNameAsString())) {
                 instanceMethods.add(method);
             }
         }
@@ -96,6 +99,64 @@ public class JavaParserLackOfCohesionOfMethodsVisitor extends JavaParserClassVis
                     graph.addEdge(i, j);
                 }
             }
+        }
+
+        // Add method-call linkage between applicable methods (same-class calls)
+        // Build a quick index from method to its list index for O(1) lookup
+        Map<MethodDeclaration, Integer> indexByMethod = new IdentityHashMap<>();
+        for (int idx = 0; idx < methodsUsingFields.size(); idx++) {
+            indexByMethod.put(methodsUsingFields.get(idx), idx);
+        }
+
+        // Also index candidate callees by (name, arity) for heuristic matching when resolution fails
+        Map<String, List<MethodDeclaration>> methodsByName = new HashMap<>();
+        for (MethodDeclaration md : methodsUsingFields) {
+            methodsByName.computeIfAbsent(md.getNameAsString(), k -> new ArrayList<>()).add(md);
+        }
+
+        String classQName = null;
+        try {
+            classQName = n.resolve().getQualifiedName();
+        } catch (Exception ignored) {
+        }
+
+        for (int i = 0; i < methodsUsingFields.size(); i++) {
+            final int callerIdx = i;
+            MethodDeclaration caller = methodsUsingFields.get(i);
+            final String finalClassQName = classQName; // effectively final for lambda
+            caller.walk(MethodCallExpr.class, mce -> {
+                // Try resolve to ensure it's an intra-class call
+                try {
+                    var resolved = mce.resolve();
+                    var declType = resolved.declaringType();
+                    if (finalClassQName != null && finalClassQName.equals(declType.getQualifiedName())) {
+                        String name = resolved.getName();
+                        int arity = resolved.getNumberOfParams();
+                        List<MethodDeclaration> cands = methodsByName.getOrDefault(name, Collections.emptyList());
+                        for (MethodDeclaration target : cands) {
+                            if (target.getParameters().size() == arity) {
+                                Integer j = indexByMethod.get(target);
+                                if (j != null && j != callerIdx) {
+                                    graph.addEdge(callerIdx, j);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Fall back: heuristic by unqualified name and argument count if resolution fails
+                    String name = mce.getNameAsString();
+                    int arity = mce.getArguments().size();
+                    List<MethodDeclaration> cands = methodsByName.getOrDefault(name, Collections.emptyList());
+                    for (MethodDeclaration target : cands) {
+                        if (target.getParameters().size() == arity) {
+                            Integer j = indexByMethod.get(target);
+                            if (j != null && j != callerIdx) {
+                                graph.addEdge(callerIdx, j);
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         collector.accept(Metric.of(MetricType.LCOM, Value.of(graph.connectedComponents())));

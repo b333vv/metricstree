@@ -145,7 +145,8 @@ public final class CohesionUtils {
 
     public static Set<PsiField> calculateUsedFields(PsiMethod method) {
         try {
-            final FieldsUsedVisitor visitor = new FieldsUsedVisitor();
+            final PsiClass targetClass = method.getContainingClass();
+            final FieldsUsedVisitor visitor = new FieldsUsedVisitor(targetClass);
             method.accept(visitor);
             return visitor.getFieldsUsed();
         } catch (Exception e) {
@@ -212,8 +213,10 @@ public final class CohesionUtils {
 
     private static class FieldsUsedVisitor extends JavaRecursiveElementVisitor {
         private final Set<PsiField> fieldsUsed = new HashSet<>();
+        private final PsiClass targetClass;
 
-        FieldsUsedVisitor() {
+        FieldsUsedVisitor(PsiClass targetClass) {
+            this.targetClass = targetClass;
         }
 
         @Override
@@ -222,8 +225,10 @@ public final class CohesionUtils {
                 final PsiElement referent = referenceExpression.resolve();
                 if (referent instanceof PsiField) {
                     final PsiField field = (PsiField) referent;
-                    // Only include non-static instance fields
-                    if (!field.hasModifierProperty(PsiModifier.STATIC)) {
+                    // Only include non-static instance fields declared in the same class (exclude inherited)
+                    if (!field.hasModifierProperty(PsiModifier.STATIC) &&
+                        field.getContainingClass() != null &&
+                        field.getContainingClass().equals(targetClass)) {
                         fieldsUsed.add(field);
                     }
                 }
