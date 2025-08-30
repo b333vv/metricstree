@@ -24,7 +24,8 @@ public class JavaParserNonCommentingSourceStatementsVisitorTest extends BaseVisi
         visitor.visit(c, metrics::add);
 
         assertEquals(1, metrics.size());
-        // 1 (method body) + 1 (int a=1) + 1 (if) + 1 (if body) + 1 (println) = 5
-        assertEquals(5.0, metrics.get(0).getValue().doubleValue());
+        // Count only executable statements, exclude container blocks:
+        // 1 (int a=1) + 1 (if) + 1 (println) = 3
+        assertEquals(3.0, metrics.get(0).getValue().doubleValue());
     }
 }

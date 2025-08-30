@@ -16,6 +16,10 @@ public class JavaParserNonCommentingSourceStatementsVisitor extends JavaParserCl
         // Exclude empty statements and count only meaningful executable statements
         // This matches PSI's approach of excluding PsiComment and PsiEmptyStatement
         long ncss = n.findAll(Statement.class).stream()
+            // exclude statements that belong to nested named classes (inner classes)
+            .filter(stmt -> stmt.findAncestor(ClassOrInterfaceDeclaration.class)
+                    .map(anc -> anc == n)
+                    .orElse(true))
             .filter(this::isCountableStatement)
             .count();
         
@@ -32,11 +36,15 @@ public class JavaParserNonCommentingSourceStatementsVisitor extends JavaParserCl
         if (stmt instanceof EmptyStmt) {
             return false;
         }
-        
-        // Note: JavaParser doesn't include comment nodes in Statement.class,
-        // so we don't need to explicitly exclude comments like PSI does
-        // Comments are handled separately in JavaParser's AST
-        
+
+        // Exclude container blocks to mirror PSI behavior which does not count
+        // block bodies (method bodies, if/else bodies, loop bodies, try/catch/finally bodies)
+        if (stmt instanceof BlockStmt) {
+            return false;
+        }
+
+        // Comments and switch entries are not part of Statement in JavaParser,
+        // so no need to exclude them explicitly
         return true;
     }
 }

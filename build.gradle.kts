@@ -18,7 +18,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-//    id("java")
+    id("java")
     id("org.jetbrains.kotlin.jvm") version "2.0.20"
     id("org.jetbrains.intellij") version "1.17.4"
 }
@@ -63,7 +63,10 @@ configurations {
 
 sourceSets {
     val main by getting
-
+    test {
+        java.srcDir("src/test/java")
+        resources.srcDir("src/test/resources")
+    }
     create("integrationTest") {
         compileClasspath += main.output
         runtimeClasspath += main.output
@@ -104,6 +107,7 @@ tasks {
         implementation("org.json:json:20211205")
 //        testImplementation ("junit:junit:4.9")
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
+        testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.0")
         testImplementation("org.assertj:assertj-core:3.6.2")
         testImplementation("org.mockito:mockito-core:5.11.0")
         testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
