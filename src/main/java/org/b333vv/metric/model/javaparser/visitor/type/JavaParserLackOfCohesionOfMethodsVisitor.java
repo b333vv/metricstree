@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
@@ -51,6 +52,20 @@ public class JavaParserLackOfCohesionOfMethodsVisitor extends JavaParserClassVis
                     }
                 } catch (Exception e) {
                     // ignore
+                }
+            });
+            // Also consider unqualified field references (e.g., fieldA = 1;)
+            method.walk(NameExpr.class, ne -> {
+                try {
+                    var resolved = ne.resolve();
+                    if (resolved.isField()) {
+                        var field = resolved.asField();
+                        if (!field.isStatic() && n.resolve().getQualifiedName().equals(field.declaringType().getQualifiedName())) {
+                            usedFields.add(ne.getNameAsString());
+                        }
+                    }
+                } catch (Exception e) {
+                    // ignore resolution issues
                 }
             });
             methodFieldUsage.put(method, usedFields);

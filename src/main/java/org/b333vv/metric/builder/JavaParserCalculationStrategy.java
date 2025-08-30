@@ -280,7 +280,6 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 
                 // Try file-based parsing first (for production environment)
                 try {
-                    System.out.println("Attempting file-based parsing for: " + filePath);
                     return javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
                 } catch (Exception e) {
                     // Fall back to string-based parsing (for test environment)
