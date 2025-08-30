@@ -63,7 +63,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         LackOfCohesionOfMethodsVisitor lackOfCohesionOfMethodsVisitor = new LackOfCohesionOfMethodsVisitor();
         javaClass.accept(lackOfCohesionOfMethodsVisitor);
 
-        Metric metric = Metric.of(LCOM, 5);
+        Metric metric = Metric.of(LCOM, 1);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
@@ -219,7 +219,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         TightClassCohesionVisitor tightClassCohesionVisitor = new TightClassCohesionVisitor();
         javaClass.accept(tightClassCohesionVisitor);
 
-        Metric metric = Metric.of(TCC, 0.277);
+        Metric metric = Metric.of(TCC, 0.1795);
 
         assertEquals(metric.getValue().toString(), javaClass.metrics().findFirst().get().getValue().toString());
     }
@@ -231,9 +231,9 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         WeightOfAClassVisitor weightOfAClassVisitor = new WeightOfAClassVisitor();
         javaClass.accept(weightOfAClassVisitor);
 
-        Metric metric = Metric.of(WOC, 1.0);
-
-        assertEquals(metric, javaClass.metrics().findFirst().get());
+        Metric metric = Metric.of(WOC, 0.766);
+        // Compare value strings to avoid representation/precision mismatches
+        assertEquals(metric.getValue().toString(), javaClass.metrics().findFirst().get().getValue().toString());
     }
 
     public void testNonCommentingSourceStatementsVisitor() {

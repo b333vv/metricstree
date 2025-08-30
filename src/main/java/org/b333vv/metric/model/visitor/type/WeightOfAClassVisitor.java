@@ -17,7 +17,15 @@
 package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiCodeBlock;
+import com.intellij.psi.PsiStatement;
+import com.intellij.psi.PsiReturnStatement;
+import com.intellij.psi.PsiExpressionStatement;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.PsiAssignmentExpression;
+import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.PsiExpression;
 import com.intellij.psi.util.PropertyUtil;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.util.ClassUtils;
@@ -31,20 +39,61 @@ public class WeightOfAClassVisitor extends JavaClassVisitor {
     public void visitClass(PsiClass psiClass) {
         metric = Metric.of(WOC, Value.UNDEFINED);
         if (ClassUtils.isConcrete(psiClass)) {
-            long functionalPublicMethods = CohesionUtils.getApplicableMethods(psiClass).stream()
-                    .filter(m -> !PropertyUtil.isSimpleGetter(m)
-                            && !PropertyUtil.isSimpleSetter(m)
-                            && !m.hasModifierProperty(PsiModifier.ABSTRACT))
+            // Denominator: all declared methods (any visibility, static or instance), excluding constructors
+            PsiMethod[] declaredMethods = psiClass.getMethods();
+            long totalMethods = java.util.Arrays.stream(declaredMethods)
+                    .filter(m -> !m.isConstructor())
                     .count();
-            long allPublicMethods = CohesionUtils.getApplicableMethods(psiClass).stream()
-                    .filter(m -> !m.hasModifierProperty(PsiModifier.ABSTRACT))
+
+            // Numerator: functional methods only
+            long functionalMethods = java.util.Arrays.stream(declaredMethods)
+                    .filter(m -> !m.isConstructor())
+                    .filter(this::isFunctional)
                     .count();
-            if (allPublicMethods == 0L) {
+
+            if (totalMethods == 0L) {
                 metric = Metric.of(WOC, 0.00);
             } else {
-                metric = Metric.of(WOC, Value.of((double) functionalPublicMethods)
-                        .divide(Value.of((double) allPublicMethods)));
+                metric = Metric.of(WOC, Value.of((double) functionalMethods)
+                        .divide(Value.of((double) totalMethods)));
             }
         }
+    }
+
+    private boolean isFunctional(PsiMethod m) {
+        // Exclude accessors and boilerplate from functional set
+        if (PropertyUtil.isSimpleGetter(m) || PropertyUtil.isSimpleSetter(m)) return false;
+        if (CohesionUtils.getBoilerplateMethods().contains(m.getName())) return false;
+        // Exclude trivial/empty/one-liner delegations
+        if (isTrivial(m)) return false;
+        return true;
+    }
+
+    private boolean isTrivial(PsiMethod m) {
+        // Abstract/interface methods have no body -> treat as non-functional
+        final PsiCodeBlock body = m.getBody();
+        if (body == null) return true;
+        PsiStatement[] statements = body.getStatements();
+        if (statements.length == 0) return true; // empty body
+        if (statements.length > 1) return false; // more than one statement -> treat as non-trivial
+
+        PsiStatement s = statements[0];
+        if (s instanceof PsiReturnStatement) {
+            PsiExpression rv = ((PsiReturnStatement) s).getReturnValue();
+            if (rv instanceof PsiReferenceExpression) return true; // return x;
+            if (rv instanceof PsiMethodCallExpression) return true; // return foo();
+            return false;
+        }
+        if (s instanceof PsiExpressionStatement) {
+            PsiExpression expr = ((PsiExpressionStatement) s).getExpression();
+            if (expr instanceof PsiMethodCallExpression) return true; // foo();
+            if (expr instanceof PsiAssignmentExpression) {
+                PsiAssignmentExpression ae = (PsiAssignmentExpression) expr;
+                if (ae.getLExpression() instanceof PsiReferenceExpression && ae.getRExpression() instanceof PsiReferenceExpression) {
+                    return true; // x = y;
+                }
+            }
+        }
+        return false;
     }
 }
