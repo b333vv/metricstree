@@ -132,27 +132,43 @@ public abstract class MetricVerificationTest extends BasePlatformTestCase {
         try {
             // Parse the files that were added to the test project directly
             // For CBOAlignmentVerificationTest, this includes ClassA and ClassB
-            for (String fileName : List.of("ClassA.java", "ClassB.java")) {
-                try {
-                    com.intellij.openapi.vfs.VirtualFile virtualFile = myFixture.findFileInTempDir("com/test/" + fileName);
-                    if (virtualFile != null) {
-                        PsiFile psiFile = myFixture.getPsiManager().findFile(virtualFile);
-                        if (psiFile != null) {
-                            ParseResult<CompilationUnit> result = javaParser.parse(psiFile.getText());
-                            if (result.isSuccessful()) {
-                                units.add(result.getResult().get());
-                                System.out.println("Parsed temp file: " + fileName);
-                            } else {
-                                System.err.println("Failed to parse " + fileName + ": " + result.getProblems());
+            // For RealClassCBOTest, this includes JavaClass
+            List<String> testFiles = List.of(
+                "ClassA.java", "ClassB.java",  // For simple alignment test
+                "JavaClass.java"  // For real class test
+            );
+            
+            for (String fileName : testFiles) {
+                // Try different possible locations
+                List<String> possiblePaths = List.of(
+                    "com/test/" + fileName,  // For simple test files
+                    "org/b333vv/metric/model/code/" + fileName  // For real class files
+                );
+                
+                boolean found = false;
+                for (String path : possiblePaths) {
+                    try {
+                        com.intellij.openapi.vfs.VirtualFile virtualFile = myFixture.findFileInTempDir(path);
+                        if (virtualFile != null) {
+                            PsiFile psiFile = myFixture.getPsiManager().findFile(virtualFile);
+                            if (psiFile != null) {
+                                ParseResult<CompilationUnit> result = javaParser.parse(psiFile.getText());
+                                if (result.isSuccessful()) {
+                                    units.add(result.getResult().get());
+                                    System.out.println("Parsed temp file: " + path);
+                                    found = true;
+                                    break;
+                                } else {
+                                    System.err.println("Failed to parse " + path + ": " + result.getProblems());
+                                }
                             }
-                        } else {
-                            System.err.println("Could not get PsiFile for: com/test/" + fileName);
                         }
-                    } else {
-                        System.err.println("Could not find temp file: com/test/" + fileName);
+                    } catch (Exception e) {
+                        // Try next path
                     }
-                } catch (Exception e) {
-                    System.err.println("Exception parsing " + fileName + ": " + e.getMessage());
+                }
+                if (!found && !fileName.equals("ClassA.java") && !fileName.equals("ClassB.java")) {
+                    System.err.println("Could not find test file: " + fileName);
                 }
             }
         } catch (Exception e) {
