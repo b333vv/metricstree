@@ -8,6 +8,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.MethodReferenceExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
@@ -114,6 +115,20 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
                 }
             } catch (Exception e) {
                 // Failed to resolve method reference
+            }
+        });
+        
+        // 5. Annotation expressions like @Override
+        n.walk(AnnotationExpr.class, annotation -> {
+            try {
+                String resolvedName = annotation.resolve().getQualifiedName();
+                coupledClasses.add(resolvedName);
+            } catch (Exception e) {
+                // If resolution fails, try to infer from annotation name
+                String annotationName = annotation.getNameAsString();
+                if ("Override".equals(annotationName)) {
+                    coupledClasses.add("java.lang.Override");
+                }
             }
         });
 
