@@ -243,7 +243,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NonCommentingSourceStatementsVisitor nonCommentingSourceStatementsVisitor = new NonCommentingSourceStatementsVisitor();
         javaClass.accept(nonCommentingSourceStatementsVisitor);
 
-        Metric metric = Metric.of(NCSS, 548);
+        Metric metric = Metric.of(NCSS, 561);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }
