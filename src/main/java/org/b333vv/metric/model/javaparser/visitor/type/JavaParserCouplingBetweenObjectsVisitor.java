@@ -1,6 +1,8 @@
 package org.b333vv.metric.model.javaparser.visitor.type;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -12,6 +14,7 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -22,6 +25,22 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
         Set<String> coupledClasses = new HashSet<>();
         
         // Enhanced CBO calculation with comprehensive method call analysis
+        
+        // 0. Import dependencies from the compilation unit
+        Optional<CompilationUnit> cu = n.findCompilationUnit();
+        if (cu.isPresent()) {
+            for (ImportDeclaration importDecl : cu.get().getImports()) {
+                try {
+                    String importName = importDecl.getNameAsString();
+                    // Add import as a dependency if it's a class import (not package import)
+                    if (!importDecl.isAsterisk() && !importName.endsWith(".*")) {
+                        coupledClasses.add(importName);
+                    }
+                } catch (Exception e) {
+                    // Skip failed imports
+                }
+            }
+        }
         
         // Find all types that this class depends on (outgoing dependencies)
         // 1. Type references from declarations

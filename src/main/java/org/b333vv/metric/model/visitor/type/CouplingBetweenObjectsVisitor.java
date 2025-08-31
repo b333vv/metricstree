@@ -40,6 +40,34 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
             Set<String> coupledClasses = new HashSet<>();
             
             // Enhanced approach: directly analyze PSI tree for comprehensive CBO calculation
+            // including import dependencies for completeness
+            
+            // First, process import dependencies from the containing file
+            PsiFile containingFile = psiClass.getContainingFile();
+            if (containingFile instanceof PsiJavaFile) {
+                PsiJavaFile javaFile = (PsiJavaFile) containingFile;
+                for (PsiImportStatement importStatement : javaFile.getImportList().getImportStatements()) {
+                    PsiJavaCodeReferenceElement importReference = importStatement.getImportReference();
+                    if (importReference != null) {
+                        PsiElement resolved = importReference.resolve();
+                        if (resolved instanceof PsiClass) {
+                            PsiClass importedClass = (PsiClass) resolved;
+                            if (importedClass != psiClass) {
+                                String qualifiedName = importedClass.getQualifiedName();
+                                if (qualifiedName != null) {
+                                    coupledClasses.add(qualifiedName);
+                                }
+                            }
+                        } else {
+                            // For unresolved imports, use the qualified name from the import statement
+                            String importText = importStatement.getQualifiedName();
+                            if (importText != null && !importText.equals(psiClass.getQualifiedName())) {
+                                coupledClasses.add(importText);
+                            }
+                        }
+                    }
+                }
+            }
             
             // Use a visitor to find all type references in this class
             psiClass.accept(new JavaRecursiveElementVisitor() {
