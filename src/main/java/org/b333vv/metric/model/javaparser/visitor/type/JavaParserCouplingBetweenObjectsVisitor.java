@@ -16,21 +16,26 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
         Set<String> coupledClasses = new HashSet<>();
+        
+        // Find all types that this class depends on (outgoing dependencies)
         n.walk(ClassOrInterfaceType.class, t -> {
             try {
-                coupledClasses.add(t.resolve().asReferenceType().getQualifiedName());
+                String resolvedName = t.resolve().asReferenceType().getQualifiedName();
+                coupledClasses.add(resolvedName);
             } catch (Exception e) {
-                // Unsolved symbol
+                // Unsolved symbol - skip
             }
         });
 
-        // The current class itself will be in the set, remove it.
+        // Remove the current class itself from the coupled classes set
         try {
-            coupledClasses.remove(n.resolve().getQualifiedName());
+            String currentClassName = n.resolve().getQualifiedName();
+            coupledClasses.remove(currentClassName);
         } catch (Exception e) {
-            // ignore
+            // If we can't resolve the current class name, that's fine
+            // We'll just rely on it not being in the set anyway
         }
-
+        
         Metric metric = Metric.of(MetricType.CBO, Value.of(coupledClasses.size()));
         collector.accept(metric);
     }

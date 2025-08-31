@@ -69,6 +69,17 @@ import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.builder.ProjectMetricsSetCalculator;
 import org.b333vv.metric.ui.settings.other.CalculationEngine;
 import org.b333vv.metric.builder.JavaParserCalculationStrategy;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.CompilationUnit;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class CalculationServiceImpl implements CalculationService {
@@ -113,6 +124,36 @@ public class CalculationServiceImpl implements CalculationService {
         return result.get();
     }
 
+    private List<CompilationUnit> getOrBuildAllCompilationUnits(ProgressIndicator indicator) {
+        List<CompilationUnit> allUnits = cacheService.getUserData(CacheService.ALL_COMPILATION_UNITS);
+        if (allUnits == null) {
+            allUnits = runTaskSynchronously(
+                "Parsing All Project Sources",
+                (progressIndicator) -> {
+                    List<CompilationUnit> units = new ArrayList<>();
+                    JavaParser javaParser = new JavaParser(); // Use a simple parser, no symbol solving needed here.
+                    ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
+
+                    fileIndex.iterateContent(fileOrDir -> {
+                        if (!fileOrDir.isDirectory() && "java".equals(fileOrDir.getExtension()) && !fileIndex.isInLibrarySource(fileOrDir) && !fileIndex.isInTestSourceContent(fileOrDir)) {
+                            try {
+                                ParseResult<CompilationUnit> result = javaParser.parse(Paths.get(fileOrDir.getPath()));
+                                result.ifSuccessful(units::add);
+                            } catch (Exception e) {
+                                // Log or handle parsing errors if necessary
+                            }
+                        }
+                        return true; // continue iteration
+                    });
+                    return units;
+                },
+                indicator
+            );
+            cacheService.putUserData(CacheService.ALL_COMPILATION_UNITS, allUnits);
+        }
+        return allUnits;
+    }
+
     public DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator) {
         DependenciesBuilder dependencies = cacheService.getUserData(CacheService.DEPENDENCIES);
         if (dependencies == null) {
@@ -146,8 +187,9 @@ public class CalculationServiceImpl implements CalculationService {
 
                         // Stage 2: Conditionally augment with JavaParser
                         if (settingsService.getCalculationEngine() == CalculationEngine.JAVAPARSER) {
+                            List<CompilationUnit> allUnits = getOrBuildAllCompilationUnits(progressIndicator); // Call the new method
                             JavaParserCalculationStrategy javaParserStrategy = new JavaParserCalculationStrategy();
-                            javaParserStrategy.augment(newJavaProject, project, progressIndicator);
+                            javaParserStrategy.augment(newJavaProject, project, allUnits, progressIndicator); // Pass the list
                         }
                         return newJavaProject;
                     },

@@ -24,6 +24,7 @@ import com.intellij.openapi.Disposable;
  import com.intellij.openapi.util.UserDataHolderBase;
  import com.intellij.openapi.vfs.*;
  import com.intellij.openapi.vfs.newvfs.events.*;
+ import com.github.javaparser.ast.CompilationUnit;
  import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.MetricLevel;
@@ -83,6 +84,7 @@ public final class CacheService implements UserDataHolder, Disposable {
     public static final Key<MetricTreeMap<JavaCode>> METRIC_TREE_MAP = Key.create("METRIC_TREE_MAP");
     public static final Key<MetricTreeMap<JavaCode>> PROFILE_TREE_MAP = Key.create("PROFILE_TREE_MAP");
     public static final Key<XYChart> PROJECT_METRICS_HISTORY_XY_CHART = Key.create("PROJECT_METRICS_HISTORY_XY_CHART");
+    public static final Key<List<CompilationUnit>> ALL_COMPILATION_UNITS = Key.create("ALL_COMPILATION_UNITS");
 
     private UserDataHolderBase userData = new UserDataHolderBase();
     private final ConcurrentHashMap<String, JavaFile> javaFiles = new ConcurrentHashMap<>();

@@ -2,12 +2,14 @@ package org.b333vv.metric.builder;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.github.javaparser.ast.CompilationUnit;
 import org.b333vv.metric.model.code.JavaProject;
+import java.util.List;
 
 public interface MetricCalculationStrategy {
     JavaProject calculate(Project project, ProgressIndicator indicator);
 
-    default void augment(JavaProject javaProject, Project project, ProgressIndicator indicator) {
+    default void augment(JavaProject javaProject, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
         // default implementation does nothing
     }
 }

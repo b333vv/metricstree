@@ -33,6 +33,9 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 import java.nio.file.Paths;
@@ -93,26 +96,51 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     }
 
     @Override
-    public void augment(JavaProject javaProject, Project project, ProgressIndicator indicator) {
+    public void augment(JavaProject javaProject, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
         indicator.setText("Calculating metrics with JavaParser");
 
         TypeSolverProvider typeSolverProvider = new TypeSolverProvider();
         ParserConfiguration parserConfiguration = new ParserConfiguration()
-                .setSymbolResolver(new JavaSymbolSolver(typeSolverProvider.getTypeSolver(project)));
-        JavaParser javaParser = new JavaParser(parserConfiguration);
+                .setSymbolResolver(new JavaSymbolSolver(typeSolverProvider.getTypeSolver(project, allUnits))); 
+        
+        // Re-parse ALL units together with the enhanced TypeSolver to ensure shared context
+        List<CompilationUnit> enhancedUnits = new ArrayList<>();
+        for (CompilationUnit originalUnit : allUnits) {
+            try {
+                JavaParser enhancedParser = new JavaParser(parserConfiguration);
+                ParseResult<CompilationUnit> result = enhancedParser.parse(originalUnit.toString());
+                if (result.isSuccessful()) {
+                    enhancedUnits.add(result.getResult().get());
+                } else {
+                    System.err.println("Failed to re-parse unit with enhanced context: " + result.getProblems());
+                }
+            } catch (Exception e) {
+                System.err.println("Exception during enhanced parsing: " + e.getMessage());
+            }
+        }
+        
+        System.out.println("Enhanced parsing complete. " + enhancedUnits.size() + " units processed.");
 
-        List<ClassOrInterfaceDeclaration> allClassDeclarations = javaProject.allClasses()
-                .map(javaClass -> {
-                    try {
-                        return parseClassCompilationUnit(javaClass, javaParser);
-                    } catch (Exception e) {
-                        System.err.println("Failed to parse class " + javaClass.getName() + ": " + e.getMessage());
-                        return null;
-                    }
-                })
-                .filter(cu -> cu != null)
+        // Build class declarations from enhanced units
+        List<ClassOrInterfaceDeclaration> allClassDeclarations = enhancedUnits.stream()
                 .flatMap(cu -> cu.findAll(ClassOrInterfaceDeclaration.class).stream())
                 .collect(Collectors.toList());
+        
+        // Create mapping from class names to their enhanced compilation units
+        Map<String, CompilationUnit> enhancedUnitsByClass = new HashMap<>();
+        for (CompilationUnit unit : enhancedUnits) {
+            String packageName = unit.getPackageDeclaration()
+                    .map(pd -> pd.getNameAsString())
+                    .orElse("");
+            
+            unit.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
+                String key = packageName.isEmpty() ? classDecl.getNameAsString() 
+                           : packageName + "." + classDecl.getNameAsString();
+                enhancedUnitsByClass.put(key, unit);
+                enhancedUnitsByClass.put(classDecl.getNameAsString(), unit); // fallback key
+                System.out.println("Mapped enhanced class: " + key);
+            });
+        }
 
         javaProject.allClasses().forEach(javaClass -> {
             indicator.setText2("Processing class: " + javaClass.getName());
@@ -120,7 +148,26 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 return;
             }
             try {
-                CompilationUnit cu = parseClassCompilationUnit(javaClass, javaParser);
+                // Find the enhanced compilation unit for this class
+                CompilationUnit cu = null;
+                
+                // Try with package qualification first  
+                String className = javaClass.getName();
+                String packageName = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+                    PsiClass psiClass = javaClass.getPsiClass();
+                    if (psiClass.getContainingFile() instanceof PsiJavaFile) {
+                        return ((PsiJavaFile) psiClass.getContainingFile()).getPackageName();
+                    }
+                    return "";
+                });
+                
+                String qualifiedKey = packageName.isEmpty() ? className : packageName + "." + className;
+                cu = enhancedUnitsByClass.get(qualifiedKey);
+                
+                // Fallback to simple class name
+                if (cu == null) {
+                    cu = enhancedUnitsByClass.get(className);
+                }
                 if (cu != null) {
                     cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals(javaClass.getName()))
                             .ifPresent(classDeclaration -> {
@@ -303,6 +350,45 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 }
             } catch (Exception e) {
                 System.err.println("Failed to parse class " + javaClass.getName() + ": " + e.getMessage());
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Find the compilation unit that contains the given JavaClass from the pre-indexed map.
+     */
+    private CompilationUnit findCompilationUnitForClass(JavaClass javaClass, Map<String, CompilationUnit> unitsByClass) {
+        return ApplicationManager.getApplication().runReadAction((Computable<CompilationUnit>) () -> {
+            try {
+                PsiClass psiClass = javaClass.getPsiClass();
+                String className = psiClass.getName();
+                String packageName = "";
+                
+                // Get package name if available
+                if (psiClass.getContainingFile() instanceof PsiJavaFile) {
+                    PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
+                    packageName = javaFile.getPackageName();
+                }
+                
+                // Create the key to look up the compilation unit
+                String key = packageName.isEmpty() ? className : packageName + "." + className;
+                CompilationUnit unit = unitsByClass.get(key);
+                
+                if (unit != null) {
+                    return unit;
+                }
+                
+                // Fallback: try just the class name
+                unit = unitsByClass.get(className);
+                if (unit != null) {
+                    return unit;
+                }
+                
+                // Last resort: use the original parsing method
+                return parseClassCompilationUnit(javaClass, new JavaParser());
+            } catch (Exception e) {
+                System.err.println("Failed to find compilation unit for class " + javaClass.getName() + ": " + e.getMessage());
                 return null;
             }
         });
