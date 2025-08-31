@@ -208,6 +208,27 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
                 }
                 
                 @Override
+                public void visitMethodReferenceExpression(PsiMethodReferenceExpression expression) {
+                    super.visitMethodReferenceExpression(expression);
+                    
+                    // Handle method references like PsiType::getPresentableText
+                    PsiElement qualifier = expression.getQualifier();
+                    if (qualifier instanceof PsiReferenceExpression) {
+                        PsiReferenceExpression refExpr = (PsiReferenceExpression) qualifier;
+                        PsiElement resolved = refExpr.resolve();
+                        if (resolved instanceof PsiClass) {
+                            PsiClass referencedClass = (PsiClass) resolved;
+                            if (referencedClass != psiClass) {
+                                String qualifiedName = referencedClass.getQualifiedName();
+                                if (qualifiedName != null) {
+                                    coupledClasses.add(qualifiedName);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                @Override
                 public void visitNewExpression(PsiNewExpression newExpression) {
                     super.visitNewExpression(newExpression);
                     

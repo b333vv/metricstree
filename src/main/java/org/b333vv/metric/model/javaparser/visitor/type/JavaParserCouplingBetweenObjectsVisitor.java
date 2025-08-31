@@ -5,6 +5,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.MethodReferenceExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
@@ -92,6 +94,29 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
 
             } catch (Exception e) {
                 // Unsolved symbol - skip
+            }
+        });
+        
+        // 4. Method reference expressions like PsiType::getPresentableText
+        n.walk(MethodReferenceExpr.class, methodRef -> {
+            try {
+                // Try to resolve the qualifier type
+                if (methodRef.getScope() instanceof NameExpr) {
+                    NameExpr scopeExpr = (NameExpr) methodRef.getScope();
+                    try {
+                        String resolvedName = scopeExpr.resolve().asType().asReferenceType().getQualifiedName();
+                        coupledClasses.add(resolvedName);
+                    } catch (Exception e) {
+                        // Fallback - try to infer from scope text
+                        String scopeText = scopeExpr.getNameAsString();
+                        String inferredType = inferTypeFromStaticCall(scopeText);
+                        if (inferredType != null) {
+                            coupledClasses.add(inferredType);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Failed to resolve method reference
             }
         });
 
