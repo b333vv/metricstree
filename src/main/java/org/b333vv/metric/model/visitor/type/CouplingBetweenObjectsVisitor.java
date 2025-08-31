@@ -37,11 +37,9 @@ public class CouplingBetweenObjectsVisitor extends JavaClassVisitor {
             DependenciesBuilder dependenciesBuilder = psiClass.getProject().getService(CacheService.class)
                     .getUserData(CacheService.DEPENDENCIES);
             if (dependenciesBuilder != null) {
-                Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
-                Set<PsiClass> dependents = dependenciesBuilder.getClassesDependents(psiClass);
-                Set<PsiClass> union = new HashSet<>(dependencies);
-                union.addAll(dependents);
-                metric = Metric.of(CBO, union.size());
+                // Use the new method that includes unresolved dependencies
+                int totalCouplingCount = dependenciesBuilder.getTotalCouplingCount(psiClass);
+                metric = Metric.of(CBO, totalCouplingCount);
             }
         }
     }

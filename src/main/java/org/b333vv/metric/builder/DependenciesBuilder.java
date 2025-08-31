@@ -32,6 +32,9 @@ public class DependenciesBuilder {
     private final Map<PsiClass, Bag<PsiClass>> classesDependents = new ConcurrentHashMap<>();
     private final Map<PsiClass, Bag<PsiPackage>> packagesDependencies = new ConcurrentHashMap<>();
     private final Map<PsiClass, Bag<PsiPackage>> packagesDependents = new ConcurrentHashMap<>();
+    
+    // Track unresolved type dependencies (e.g., standard library classes)
+    private final Map<PsiClass, Set<String>> unresolvedDependencies = new ConcurrentHashMap<>();
 
     public void  build(PsiElement psiElement) {
         final DependenciesVisitor visitor = new DependenciesVisitor();
@@ -67,6 +70,18 @@ public class DependenciesBuilder {
         return packagesDependenciesForClass
                 .map(Bag::getContents)
                 .orElse(Collections.emptySet());
+    }
+    
+    public int getTotalCouplingCount(PsiClass psiClass) {
+        Set<PsiClass> dependencies = getClassesDependencies(psiClass);
+        Set<PsiClass> dependents = getClassesDependents(psiClass);
+        Set<PsiClass> union = new HashSet<>(dependencies);
+        union.addAll(dependents);
+        
+        // Add count of unresolved dependencies (standard library classes)
+        Set<String> unresolvedDeps = unresolvedDependencies.getOrDefault(psiClass, Collections.emptySet());
+        
+        return union.size() + unresolvedDeps.size();
     }
 
     private class DependenciesVisitor extends JavaRecursiveElementVisitor {
@@ -196,15 +211,23 @@ public class DependenciesBuilder {
             }
             final PsiClassType classType = (PsiClassType) baseType;
             addDependencyForTypes(classType.getParameters());
-            addDependencyForClass(classType.resolve());
+            
+            PsiClass resolvedClass = classType.resolve();
+            if (resolvedClass != null) {
+                addDependencyForClass(resolvedClass);
+            } else {
+                // Handle unresolved types (e.g., standard library classes)
+                // Create a synthetic dependency entry for CBO counting
+                addUnresolvedTypeDependency(classType);
+            }
         }
 
         private void addDependencyForClass(PsiClass referencedClass) {
             if (currentClass == null || referencedClass == null || referencedClass.equals(currentClass)) {
                 return;
             }
-            if (referencedClass instanceof PsiCompiledElement || referencedClass instanceof PsiAnonymousClass ||
-                    referencedClass instanceof PsiTypeParameter) {
+            
+            if (referencedClass instanceof PsiAnonymousClass || referencedClass instanceof PsiTypeParameter) {
                 return;
             }
             add(currentClass, referencedClass, classesDependencies);
@@ -223,6 +246,31 @@ public class DependenciesBuilder {
 
         private <K, V> void add(K k, V v, Map<K, Bag<V>> map) {
             map.computeIfAbsent(k, (unused) -> new Bag<>()).add(v);
+        }
+        
+        private void addUnresolvedTypeDependency(PsiClassType classType) {
+            if (currentClass == null) {
+                return;
+            }
+            
+            // Create a synthetic PsiClass for unresolved types (standard library classes)
+            // We'll use the canonical text to identify the type
+            String typeName = classType.getCanonicalText();
+            
+            // Skip primitive wrappers and basic types if they're already handled elsewhere
+            if (typeName == null || typeName.contains("<") || typeName.contains("[")) {
+                // For generic types, extract the base type name
+                if (typeName != null && typeName.contains("<")) {
+                    int genericStart = typeName.indexOf('<');
+                    typeName = typeName.substring(0, genericStart);
+                }
+            }
+            
+            // Create a synthetic dependency entry
+            // We'll track unresolved types in a separate collection
+            if (typeName != null && !typeName.isEmpty()) {
+                unresolvedDependencies.computeIfAbsent(currentClass, k -> new HashSet<>()).add(typeName);
+            }
         }
     }
 }
