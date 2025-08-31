@@ -50,7 +50,6 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
             try {
                 String resolvedName = t.resolve().asReferenceType().getQualifiedName();
                 coupledClasses.add(resolvedName);
-
             } catch (Exception e) {
                 // Unsolved symbol - skip
             }
@@ -77,7 +76,6 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
                         String inferredType = inferTypeFromStaticCall(scopeText);
                         if (inferredType != null) {
                             coupledClasses.add(inferredType);
-
                         }
                     }
                 } catch (Exception ignored) {
@@ -91,7 +89,6 @@ public class JavaParserCouplingBetweenObjectsVisitor extends JavaParserClassVisi
             try {
                 String resolvedName = objectCreation.getType().resolve().asReferenceType().getQualifiedName();
                 coupledClasses.add(resolvedName);
-
             } catch (Exception e) {
                 // Unsolved symbol - skip
             }
