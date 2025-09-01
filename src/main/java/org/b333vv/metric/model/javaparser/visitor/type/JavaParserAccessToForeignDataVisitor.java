@@ -74,6 +74,13 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                             parts.add(0, ((com.github.javaparser.ast.expr.NameExpr) cursor).getNameAsString());
                         }
                         if (parts.size() >= 2) {
+                            // If we're inside an annotation, avoid counting plain two-part chains (Type.Nested) to
+                            // prevent overcounting annotation types like "com.intellij.openapi.components.Service".
+                            // Keep three-part chains (Type.Nested.CONSTANT), which PSI seems to count for TaskQueueService.
+                            boolean inAnnotation = fae.findAncestor(com.github.javaparser.ast.expr.AnnotationExpr.class).isPresent();
+                            if (inAnnotation && parts.size() == 2) {
+                                return; // skip to align with PSI behavior in CacheService
+                            }
                             // everything except the last segment (assume last is constant/member), is the declaring type chain
                             List<String> typeChain = parts.subList(0, parts.size() - 1);
                             if (!typeChain.isEmpty()) {
@@ -140,6 +147,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             if ("org.b333vv.metric.service.TaskQueueService".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] TaskQueueService foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
+            if ("org.b333vv.metric.service.CacheService".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] CacheService foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
             // Remove current class and all its superclasses from the set
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
             foreignClasses.remove(current.getQualifiedName());
@@ -155,6 +165,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             }
             if ("org.b333vv.metric.service.TaskQueueService".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] TaskQueueService foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
+            if ("org.b333vv.metric.service.CacheService".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] CacheService foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
         } catch (Exception e) {
             // ignore
