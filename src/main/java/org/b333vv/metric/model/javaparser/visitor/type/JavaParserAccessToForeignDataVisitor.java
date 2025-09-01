@@ -24,6 +24,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     if (fae.resolve().isField()) {
                         ResolvedFieldDeclaration resolvedField = fae.resolve().asField();
+                        if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                            System.out.println("[ATFD DEBUG] FIELD ACCESS: " + fae.toString() + " -> " + resolvedField.declaringType().getQualifiedName() + " (static=" + resolvedField.isStatic() + ")");
+                        }
                         // Exclude static fields from ATFD calculation
                         if (resolvedField.isStatic()) {
                             return;
@@ -37,7 +40,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                         }
                     }
                 } catch (Exception e) {
-                    // ignore
+                    if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                        System.out.println("[ATFD DEBUG] FIELD ACCESS ERROR: " + fae.toString() + " - " + e.getMessage());
+                    }
                 }
             });
             // Add: also count accesses via simple getter/setter method calls
@@ -45,14 +50,19 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
-                                            if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
-                            foreignClasses.add(declaringClassName);
-                            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                                System.out.println("[ATFD DEBUG] GETTER/SETTER: " + declaringClassName + " via " + mce.toString());
-                            }
+                    if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                        System.out.println("[ATFD DEBUG] METHOD CALL: " + mce.toString() + " -> " + declaringClassName + " (isSimpleAccessor=" + isSimpleAccessor(resolvedMethod) + ")");
+                    }
+                    if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
+                        foreignClasses.add(declaringClassName);
+                        if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                            System.out.println("[ATFD DEBUG] GETTER/SETTER: " + declaringClassName + " via " + mce.toString());
                         }
+                    }
                 } catch (Exception e) {
-                    // ignore
+                    if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                        System.out.println("[ATFD DEBUG] METHOD CALL ERROR: " + mce.toString() + " - " + e.getMessage());
+                    }
                 }
             });
             // Debug: print foreign classes for CalculationServiceImpl
@@ -137,8 +147,15 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             }
             return false;
         }
-        // No fallback - only count methods that we can verify are truly simple accessors
-        // This is much more restrictive and should match PSI's behavior
-        return false;
+        
+        // Fallback for external methods: use signature-based detection for truly simple accessors
+        // This is needed because we can't analyze method bodies of external classes
+        boolean isGetter = (name.startsWith("get") && params == 0 && !method.getReturnType().isVoid()) ||
+                           (name.startsWith("is") && params == 0 && method.getReturnType().isPrimitive() && method.getReturnType().describe().equals("boolean"));
+        boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
+        
+        // Only allow signature-based detection for external methods (not from the same compilation unit)
+        // This matches PSI's behavior where PropertyUtil.isSimpleGetter/isSimpleSetter works on external methods
+        return isGetter || isSetter;
     }
 }
