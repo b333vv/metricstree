@@ -45,6 +45,16 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     // ignore
                 }
             });
+            // Remove current class and all its superclasses from the set
+            com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
+            foreignClasses.remove(current.getQualifiedName());
+            for (com.github.javaparser.resolution.types.ResolvedReferenceType superType : current.getAllAncestors()) {
+                try {
+                    foreignClasses.remove(superType.getQualifiedName());
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
         } catch (Exception e) {
             // ignore
         }
