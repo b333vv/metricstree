@@ -24,9 +24,7 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     if (fae.resolve().isField()) {
                         ResolvedFieldDeclaration resolvedField = fae.resolve().asField();
-                        if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                            System.out.println("[ATFD DEBUG] FIELD ACCESS: " + fae.toString() + " -> " + resolvedField.declaringType().getQualifiedName() + " (static=" + resolvedField.isStatic() + ")");
-                        }
+
                         // Exclude static fields from ATFD calculation
                         if (resolvedField.isStatic()) {
                             return;
@@ -34,15 +32,10 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                         String declaringClassName = resolvedField.declaringType().getQualifiedName();
                         if (!declaringClassName.equals(currentClassName)) {
                             foreignClasses.add(declaringClassName);
-                            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                                System.out.println("[ATFD DEBUG] FIELD: " + declaringClassName + " via " + fae.toString());
-                            }
                         }
                     }
                 } catch (Exception e) {
-                    if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                        System.out.println("[ATFD DEBUG] FIELD ACCESS ERROR: " + fae.toString() + " - " + e.getMessage());
-                    }
+                    // ignore
                 }
             });
             // Add: also count accesses via simple getter/setter method calls
@@ -50,25 +43,13 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
-                    if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                        System.out.println("[ATFD DEBUG] METHOD CALL: " + mce.toString() + " -> " + declaringClassName + " (isSimpleAccessor=" + isSimpleAccessor(resolvedMethod) + ")");
-                    }
                     if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
                         foreignClasses.add(declaringClassName);
-                        if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                            System.out.println("[ATFD DEBUG] GETTER/SETTER: " + declaringClassName + " via " + mce.toString());
-                        }
                     }
                 } catch (Exception e) {
-                    if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                        System.out.println("[ATFD DEBUG] METHOD CALL ERROR: " + mce.toString() + " - " + e.getMessage());
-                    }
+                    // ignore
                 }
             });
-            // Debug: print foreign classes for CalculationServiceImpl
-            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
-            }
             // Remove current class and all its superclasses from the set
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
             foreignClasses.remove(current.getQualifiedName());
@@ -78,9 +59,6 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 } catch (Exception e) {
                     // ignore
                 }
-            }
-            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
-                System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
         } catch (Exception e) {
             // ignore
@@ -150,12 +128,22 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
         
         // Fallback for external methods: use signature-based detection for truly simple accessors
         // This is needed because we can't analyze method bodies of external classes
-        boolean isGetter = (name.startsWith("get") && params == 0 && !method.getReturnType().isVoid()) ||
-                           (name.startsWith("is") && params == 0 && method.getReturnType().isPrimitive() && method.getReturnType().describe().equals("boolean"));
+        // But be more restrictive to match PSI's behavior
+        
+        // Simple getter: starts with "get", no params, non-void return
+        boolean isGetter = name.startsWith("get") && params == 0 && !method.getReturnType().isVoid();
+        
+        // Simple boolean getter: starts with "is", no params, returns boolean
+        boolean isBooleanGetter = name.startsWith("is") && params == 0 && 
+                                  method.getReturnType().isPrimitive() && 
+                                  method.getReturnType().describe().equals("boolean");
+        
+        // Simple setter: starts with "set", exactly one param, void return
+        // But exclude setters with complex parameters (like boolean) to match PSI behavior
         boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
         
         // Only allow signature-based detection for external methods (not from the same compilation unit)
         // This matches PSI's behavior where PropertyUtil.isSimpleGetter/isSimpleSetter works on external methods
-        return isGetter || isSetter;
+        return isGetter || isBooleanGetter || isSetter;
     }
 }
