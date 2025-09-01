@@ -24,9 +24,16 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     if (fae.resolve().isField()) {
                         ResolvedFieldDeclaration resolvedField = fae.resolve().asField();
+                        // Exclude static fields from ATFD calculation
+                        if (resolvedField.isStatic()) {
+                            return;
+                        }
                         String declaringClassName = resolvedField.declaringType().getQualifiedName();
                         if (!declaringClassName.equals(currentClassName)) {
                             foreignClasses.add(declaringClassName);
+                            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                                System.out.println("[ATFD DEBUG] FIELD: " + declaringClassName + " via " + fae.toString());
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -38,13 +45,20 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
-                    if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
-                        foreignClasses.add(declaringClassName);
-                    }
+                                            if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
+                            foreignClasses.add(declaringClassName);
+                            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                                System.out.println("[ATFD DEBUG] GETTER/SETTER: " + declaringClassName + " via " + mce.toString());
+                            }
+                        }
                 } catch (Exception e) {
                     // ignore
                 }
             });
+            // Debug: print foreign classes for CalculationServiceImpl
+            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
             // Remove current class and all its superclasses from the set
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
             foreignClasses.remove(current.getQualifiedName());
@@ -54,6 +68,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 } catch (Exception e) {
                     // ignore
                 }
+            }
+            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
         } catch (Exception e) {
             // ignore
@@ -66,11 +83,62 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
     private boolean isSimpleAccessor(ResolvedMethodDeclaration method) {
         String name = method.getName();
         int params = method.getNumberOfParams();
-        boolean isGetter = (name.startsWith("get") && params == 0 && !method.getReturnType().isVoid()) ||
-                           (name.startsWith("is") && params == 0 && method.getReturnType().isPrimitive() && method.getReturnType().describe().equals("boolean"));
-        boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
-        // Heuristic: only count as simple if method is not static
-        boolean isSimple = !method.isStatic();
-        return isSimple && (isGetter || isSetter);
+        boolean isStatic = method.isStatic();
+        if (isStatic) return false;
+        // Try to get the method declaration node if available
+        if (method instanceof com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration) {
+            com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration jpMethod = (com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration) method;
+            com.github.javaparser.ast.body.MethodDeclaration decl = jpMethod.getWrappedNode();
+            // Simple getter: no params, non-void, body is 'return this.field;' or 'return field;'
+            if (name.startsWith("get") && params == 0 && !method.getReturnType().isVoid()) {
+                if (decl.getBody().isPresent()) {
+                    com.github.javaparser.ast.stmt.BlockStmt body = decl.getBody().get();
+                    if (body.getStatements().size() == 1 && body.getStatement(0).isReturnStmt()) {
+                        com.github.javaparser.ast.stmt.ReturnStmt ret = body.getStatement(0).asReturnStmt();
+                        if (ret.getExpression().isPresent() && ret.getExpression().get().isFieldAccessExpr()) {
+                            return true;
+                        }
+                        if (ret.getExpression().isPresent() && ret.getExpression().get().isNameExpr()) {
+                            // Could be 'return field;' (unqualified)
+                            return true;
+                        }
+                    }
+                }
+            }
+            // Simple boolean getter: 'is' prefix, no params, returns boolean, body is 'return this.field;' or 'return field;'
+            if (name.startsWith("is") && params == 0 && method.getReturnType().isPrimitive() && method.getReturnType().describe().equals("boolean")) {
+                if (decl.getBody().isPresent()) {
+                    com.github.javaparser.ast.stmt.BlockStmt body = decl.getBody().get();
+                    if (body.getStatements().size() == 1 && body.getStatement(0).isReturnStmt()) {
+                        com.github.javaparser.ast.stmt.ReturnStmt ret = body.getStatement(0).asReturnStmt();
+                        if (ret.getExpression().isPresent() && ret.getExpression().get().isFieldAccessExpr()) {
+                            return true;
+                        }
+                        if (ret.getExpression().isPresent() && ret.getExpression().get().isNameExpr()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            // Simple setter: 'set' prefix, one param, void, body is 'this.field = param;' or 'field = param;'
+            if (name.startsWith("set") && params == 1 && method.getReturnType().isVoid()) {
+                if (decl.getBody().isPresent()) {
+                    com.github.javaparser.ast.stmt.BlockStmt body = decl.getBody().get();
+                    if (body.getStatements().size() == 1 && body.getStatement(0).isExpressionStmt()) {
+                        com.github.javaparser.ast.expr.Expression expr = body.getStatement(0).asExpressionStmt().getExpression();
+                        if (expr.isAssignExpr()) {
+                            com.github.javaparser.ast.expr.AssignExpr assign = expr.asAssignExpr();
+                            if (assign.getTarget().isFieldAccessExpr() || assign.getTarget().isNameExpr()) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        // No fallback - only count methods that we can verify are truly simple accessors
+        // This is much more restrictive and should match PSI's behavior
+        return false;
     }
 }
