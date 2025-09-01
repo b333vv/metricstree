@@ -139,11 +139,36 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
                     if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
-                        foreignClasses.add(declaringClassName);
+                        // Require that the accessor is invoked on a field of the current class (to avoid UI overcount)
+                        if (mce.getScope().isPresent() && mce.getScope().get().isNameExpr()) {
+                            String receiver = mce.getScope().get().asNameExpr().getNameAsString();
+                            if (fieldTypeMap.containsKey(receiver)) {
+                                foreignClasses.add(declaringClassName);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     // If a method call cannot be resolved, do not count it (match PSI behavior)
                     return;
+                }
+            });
+            // Count enum constants and other static fields referenced as simple names (e.g., CalculationEngine.JAVAPARSER via static import)
+            n.walk(com.github.javaparser.ast.expr.NameExpr.class, ne -> {
+                try {
+                    // Skip inside annotations to avoid counting annotation attributes here
+                    if (ne.findAncestor(com.github.javaparser.ast.expr.AnnotationExpr.class).isPresent()) {
+                        return;
+                    }
+                    com.github.javaparser.resolution.declarations.ResolvedValueDeclaration rvd = ne.resolve();
+                    if (rvd.isField()) {
+                        com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration rfd = rvd.asField();
+                        String decl = rfd.declaringType().getQualifiedName();
+                        if (!decl.equals(currentClassName)) {
+                            foreignClasses.add(decl);
+                        }
+                    }
+                } catch (Exception ignore) {
+                    // ignore unresolved names
                 }
             });
             if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
