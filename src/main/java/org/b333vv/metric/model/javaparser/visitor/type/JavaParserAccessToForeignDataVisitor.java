@@ -11,6 +11,8 @@ import org.b333vv.metric.model.metric.value.Value;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 
 public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor {
     @Override
@@ -31,10 +33,34 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     // ignore
                 }
             });
+            // Add: also count accesses via simple getter/setter method calls
+            n.walk(MethodCallExpr.class, mce -> {
+                try {
+                    ResolvedMethodDeclaration resolvedMethod = mce.resolve();
+                    String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
+                    if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
+                        foreignClasses.add(declaringClassName);
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            });
         } catch (Exception e) {
             // ignore
         }
         Metric metric = Metric.of(MetricType.ATFD, Value.of(foreignClasses.size()));
         collector.accept(metric);
+    }
+
+    // Add this helper method to detect simple getter/setter
+    private boolean isSimpleAccessor(ResolvedMethodDeclaration method) {
+        String name = method.getName();
+        int params = method.getNumberOfParams();
+        boolean isGetter = (name.startsWith("get") && params == 0 && !method.getReturnType().isVoid()) ||
+                           (name.startsWith("is") && params == 0 && method.getReturnType().isPrimitive() && method.getReturnType().describe().equals("boolean"));
+        boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
+        // Heuristic: only count as simple if method is not static
+        boolean isSimple = !method.isStatic();
+        return isSimple && (isGetter || isSetter);
     }
 }
