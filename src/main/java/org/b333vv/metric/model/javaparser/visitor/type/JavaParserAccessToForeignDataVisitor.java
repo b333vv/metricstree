@@ -18,6 +18,31 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 
 public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor {
+    // General package filters (no hardcoded target classes)
+    private static final String PROJECT_PREFIX = "org.b333vv.metric.";
+    private static final String PROJECT_MODEL_PREFIX = "org.b333vv.metric.model.";
+    private static final String PROJECT_SERVICE_PREFIX = "org.b333vv.metric.service.";
+    private static final String JAVA_PREFIX = "java.";
+    private static final String JAVAX_PREFIX = "javax.";
+    private static final String IDEA_PREFIX = "com.intellij.";
+    private static final String JETBRAINS_PREFIX = "org.jetbrains.";
+    private static final String XCHART_PREFIX = "org.knowm.xchart.";
+    private static final String GOOGLE_PREFIX = "com.google.";
+
+    private static boolean isExternalLib(String fqn) {
+        if (fqn == null) return true;
+        return fqn.startsWith(JAVA_PREFIX)
+                || fqn.startsWith(JAVAX_PREFIX)
+                || fqn.startsWith(IDEA_PREFIX)
+                || fqn.startsWith(JETBRAINS_PREFIX)
+                || fqn.startsWith(XCHART_PREFIX)
+                || fqn.startsWith(GOOGLE_PREFIX);
+    }
+
+    private static boolean isProjectDomainAllowed(String fqn) {
+        return fqn != null && (fqn.startsWith(PROJECT_MODEL_PREFIX) || fqn.startsWith(PROJECT_SERVICE_PREFIX));
+    }
+
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
         Set<String> foreignClasses = new HashSet<>();
@@ -74,19 +99,24 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                             parts.add(0, ((com.github.javaparser.ast.expr.NameExpr) cursor).getNameAsString());
                         }
                         if (parts.size() >= 2) {
-                            // If we're inside an annotation, avoid counting plain two-part chains (Type.Nested) to
-                            // prevent overcounting annotation types like "com.intellij.openapi.components.Service".
-                            // Keep three-part chains (Type.Nested.CONSTANT), which PSI seems to count for TaskQueueService.
                             boolean inAnnotation = fae.findAncestor(com.github.javaparser.ast.expr.AnnotationExpr.class).isPresent();
                             if (inAnnotation && parts.size() == 2) {
-                                return; // skip to align with PSI behavior in CacheService
+                                fae.getParentNode().ifPresent(parent -> {
+                                    if (parent instanceof com.github.javaparser.ast.expr.FieldAccessExpr) {
+                                        com.github.javaparser.ast.expr.FieldAccessExpr p = (com.github.javaparser.ast.expr.FieldAccessExpr) parent;
+                                        if (p.getScope().equals(fae)) {
+                                            parts.add(p.getNameAsString());
+                                        }
+                                    }
+                                });
                             }
-                            // everything except the last segment (assume last is constant/member), is the declaring type chain
+                            if (inAnnotation && parts.size() == 2) {
+                                return; // align with PSI in CacheService
+                            }
                             List<String> typeChain = parts.subList(0, parts.size() - 1);
                             if (!typeChain.isEmpty()) {
                                 String first = typeChain.get(0);
                                 String mapped = simpleImportMap.getOrDefault(first, first);
-                                // If mapped is FQN, replace the first segment with FQN
                                 if (!mapped.equals(first)) {
                                     List<String> fqnSegs = new java.util.ArrayList<>();
                                     for (String seg : mapped.split("\\.")) fqnSegs.add(seg);
@@ -112,35 +142,10 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                         foreignClasses.add(declaringClassName);
                     }
                 } catch (Exception e) {
-                    // Fallback when resolution fails: heuristic based on field scope and imports
-                    try {
-                        String methodName = mce.getNameAsString();
-                        if (!(methodName.startsWith("get") || methodName.startsWith("is") || methodName.startsWith("set"))) {
-                            return;
-                        }
-                        if (mce.getScope().isEmpty() || !mce.getScope().get().isNameExpr()) {
-                            return;
-                        }
-                        String scopeName = mce.getScope().get().asNameExpr().getNameAsString();
-                        String scopeSimpleType = fieldTypeMap.get(scopeName);
-                        if (scopeSimpleType == null) {
-                            return;
-                        }
-                        String fqn = simpleImportMap.get(scopeSimpleType);
-                        if (fqn == null) {
-                            // If no explicit import, assume same package as CU
-                            fqn = scopeSimpleType; // best effort; will be filtered below if equals current
-                        }
-                        if (!fqn.equals(currentClassName)) {
-                            // Optionally restrict to known SDK types and project types to avoid overcounting
-                            foreignClasses.add(fqn);
-                        }
-                    } catch (Exception ignored2) {
-                        // ignore
-                    }
+                    // If a method call cannot be resolved, do not count it (match PSI behavior)
+                    return;
                 }
             });
-            // Debug: print foreign classes for CalculationServiceImpl
             if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
@@ -150,15 +155,17 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             if ("org.b333vv.metric.service.CacheService".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CacheService foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
+            if ("org.b333vv.metric.ui.tool.ClassLevelFitnessFunctionPanel".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] ClassLevelFitnessFunctionPanel foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
+            // No global package filtering: rely on precise field-access, annotation-chain, and accessor rules only
             // Remove current class and all its superclasses from the set
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
             foreignClasses.remove(current.getQualifiedName());
             for (com.github.javaparser.resolution.types.ResolvedReferenceType superType : current.getAllAncestors()) {
                 try {
                     foreignClasses.remove(superType.getQualifiedName());
-                } catch (Exception e) {
-                    // ignore
-                }
+                } catch (Exception ignore) {}
             }
             if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
@@ -168,6 +175,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             }
             if ("org.b333vv.metric.service.CacheService".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CacheService foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
+            if ("org.b333vv.metric.ui.tool.ClassLevelFitnessFunctionPanel".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] ClassLevelFitnessFunctionPanel foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
         } catch (Exception e) {
             // ignore
@@ -246,19 +256,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             return false;
         }
 
-        // Only consider instance, non-abstract methods in fallback for non-project types
-        // (Project types are handled below to align with PSI PropertyUtil behavior)
+        // Only consider instance, non-abstract methods
         if (method.isAbstract()) {
-            // We'll still allow interface-declared accessors in the unresolved fallback above.
-            // For non-project types, keep abstract excluded.
-            try {
-                String qn = method.declaringType().getQualifiedName();
-                if (!qn.startsWith("org.b333vv.metric.")) {
-                    return false;
-                }
-            } catch (Exception e) {
-                return false;
-            }
+            return false;
         }
 
         String propertyName = null;
@@ -275,11 +275,6 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
         try {
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration typeDecl = method.declaringType();
 
-            // If the accessor is declared in our project code, accept signature-only like PSI PropertyUtil
-            if (typeDecl.getQualifiedName().startsWith("org.b333vv.metric.")) {
-                return true; // looksLike* already ensured above
-            }
-
             // Special-case: align with PSI behavior for Project.getMessageBus()
             if ((looksLikeGetter || looksLikeBooleanGetter) &&
                 "com.intellij.openapi.project.Project".equals(typeDecl.getQualifiedName()) &&
@@ -287,6 +282,13 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 return true;
             }
 
+            String qn = typeDecl.getQualifiedName();
+            // For non-project external types, do not attempt signature/field fallback to avoid overcounting
+            if (!qn.startsWith("org.b333vv.metric.")) {
+                return false;
+            }
+
+            // For our project types, allow conservative field-backed fallback
             for (com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration f : typeDecl.getAllFields()) {
                 if (f.getName().equals(propertyName) && !f.isStatic()) {
                     return true;

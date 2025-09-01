@@ -77,6 +77,17 @@ public class AccessToForeignDataVisitor extends JavaClassVisitor {
                     }
                     System.out.println("[ATFD PSI DEBUG] CacheService foreign classes (size=" + names.size() + "): " + names);
                 }
+                if ("org.b333vv.metric.ui.tool.ClassLevelFitnessFunctionPanel".equals(qn)) {
+                    java.util.Set<String> names = new java.util.HashSet<>();
+                    for (PsiClass c : usedClasses) {
+                        if (c != null && c.getQualifiedName() != null) {
+                            names.add(c.getQualifiedName());
+                        } else if (c != null) {
+                            names.add(c.getName());
+                        }
+                    }
+                    System.out.println("[ATFD PSI DEBUG] ClassLevelFitnessFunctionPanel foreign classes (size=" + names.size() + "): " + names);
+                }
             } catch (Throwable ignored) {}
         }
     }
