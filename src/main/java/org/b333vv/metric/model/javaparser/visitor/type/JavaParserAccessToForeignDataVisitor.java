@@ -43,6 +43,23 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
+                    
+                    // Check if this method call is chained to a static method call
+                    // This would exclude cases like ProjectRootManager.getInstance(project).getFileIndex()
+                    if (mce.getScope().isPresent() && mce.getScope().get().isMethodCallExpr()) {
+                        com.github.javaparser.ast.expr.MethodCallExpr parentCall = mce.getScope().get().asMethodCallExpr();
+                        try {
+                            ResolvedMethodDeclaration parentMethod = parentCall.resolve();
+                            if (parentMethod.isStatic()) {
+                                // Skip this method call if it's chained to a static method
+                                return;
+                            }
+                        } catch (Exception e) {
+                            // If we can't resolve the parent method, skip this call to be safe
+                            return;
+                        }
+                    }
+                    
                     if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
                         foreignClasses.add(declaringClassName);
                     }
@@ -50,6 +67,10 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     // ignore
                 }
             });
+            // Debug: print foreign classes for CalculationServiceImpl
+            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
             // Remove current class and all its superclasses from the set
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
             foreignClasses.remove(current.getQualifiedName());
@@ -59,6 +80,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 } catch (Exception e) {
                     // ignore
                 }
+            }
+            if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
         } catch (Exception e) {
             // ignore
@@ -139,8 +163,12 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                                   method.getReturnType().describe().equals("boolean");
         
         // Simple setter: starts with "set", exactly one param, void return
-        // But exclude setters with complex parameters (like boolean) to match PSI behavior
-        boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
+        // But be very restrictive - only count setters that take simple primitive types (int, long, double, etc.)
+        // Exclude boolean, String, and complex object parameters
+        boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid() &&
+                           method.getParam(0).getType().isPrimitive() && 
+                           !method.getParam(0).getType().describe().equals("boolean") &&
+                           !method.getParam(0).getType().describe().equals("char");
         
         // Only allow signature-based detection for external methods (not from the same compilation unit)
         // This matches PSI's behavior where PropertyUtil.isSimpleGetter/isSimpleSetter works on external methods
