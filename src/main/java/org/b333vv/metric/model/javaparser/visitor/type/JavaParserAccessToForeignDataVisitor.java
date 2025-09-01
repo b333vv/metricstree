@@ -155,7 +155,10 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
         // But be more restrictive to match PSI's behavior
         
         // Simple getter: starts with "get", no params, non-void return
-        boolean isGetter = name.startsWith("get") && params == 0 && !method.getReturnType().isVoid();
+        // But be more restrictive - exclude getters that return complex types like MessageBus
+        boolean isGetter = name.startsWith("get") && params == 0 && !method.getReturnType().isVoid() &&
+                           !method.getReturnType().describe().contains("MessageBus") &&
+                           !method.getReturnType().describe().contains("ComponentManager");
         
         // Simple boolean getter: starts with "is", no params, returns boolean
         boolean isBooleanGetter = name.startsWith("is") && params == 0 && 
