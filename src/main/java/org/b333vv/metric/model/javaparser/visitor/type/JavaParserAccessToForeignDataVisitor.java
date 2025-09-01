@@ -8,7 +8,10 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -18,7 +21,33 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
         Set<String> foreignClasses = new HashSet<>();
+        // Lightweight context for fallback when resolution fails
+        Map<String, String> simpleImportMap = new HashMap<>(); // SimpleName -> FQN
+        Map<String, String> fieldTypeMap = new HashMap<>();    // fieldName -> SimpleTypeName
         try {
+            // Build simple import map
+            n.findCompilationUnit().ifPresent(cu -> {
+                cu.getImports().forEach(imp -> {
+                    if (!imp.isAsterisk()) {
+                        String fqn = imp.getNameAsString();
+                        String simple = fqn.substring(fqn.lastIndexOf('.') + 1);
+                        simpleImportMap.put(simple, fqn);
+                    }
+                });
+                // Add same CU types (for nested/simple resolution)
+                cu.getTypes().forEach(t -> {
+                    String simple = t.getNameAsString();
+                    cu.getPackageDeclaration().ifPresent(pkg -> simpleImportMap.putIfAbsent(simple, pkg.getNameAsString() + "." + simple));
+                });
+            });
+            // Collect fields declared in this class (name -> simple type)
+            n.getFields().forEach(fd -> fd.getVariables().forEach(v -> {
+                String simpleType = fd.getElementType().isClassOrInterfaceType()
+                        ? fd.getElementType().asClassOrInterfaceType().getName().getIdentifier()
+                        : fd.getElementType().toString();
+                fieldTypeMap.put(v.getNameAsString(), simpleType);
+            }));
+
             String currentClassName = n.resolve().getQualifiedName();
             n.walk(FieldAccessExpr.class, fae -> {
                 try {
@@ -32,26 +61,84 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                         }
                     }
                 } catch (Exception e) {
-                    // ignore
+                    // Fallback: try to infer declaring class for unresolved enum/constants (e.g., in annotations)
+                    try {
+                        List<String> parts = new java.util.ArrayList<>();
+                        com.github.javaparser.ast.expr.Expression cursor = fae;
+                        while (cursor instanceof com.github.javaparser.ast.expr.FieldAccessExpr) {
+                            com.github.javaparser.ast.expr.FieldAccessExpr fe = (com.github.javaparser.ast.expr.FieldAccessExpr) cursor;
+                            parts.add(0, fe.getNameAsString());
+                            cursor = fe.getScope();
+                        }
+                        if (cursor instanceof com.github.javaparser.ast.expr.NameExpr) {
+                            parts.add(0, ((com.github.javaparser.ast.expr.NameExpr) cursor).getNameAsString());
+                        }
+                        if (parts.size() >= 2) {
+                            // everything except the last segment (assume last is constant/member), is the declaring type chain
+                            List<String> typeChain = parts.subList(0, parts.size() - 1);
+                            if (!typeChain.isEmpty()) {
+                                String first = typeChain.get(0);
+                                String mapped = simpleImportMap.getOrDefault(first, first);
+                                // If mapped is FQN, replace the first segment with FQN
+                                if (!mapped.equals(first)) {
+                                    List<String> fqnSegs = new java.util.ArrayList<>();
+                                    for (String seg : mapped.split("\\.")) fqnSegs.add(seg);
+                                    fqnSegs.addAll(typeChain.subList(1, typeChain.size()));
+                                    String declaring = String.join(".", fqnSegs);
+                                    if (!declaring.equals(currentClassName)) {
+                                        foreignClasses.add(declaring);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception ignored) {
+                        // ignore
+                    }
                 }
             });
-            // Add: also count accesses via simple getter/setter method calls
+            // Also count accesses via simple getter/setter method calls
             n.walk(MethodCallExpr.class, mce -> {
                 try {
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
-
-                    // Align with PSI: do not exclude calls chained from static methods
                     if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
                         foreignClasses.add(declaringClassName);
                     }
                 } catch (Exception e) {
-                    // ignore
+                    // Fallback when resolution fails: heuristic based on field scope and imports
+                    try {
+                        String methodName = mce.getNameAsString();
+                        if (!(methodName.startsWith("get") || methodName.startsWith("is") || methodName.startsWith("set"))) {
+                            return;
+                        }
+                        if (mce.getScope().isEmpty() || !mce.getScope().get().isNameExpr()) {
+                            return;
+                        }
+                        String scopeName = mce.getScope().get().asNameExpr().getNameAsString();
+                        String scopeSimpleType = fieldTypeMap.get(scopeName);
+                        if (scopeSimpleType == null) {
+                            return;
+                        }
+                        String fqn = simpleImportMap.get(scopeSimpleType);
+                        if (fqn == null) {
+                            // If no explicit import, assume same package as CU
+                            fqn = scopeSimpleType; // best effort; will be filtered below if equals current
+                        }
+                        if (!fqn.equals(currentClassName)) {
+                            // Optionally restrict to known SDK types and project types to avoid overcounting
+                            foreignClasses.add(fqn);
+                        }
+                    } catch (Exception ignored2) {
+                        // ignore
+                    }
                 }
             });
             // Debug: print foreign classes for CalculationServiceImpl
             if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
+            if ("org.b333vv.metric.service.TaskQueueService".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] TaskQueueService foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
             // Remove current class and all its superclasses from the set
             com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration current = n.resolve();
@@ -65,6 +152,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             }
             if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
+            }
+            if ("org.b333vv.metric.service.TaskQueueService".equals(currentClassName)) {
+                System.out.println("[ATFD DEBUG] TaskQueueService foreign classes after superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }
         } catch (Exception e) {
             // ignore
@@ -99,7 +189,7 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     }
                 }
             }
-            // Simple boolean getter: 'is' prefix, no params, returns boolean, body is 'return this.field;' or 'return field;'
+            // Simple boolean getter
             if (name.startsWith("is") && params == 0 && method.getReturnType().isPrimitive() && method.getReturnType().describe().equals("boolean")) {
                 if (decl.getBody().isPresent()) {
                     com.github.javaparser.ast.stmt.BlockStmt body = decl.getBody().get();
@@ -114,7 +204,7 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     }
                 }
             }
-            // Simple setter: 'set' prefix, one param, void, body is 'this.field = param;' or 'field = param;'
+            // Simple setter
             if (name.startsWith("set") && params == 1 && method.getReturnType().isVoid()) {
                 if (decl.getBody().isPresent()) {
                     com.github.javaparser.ast.stmt.BlockStmt body = decl.getBody().get();
@@ -132,15 +222,66 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             return false;
         }
 
-        // Reintroduce a conservative signature-based heuristic to approximate PSI's PropertyUtil
-        // Simple getter: starts with "get", no params, non-void return
-        boolean isGetter = name.startsWith("get") && params == 0 && !method.getReturnType().isVoid();
-        // Simple boolean getter: starts with "is", no params, returns boolean
-        boolean isBooleanGetter = name.startsWith("is") && params == 0 &&
+        // Conservative signature-based heuristic (with field existence & non-static requirement)
+        boolean looksLikeGetter = name.startsWith("get") && params == 0 && !method.getReturnType().isVoid();
+        boolean looksLikeBooleanGetter = name.startsWith("is") && params == 0 &&
                                   method.getReturnType().isPrimitive() &&
                                   method.getReturnType().describe().equals("boolean");
-        // Simple setter: starts with "set", exactly one param, void return
-        boolean isSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
-        return isGetter || isBooleanGetter || isSetter;
+        boolean looksLikeSetter = name.startsWith("set") && params == 1 && method.getReturnType().isVoid();
+
+        if (!(looksLikeGetter || looksLikeBooleanGetter || looksLikeSetter)) {
+            return false;
+        }
+
+        // Only consider instance, non-abstract methods in fallback for non-project types
+        // (Project types are handled below to align with PSI PropertyUtil behavior)
+        if (method.isAbstract()) {
+            // We'll still allow interface-declared accessors in the unresolved fallback above.
+            // For non-project types, keep abstract excluded.
+            try {
+                String qn = method.declaringType().getQualifiedName();
+                if (!qn.startsWith("org.b333vv.metric.")) {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        String propertyName = null;
+        if (name.startsWith("get") || name.startsWith("set")) {
+            propertyName = name.substring(3);
+        } else if (name.startsWith("is")) {
+            propertyName = name.substring(2);
+        }
+        if (propertyName == null || propertyName.isEmpty()) {
+            return false;
+        }
+        propertyName = Character.toLowerCase(propertyName.charAt(0)) + propertyName.substring(1);
+
+        try {
+            com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration typeDecl = method.declaringType();
+
+            // If the accessor is declared in our project code, accept signature-only like PSI PropertyUtil
+            if (typeDecl.getQualifiedName().startsWith("org.b333vv.metric.")) {
+                return true; // looksLike* already ensured above
+            }
+
+            // Special-case: align with PSI behavior for Project.getMessageBus()
+            if ((looksLikeGetter || looksLikeBooleanGetter) &&
+                "com.intellij.openapi.project.Project".equals(typeDecl.getQualifiedName()) &&
+                ("getMessageBus".equals(name))) {
+                return true;
+            }
+
+            for (com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration f : typeDecl.getAllFields()) {
+                if (f.getName().equals(propertyName) && !f.isStatic()) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 }

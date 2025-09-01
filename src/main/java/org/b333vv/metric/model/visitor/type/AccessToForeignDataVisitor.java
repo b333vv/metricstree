@@ -41,6 +41,32 @@ public class AccessToForeignDataVisitor extends JavaClassVisitor {
                 usedClasses.remove(parentClass);
             }
             metric = Metric.of(ATFD, usedClasses.size());
+            // Debug: print foreign classes for CalculationServiceImpl to align PSI and JavaParser
+            try {
+                String qn = psiClass.getQualifiedName();
+                if ("org.b333vv.metric.service.CalculationServiceImpl".equals(qn)) {
+                    java.util.Set<String> names = new java.util.HashSet<>();
+                    for (PsiClass c : usedClasses) {
+                        if (c != null && c.getQualifiedName() != null) {
+                            names.add(c.getQualifiedName());
+                        } else if (c != null) {
+                            names.add(c.getName());
+                        }
+                    }
+                    System.out.println("[ATFD PSI DEBUG] CalculationServiceImpl foreign classes (size=" + names.size() + "): " + names);
+                }
+                if ("org.b333vv.metric.service.TaskQueueService".equals(qn)) {
+                    java.util.Set<String> names = new java.util.HashSet<>();
+                    for (PsiClass c : usedClasses) {
+                        if (c != null && c.getQualifiedName() != null) {
+                            names.add(c.getQualifiedName());
+                        } else if (c != null) {
+                            names.add(c.getName());
+                        }
+                    }
+                    System.out.println("[ATFD PSI DEBUG] TaskQueueService foreign classes (size=" + names.size() + "): " + names);
+                }
+            } catch (Throwable ignored) {}
         }
     }
 
