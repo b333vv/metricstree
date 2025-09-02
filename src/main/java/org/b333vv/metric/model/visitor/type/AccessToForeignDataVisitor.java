@@ -16,105 +16,53 @@
 
 package org.b333vv.metric.model.visitor.type;
 
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PropertyUtil;
+import org.b333vv.metric.model.code.JavaClass;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.util.ClassUtils;
+import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.b333vv.metric.model.metric.MetricType.ATFD;
+import java.util.Arrays;
 
 public class AccessToForeignDataVisitor extends JavaClassVisitor {
     private Set<PsiClass> usedClasses = new HashSet<>();
+    private long size2; // Add size2 field to store the calculated value
 
     @Override
     public void visitClass(PsiClass psiClass) {
         usedClasses.clear();
         super.visitClass(psiClass);
-        metric = Metric.of(ATFD, Value.UNDEFINED);
-        if (ClassUtils.isConcrete(psiClass)) {
-            usedClasses.remove(psiClass);
-            for (PsiClass parentClass : psiClass.getSupers()) {
-                usedClasses.remove(parentClass);
-            }
-            metric = Metric.of(ATFD, usedClasses.size());
-            // Debug: print foreign classes for CalculationServiceImpl to align PSI and JavaParser
-            try {
-                String qn = psiClass.getQualifiedName();
-                if ("org.b333vv.metric.service.CalculationServiceImpl".equals(qn)) {
-                    java.util.Set<String> names = new java.util.HashSet<>();
-                    for (PsiClass c : usedClasses) {
-                        if (c != null && c.getQualifiedName() != null) {
-                            names.add(c.getQualifiedName());
-                        } else if (c != null) {
-                            names.add(c.getName());
-                        }
-                    }
-                    System.out.println("[ATFD PSI DEBUG] CalculationServiceImpl foreign classes (size=" + names.size() + "): " + names);
-                }
-                if ("org.b333vv.metric.service.TaskQueueService".equals(qn)) {
-                    java.util.Set<String> names = new java.util.HashSet<>();
-                    for (PsiClass c : usedClasses) {
-                        if (c != null && c.getQualifiedName() != null) {
-                            names.add(c.getQualifiedName());
-                        } else if (c != null) {
-                            names.add(c.getName());
-                        }
-                    }
-                    System.out.println("[ATFD PSI DEBUG] TaskQueueService foreign classes (size=" + names.size() + "): " + names);
-                }
-                if ("org.b333vv.metric.service.CacheService".equals(qn)) {
-                    java.util.Set<String> names = new java.util.HashSet<>();
-                    for (PsiClass c : usedClasses) {
-                        if (c != null && c.getQualifiedName() != null) {
-                            names.add(c.getQualifiedName());
-                        } else if (c != null) {
-                            names.add(c.getName());
-                        }
-                    }
-                    System.out.println("[ATFD PSI DEBUG] CacheService foreign classes (size=" + names.size() + "): " + names);
-                }
-                if ("org.b333vv.metric.ui.tool.ClassLevelFitnessFunctionPanel".equals(qn)) {
-                    java.util.Set<String> names = new java.util.HashSet<>();
-                    for (PsiClass c : usedClasses) {
-                        if (c != null && c.getQualifiedName() != null) {
-                            names.add(c.getQualifiedName());
-                        } else if (c != null) {
-                            names.add(c.getName());
-                        }
-                    }
-                    System.out.println("[ATFD PSI DEBUG] ClassLevelFitnessFunctionPanel foreign classes (size=" + names.size() + "): " + names);
-                }
-            } catch (Throwable ignored) {}
+        metric = Metric.of(MetricType.ATFD, Value.UNDEFINED);
+        
+        // Only count instance fields (non-static)
+        long instanceFields = Arrays.stream(psiClass.getFields())
+            .filter(f -> !f.hasModifierProperty(PsiModifier.STATIC))
+            .count();
+        
+        // Only count instance methods (non-static)
+        long instanceMethods = Arrays.stream(psiClass.getMethods())
+            .filter(m -> !m.hasModifierProperty(PsiModifier.STATIC))
+            .count();
+        
+        size2 = instanceFields + instanceMethods;
+        
+        usedClasses.remove(psiClass);
+        for (PsiClass parentClass : psiClass.getSupers()) {
+            usedClasses.remove(parentClass);
         }
+        metric = Metric.of(MetricType.ATFD, usedClasses.size());
     }
 
-    @Override
-    public void visitMethodCallExpression(PsiMethodCallExpression psiMethodCallExpression) {
-        if (psiMethodCallExpression == null) {
-            return;
-        }
-        
-        try {
-            super.visitMethodCallExpression(psiMethodCallExpression);
-        } catch (Exception e) {
-            // Handle potential stack underflow or other visitor issues
-            // Continue processing without the super call
-        }
-        
-        final PsiMethod method = psiMethodCallExpression.resolveMethod();
-        if (method == null) {
-            return;
-        }
-        if (PropertyUtil.isSimpleGetter(method) || PropertyUtil.isSimpleSetter(method)) {
-            final PsiClass containingClass = method.getContainingClass();
-            if (containingClass != null) {
-                usedClasses.add(containingClass);
-            }
-        }
+    public long getSize2() {
+        return size2;
     }
 
     @Override
@@ -131,14 +79,14 @@ public class AccessToForeignDataVisitor extends JavaClassVisitor {
         }
         
         final PsiElement element = psiReferenceExpression.resolve();
-        if (element == null) {
-            return;
-        }
         if (element instanceof PsiField) {
             final PsiField field = (PsiField) element;
-            final PsiClass containingClass = field.getContainingClass();
-            if (containingClass != null) {
-                usedClasses.add(containingClass);
+            // Only count field usage if it's not static
+            if (!field.hasModifierProperty(PsiModifier.STATIC)) {
+                final PsiClass containingClass = field.getContainingClass();
+                if (containingClass != null) {
+                    usedClasses.add(containingClass);
+                }
             }
         }
     }

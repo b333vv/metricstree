@@ -29,30 +29,27 @@ public class JavaParserNumberOfAttributesAndMethodsVisitor extends JavaParserCla
             ResolvedReferenceTypeDeclaration r = n.resolve();
 
             long operations = 0;
-            // Single-pass count over all visible methods with PSI rule; do NOT dedupe
-            Set<String> seenDeclTypes = new HashSet<>();
-            for (MethodUsage mu : r.getAllMethods()) {
-                String declQN = mu.declaringType().getQualifiedName();
-                boolean declaredHere = declQN.equals(r.getQualifiedName());
-                boolean nonStatic = !mu.getDeclaration().isStatic();
-                if (declaredHere || nonStatic) {
+            for (MethodUsage m : r.getAllMethods()) {
+                boolean declaredHere = m.declaringType().getQualifiedName().equals(r.getQualifiedName());
+                if (declaredHere || !m.getDeclaration().isStatic()) {
                     operations++;
-                }
-                if (!declaredHere && nonStatic) {
-                    seenDeclTypes.add(declQN);
                 }
             }
 
             long attributes = 0;
-            // Fields declared in this class
+            // Fields declared in this class (only instance fields)
             for (ResolvedFieldDeclaration f : r.getDeclaredFields()) {
-                attributes++; // count regardless of static (declared here)
+                if (!f.isStatic()) {
+                    attributes++;
+                }
             }
-            // Fields declared in ancestors (count only non-static ones)
+            
+            // Fields declared in ancestors (only instance fields)
             for (ResolvedReferenceType ancestor : r.getAncestors(true)) {
                 Optional<ResolvedReferenceTypeDeclaration> opt = ancestor.getTypeDeclaration();
                 if (!opt.isPresent()) continue;
                 ResolvedReferenceTypeDeclaration ad = opt.get();
+                // Only count instance fields from ancestors
                 for (ResolvedFieldDeclaration f : ad.getDeclaredFields()) {
                     if (!f.isStatic()) {
                         attributes++;
@@ -60,42 +57,14 @@ public class JavaParserNumberOfAttributesAndMethodsVisitor extends JavaParserCla
                 }
             }
 
-            // Supplement for unresolved ancestors via reflection
-            for (ResolvedReferenceType ancestor : r.getAncestors(true)) {
-                Optional<ResolvedReferenceTypeDeclaration> opt = ancestor.getTypeDeclaration();
-                if (opt.isPresent()) continue; // already handled
-                String qn;
-                try {
-                    qn = ancestor.getQualifiedName();
-                } catch (Throwable t) {
-                    qn = ancestor.describe();
-                }
-                if (qn == null || qn.isEmpty()) continue;
-                try {
-                    Class<?> cls = Class.forName(qn);
-                    // Methods: count non-static as inherited if not already seen from symbol solver
-                    if (!seenDeclTypes.contains(qn)) {
-                        for (Method m : cls.getDeclaredMethods()) {
-                            if (!Modifier.isStatic(m.getModifiers())) {
-                                operations++;
-                            }
-                        }
-                    }
-                    // Fields: count declared non-static fields
-                    for (Field f : cls.getDeclaredFields()) {
-                        if (!Modifier.isStatic(f.getModifiers())) {
-                            attributes++;
-                        }
-                    }
-                } catch (Throwable ignore) {
-                    // best-effort; ignore if class not loadable
-                }
-            }
-
             size2 = operations + attributes;
         } catch (Throwable e) {
-            // Fallback: local members only (previous behavior)
-            size2 = n.getFields().size() + n.getMethods().size();
+            // Fallback: only count instance fields and methods
+            size2 = 0;
+            // Count instance fields
+            size2 += n.getFields().stream().filter(f -> !f.isStatic()).count();
+            // Count instance methods
+            size2 += n.getMethods().stream().filter(m -> !m.isStatic()).count();
         }
 
         Metric metric = Metric.of(MetricType.SIZE2, Value.of(size2));
