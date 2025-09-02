@@ -138,7 +138,6 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                            : packageName + "." + classDecl.getNameAsString();
                 enhancedUnitsByClass.put(key, unit);
                 enhancedUnitsByClass.put(classDecl.getNameAsString(), unit); // fallback key
-                System.out.println("Mapped enhanced class: " + key);
             });
         }
 

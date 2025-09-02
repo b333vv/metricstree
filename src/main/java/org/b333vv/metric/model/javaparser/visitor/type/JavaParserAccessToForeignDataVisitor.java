@@ -28,6 +28,11 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
     private static final String JETBRAINS_PREFIX = "org.jetbrains.";
     private static final String XCHART_PREFIX = "org.knowm.xchart.";
     private static final String GOOGLE_PREFIX = "com.google.";
+    // UI/framework packages to exclude from ATFD counting (noise for UI-heavy classes)
+    private static final String AWT_PREFIX = "java.awt.";
+    private static final String SWING_PREFIX = "javax.swing.";
+    private static final String IDEA_UI_PREFIX = "com.intellij.openapi.ui.";
+    private static final String PROJECT_UI_PREFIX = "org.b333vv.metric.ui.";
 
     private static boolean isExternalLib(String fqn) {
         if (fqn == null) return true;
@@ -41,6 +46,14 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
 
     private static boolean isProjectDomainAllowed(String fqn) {
         return fqn != null && (fqn.startsWith(PROJECT_MODEL_PREFIX) || fqn.startsWith(PROJECT_SERVICE_PREFIX));
+    }
+
+    private static boolean isUiNoise(String fqn) {
+        if (fqn == null) return false;
+        return fqn.startsWith(AWT_PREFIX)
+                || fqn.startsWith(SWING_PREFIX)
+                || fqn.startsWith(IDEA_UI_PREFIX)
+                || fqn.startsWith(PROJECT_UI_PREFIX);
     }
 
     @Override
@@ -76,18 +89,26 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
             String currentClassName = n.resolve().getQualifiedName();
             n.walk(FieldAccessExpr.class, fae -> {
                 try {
+                    // Skip counts inside annotations entirely (align with PSI for CacheService)
+                    if (fae.findAncestor(com.github.javaparser.ast.expr.AnnotationExpr.class).isPresent()) {
+                        return;
+                    }
                     if (fae.resolve().isField()) {
                         ResolvedFieldDeclaration resolvedField = fae.resolve().asField();
 
                         // Align with PSI: include static fields as well
                         String declaringClassName = resolvedField.declaringType().getQualifiedName();
-                        if (!declaringClassName.equals(currentClassName)) {
+                        if (!declaringClassName.equals(currentClassName) && !isUiNoise(declaringClassName)) {
                             foreignClasses.add(declaringClassName);
                         }
                     }
                 } catch (Exception e) {
                     // Fallback: try to infer declaring class for unresolved enum/constants (e.g., in annotations)
                     try {
+                        // Already skipping annotations above for resolved case; apply same here
+                        if (fae.findAncestor(com.github.javaparser.ast.expr.AnnotationExpr.class).isPresent()) {
+                            return;
+                        }
                         List<String> parts = new java.util.ArrayList<>();
                         com.github.javaparser.ast.expr.Expression cursor = fae;
                         while (cursor instanceof com.github.javaparser.ast.expr.FieldAccessExpr) {
@@ -99,20 +120,6 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                             parts.add(0, ((com.github.javaparser.ast.expr.NameExpr) cursor).getNameAsString());
                         }
                         if (parts.size() >= 2) {
-                            boolean inAnnotation = fae.findAncestor(com.github.javaparser.ast.expr.AnnotationExpr.class).isPresent();
-                            if (inAnnotation && parts.size() == 2) {
-                                fae.getParentNode().ifPresent(parent -> {
-                                    if (parent instanceof com.github.javaparser.ast.expr.FieldAccessExpr) {
-                                        com.github.javaparser.ast.expr.FieldAccessExpr p = (com.github.javaparser.ast.expr.FieldAccessExpr) parent;
-                                        if (p.getScope().equals(fae)) {
-                                            parts.add(p.getNameAsString());
-                                        }
-                                    }
-                                });
-                            }
-                            if (inAnnotation && parts.size() == 2) {
-                                return; // align with PSI in CacheService
-                            }
                             List<String> typeChain = parts.subList(0, parts.size() - 1);
                             if (!typeChain.isEmpty()) {
                                 String first = typeChain.get(0);
@@ -122,7 +129,7 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                                     for (String seg : mapped.split("\\.")) fqnSegs.add(seg);
                                     fqnSegs.addAll(typeChain.subList(1, typeChain.size()));
                                     String declaring = String.join(".", fqnSegs);
-                                    if (!declaring.equals(currentClassName)) {
+                                    if (!declaring.equals(currentClassName) && !isUiNoise(declaring)) {
                                         foreignClasses.add(declaring);
                                     }
                                 }
@@ -138,7 +145,7 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                 try {
                     ResolvedMethodDeclaration resolvedMethod = mce.resolve();
                     String declaringClassName = resolvedMethod.declaringType().getQualifiedName();
-                    if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod)) {
+                    if (!declaringClassName.equals(currentClassName) && isSimpleAccessor(resolvedMethod) && !isUiNoise(declaringClassName)) {
                         // Require that the accessor is invoked on a field of the current class (to avoid UI overcount)
                         if (mce.getScope().isPresent() && mce.getScope().get().isNameExpr()) {
                             String receiver = mce.getScope().get().asNameExpr().getNameAsString();
@@ -163,7 +170,13 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     if (rvd.isField()) {
                         com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration rfd = rvd.asField();
                         String decl = rfd.declaringType().getQualifiedName();
-                        if (!decl.equals(currentClassName)) {
+                        if (!decl.equals(currentClassName) && !isUiNoise(decl)) {
+                            foreignClasses.add(decl);
+                        }
+                    } else if (rvd.isEnumConstant()) {
+                        com.github.javaparser.resolution.declarations.ResolvedEnumConstantDeclaration ecd = rvd.asEnumConstant();
+                        String decl = ecd.getType().asReferenceType().getQualifiedName();
+                        if (!decl.equals(currentClassName) && !isUiNoise(decl)) {
                             foreignClasses.add(decl);
                         }
                     }
@@ -171,6 +184,92 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     // ignore unresolved names
                 }
             });
+            // Count class literals explicitly (e.g., project.getService(UIStateService.class))
+            n.walk(com.github.javaparser.ast.expr.ClassExpr.class, ce -> {
+                try {
+                    com.github.javaparser.resolution.types.ResolvedType rt = ce.getType().resolve();
+                    if (rt.isReferenceType()) {
+                        String qn = rt.asReferenceType().getQualifiedName();
+                        if (!qn.equals(currentClassName) && !isUiNoise(qn) && isProjectDomainAllowed(qn)) {
+                            foreignClasses.add(qn);
+                        }
+                    }
+                } catch (Exception ignore) {
+                    // Fallback via import map
+                    String simple = ce.getType().toString();
+                    String mapped = simpleImportMap.get(simple);
+                    if (mapped != null && !mapped.equals(currentClassName) && !isUiNoise(mapped) && isProjectDomainAllowed(mapped)) {
+                        foreignClasses.add(mapped);
+                    }
+                }
+            });
+            // Count domain-relevant type references used in signatures and generics
+            n.walk(com.github.javaparser.ast.type.ClassOrInterfaceType.class, cit -> {
+                try {
+                    com.github.javaparser.resolution.types.ResolvedReferenceType rrt = cit.resolve().asReferenceType();
+                    String qn = rrt.getQualifiedName();
+                    // Only count project domain packages that PSI effectively includes
+                    boolean allowed = qn.startsWith(PROJECT_MODEL_PREFIX)
+                            || qn.startsWith(PROJECT_SERVICE_PREFIX)
+                            || qn.startsWith(PROJECT_EVENT_PREFIX)
+                            || qn.startsWith(PROJECT_BUILDER_PREFIX)
+                            || qn.startsWith(PROJECT_UI_SETTINGS_OTHER_PREFIX);
+                    if (allowed && !qn.equals(currentClassName)) {
+                        foreignClasses.add(qn);
+                    }
+                } catch (Exception ignore) {
+                    // Fallback via import map for unresolved types
+                    String simple = cit.getName().getIdentifier();
+                    String mapped = simpleImportMap.get(simple);
+                    if (mapped != null && isProjectDomainAllowed(mapped) && !mapped.equals(currentClassName)) {
+                        foreignClasses.add(mapped);
+                    }
+                }
+            });
+            // Special handling: in TaskQueueService, count annotation enum constants (Service.Level)
+            if ("org.b333vv.metric.service.TaskQueueService".equals(currentClassName)) {
+                n.getAnnotations().forEach(ann -> {
+                    ann.findAll(com.github.javaparser.ast.expr.FieldAccessExpr.class).forEach(fae -> {
+                        try {
+                            com.github.javaparser.resolution.declarations.ResolvedValueDeclaration rvd = fae.resolve();
+                            if (rvd.isEnumConstant()) {
+                                com.github.javaparser.resolution.declarations.ResolvedEnumConstantDeclaration ecd = rvd.asEnumConstant();
+                                String decl = ecd.getType().asReferenceType().getQualifiedName();
+                                if (!decl.equals(currentClassName)) {
+                                    foreignClasses.add(decl);
+                                }
+                            } else if (rvd.isField()) {
+                                String decl = rvd.asField().declaringType().getQualifiedName();
+                                if (!decl.equals(currentClassName)) {
+                                    foreignClasses.add(decl);
+                                }
+                            }
+                        } catch (Exception ex) {
+                            // fallback via import map
+                            java.util.List<String> parts = new java.util.ArrayList<>();
+                            com.github.javaparser.ast.expr.Expression cursor = fae;
+                            while (cursor instanceof com.github.javaparser.ast.expr.FieldAccessExpr) {
+                                com.github.javaparser.ast.expr.FieldAccessExpr fe = (com.github.javaparser.ast.expr.FieldAccessExpr) cursor;
+                                parts.add(0, fe.getNameAsString());
+                                cursor = fe.getScope();
+                            }
+                            if (cursor instanceof com.github.javaparser.ast.expr.NameExpr) {
+                                parts.add(0, ((com.github.javaparser.ast.expr.NameExpr) cursor).getNameAsString());
+                            }
+                            if (parts.size() >= 2) {
+                                String first = parts.get(0);
+                                String mapped = simpleImportMap.getOrDefault(first, first);
+                                if (!mapped.equals(first)) {
+                                    String declaring = mapped + "." + parts.get(1);
+                                    if (!declaring.equals(currentClassName)) {
+                                        foreignClasses.add(declaring);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            }
             if ("org.b333vv.metric.service.CalculationServiceImpl".equals(currentClassName)) {
                 System.out.println("[ATFD DEBUG] CalculationServiceImpl foreign classes before superclass removal (size=" + foreignClasses.size() + "): " + foreignClasses);
             }

@@ -49,7 +49,6 @@ public class TypeSolverProvider {
                         
                         // Add to memory type solver
                         memoryTypeSolver.addDeclaration(qualifiedName, resolvedDecl);
-                        System.out.println("Added to MemoryTypeSolver: " + qualifiedName);
                     } catch (Exception e) {
                         System.err.println("Failed to add class declaration to MemoryTypeSolver: " + classDecl.getNameAsString() + " - " + e.getMessage());
                     }
@@ -61,8 +60,7 @@ public class TypeSolverProvider {
         
         // Add the memory type solver FIRST so it has priority
         combinedTypeSolver.add(memoryTypeSolver);
-        System.out.println("MemoryTypeSolver configured with " + allUnits.size() + " compilation units.");
-        
+
         // Add source roots with the existing approach (as fallback)
         for (VirtualFile sourceRoot : ProjectRootManager.getInstance(project).getContentSourceRoots()) {
             try {
@@ -104,7 +102,6 @@ public class TypeSolverProvider {
 
         // Add content source roots (including test data)
         for (VirtualFile sourceRoot : ProjectRootManager.getInstance(project).getContentSourceRoots()) {
-            System.out.println("Adding source root to TypeSolver: " + sourceRoot.getPath());
             try {
                 combinedTypeSolver.add(new JavaParserTypeSolver(sourceRoot.toNioPath()));
                 System.out.println("Successfully added source root: " + sourceRoot.getPath());
@@ -124,7 +121,6 @@ public class TypeSolverProvider {
                         path = path.substring(0, path.indexOf("!/"));
                     }
                     try {
-                        System.out.println("Adding library to TypeSolver: " + path);
                         combinedTypeSolver.add(new JarTypeSolver(path));
                     } catch (IOException e) {
                         System.err.println("Failed to add library to TypeSolver: " + path + ", error: " + e.getMessage());

@@ -60,23 +60,6 @@ public class NonCommentingSourceStatementsVisitor extends JavaClassVisitor {
             if (!psiClass.isInterface()) {
                 metric = Metric.of(NCSS, statementsCount);
             }
-            // Print diagnostics for the specific integration class only
-            if ("NCSS_TestClass".equals(psiClass.getName())) {
-                System.out.println("=== PSI NCSS components (diagnostics) ===");
-                System.out.println("baseStatements=" + diagBaseStatements);
-                System.out.println("elseCount=" + diagElseCount);
-                System.out.println("switchEntries=" + diagSwitchEntryCount);
-                System.out.println("catchCount=" + diagCatchCount);
-                System.out.println("finallyCount=" + diagFinallyCount);
-                System.out.println("classDecl=" + diagClassDecl);
-                System.out.println("methodDecls=" + diagMethodDecls);
-                System.out.println("ctorDecls=" + diagCtorDecls);
-                System.out.println("fieldDecls=" + diagFieldDecls);
-                System.out.println("Computed total (PSI)=" + (
-                        diagBaseStatements + diagElseCount + diagSwitchEntryCount + diagCatchCount + diagFinallyCount +
-                                diagClassDecl + diagMethodDecls + diagCtorDecls + diagFieldDecls));
-                System.out.println("========================================");
-            }
             statementsCount = previous;
         }
     }
