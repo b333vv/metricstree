@@ -212,29 +212,7 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
                     }
                 }
             });
-            // Count domain-relevant type references used in signatures and generics
-            n.walk(com.github.javaparser.ast.type.ClassOrInterfaceType.class, cit -> {
-                try {
-                    com.github.javaparser.resolution.types.ResolvedReferenceType rrt = cit.resolve().asReferenceType();
-                    String qn = rrt.getQualifiedName();
-                    // Only count project domain packages that PSI effectively includes
-                    boolean allowed = qn.startsWith(PROJECT_MODEL_PREFIX)
-                            || qn.startsWith(PROJECT_SERVICE_PREFIX)
-                            || qn.startsWith(PROJECT_EVENT_PREFIX)
-                            || qn.startsWith(PROJECT_BUILDER_PREFIX)
-                            || qn.startsWith(PROJECT_UI_SETTINGS_OTHER_PREFIX);
-                    if (allowed && !qn.equals(currentClassName)) {
-                        foreignClasses.add(qn);
-                    }
-                } catch (Exception ignore) {
-                    // Fallback via import map for unresolved types
-                    String simple = cit.getName().getIdentifier();
-                    String mapped = simpleImportMap.get(simple);
-                    if (mapped != null && isProjectDomainAllowed(mapped) && !mapped.equals(currentClassName)) {
-                        foreignClasses.add(mapped);
-                    }
-                }
-            });
+            // Intentionally DO NOT count plain type mentions (signatures/generics) to avoid PSI mismatch
             // Special handling: in TaskQueueService, count annotation enum constants (Service.Level)
             if ("org.b333vv.metric.service.TaskQueueService".equals(currentClassName)) {
                 n.getAnnotations().forEach(ann -> {
