@@ -22,6 +22,9 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
     private static final String PROJECT_PREFIX = "org.b333vv.metric.";
     private static final String PROJECT_MODEL_PREFIX = "org.b333vv.metric.model.";
     private static final String PROJECT_SERVICE_PREFIX = "org.b333vv.metric.service.";
+    private static final String PROJECT_EVENT_PREFIX = "org.b333vv.metric.event.";
+    private static final String PROJECT_BUILDER_PREFIX = "org.b333vv.metric.builder.";
+    private static final String PROJECT_UI_SETTINGS_OTHER_PREFIX = "org.b333vv.metric.ui.settings.other.";
     private static final String JAVA_PREFIX = "java.";
     private static final String JAVAX_PREFIX = "javax.";
     private static final String IDEA_PREFIX = "com.intellij.";
@@ -45,7 +48,13 @@ public class JavaParserAccessToForeignDataVisitor extends JavaParserClassVisitor
     }
 
     private static boolean isProjectDomainAllowed(String fqn) {
-        return fqn != null && (fqn.startsWith(PROJECT_MODEL_PREFIX) || fqn.startsWith(PROJECT_SERVICE_PREFIX));
+        return fqn != null && (
+                fqn.startsWith(PROJECT_MODEL_PREFIX)
+                || fqn.startsWith(PROJECT_SERVICE_PREFIX)
+                || fqn.startsWith(PROJECT_EVENT_PREFIX)
+                || fqn.startsWith(PROJECT_BUILDER_PREFIX)
+                || fqn.startsWith(PROJECT_UI_SETTINGS_OTHER_PREFIX)
+        );
     }
 
     private static boolean isUiNoise(String fqn) {
