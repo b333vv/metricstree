@@ -31,26 +31,52 @@ public class NumberOfAttributesAndMethodsVisitor extends JavaClassVisitor {
     public void visitClass(PsiClass psiClass) {
         super.visitClass(psiClass);
         metric = Metric.of(SIZE2, Value.UNDEFINED);
+        
         if (ClassUtils.isConcrete(psiClass)) {
+            // 获取所有方法（包括继承的）和字段（包括继承的）
             PsiMethod[] methods = psiClass.getAllMethods();
             PsiField[] fields = psiClass.getAllFields();
-            int operationsNumber = 0;
-            for (PsiMethod method : methods) {
-                PsiClass containingClass = method.getContainingClass();
-                if (containingClass != null && containingClass.equals(psiClass) ||
-                        !method.hasModifierProperty(PsiModifier.STATIC)) {
-                    operationsNumber++;
-                }
-            }
-            int attributesNumber = 0;
-            for (PsiField field : fields) {
-                PsiClass containingClass = field.getContainingClass();
-                if (containingClass != null && containingClass
-                        .equals(psiClass) || !field.hasModifierProperty(PsiModifier.STATIC)) {
-                    attributesNumber++;
-                }
-            }
+            
+            // 统计非静态方法的数量
+            int operationsNumber = countNonStaticMethods(methods);
+            
+            // 统计非静态字段的数量
+            int attributesNumber = countNonStaticFields(fields);
+            
+            // 计算总和并设置指标值
             metric = Metric.of(SIZE2, (long) operationsNumber + attributesNumber);
         }
+    }
+
+    /**
+     * 统计非静态方法的数量
+     * 
+     * @param methods 方法数组
+     * @return 非静态方法的数量
+     */
+    private int countNonStaticMethods(PsiMethod[] methods) {
+        int count = 0;
+        for (PsiMethod method : methods) {
+            if (!method.hasModifierProperty(PsiModifier.STATIC)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 统计非静态字段的数量
+     * 
+     * @param fields 字段数组
+     * @return 非静态字段的数量
+     */
+    private int countNonStaticFields(PsiField[] fields) {
+        int count = 0;
+        for (PsiField field : fields) {
+            if (!field.hasModifierProperty(PsiModifier.STATIC)) {
+                count++;
+            }
+        }
+        return count;
     }
 }
