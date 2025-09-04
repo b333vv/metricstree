@@ -214,7 +214,7 @@ public class MetricsSummaryTable {
                         return project.getService(SettingsService.class).getRangeForMetric(metric.getType()).percentageFormat();
                     }
                 default:
-                    return metric;
+                    return project.getService(SettingsService.class).getRangeForMetric(metric.getType());
             }
         }
 
