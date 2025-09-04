@@ -31,6 +31,7 @@ import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangeStub;
 import org.b333vv.metric.ui.settings.ranges.DerivativeMetricsValidRangesSettings;
+import org.b333vv.metric.util.MetricstreeConfig;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -86,7 +87,8 @@ public final class SettingsService {
     }
 
     public CalculationEngine getCalculationEngine() {
-        return this.project.getService(OtherSettings.class).getCalculationEngine();
+        // Engine selection is configured via configuration file, not UI/state
+        return MetricstreeConfig.getCalculationEngine();
     }
 
     public boolean isShowClassMetricsTree() {

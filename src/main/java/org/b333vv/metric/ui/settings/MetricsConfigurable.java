@@ -20,7 +20,6 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
-import org.b333vv.metric.ui.settings.other.CalculationEngine;
 import org.b333vv.metric.ui.settings.other.OtherSettings;
 import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
@@ -90,8 +89,6 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
     @Override
     public void apply() {
         if (panel != null) {
-            CalculationEngine oldCalculationEngine = otherSettings.getCalculationEngine();
-
             panel.save(basicMetricsValidRangesSettings);
             panel.save(derivativeMetricsValidRangesSettings);
             basicMetricsValidRangesSettings.clearTemporaryControlledMetrics();
@@ -100,10 +97,6 @@ public class MetricsConfigurable implements Configurable, Configurable.NoMargin,
             panel.save(classLevelFitnessFunctions);
             panel.save(packageLevelFitnessFunctions);
             panel.save(otherSettings);
-
-            if (oldCalculationEngine != otherSettings.getCalculationEngine()) {
-                cacheService.invalidateUserData();
-            }
         }
     }
 

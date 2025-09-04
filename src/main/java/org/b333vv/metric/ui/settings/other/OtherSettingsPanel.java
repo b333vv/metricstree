@@ -31,7 +31,6 @@ public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings> {
     private final Project project;
     private JPanel panel;
     private JCheckBox projectMetricsStampStored;
-    private JComboBox<CalculationEngine> calculationEngine;
 
     public OtherSettingsPanel(Project project, OtherSettings settings) {
         this.project = project;
@@ -44,20 +43,17 @@ public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings> {
 
     @Override
     public boolean isModified(OtherSettings settings) {
-        return settings.isProjectMetricsStampStored() != projectMetricsStampStored.isSelected()
-                || settings.getCalculationEngine() != calculationEngine.getSelectedItem();
+        return settings.isProjectMetricsStampStored() != projectMetricsStampStored.isSelected();
     }
 
     @Override
     public void save(OtherSettings settings) {
         settings.setProjectMetricsStampStored(projectMetricsStampStored.isSelected());
-        settings.setCalculationEngine((CalculationEngine) calculationEngine.getSelectedItem());
     }
 
     @Override
     public void load(OtherSettings settings) {
         projectMetricsStampStored.setSelected(settings.isProjectMetricsStampStored());
-        calculationEngine.setSelectedItem(settings.getCalculationEngine());
     }
 
     private void createUIComponents(OtherSettings settings) {
@@ -66,21 +62,11 @@ public class OtherSettingsPanel implements ConfigurationPanel<OtherSettings> {
                 "on disk during their calculation",
                 settings.isProjectMetricsStampStored());
 
-        calculationEngine = new JComboBox<>(CalculationEngine.values());
-        calculationEngine.setSelectedItem(settings.getCalculationEngine());
-        JLabel calculationEngineLabel = new JLabel("Metric Calculation Engine:");
-        calculationEngineLabel.setLabelFor(calculationEngine);
-
-
         panel = new JPanel(new GridBagLayout());
 
         JBInsets insets = JBUI.insets(2, 2, 2, 2);
 
         panel.add(projectMetricsStampStored, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-                NORTHWEST, NONE, insets, 0, 0));
-        panel.add(calculationEngineLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                NORTHWEST, NONE, insets, 0, 0));
-        panel.add(calculationEngine, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                 NORTHWEST, NONE, insets, 0, 0));
     }
 }
