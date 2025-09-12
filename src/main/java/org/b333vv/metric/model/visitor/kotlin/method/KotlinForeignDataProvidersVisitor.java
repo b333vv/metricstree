@@ -4,6 +4,8 @@
 package org.b333vv.metric.model.visitor.kotlin.method;
 
 import org.b333vv.metric.model.metric.Metric;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 
@@ -23,38 +25,58 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
 
     @Override
     public void visitNamedFunction(@NotNull KtNamedFunction function) {
-        compute(function.getBodyExpression());
+        compute(function, function.getBodyExpression());
     }
 
     @Override
     public void visitSecondaryConstructor(@NotNull KtSecondaryConstructor constructor) {
-        compute(constructor.getBodyExpression());
+        compute(constructor, constructor.getBodyExpression());
     }
 
-    private void compute(KtExpression body) {
+    private void compute(@NotNull KtElement context, KtExpression body) {
         if (body == null) {
             metric = Metric.of(FDP, 0);
             return;
         }
+        KtClassOrObject owner = findOwnerClass(context);
         final Set<String> providers = new HashSet<>();
         body.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expression) {
-                KtExpression receiver = expression.getReceiverExpression();
-                String key = normalizeReceiverKey(receiver);
+                String key = resolveProviderKey(expression.getSelectorExpression(), expression.getReceiverExpression(), owner);
                 if (key != null) providers.add(key);
                 super.visitDotQualifiedExpression(expression);
             }
 
             @Override
             public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expression) {
-                KtExpression receiver = expression.getReceiverExpression();
-                String key = normalizeReceiverKey(receiver);
+                String key = resolveProviderKey(expression.getSelectorExpression(), expression.getReceiverExpression(), owner);
                 if (key != null) providers.add(key);
                 super.visitSafeQualifiedExpression(expression);
             }
 
-            private String normalizeReceiverKey(KtExpression receiver) {
+            private String resolveProviderKey(KtExpression selector, KtExpression receiver, KtClassOrObject owner) {
+                // Prefer resolving selector to a property and using its owning class FQN
+                if (selector instanceof KtSimpleNameExpression) {
+                    for (var ref : selector.getReferences()) {
+                        PsiElement resolved = ref.resolve();
+                        if (resolved instanceof PsiField) {
+                            PsiField f = (PsiField) resolved;
+                            if (f.getContainingClass() != null) {
+                                String qn = f.getContainingClass().getQualifiedName();
+                                if (qn != null && !isOwnerFqn(owner, qn)) return qn;
+                            }
+                        }
+                        if (resolved instanceof KtProperty) {
+                            KtClassOrObject declOwner = findOwnerClass((KtProperty) resolved);
+                            if (declOwner != null && declOwner.getFqName() != null) {
+                                String qn = declOwner.getFqName().asString();
+                                if (!isOwnerFqn(owner, qn)) return qn;
+                            }
+                        }
+                    }
+                }
+                // Fallback to receiver textual key
                 if (receiver == null) return null;
                 if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression) return null;
                 String text = receiver.getText();
@@ -65,5 +87,21 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
             }
         });
         metric = Metric.of(FDP, providers.size());
+    }
+
+    private boolean isOwnerFqn(KtClassOrObject owner, String fqn) {
+        return owner != null && owner.getFqName() != null && fqn.equals(owner.getFqName().asString());
+    }
+
+    private KtClassOrObject findOwnerClass(@NotNull KtElement element) {
+        KtElement e = element;
+        while (e != null && !(e instanceof KtClassOrObject)) {
+            e = (KtElement) e.getParent();
+        }
+        return (KtClassOrObject) e;
+    }
+
+    private KtClassOrObject findOwnerClass(@NotNull KtProperty property) {
+        return findOwnerClass((KtElement) property);
     }
 }

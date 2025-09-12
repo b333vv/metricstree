@@ -112,6 +112,18 @@ The implementation of the remaining visitors should follow the established patte
 -   **Testing Complexity:** The correctness of the visitors depends on having a comprehensive set of test cases.
     -   **Mitigation:** The test data creation (Task 2.1) is a critical prerequisite. Each new visitor implementation should be developed in tandem with its corresponding test cases to ensure coverage.
 
+### 4.3. Resolution & Extension Functions Policy (Decisions)
+-   **Name/Type Resolution:** The Kotlin method-level visitors (LAA, FDP, NOAV) now attempt reference resolution via PSI where available to more precisely identify:
+    -   The owning class of accessed properties (fields) for LAA/FDP
+    -   The set of actually accessed variables for NOAV (parameters, locals, owner properties)
+    Fallback heuristics are retained when resolution is not available.
+
+-   **Extension Functions Treatment:** For the purposes of LAA and FDP:
+    -   Property access occurring inside an extension function is treated as “foreign” relative to the extended class because the code resides outside that class.
+    -   For qualified access `recv.prop` inside any function (including an extension), the provider is resolved by the selector's declaration owner when possible; otherwise, by receiver text, excluding explicit/implicit `this`/`super`.
+
+-   **NOAV and Destructuring:** Destructuring declarations count each introduced variable separately. Only names that resolve (or are known) to parameters, local properties, or owner class properties are counted; operator tokens and callees are excluded.
+
 ### 4.2. Dependencies
 -   The completion of this plan is a prerequisite for **Phase 3: Integration into Calculation Workflow** as defined in `docs/kotlin/main_plan.md`. The project cannot proceed with integrating Kotlin analysis until all visitors are implemented.
 
@@ -126,5 +138,5 @@ The implementation of the remaining visitors should follow the established patte
 -   The definitions of the remaining metrics are conceptually applicable to Kotlin code, even if the implementation requires adaptation to Kotlin-specific language features.
 
 ## 7. Open Questions / Areas for Further Investigation
--   **LAA/FDP and Extension Functions:** How should property access within an extension function be treated? Does it count as "local" to the extended class or "foreign"? A clear rule must be defined. (Suggestion: Treat it as foreign, as the code resides outside the extended class).
--   **NOAV and Destructuring Declarations:** How should destructuring declarations (e.g., `val (a, b) = pair`) be counted by the `KotlinNumberOfAccessedVariablesVisitor`? (Suggestion: Each variable `a` and `b` should count as a distinct accessed variable).
+-   [Resolved] **LAA/FDP and Extension Functions:** Property access within an extension function is treated as foreign relative to the extended class. The provider is attributed to the owner of the accessed property (by resolution) or to the receiver expression text when unresolved.
+-   [Resolved] **NOAV and Destructuring Declarations:** Each variable introduced by a destructuring declaration counts as a distinct accessed variable. Operator references and function callees are not counted as variables.

@@ -4,6 +4,8 @@
 package org.b333vv.metric.model.visitor.kotlin.method;
 
 import org.b333vv.metric.model.metric.Metric;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 
@@ -31,6 +33,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
 
     private void compute(@NotNull KtElement context, KtExpression body) {
         Set<String> ownPropertyNames = collectOwnPropertyNames(context);
+        KtClassOrObject owner = findOwnerClass(context);
         if (body == null) {
             metric = Metric.of(LAA, 0.0);
             return;
@@ -44,10 +47,8 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                 KtExpression selector = expression.getSelectorExpression();
                 if (selector instanceof KtSimpleNameExpression) {
                     total[0] += 1;
-                    KtExpression receiver = expression.getReceiverExpression();
-                    if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression) {
-                        own[0] += 1;
-                    }
+                    boolean isOwn = isOwnSelector((KtSimpleNameExpression) selector, owner);
+                    if (isOwn) own[0] += 1;
                 }
                 super.visitDotQualifiedExpression(expression);
             }
@@ -71,7 +72,10 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                 }
                 String name = expression.getReferencedName();
                 if (ownPropertyNames.contains(name)) {
-                    own[0] += 1;
+                    // Try to resolve to improve accuracy
+                    if (isOwnSelector(expression, owner)) {
+                        own[0] += 1;
+                    }
                     total[0] += 1;
                 }
                 super.visitSimpleNameExpression(expression);
@@ -82,6 +86,32 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
         } else {
             metric = Metric.of(LAA, ((double) own[0]) / ((double) total[0]));
         }
+    }
+
+    private boolean isOwnSelector(@NotNull KtSimpleNameExpression selector, KtClassOrObject owner) {
+        if (owner == null) return false;
+        for (var ref : selector.getReferences()) {
+            PsiElement resolved = ref.resolve();
+            if (resolved instanceof PsiField) {
+                PsiField f = (PsiField) resolved;
+                if (f.getContainingClass() != null && matchesOwner(owner, f.getContainingClass().getQualifiedName())) {
+                    return true;
+                }
+            }
+            if (resolved instanceof KtProperty) {
+                KtClassOrObject declOwner = findOwnerClass((KtProperty) resolved);
+                if (declOwner != null && owner.getFqName() != null && declOwner.getFqName() != null
+                        && owner.getFqName().asString().equals(declOwner.getFqName().asString())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesOwner(KtClassOrObject owner, String qualifiedName) {
+        if (qualifiedName == null || owner.getFqName() == null) return false;
+        return qualifiedName.equals(owner.getFqName().asString());
     }
 
     private Set<String> collectOwnPropertyNames(@NotNull KtElement element) {
