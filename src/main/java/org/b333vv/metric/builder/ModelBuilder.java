@@ -47,6 +47,12 @@ import org.b333vv.metric.model.visitor.kotlin.type.KotlinWeightedMethodCountVisi
 import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfMethodsVisitor;
 import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfAttributesVisitor;
 import org.b333vv.metric.model.visitor.kotlin.type.KotlinNonCommentingSourceStatementsVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinResponseForClassVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinCouplingBetweenObjectsVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinLackOfCohesionOfMethodsVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinDepthOfInheritanceTreeVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfChildrenVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinTightClassCohesionVisitor;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -80,6 +86,7 @@ public abstract class ModelBuilder {
 
                 // Apply Kotlin class-level visitors where applicable
                 if (ktClass instanceof KtClass) {
+                    // Existing class-level metrics
                     KotlinWeightedMethodCountVisitor wmc = new KotlinWeightedMethodCountVisitor();
                     wmc.computeFor((KtClass) ktClass);
                     if (wmc.getMetric() != null) klass.addMetric(wmc.getMetric());
@@ -95,6 +102,31 @@ public abstract class ModelBuilder {
                     KotlinNonCommentingSourceStatementsVisitor ncss = new KotlinNonCommentingSourceStatementsVisitor();
                     ncss.computeFor((KtClass) ktClass);
                     if (ncss.getMetric() != null) klass.addMetric(ncss.getMetric());
+
+                    // Additional class-level metrics for parity
+                    KotlinResponseForClassVisitor rfc = new KotlinResponseForClassVisitor();
+                    rfc.computeFor((KtClass) ktClass);
+                    if (rfc.getMetric() != null) klass.addMetric(rfc.getMetric());
+
+                    KotlinCouplingBetweenObjectsVisitor cbo = new KotlinCouplingBetweenObjectsVisitor();
+                    cbo.computeFor((KtClass) ktClass);
+                    if (cbo.getMetric() != null) klass.addMetric(cbo.getMetric());
+
+                    KotlinLackOfCohesionOfMethodsVisitor lcom = new KotlinLackOfCohesionOfMethodsVisitor();
+                    lcom.computeFor((KtClass) ktClass);
+                    if (lcom.getMetric() != null) klass.addMetric(lcom.getMetric());
+
+                    KotlinDepthOfInheritanceTreeVisitor dit = new KotlinDepthOfInheritanceTreeVisitor();
+                    dit.computeFor((KtClass) ktClass);
+                    if (dit.getMetric() != null) klass.addMetric(dit.getMetric());
+
+                    KotlinNumberOfChildrenVisitor noc = new KotlinNumberOfChildrenVisitor();
+                    noc.computeFor((KtClass) ktClass);
+                    if (noc.getMetric() != null) klass.addMetric(noc.getMetric());
+
+                    KotlinTightClassCohesionVisitor tcc = new KotlinTightClassCohesionVisitor();
+                    tcc.computeFor((KtClass) ktClass);
+                    if (tcc.getMetric() != null) klass.addMetric(tcc.getMetric());
                 }
 
                 kotlinFile.addClass(klass);
