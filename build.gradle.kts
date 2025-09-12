@@ -89,6 +89,9 @@ tasks {
             targetCompatibility = it
         }
         withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
         }
     }
 
