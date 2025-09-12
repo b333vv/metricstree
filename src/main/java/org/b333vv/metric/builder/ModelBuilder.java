@@ -43,6 +43,10 @@ import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.kotlin.psi.*;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinWeightedMethodCountVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfMethodsVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfAttributesVisitor;
+import org.b333vv.metric.model.visitor.kotlin.type.KotlinNonCommentingSourceStatementsVisitor;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -75,8 +79,23 @@ public abstract class ModelBuilder {
                 ClassElement klass = new ClassElement(ktClass);
 
                 // Apply Kotlin class-level visitors where applicable
-                // Example: WMC, CBO, LCOM, etc., if implemented
-                // For now, we focus on method-level wiring; class-level Kotlin visitors can be added similarly
+                if (ktClass instanceof KtClass) {
+                    KotlinWeightedMethodCountVisitor wmc = new KotlinWeightedMethodCountVisitor();
+                    wmc.computeFor((KtClass) ktClass);
+                    if (wmc.getMetric() != null) klass.addMetric(wmc.getMetric());
+
+                    KotlinNumberOfMethodsVisitor nom = new KotlinNumberOfMethodsVisitor();
+                    nom.computeFor((KtClass) ktClass);
+                    if (nom.getMetric() != null) klass.addMetric(nom.getMetric());
+
+                    KotlinNumberOfAttributesVisitor noa = new KotlinNumberOfAttributesVisitor();
+                    noa.computeFor((KtClass) ktClass);
+                    if (noa.getMetric() != null) klass.addMetric(noa.getMetric());
+
+                    KotlinNonCommentingSourceStatementsVisitor ncss = new KotlinNonCommentingSourceStatementsVisitor();
+                    ncss.computeFor((KtClass) ktClass);
+                    if (ncss.getMetric() != null) klass.addMetric(ncss.getMetric());
+                }
 
                 kotlinFile.addClass(klass);
 
