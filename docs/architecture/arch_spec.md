@@ -35,7 +35,8 @@ graph TD
     subgraph "Core Logic (POJOs & Visitors)"
         Core_Calculator["Metric Calculators & Builders"]
         Core_Model["Domain Model (JavaProject, Metric, etc.)"]
-        Core_Visitor["Metric Visitors (PSI-based)"]
+        Core_Visitor_PSI["Metric Visitors (PSI-based)"]
+        Core_Visitor_JP["JavaParser Visitors (for Verification)"]
     end
 
     subgraph "IntelliJ Platform"
@@ -50,8 +51,9 @@ graph TD
     S_Calculation -- uses --> S_TaskQueue
     S_TaskQueue -- creates & runs --> Platform_Backgroundable
     Platform_Backgroundable -- executes --> Core_Calculator
-    Core_Calculator -- uses --> Core_Visitor
-    Core_Visitor -- reads --> Platform_PSI
+    Core_Calculator -- uses --> Core_Visitor_PSI
+    Core_Visitor_PSI -- reads --> Platform_PSI
+    Core_Calculator -- can also use for testing --> Core_Visitor_JP
     Core_Calculator -- creates --> Core_Model
     Core_Calculator -- reads config from --> S_Settings
     S_Calculation -- publishes results via --> Platform_MessageBus
@@ -77,6 +79,7 @@ graph TD
 -   **Domain Model (`org.b333vv.metric.model.code`)**: A hierarchical representation of the user's code, starting from `JavaProject` down to `JavaPackage`, `JavaFile`, `JavaClass`, and `JavaMethod`. Each entity can hold a collection of `Metric` objects.
 -   **Metric Model (`org.b333vv.metric.model.metric`)**: Defines the `Metric`, `MetricType`, `MetricSet`, and `Value` classes. This model is central to the plugin's purpose.
 -   **Metric Visitors (`org.b333vv.metric.model.visitor`)**: The primary mechanism for metric calculation. Each visitor traverses the PSI tree to calculate a specific metric (e.g., `McCabeCyclomaticComplexityVisitor`). This adheres to the Visitor design pattern, separating the calculation algorithm from the object structure it operates on.
+-   **JavaParser Metric Visitors (`org.b333vv.metric.model.javaparser.visitor`)**: A parallel set of visitors that calculates metrics using the external JavaParser library instead of PSI. This implementation is **not used in the plugin's production functionality**. Its sole purpose is for debugging, testing, and cross-verification of the metric calculations against the primary PSI-based implementation.
 -   **Calculators & Builders (`org.b333vv.metric.builder`)**: A suite of POJOs responsible for orchestrating the visitors and builders to produce a final result (e.g., a `DefaultTreeModel` or chart data). Examples include `ProjectTreeModelCalculator` and `PieChartDataCalculator`. They are pure logic components, making them highly testable.
 
 #### 3.2.2. Service Layer
@@ -149,6 +152,8 @@ The project employs a robust, three-tiered testing strategy, evident from the so
 1.  **Unit Tests (`src/test`)**: For testing POJOs, utility classes, and simple components in complete isolation using standard JUnit and Mockito. The refactored `*Calculator` classes are prime candidates for this type of testing.
 2.  **Integration Tests (`src/integration-test`)**: For testing components that require a minimal IntelliJ Platform environment (e.g., PSI access, services). These tests extend `BasePlatformTestCase` and are used to validate service interactions, visitor logic, and event listener behavior.
 3.  **End-to-End Tests (`src/e2e-test`)**: For testing the full user workflow, from an `AnAction` being triggered to the expected UI outcome. These also use `BasePlatformTestCase` but focus on higher-level component interactions.
+
+To further ensure the correctness of metric calculations, the project maintains a parallel set of metric visitors based on the JavaParser library. This dual-implementation strategy allows for cross-verification of results during testing and debugging, ensuring that the primary PSI-based logic is accurate and robust.
 
 ## 6. Assumptions Made
 - The IntelliJ Platform's service container and `MessageBus` are the primary mechanisms for component communication and lifecycle management.
