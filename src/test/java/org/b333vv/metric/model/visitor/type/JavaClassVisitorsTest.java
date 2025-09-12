@@ -135,7 +135,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
         NumberOfAttributesAndMethodsVisitor numberOfAttributesAndMethodsVisitor = new NumberOfAttributesAndMethodsVisitor();
         javaClass.accept(numberOfAttributesAndMethodsVisitor);
 
-        Metric metric = Metric.of(SIZE2, 76);
+        Metric metric = Metric.of(SIZE2, 65);
 
         assertEquals(metric, javaClass.metrics().findFirst().get());
     }

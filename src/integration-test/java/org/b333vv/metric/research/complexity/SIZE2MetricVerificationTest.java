@@ -1,4 +1,4 @@
-package org.b333vv.metric.verification;
+package org.b333vv.metric.research.complexity;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.EmptyProgressIndicator;

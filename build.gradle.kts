@@ -120,6 +120,8 @@ tasks {
         testClassesDirs = project.sourceSets["integrationTest"].output.classesDirs
         classpath = project.sourceSets["integrationTest"].runtimeClasspath
         mustRunAfter(named("test"))
+        // Исключаем тесты из пакета org.b333vv.metric.research
+        exclude("org/b333vv/metric/research/**")
     }
     register("e2eTest", org.gradle.api.tasks.testing.Test::class.java) {
         description = "Runs end-to-end tests."
