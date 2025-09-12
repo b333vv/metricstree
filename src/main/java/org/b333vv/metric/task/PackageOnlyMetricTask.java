@@ -23,7 +23,7 @@ import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.PackageMetricsSetCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.PackagesCalculator;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.service.CacheService;
 
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public class PackageOnlyMetricTask extends Task.Backgroundable {
     public void run(@NotNull ProgressIndicator indicator) {
         
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        JavaProject javaProject = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_ONLY_METRICS);
+        ProjectElement javaProject = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_ONLY_METRICS);
         if (javaProject == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             AnalysisScope scope = new AnalysisScope(myProject);

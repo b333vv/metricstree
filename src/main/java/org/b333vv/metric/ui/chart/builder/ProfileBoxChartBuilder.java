@@ -18,8 +18,8 @@ package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
@@ -31,11 +31,10 @@ import org.knowm.xchart.style.Styler;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ProfileBoxChartBuilder {
 
-    public List<BoxChartStructure> createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile) {
+    public List<BoxChartStructure> createChart(Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile) {
         List<BoxChartStructure> boxCharts = new ArrayList<>();
 //        Map<FitnessFunction, Set<JavaClass>> classesByMetricProfileWithoutEmptyMetrics = classesByMetricProfile.entrySet().stream()
 //                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty() && !entry.getKey().profile().isEmpty())
@@ -44,9 +43,9 @@ public class ProfileBoxChartBuilder {
         for (MetricType mt : MetricType.values()) {
             if (mt.level() == MetricLevel.CLASS) {
                 Map<String, List<Double>> series = new LinkedHashMap<>();
-                for (Map.Entry<FitnessFunction, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
+                for (Map.Entry<FitnessFunction, Set<ClassElement>> profileEntry : classesByMetricProfile.entrySet()) {
                     var values = profileEntry.getValue().stream()
-                            .flatMap(JavaCode::metrics)
+                            .flatMap(CodeElement::metrics)
                             .filter(metric -> metric.getType() == mt)
                             .map(metric -> metric.getPsiValue() == null ? 0.0 : metric.getPsiValue().doubleValue())
                             .toList();

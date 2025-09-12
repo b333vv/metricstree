@@ -2,8 +2,8 @@ package org.b333vv.metric.builder;
 
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -12,8 +12,6 @@ import org.b333vv.metric.model.metric.value.Value;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*; // Using JUnit 5 assertions
 
 public class JavaFileModelBuilderIntegrationTest extends BasePlatformTestCase {
 
@@ -42,10 +40,10 @@ public class JavaFileModelBuilderIntegrationTest extends BasePlatformTestCase {
             "    void packageMethod() { System.out.println(\"Package-private method\"); }\n" +
             "}\n";
 
-    private JavaFile javaFileModel;
-    private JavaClass primaryClassModel;
-    private JavaClass innerStaticClassModel;
-    private JavaClass packagePrivateClassModel;
+    private FileElement javaFileModel;
+    private ClassElement primaryClassModel;
+    private ClassElement innerStaticClassModel;
+    private ClassElement packagePrivateClassModel;
 
 
     @Override
@@ -61,7 +59,7 @@ public class JavaFileModelBuilderIntegrationTest extends BasePlatformTestCase {
         javaFileModel = classModelBuilder.buildJavaFile(psiJavaFile);
 
         // Extract models for easier assertion
-        List<JavaClass> topLevelClasses = javaFileModel.classes()
+        List<ClassElement> topLevelClasses = javaFileModel.classes()
                 .sorted(Comparator.comparing(jc -> jc.getPsiClass().getName())) // Ensure consistent order
                 .collect(Collectors.toList());
 

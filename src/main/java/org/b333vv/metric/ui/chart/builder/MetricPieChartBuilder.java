@@ -17,11 +17,8 @@
 package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.builder.ClassesByMetricsValuesCounter;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.knowm.xchart.PieChart;

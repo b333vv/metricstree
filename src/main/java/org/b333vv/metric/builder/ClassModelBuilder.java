@@ -19,11 +19,10 @@ package org.b333vv.metric.builder;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiJavaFile;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +35,7 @@ public class ClassModelBuilder extends ModelBuilder {
     public ClassModelBuilder(Project project) {
         this.project = project;
     }
-    public JavaFile buildJavaFile(@NotNull PsiJavaFile psiJavaFile) {
+    public FileElement buildJavaFile(@NotNull PsiJavaFile psiJavaFile) {
         return createJavaFile(psiJavaFile);
     }
 
@@ -64,5 +63,5 @@ public class ClassModelBuilder extends ModelBuilder {
     }
 
     @Override
-    protected void addToAllClasses(JavaClass javaClass) {}
+    protected void addToAllClasses(ClassElement javaClass) {}
 }

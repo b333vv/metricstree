@@ -19,9 +19,9 @@ package org.b333vv.metric.ui.tree.builder;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.TimedVcsCommit;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
+import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -40,11 +40,11 @@ import java.util.*;
 public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuilder {
 
     private final Map<EvolutionKey, MetricNode> classesAndMethodsMetrics = new HashMap<>();
-    private final Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution;
+    private final Map<TimedVcsCommit, Set<ClassElement>> classMetricsEvolution;
     private final Map<EvolutionKey, Value> previousValue = new HashMap<>();
 
-    public ClassMetricsValuesEvolutionTreeBuilder(JavaFile javaFile,
-                                                  Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution,
+    public ClassMetricsValuesEvolutionTreeBuilder(FileElement javaFile,
+                                                  Map<TimedVcsCommit, Set<ClassElement>> classMetricsEvolution,
                                                   Project project) {
         super(javaFile, project);
         this.classMetricsEvolution = classMetricsEvolution;
@@ -80,13 +80,13 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
         return model;
     }
 
-    private void buildMetricsNodesForClasses(JavaClass javaClass, String hash, String dateTime) {
+    private void buildMetricsNodesForClasses(ClassElement javaClass, String hash, String dateTime) {
         javaClass.metrics().forEach(m -> handleMetric(hash, dateTime, m, getKeyForClass(javaClass, m)));
         javaClass.innerClasses().forEach(c -> buildMetricsNodesForClasses(c, hash, dateTime));
         javaClass.methods().forEach(m -> buildMetricsNodesForMethods(m, hash, dateTime));
     }
 
-    private void buildMetricsNodesForMethods(JavaMethod javaMethod, String hash, String dateTime) {
+    private void buildMetricsNodesForMethods(MethodElement javaMethod, String hash, String dateTime) {
         javaMethod.metrics().forEach(m -> handleMetric(hash, dateTime, m, getKeyForMethod(javaMethod, m)));
     }
 
@@ -98,16 +98,16 @@ public class ClassMetricsValuesEvolutionTreeBuilder extends ClassMetricTreeBuild
         }
     }
 
-    private EvolutionKey getKeyForClass(JavaClass javaClass, Metric metric) {
+    private EvolutionKey getKeyForClass(ClassElement javaClass, Metric metric) {
         return ReadAction.compute(() -> 
             new EvolutionKey(javaClass.getPsiClass().getQualifiedName(), metric.getType())
         );
     }
 
-    private EvolutionKey getKeyForMethod(JavaMethod javaMethod, Metric metric) {
+    private EvolutionKey getKeyForMethod(MethodElement javaMethod, Metric metric) {
         return ReadAction.compute(() -> 
             new EvolutionKey(Objects.requireNonNull(javaMethod.getPsiMethod().getContainingClass()).getQualifiedName(),
-                    JavaMethod.signature(javaMethod.getPsiMethod()),
+                    MethodElement.signature(javaMethod.getPsiMethod()),
                     metric.getType())
         );
     }

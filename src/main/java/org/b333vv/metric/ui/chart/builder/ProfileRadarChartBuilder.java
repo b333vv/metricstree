@@ -20,7 +20,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
@@ -40,13 +40,13 @@ import java.util.stream.Collectors;
 
 public class ProfileRadarChartBuilder {
     private final Project project;
-    private Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile;
+    private Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile;
 
 
     public ProfileRadarChartBuilder(Project project) {
         this.project = project;
     }
-    public List<RadarChartStructure> createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile, Project project) {
+    public List<RadarChartStructure> createChart(Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile, Project project) {
 
         this.classesByMetricProfile = classesByMetricProfile;
 
@@ -69,7 +69,7 @@ public class ProfileRadarChartBuilder {
         }
 
         List<FitnessFunction> profiles = new ArrayList<>();
-        for (Map.Entry<FitnessFunction, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
+        for (Map.Entry<FitnessFunction, Set<ClassElement>> profileEntry : classesByMetricProfile.entrySet()) {
             if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty()) {
                 profiles.add(profileEntry.getKey());
             }
@@ -105,8 +105,8 @@ public class ProfileRadarChartBuilder {
             chart.getStyler().setToolTipHighlightColor(backgroundColor);
             chart.getStyler().setToolTipType(Styler.ToolTipType.xAndYLabels);
 
-            Set<JavaClass> javaClasses = classesByMetricProfile.get(profile);
-            Map<JavaClass, List<Metric>> classSetMap = javaClasses.stream()
+            Set<ClassElement> javaClasses = classesByMetricProfile.get(profile);
+            Map<ClassElement, List<Metric>> classSetMap = javaClasses.stream()
                     .collect(Collectors.toMap(Function.identity(), m -> m.metrics()
                             .filter(metric -> shouldInclude(metric, metrics)).collect(Collectors.toList())));
 
@@ -132,14 +132,14 @@ public class ProfileRadarChartBuilder {
                 .filter(e -> e.getKey().equals(profile))
                 .findFirst()
                 .get().getValue().stream()
-                .flatMap(JavaClass::metrics)
+                .flatMap(ClassElement::metrics)
                 .filter(m -> m.getType() == metricType)
                 .count();
         long invalidMetricValueClassesNumber = classesByMetricProfile.entrySet().stream()
                 .filter(e -> e.getKey().equals(profile))
                 .findFirst()
                 .get().getValue().stream()
-                .flatMap(JavaClass::metrics)
+                .flatMap(ClassElement::metrics)
                 .filter(m -> m.getType() == metricType)
                 .filter(metric -> project.getService(SettingsService.class).getRangeForMetric(metric.getType())
                         .getRangeType(metric.getPsiValue()) != RangeType.REGULAR)
@@ -151,9 +151,9 @@ public class ProfileRadarChartBuilder {
     public static class RadarChartStructure {
         private final FitnessFunction fitnessFunction;
         private final RadarChart radarChart;
-        private final Map<JavaClass, List<Metric>> classes;
+        private final Map<ClassElement, List<Metric>> classes;
 
-        public RadarChartStructure(FitnessFunction fitnessFunction, RadarChart radarChart, Map<JavaClass, List<Metric>> classes) {
+        public RadarChartStructure(FitnessFunction fitnessFunction, RadarChart radarChart, Map<ClassElement, List<Metric>> classes) {
             this.fitnessFunction = fitnessFunction;
             this.radarChart = radarChart;
             this.classes = classes;
@@ -167,7 +167,7 @@ public class ProfileRadarChartBuilder {
             return radarChart;
         }
 
-        public Map<JavaClass, List<Metric>> getClasses() {
+        public Map<ClassElement, List<Metric>> getClasses() {
             return new HashMap<>(classes);
         }
     }

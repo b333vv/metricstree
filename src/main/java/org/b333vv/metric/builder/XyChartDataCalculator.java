@@ -1,9 +1,8 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.ui.chart.builder.ProjectMetricXYChartBuilder;
-import org.b333vv.metric.builder.ProjectMetricXYChartDataBuilder;
 import org.knowm.xchart.XYChart;
 
 import java.util.Map;
@@ -35,7 +34,7 @@ public class XyChartDataCalculator {
         }
     }
     
-    public XyChartResult calculate(JavaProject javaProject, Project project) {
+    public XyChartResult calculate(ProjectElement javaProject, Project project) {
         Map<String, Double> instability = new TreeMap<>();
         Map<String, Double> abstractness = new TreeMap<>();
         ProjectMetricXYChartDataBuilder.build(javaProject, instability, abstractness);

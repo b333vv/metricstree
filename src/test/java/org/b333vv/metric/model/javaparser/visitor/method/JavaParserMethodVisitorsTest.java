@@ -20,8 +20,8 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,17 +79,17 @@ public class JavaParserMethodVisitorsTest {
         psiClass = mock(com.intellij.psi.PsiClass.class);
     }
 
-    private JavaMethod getTestJavaMethod(String methodName) {
+    private MethodElement getTestJavaMethod(String methodName) {
         com.intellij.psi.PsiMethod psiMethod = mock(com.intellij.psi.PsiMethod.class);
         when(psiMethod.getName()).thenReturn(methodName);
-        return new JavaMethod(psiMethod, new JavaClass(psiClass));
+        return new MethodElement(psiMethod, new ClassElement(psiClass));
     }
 
     @Test
     void testNumberOfLoops() {
         MethodDeclaration methodDeclaration = cu.getClassByName("TestSubject").get()
                 .getMethodsByName("aComplexMethod").get(0);
-        JavaMethod javaMethod = getTestJavaMethod("aComplexMethod");
+        MethodElement javaMethod = getTestJavaMethod("aComplexMethod");
 
         Metric metric = Metric.of(MetricType.NOL, 0);
         javaMethod.addMetric(metric);
@@ -104,7 +104,7 @@ public class JavaParserMethodVisitorsTest {
     void testNumberOfLoopsOnMethodWithNoLoops() {
         MethodDeclaration methodDeclaration = cu.getClassByName("TestSubject").get()
                 .getMethodsByName("anotherMethod").get(0);
-        JavaMethod javaMethod = getTestJavaMethod("anotherMethod");
+        MethodElement javaMethod = getTestJavaMethod("anotherMethod");
 
         Metric metric = Metric.of(MetricType.NOL, 0);
         javaMethod.addMetric(metric);
@@ -119,7 +119,7 @@ public class JavaParserMethodVisitorsTest {
     void testLinesOfCode() {
         MethodDeclaration methodDeclaration = cu.getClassByName("TestSubject").get()
                 .getMethodsByName("aComplexMethod").get(0);
-        JavaMethod javaMethod = getTestJavaMethod("aComplexMethod");
+        MethodElement javaMethod = getTestJavaMethod("aComplexMethod");
 
         Metric metric = Metric.of(MetricType.LOC, 0);
         javaMethod.addMetric(metric);
@@ -135,7 +135,7 @@ public class JavaParserMethodVisitorsTest {
     void testNumberOfParameters() {
         MethodDeclaration methodDeclaration = cu.getClassByName("TestSubject").get()
                 .getMethodsByName("aComplexMethod").get(0);
-        JavaMethod javaMethod = getTestJavaMethod("aComplexMethod");
+        MethodElement javaMethod = getTestJavaMethod("aComplexMethod");
 
         Metric metric = Metric.of(MetricType.NOPM, 0);
         javaMethod.addMetric(metric);

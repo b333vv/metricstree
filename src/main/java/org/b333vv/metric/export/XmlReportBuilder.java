@@ -45,7 +45,7 @@ public class XmlReportBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, JavaProject javaProject) {
+    public void buildAndExport(String fileName, ProjectElement javaProject) {
         File xmlOutputFile = new File(fileName);
         try {
             Document outputDocument = createDocument(javaProject);
@@ -69,7 +69,7 @@ public class XmlReportBuilder {
     }
 
     @Nullable
-    private Document createDocument(JavaProject javaProject) {
+    private Document createDocument(ProjectElement javaProject) {
         Document doc = null;
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -80,8 +80,8 @@ public class XmlReportBuilder {
             addMetricsForNode(javaProject, projectElement, doc);
             Element packagesElement = doc.createElement("Packages");
             projectElement.appendChild(packagesElement);
-            List<JavaPackage> sortedPackages = javaProject.packages().collect(Collectors.toList());
-            for (JavaPackage packageNode : sortedPackages) {
+            List<PackageElement> sortedPackages = javaProject.packages().collect(Collectors.toList());
+            for (PackageElement packageNode : sortedPackages) {
                 Element packageElement = doc.createElement("Package");
                 packageElement.setAttribute("name", packageNode.getName());
                 packagesElement.appendChild(packageElement);
@@ -94,9 +94,9 @@ public class XmlReportBuilder {
         return doc;
     }
 
-    private void addPackages(JavaPackage parentNode, Element parentElement, Document doc) {
-        List<JavaPackage> sortedPackages = parentNode.subPackages().collect(Collectors.toList());
-        for (JavaPackage javaPackage : sortedPackages) {
+    private void addPackages(PackageElement parentNode, Element parentElement, Document doc) {
+        List<PackageElement> sortedPackages = parentNode.subPackages().collect(Collectors.toList());
+        for (PackageElement javaPackage : sortedPackages) {
             Element packageElement = doc.createElement("Package");
             packageElement.setAttribute("name", javaPackage.getName());
             parentElement.appendChild(packageElement);
@@ -106,17 +106,17 @@ public class XmlReportBuilder {
         addJavaFiles(parentNode, parentElement, doc);
     }
 
-    private void addJavaFiles(JavaPackage parentNode, Element parentElement, Document doc) {
-        List<JavaFile> sortedFiles = parentNode.files().collect(Collectors.toList());
-        for (JavaFile f : sortedFiles) {
+    private void addJavaFiles(PackageElement parentNode, Element parentElement, Document doc) {
+        List<FileElement> sortedFiles = parentNode.files().collect(Collectors.toList());
+        for (FileElement f : sortedFiles) {
             if (f.classes().count() > 1) {
                 Element fileElement = doc.createElement("File");
                 fileElement.setAttribute("name", f.getName());
                 parentElement.appendChild(fileElement);
-                List<JavaClass> sortedClasses = f.classes().collect(Collectors.toList());
+                List<ClassElement> sortedClasses = f.classes().collect(Collectors.toList());
                 addClasses(doc, fileElement, sortedClasses);
             } else if (f.classes().findFirst().isPresent()) {
-                JavaClass javaClass = f.classes().findFirst().get();
+                ClassElement javaClass = f.classes().findFirst().get();
                 Element classElement = doc.createElement("Class");
                 classElement.setAttribute("name", javaClass.getName());
                 parentElement.appendChild(classElement);
@@ -127,8 +127,8 @@ public class XmlReportBuilder {
         }
     }
 
-    private void addClasses(Document doc, Element fileElement, List<JavaClass> sortedClasses) {
-        for (JavaClass c : sortedClasses) {
+    private void addClasses(Document doc, Element fileElement, List<ClassElement> sortedClasses) {
+        for (ClassElement c : sortedClasses) {
             Element classElement = doc.createElement("Class");
             classElement.setAttribute("name", c.getName());
             fileElement.appendChild(classElement);
@@ -138,14 +138,14 @@ public class XmlReportBuilder {
         }
     }
 
-    private void addSubClasses(JavaClass parentClass, Element parentElement, Document doc) {
-        List<JavaClass> sortedClasses = parentClass.innerClasses().collect(Collectors.toList());
+    private void addSubClasses(ClassElement parentClass, Element parentElement, Document doc) {
+        List<ClassElement> sortedClasses = parentClass.innerClasses().collect(Collectors.toList());
         addClasses(doc, parentElement, sortedClasses);
     }
 
-    private void addMethods(JavaClass javaClass, Element parentElement, Document doc) {
-        List<JavaMethod> sortedMethods = javaClass.methods().collect(Collectors.toList());
-        for (JavaMethod m : sortedMethods) {
+    private void addMethods(ClassElement javaClass, Element parentElement, Document doc) {
+        List<MethodElement> sortedMethods = javaClass.methods().collect(Collectors.toList());
+        for (MethodElement m : sortedMethods) {
             Element methodElement = doc.createElement("Method");
             methodElement.setAttribute("name", m.getName());
             parentElement.appendChild(methodElement);
@@ -153,7 +153,7 @@ public class XmlReportBuilder {
         }
     }
 
-    private void addMetricsForNode(JavaCode node, Node parentElement, Document doc) {
+    private void addMetricsForNode(CodeElement node, Node parentElement, Document doc) {
         Element metricsContainer = doc.createElement("Metrics");
         List<Metric> sortedMetrics = node.metrics().collect(Collectors.toList());
         for (Metric metric : sortedMetrics) {

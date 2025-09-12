@@ -18,8 +18,8 @@ package org.b333vv.metric.ui.treemap.builder;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
@@ -34,7 +34,7 @@ import java.awt.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
+public class MetricTypeColorProvider implements ColorProvider<CodeElement, Color> {
     private static final Color UNDEFINED = new JBColor(new Color(0x979797), new Color(0x979797));
     private static final Color REGULAR = new JBColor(new Color(0x499C54), new Color(0x499C54));
     private static final Color HIGH = new JBColor(new Color(0xf9c784), new Color(0xf9c784));
@@ -50,8 +50,8 @@ public class MetricTypeColorProvider implements ColorProvider<JavaCode, Color> {
     }
 
     @Override
-    public Color getColor(TreeModel<Rectangle<JavaCode>> model, Rectangle<JavaCode> rectangle) {
-        if (rectangle.getNode() instanceof JavaClass) {
+    public Color getColor(TreeModel<Rectangle<CodeElement>> model, Rectangle<CodeElement> rectangle) {
+        if (rectangle.getNode() instanceof ClassElement) {
             Map<MetricType, Metric> metrics = rectangle.getNode().metrics().collect(Collectors.toMap(Metric::getType, m -> m));
             if (!metrics.containsKey(metricType)) {
                 return UNDEFINED;

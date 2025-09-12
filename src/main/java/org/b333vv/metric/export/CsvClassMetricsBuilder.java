@@ -19,8 +19,8 @@ package org.b333vv.metric.export;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import java.io.File;
@@ -38,14 +38,14 @@ public class CsvClassMetricsBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, JavaProject javaProject) {
+    public void buildAndExport(String fileName, ProjectElement javaProject) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<JavaClass> headerSupplierOpt = javaProject.allClasses().findAny();
+            Optional<ClassElement> headerSupplierOpt = javaProject.allClasses().findAny();
             if (headerSupplierOpt.isEmpty()) {
                 return;
             }
-            JavaClass headerSupplier = headerSupplierOpt.get();
+            ClassElement headerSupplier = headerSupplierOpt.get();
             String header = "Class Name;" + headerSupplier.metrics()
                     .map(m -> m.getType().name())
                     .collect(Collectors.joining(";"));
@@ -66,7 +66,7 @@ public class CsvClassMetricsBuilder {
         }
     }
 
-    private String convertToCsv(JavaClass javaClass) {
+    private String convertToCsv(ClassElement javaClass) {
         return com.intellij.openapi.application.ApplicationManager.getApplication().runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
             String className = Objects.requireNonNull(javaClass.getPsiClass().getQualifiedName()) + ";";
             String metrics = javaClass.metrics()

@@ -18,7 +18,7 @@ package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -42,7 +42,7 @@ public class ProjectMetricsSet2Json {
         }
     }
 
-    public static void takeProjectMetricsSnapshot(Project project, JavaProject javaProject) {
+    public static void takeProjectMetricsSnapshot(Project project, ProjectElement javaProject) {
         long epoch = Instant.now().toEpochMilli();
         String snapshotTime = "" + epoch;
         String directoryPath = project.getBasePath() +

@@ -16,7 +16,6 @@
 
 package org.b333vv.metric.model.code;
 
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -25,30 +24,30 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class JavaProject extends JavaCode {
+public class ProjectElement extends CodeElement {
 //    private final Project project;
-    private final Map<String, JavaPackage> allPackages;
-    private final Set<JavaClass> allClasses;
+    private final Map<String, PackageElement> allPackages;
+    private final Set<ClassElement> allClasses;
 
-    public JavaProject(@NotNull String name/*, @NotNull Project project*/) {
+    public ProjectElement(@NotNull String name/*, @NotNull Project project*/) {
         super(name);
 //        this.project = project;
         allPackages = new ConcurrentHashMap<>();
-        allClasses = new ConcurrentHashMap<JavaClass, Boolean>().keySet(true);
+        allClasses = new ConcurrentHashMap<ClassElement, Boolean>().keySet(true);
     }
 
-    public Stream<JavaPackage> packages() {
+    public Stream<PackageElement> packages() {
         return children.stream()
-                .filter(c -> c instanceof JavaPackage)
-                .map(c -> (JavaPackage) c)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .filter(c -> c instanceof PackageElement)
+                .map(c -> (PackageElement) c)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 
-    public void addPackage(@NotNull JavaPackage javaPackage) {
+    public void addPackage(@NotNull PackageElement javaPackage) {
         addChild(javaPackage);
     }
 
-    public void addToAllClasses(@NotNull JavaClass javaClass) {
+    public void addToAllClasses(@NotNull ClassElement javaClass) {
         allClasses.add(javaClass);
     }
 
@@ -57,7 +56,7 @@ public class JavaProject extends JavaCode {
         return "Project(" + this.getName() + ")";
     }
 
-    public void putToAllPackages(@NotNull String name, @NotNull JavaPackage javaPackage) {
+    public void putToAllPackages(@NotNull String name, @NotNull PackageElement javaPackage) {
         allPackages.put(name, javaPackage);
     }
 
@@ -65,7 +64,7 @@ public class JavaProject extends JavaCode {
         allPackages.remove(name);
     }
 
-    public JavaPackage getFromAllPackages(@NotNull String name) {
+    public PackageElement getFromAllPackages(@NotNull String name) {
         return allPackages.get(name);
     }
 
@@ -73,7 +72,7 @@ public class JavaProject extends JavaCode {
         return allPackages.isEmpty();
     }
 
-    public Stream<JavaPackage> allPackages() { return allPackages.values().stream(); }
+    public Stream<PackageElement> allPackages() { return allPackages.values().stream(); }
 
-    public Stream<JavaClass> allClasses() { return allClasses.stream(); }
+    public Stream<ClassElement> allClasses() { return allClasses.stream(); }
 }

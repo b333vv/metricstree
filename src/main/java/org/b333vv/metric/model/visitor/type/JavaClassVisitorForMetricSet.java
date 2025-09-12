@@ -17,7 +17,7 @@
 package org.b333vv.metric.model.visitor.type;
 
 import com.intellij.psi.PsiClass;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class JavaClassVisitorForMetricSet extends JavaClassVisitor {
 
     protected List<Metric> metrics;
 
-    public void visitJavaClass(JavaClass javaClass) {
+    public void visitJavaClass(ClassElement javaClass) {
         PsiClass psiClass = javaClass.getPsiClass();
         visitClass(psiClass);
         metrics.forEach(javaClass::addMetric);

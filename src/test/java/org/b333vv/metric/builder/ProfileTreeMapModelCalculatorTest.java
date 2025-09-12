@@ -1,7 +1,7 @@
 package org.b333vv.metric.builder;
 
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +11,10 @@ public class ProfileTreeMapModelCalculatorTest {
 
     @Test
     public void testCalculate() {
-        JavaProject javaProject = new JavaProject("testProject");
+        ProjectElement javaProject = new ProjectElement("testProject");
 
         ProfileTreeMapModelCalculator calculator = new ProfileTreeMapModelCalculator();
-        MetricTreeMap<JavaCode> result = calculator.calculate(javaProject);
+        MetricTreeMap<CodeElement> result = calculator.calculate(javaProject);
 
         assertNotNull(result);
     }

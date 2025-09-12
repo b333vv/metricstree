@@ -17,36 +17,32 @@
 package org.b333vv.metric.ui.treemap.builder;
 
 import com.intellij.ui.JBColor;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.ui.treemap.model.ColorProvider;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.TreeModel;
-import org.b333vv.metric.util.SettingsService;
 
 import java.awt.*;
 import java.util.Set;
 
-public class ProfileColorProvider implements ColorProvider<JavaCode, Color> {
+public class ProfileColorProvider implements ColorProvider<CodeElement, Color> {
     private static final Color UNDEFINED = new JBColor(new Color(0x979797), new Color(0x979797));
     private static final Color REGULAR = new JBColor(new Color(0x499C54), new Color(0x499C54));
     private static final Color HIGH = new JBColor(new Color(0xf9c784), new Color(0xf9c784));
     private static final Color VERY_HIGH = new JBColor(new Color(0xfc7a1e), new Color(0xfc7a1e));
     private static final Color EXTREME = new JBColor(new Color(0xf24c00), new Color(0xf24c00));
 
-    private final Set<JavaClass> profileClasses;
+    private final Set<ClassElement> profileClasses;
 
-    public ProfileColorProvider(Set<JavaClass> profileClasses) {
+    public ProfileColorProvider(Set<ClassElement> profileClasses) {
         this.profileClasses = profileClasses;
     }
 
     @Override
-    public Color getColor(TreeModel<Rectangle<JavaCode>> model, Rectangle<JavaCode> rectangle) {
-        if (rectangle.getNode() instanceof JavaClass) {
-            JavaClass javaClass = (JavaClass) rectangle.getNode();
+    public Color getColor(TreeModel<Rectangle<CodeElement>> model, Rectangle<CodeElement> rectangle) {
+        if (rectangle.getNode() instanceof ClassElement) {
+            ClassElement javaClass = (ClassElement) rectangle.getNode();
             if (profileClasses.contains(javaClass)) {
                 return VERY_HIGH;
             }

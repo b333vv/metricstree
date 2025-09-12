@@ -27,8 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
-import static javax.swing.text.StyleConstants.Bold;
-
 public class BottomPanel {
     private final JPanel panel;
     private JTextPane metricDescription;
@@ -74,23 +72,23 @@ public class BottomPanel {
                 + "]");
     }
 
-    public void setData(@NotNull JavaProject javaProject) {
+    public void setData(@NotNull ProjectElement javaProject) {
         updateDescription("Project: " + javaProject.getName());
     }
 
-    public void setData(@NotNull JavaPackage javaPackage) {
+    public void setData(@NotNull PackageElement javaPackage) {
         updateDescription("Package: " + javaPackage.getName());
     }
 
-    public void setData(@NotNull JavaFile javaFile) {
+    public void setData(@NotNull FileElement javaFile) {
         updateDescription("File: " + javaFile.getName());
     }
 
-    public void setData(@NotNull JavaClass javaClass) {
+    public void setData(@NotNull ClassElement javaClass) {
         updateDescription("Class: " + javaClass.getName());
     }
 
-    public void setData(@NotNull JavaMethod javaMethod) {
+    public void setData(@NotNull MethodElement javaMethod) {
         updateDescription("Method: " + javaMethod.getName());
     }
 

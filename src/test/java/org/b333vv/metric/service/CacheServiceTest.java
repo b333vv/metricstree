@@ -1,12 +1,10 @@
 package org.b333vv.metric.service;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.b333vv.metric.builder.DependenciesBuilder;
-import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.task.InvalidateCachesTask;
+import org.b333vv.metric.model.code.FileElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,13 +21,13 @@ class CacheServiceTest {
     @Mock
     private VirtualFile mockVirtualFile;
     @Mock
-    private JavaFile mockJavaFile;
+    private FileElement mockJavaFile;
     @Mock
     private TaskQueueService mockTaskQueueService;
     @Mock
     private DependenciesBuilder mockDependenciesBuilder;
     @Mock
-    private JavaProject mockJavaProject;
+    private ProjectElement mockJavaProject;
 
     private CacheService cacheService;
 

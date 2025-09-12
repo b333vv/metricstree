@@ -25,33 +25,33 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class JavaClass extends JavaCode {
+public class ClassElement extends CodeElement {
     private final PsiClass psiClass;
 
-    public JavaClass(@NotNull PsiClass psiClass) {
+    public ClassElement(@NotNull PsiClass psiClass) {
         super(Objects.requireNonNull(psiClass.getName()));
         this.psiClass = psiClass;
     }
 
-    public void addClass(@NotNull JavaClass javaClass) {
+    public void addClass(@NotNull ClassElement javaClass) {
         addChild(javaClass);
     }
 
-    public Stream<JavaMethod> methods() {
+    public Stream<MethodElement> methods() {
         return children.stream()
-                .filter(c -> c instanceof JavaMethod)
-                .map(c -> (JavaMethod) c)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .filter(c -> c instanceof MethodElement)
+                .map(c -> (MethodElement) c)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 
-    public Stream<JavaClass> innerClasses() {
+    public Stream<ClassElement> innerClasses() {
         return children.stream()
-                .filter(c -> c instanceof JavaClass)
-                .map(c -> (JavaClass) c)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .filter(c -> c instanceof ClassElement)
+                .map(c -> (ClassElement) c)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 
-    public void addMethod(@NotNull JavaMethod javaMethod) {
+    public void addMethod(@NotNull MethodElement javaMethod) {
         addChild(javaMethod);
     }
 
@@ -67,9 +67,9 @@ public class JavaClass extends JavaCode {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JavaClass)) return false;
+        if (!(o instanceof ClassElement)) return false;
         if (!super.equals(o)) return false;
-        JavaClass javaClass = (JavaClass) o;
+        ClassElement javaClass = (ClassElement) o;
         return Objects.equals(getPsiClass(), javaClass.getPsiClass());
     }
 

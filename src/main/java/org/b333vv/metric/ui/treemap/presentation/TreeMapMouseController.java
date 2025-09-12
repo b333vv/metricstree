@@ -16,7 +16,7 @@
 
 package org.b333vv.metric.ui.treemap.presentation;
 
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -39,8 +39,8 @@ public class TreeMapMouseController<N> implements MouseListener, MouseMotionList
             if (mouseevent.getButton() == MouseEvent.BUTTON1) {
                 if (treemap.selected != null) {
                     N cell = treemap.selected.getNode();
-                    if (cell instanceof JavaClass && treemap.getClickedAction() != null) {
-                        treemap.getClickedAction().accept((JavaClass) cell);
+                    if (cell instanceof ClassElement && treemap.getClickedAction() != null) {
+                        treemap.getClickedAction().accept((ClassElement) cell);
                     }
                 }
             }

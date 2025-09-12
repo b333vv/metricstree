@@ -20,26 +20,18 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.model.code.JavaPackage;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.util.SettingsService;
 
 import org.knowm.xchart.*;
-import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.*;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Stream;
-
-import static org.b333vv.metric.model.metric.value.RangeType.*;
 
 public class ProjectMetricXYChartBuilder {
 

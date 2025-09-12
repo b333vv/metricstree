@@ -16,8 +16,8 @@
 
 package org.b333vv.metric.builder;
 
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.PackageElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 
 public class ProjectMetricXYChartDataBuilder {
-    public static void build(JavaProject javaProject, Map<String, Double> instability, Map<String, Double> abstractness) {
+    public static void build(ProjectElement javaProject, Map<String, Double> instability, Map<String, Double> abstractness) {
         Map<String, Double> myInstability = javaProject.allPackages()
             .flatMap(
                 inner -> inner.metrics()
@@ -54,7 +54,7 @@ public class ProjectMetricXYChartDataBuilder {
         abstractness.putAll(myAbstractness);
     }
 
-    private static Map.Entry<String, Double> convert(Map.Entry<JavaPackage, List<Metric>> e) {
+    private static Map.Entry<String, Double> convert(Map.Entry<PackageElement, List<Metric>> e) {
         String packageName = e.getKey().getPsiPackage().getQualifiedName();
         Double value = e.getValue().get(0).getPsiValue().doubleValue();
         return new Map.Entry<>() {

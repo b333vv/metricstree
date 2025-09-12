@@ -3,7 +3,7 @@ package org.b333vv.metric.model.visitor.type;
 import com.intellij.psi.PsiClass;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
@@ -22,7 +22,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testDepthOfInheritanceTreeVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.AbstractMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         DepthOfInheritanceTreeVisitor depthOfInheritanceTreeVisitor = new DepthOfInheritanceTreeVisitor();
         javaClass.accept(depthOfInheritanceTreeVisitor);
@@ -34,7 +34,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfChildrenVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.AbstractMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfChildrenVisitor numberOfChildrenVisitor = new NumberOfChildrenVisitor();
         javaClass.accept(numberOfChildrenVisitor);
@@ -46,7 +46,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testResponseForClassVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         ResponseForClassVisitor responseForClassVisitor = new ResponseForClassVisitor();
         javaClass.accept(responseForClassVisitor);
@@ -58,7 +58,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testLackOfCohesionOfMethodsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         LackOfCohesionOfMethodsVisitor lackOfCohesionOfMethodsVisitor = new LackOfCohesionOfMethodsVisitor();
         javaClass.accept(lackOfCohesionOfMethodsVisitor);
@@ -70,7 +70,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testWeightedMethodCountVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         WeightedMethodCountVisitor weightedMethodCountVisitor = new WeightedMethodCountVisitor();
         javaClass.accept(weightedMethodCountVisitor);
@@ -82,7 +82,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfAddedMethodsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfAddedMethodsVisitor numberOfAddedMethodsVisitor = new NumberOfAddedMethodsVisitor();
         javaClass.accept(numberOfAddedMethodsVisitor);
@@ -94,7 +94,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfAttributesVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfAttributesVisitor numberOfAttributesVisitor = new NumberOfAttributesVisitor();
         javaClass.accept(numberOfAttributesVisitor);
@@ -106,7 +106,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfOperationsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfOperationsVisitor numberOfOperationsVisitor = new NumberOfOperationsVisitor();
         javaClass.accept(numberOfOperationsVisitor);
@@ -118,7 +118,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfOverriddenMethodsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfOverriddenMethodsVisitor numberOfOverriddenMethodsVisitor = new NumberOfOverriddenMethodsVisitor();
         javaClass.accept(numberOfOverriddenMethodsVisitor);
@@ -130,7 +130,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfAttributesAndMethodsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfAttributesAndMethodsVisitor numberOfAttributesAndMethodsVisitor = new NumberOfAttributesAndMethodsVisitor();
         javaClass.accept(numberOfAttributesAndMethodsVisitor);
@@ -142,7 +142,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfMethodsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfMethodsVisitor numberOfMethodsVisitor = new NumberOfMethodsVisitor();
         javaClass.accept(numberOfMethodsVisitor);
@@ -154,7 +154,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testDataAbstractionCouplingVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         DataAbstractionCouplingVisitor dataAbstractionCouplingVisitor = new DataAbstractionCouplingVisitor();
         javaClass.accept(dataAbstractionCouplingVisitor);
@@ -166,7 +166,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testMessagePassingCouplingVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         MessagePassingCouplingVisitor messagePassingCouplingVisitor = new MessagePassingCouplingVisitor();
         javaClass.accept(messagePassingCouplingVisitor);
@@ -178,7 +178,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testAccessToForeignDataVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         AccessToForeignDataVisitor accessToForeignDataVisitor = new AccessToForeignDataVisitor();
         javaClass.accept(accessToForeignDataVisitor);
@@ -190,7 +190,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfPublicAttributesVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfPublicAttributesVisitor numberOfPublicAttributesVisitor = new NumberOfPublicAttributesVisitor();
         javaClass.accept(numberOfPublicAttributesVisitor);
@@ -202,7 +202,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNumberOfAccessorMethodsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NumberOfAccessorMethodsVisitor numberOfAccessorMethodsVisitor = new NumberOfAccessorMethodsVisitor();
         javaClass.accept(numberOfAccessorMethodsVisitor);
@@ -214,7 +214,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testTightClassCohesionVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         TightClassCohesionVisitor tightClassCohesionVisitor = new TightClassCohesionVisitor();
         javaClass.accept(tightClassCohesionVisitor);
@@ -226,7 +226,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testWeightOfAClassVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         WeightOfAClassVisitor weightOfAClassVisitor = new WeightOfAClassVisitor();
         javaClass.accept(weightOfAClassVisitor);
@@ -238,7 +238,7 @@ public class JavaClassVisitorsTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testNonCommentingSourceStatementsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
 
         NonCommentingSourceStatementsVisitor nonCommentingSourceStatementsVisitor = new NonCommentingSourceStatementsVisitor();
         javaClass.accept(nonCommentingSourceStatementsVisitor);

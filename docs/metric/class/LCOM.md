@@ -89,7 +89,7 @@ These alignments were made in:
 
 ## Worked Examples From This Codebase
 
-• `org.b333vv.metric.model.code.JavaClass`
+• `org.b333vv.metric.model.code.ClassElement`
   - One instance field (`psiClass`), effectively used by one instance method (`getPsiClass`).
   - LCOM = 1.
 

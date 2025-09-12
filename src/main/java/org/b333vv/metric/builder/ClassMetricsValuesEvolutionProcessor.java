@@ -29,8 +29,8 @@ import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitFileUtils;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.log.MetricsConsole;
 import org.b333vv.metric.service.TaskQueueService;
@@ -42,8 +42,6 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.function.Function;
 import com.intellij.openapi.progress.ProgressIndicator;
 
@@ -53,7 +51,7 @@ public class ClassMetricsValuesEvolutionProcessor {
     private final FutureTask<Void> getFileFromGitCalculateMetricsAndPutThemToMap;
     private final FutureTask<Void> buildTree;
     private final Runnable cancel;
-    private final Map<TimedVcsCommit, Set<JavaClass>> classMetricsEvolution = new ConcurrentHashMap<>();
+    private final Map<TimedVcsCommit, Set<ClassElement>> classMetricsEvolution = new ConcurrentHashMap<>();
     private final ClassModelBuilder classModelBuilder;
     private Project project;
 
@@ -96,7 +94,7 @@ public class ClassMetricsValuesEvolutionProcessor {
                                 psiJavaFile.getFileType(),
                                 new String(GitFileUtils.getFileContent(psiJavaFile.getProject(), root, commit.getId().toShortString(),
                                         VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()))));
-                        JavaFile javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
+                        FileElement javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
                         javaFile.classes()
                                 .forEach(c -> classMetricsEvolution.computeIfAbsent(commit, (unused) -> new HashSet<>()).add(c));
                     });
@@ -112,7 +110,7 @@ public class ClassMetricsValuesEvolutionProcessor {
 
         Callable<Void> buildingTree = () -> {
             ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
-            JavaFile javaFile = ReadAction.compute(() -> classModelBuilder.buildJavaFile(psiJavaFile));
+            FileElement javaFile = ReadAction.compute(() -> classModelBuilder.buildJavaFile(psiJavaFile));
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
                     new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution), project);
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();
@@ -163,7 +161,7 @@ public class ClassMetricsValuesEvolutionProcessor {
                                 psiJavaFile.getFileType(),
                                 new String(GitFileUtils.getFileContent(psiJavaFile.getProject(), root, commit.getId().toShortString(),
                                         VcsFileUtil.relativePath(root, psiJavaFile.getVirtualFile()))));
-                        JavaFile javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
+                        FileElement javaFile = classModelBuilder.buildJavaFile(gitPsiJavaFile);
                         javaFile.classes()
                                 .forEach(c -> classMetricsEvolution.computeIfAbsent(commit, (unused) -> new HashSet<>()).add(c));
                     });
@@ -173,7 +171,7 @@ public class ClassMetricsValuesEvolutionProcessor {
             }
 
             ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
-            JavaFile javaFile = ReadAction.compute(() -> classModelBuilder.buildJavaFile(psiJavaFile));
+            FileElement javaFile = ReadAction.compute(() -> classModelBuilder.buildJavaFile(psiJavaFile));
             ClassMetricsValuesEvolutionTreeBuilder classMetricsValuesEvolutionTreeBuilder =
                     new ClassMetricsValuesEvolutionTreeBuilder(javaFile, Collections.unmodifiableMap(classMetricsEvolution), project);
             metricsTreeModel = classMetricsValuesEvolutionTreeBuilder.createMetricsValuesEvolutionTreeModel();

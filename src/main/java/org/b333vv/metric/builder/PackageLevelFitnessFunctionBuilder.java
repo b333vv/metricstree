@@ -17,8 +17,8 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.PackageElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
@@ -34,10 +34,10 @@ import  org.b333vv.metric.util.SettingsService;
 import java.util.*;
 
 public class PackageLevelFitnessFunctionBuilder {
-    public static Map<FitnessFunction, Set<JavaPackage>> packageLevelFitnessFunctionResult(Project project, JavaProject javaProject) {
-        Map<FitnessFunction, Set<JavaPackage>> fitnessFunctionResult = new TreeMap<>();
+    public static Map<FitnessFunction, Set<PackageElement>> packageLevelFitnessFunctionResult(Project project, ProjectElement javaProject) {
+        Map<FitnessFunction, Set<PackageElement>> fitnessFunctionResult = new TreeMap<>();
         for (FitnessFunction profile : fitnessFunctionResult(project)) {
-            Set<JavaPackage> packages = new HashSet<>();
+            Set<PackageElement> packages = new HashSet<>();
             javaProject.allPackages()
                     .forEach(p -> {
                         if (checkPackage(p, profile)) {
@@ -49,7 +49,7 @@ public class PackageLevelFitnessFunctionBuilder {
         return Collections.unmodifiableMap(fitnessFunctionResult);
     }
 
-    private static boolean checkPackage(JavaPackage javaPackage, FitnessFunction profile) {
+    private static boolean checkPackage(PackageElement javaPackage, FitnessFunction profile) {
         if (javaPackage.classes().toList().isEmpty()){
             return false;
         }

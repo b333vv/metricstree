@@ -25,12 +25,12 @@ import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricTreeBuilder extends MetricTreeBuilder {
 
-    public ClassMetricTreeBuilder(JavaCode javaCode, Project project) {
-        super(javaCode, project);
+    public ClassMetricTreeBuilder(CodeElement codeElement, Project project) {
+        super(codeElement, project);
     }
 
     public DefaultTreeModel createMetricTreeModel() {
-        JavaFile javaFile = (JavaFile) javaCode;
+        FileElement javaFile = (FileElement) codeElement;
         if (javaFile.classes().count() > 1) {
             FileNode rootFileNode = new FileNode(javaFile);
             model = new DefaultTreeModel(rootFileNode);
@@ -43,7 +43,7 @@ public class ClassMetricTreeBuilder extends MetricTreeBuilder {
                         addTypeMetricsAndMethodNodes(c);
             });
         } else if (javaFile.classes().findFirst().isPresent()) {
-            JavaClass rootJavaClass = javaFile.classes().findFirst().get();
+            ClassElement rootJavaClass = javaFile.classes().findFirst().get();
             ClassNode rootClassNode = new ClassNode(rootJavaClass);
             model = new DefaultTreeModel(rootClassNode);
             model.setRoot(rootClassNode);

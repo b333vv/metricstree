@@ -3,20 +3,15 @@ package org.b333vv.metric.builder;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value; // Added import
 // import org.b333vv.metric.util.MetricsUtils; // Removed
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*; // Using JUnit 5 assertions
 
 public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
 
@@ -39,7 +34,7 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
             "    }\n" +
             "}";
 
-    private JavaProject javaProject;
+    private ProjectElement javaProject;
 
     @Override
     protected void setUp() throws Exception {
@@ -47,7 +42,7 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
         // It's good practice to set current project for any utilities that might rely on it.
         // MetricsUtils.setCurrentProject(getProject()); // Removed
 
-        javaProject = new JavaProject("TestProject");
+        javaProject = new ProjectElement("TestProject");
         // Assuming ProjectModelBuilder itself does not need MetricsUtils.setCurrentProject directly
         // but the underlying ClassModelBuilder might, which is usually called by ProjectModelBuilder.
         ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
@@ -80,25 +75,25 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
 
         Set<String> expectedClassNames = Set.of("ClassA", "ClassB", "InnerB1");
         Set<String> actualClassNames = javaProject.allClasses()
-                                             .map(JavaClass::getName) // Assuming JavaClass.getName() returns simple name
+                                             .map(ClassElement::getName) // Assuming JavaClass.getName() returns simple name
                                              .collect(Collectors.toSet());
         assertEquals("Mismatch in all class names globally.", expectedClassNames, actualClassNames);
     }
 
     public void testPackage1Contents() {
-        JavaPackage pkg1 = javaProject.getFromAllPackages("com.example.pkg1");
+        PackageElement pkg1 = javaProject.getFromAllPackages("com.example.pkg1");
         assertNotNull("Package 'com.example.pkg1' should exist.", pkg1);
         assertEquals("Package name mismatch for pkg1 (short name).", "pkg1", pkg1.getName());
         assertNotNull("PsiPackage for pkg1 should not be null.", pkg1.getPsiPackage());
         assertEquals("Package FQN mismatch for pkg1.", "com.example.pkg1", pkg1.getPsiPackage().getQualifiedName());
 
         assertEquals("Package pkg1 should contain one file.", 1L, pkg1.files().count());
-        JavaFile file1 = pkg1.files().findFirst().orElse(null);
+        FileElement file1 = pkg1.files().findFirst().orElse(null);
         assertNotNull("File1 should exist in pkg1.", file1);
         assertEquals("File1 name mismatch.", "File1.java", file1.getName());
 
         assertEquals("File1.java should contain one class.", 1L, file1.classes().count());
-        JavaClass classA = file1.classes().findFirst().orElse(null);
+        ClassElement classA = file1.classes().findFirst().orElse(null);
         assertNotNull("ClassA should exist in File1.", classA);
         assertEquals("ClassA name mismatch.", "ClassA", classA.getName());
 
@@ -110,19 +105,19 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
     }
 
     public void testPackage2ContentsAndInnerClasses() {
-        JavaPackage pkg2 = javaProject.getFromAllPackages("com.example.pkg2");
+        PackageElement pkg2 = javaProject.getFromAllPackages("com.example.pkg2");
         assertNotNull("Package 'com.example.pkg2' should exist.", pkg2);
         assertEquals("Package name mismatch for pkg2 (short name).", "pkg2", pkg2.getName());
         assertNotNull("PsiPackage for pkg2 should not be null.", pkg2.getPsiPackage());
         assertEquals("Package FQN mismatch for pkg2.", "com.example.pkg2", pkg2.getPsiPackage().getQualifiedName());
 
         assertEquals("Package pkg2 should contain one file.", 1L, pkg2.files().count());
-        JavaFile file2 = pkg2.files().findFirst().orElse(null);
+        FileElement file2 = pkg2.files().findFirst().orElse(null);
         assertNotNull("File2 should exist in pkg2.", file2);
         assertEquals("File2 name mismatch.", "File2.java", file2.getName());
 
         assertEquals("File2.java should contain one class (ClassB).", 1L, file2.classes().count());
-        JavaClass classB = file2.classes().findFirst().orElse(null);
+        ClassElement classB = file2.classes().findFirst().orElse(null);
         assertNotNull("ClassB should exist in File2.", classB);
         assertEquals("ClassB name mismatch.", "ClassB", classB.getName());
 
@@ -134,7 +129,7 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
         assertEquals("ClassB should have one inner class.", 1L, classB.innerClasses().count());
 
         // Assertions for InnerB1
-        JavaClass innerB1 = classB.innerClasses().findFirst().orElse(null);
+        ClassElement innerB1 = classB.innerClasses().findFirst().orElse(null);
         assertNotNull("InnerB1 should exist in ClassB.", innerB1);
         // Inner class name might be "ClassB.InnerB1" or just "InnerB1" depending on JavaClass.getName()
         // It's typically just the class's own name: "InnerB1"

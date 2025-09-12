@@ -16,9 +16,8 @@
 
 package org.b333vv.metric.model.visitor.method;
 
-import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiMethod;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public abstract class JavaMethodVisitorForMetricSet extends JavaMethodVisitor {
 
     protected List<Metric> metrics;
 
-    public void visitJavaMethod(JavaMethod javaMethod) {
+    public void visitJavaMethod(MethodElement javaMethod) {
         PsiMethod psiMethod = javaMethod.getPsiMethod();
         visitMethod(psiMethod);
         metrics.forEach(javaMethod::addMetric);

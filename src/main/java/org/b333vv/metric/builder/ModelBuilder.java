@@ -21,9 +21,9 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
+import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -31,8 +31,6 @@ import org.b333vv.metric.model.visitor.method.HalsteadMethodVisitor;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.HalsteadClassVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
-import org.b333vv.metric.ui.log.MetricsConsole;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 import org.b333vv.metric.util.SettingsService;
@@ -71,11 +69,11 @@ public abstract class ModelBuilder {
         return javaMethodVisitorList;
     }
 
-    protected JavaFile createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
-        JavaFile javaFile = new JavaFile(psiJavaFile.getName());
+    protected FileElement createJavaFile(@NotNull PsiJavaFile psiJavaFile) {
+        FileElement javaFile = new FileElement(psiJavaFile.getName());
         Project project = psiJavaFile.getProject();
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
-            JavaClass javaClass = new JavaClass(psiClass);
+            ClassElement javaClass = new ClassElement(psiClass);
 
             getClassVisitorList(project).forEach(javaClass::accept);
 
@@ -98,10 +96,10 @@ public abstract class ModelBuilder {
         return javaFile;
     }
 
-    protected void buildConstructors(JavaClass javaClass) {
+    protected void buildConstructors(ClassElement javaClass) {
         Project project = javaClass.getPsiClass().getProject();
         for (PsiMethod aConstructor : javaClass.getPsiClass().getConstructors()) {
-            JavaMethod javaMethod = new JavaMethod(aConstructor, javaClass);
+            MethodElement javaMethod = new MethodElement(aConstructor, javaClass);
             javaClass.addMethod(javaMethod);
 
             getMethodVisitorList(project).forEach(javaMethod::accept);
@@ -113,10 +111,10 @@ public abstract class ModelBuilder {
         }
     }
 
-    protected void buildMethods(JavaClass javaClass) {
+    protected void buildMethods(ClassElement javaClass) {
         Project project = javaClass.getPsiClass().getProject();
         for (PsiMethod aMethod : javaClass.getPsiClass().getMethods()) {
-            JavaMethod javaMethod = new JavaMethod(aMethod, javaClass);
+            MethodElement javaMethod = new MethodElement(aMethod, javaClass);
             javaClass.addMethod(javaMethod);
 
             getMethodVisitorList(project).forEach(javaMethod::accept);
@@ -128,10 +126,10 @@ public abstract class ModelBuilder {
         }
     }
 
-    protected void buildInnerClasses(PsiClass aClass, JavaClass parentClass) {
+    protected void buildInnerClasses(PsiClass aClass, ClassElement parentClass) {
         Project project = aClass.getProject();
         for (PsiClass psiClass : aClass.getInnerClasses()) {
-            JavaClass javaClass = new JavaClass(psiClass);
+            ClassElement javaClass = new ClassElement(psiClass);
             parentClass.addClass(javaClass);
 
             getClassVisitorList(project).forEach(javaClass::accept);
@@ -152,14 +150,14 @@ public abstract class ModelBuilder {
         }
     }
 
-    void addMaintainabilityIndexForClass(JavaClass javaClass) {
-        long cyclomaticComplexity = javaClass.methods().flatMap(JavaMethod::metrics)
+    void addMaintainabilityIndexForClass(ClassElement javaClass) {
+        long cyclomaticComplexity = javaClass.methods().flatMap(MethodElement::metrics)
                 .filter(metric -> metric.getType() == CC)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();
-        long linesOfCode = javaClass.methods().flatMap(JavaMethod::metrics)
+        long linesOfCode = javaClass.methods().flatMap(MethodElement::metrics)
                 .filter(metric -> metric.getType() == LOC)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -181,7 +179,7 @@ public abstract class ModelBuilder {
         javaClass.addMetric(Metric.of(MetricType.CMI, maintainabilityIndex));
     }
 
-    void addLinesOfCodeIndexForClass(JavaClass javaClass) {
+    void addLinesOfCodeIndexForClass(ClassElement javaClass) {
         long linesOfCode = javaClass.methods()
                 .map(javaMethod ->  javaMethod.metric(LOC).getPsiValue())
                 .reduce(Value::plus)
@@ -191,7 +189,7 @@ public abstract class ModelBuilder {
         javaClass.addMetric(Metric.of(MetricType.CLOC, linesOfCode));
     }
 
-    void addCognitiveComplexityForClass(JavaClass javaClass) {
+    void addCognitiveComplexityForClass(ClassElement javaClass) {
         long cognitiveComplexity = javaClass.methods()
                 .map(javaMethod ->  javaMethod.metric(CCM).getPsiValue())
                 .reduce(Value::plus)
@@ -201,7 +199,7 @@ public abstract class ModelBuilder {
         javaClass.addMetric(Metric.of(MetricType.CCC, cognitiveComplexity));
     }
 
-    private void addMaintainabilityIndexForMethod(JavaMethod javaMethod) {
+    private void addMaintainabilityIndexForMethod(MethodElement javaMethod) {
         long cyclomaticComplexity = javaMethod.metrics()
                 .filter(metric -> metric.getType() == CC)
                 .map(Metric::getValue)
@@ -230,7 +228,7 @@ public abstract class ModelBuilder {
         javaMethod.addMetric(Metric.of(MetricType.MMI, maintainabilityIndex));
     }
 
-    abstract protected void addToAllClasses(JavaClass javaClass);
+    abstract protected void addToAllClasses(ClassElement javaClass);
 
     abstract protected Stream<JavaRecursiveElementVisitor> classVisitors();
 

@@ -26,9 +26,9 @@ import com.intellij.ui.components.JBTabbedPane;
 import icons.MetricsIcons;
 import org.b333vv.metric.event.ButtonsEventListener;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
@@ -39,7 +39,6 @@ import org.b333vv.metric.ui.settings.MetricsConfigurable;
 import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.service.UIStateService;
-import org.b333vv.metric.ui.tool.MetricsTreePanel;
 import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +66,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     private MetricsTrimmedSummaryTable metricsTrimmedSummaryTable;
     private JBPanel<?> leftPanel;
     private BottomPanel treeMapBottomPanel;
-    private MetricTreeMap<JavaCode> treeMap;
+    private MetricTreeMap<CodeElement> treeMap;
     private XChartPanel<XYChart> projectMetricsHistoryXyChartPanel;
 
     private ProjectMetricsPanel(Project project) {
@@ -113,7 +112,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         rightPanel.add(scrollableTablePanel);
     }
 
-    private void showResults(Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes, List<MetricPieChartBuilder.PieChartStructure> chartList) {
+    private void showResults(Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes, List<MetricPieChartBuilder.PieChartStructure> chartList) {
         mainPanel = new JBPanel<>(new BorderLayout());
         rightPanel = new JBPanel<>(new BorderLayout());
         super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_PIE_CHART"));
@@ -123,7 +122,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
             chartPanel = new XChartPanel<>(chartStructure.pieChart());
             tabs.insertTab(chartStructure.metricType().name(), null, chartPanel,
                     chartStructure.metricType().description(), chartList.indexOf(chartStructure));
-            Map<JavaClass, Metric> classesByMetric = classesByMetricTypes.get(chartStructure.metricType());
+            Map<ClassElement, Metric> classesByMetric = classesByMetricTypes.get(chartStructure.metricType());
             JBTabbedPane classesByRanges = getJbTabbedPane(classesByMetric);
             rightPanelMap.put(chartList.indexOf(chartStructure), classesByRanges);
         }
@@ -183,7 +182,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     @NotNull
-    private JBTabbedPane getJbTabbedPane(Map<JavaClass, Metric> classesByMetric) {
+    private JBTabbedPane getJbTabbedPane(Map<ClassElement, Metric> classesByMetric) {
         JBTabbedPane classesByRanges = new JBTabbedPane();
         JBPanel<?> highRangePanel = getJbPanel(classesByMetric, RangeType.HIGH);
         classesByRanges.insertTab("High", MetricsIcons.HIGH_COLOR, highRangePanel,
@@ -198,7 +197,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     @NotNull
-    private JBPanel<?> getJbPanel(Map<JavaClass, Metric> classesByMetric, RangeType rangeType) {
+    private JBPanel<?> getJbPanel(Map<ClassElement, Metric> classesByMetric, RangeType rangeType) {
         List<ClassesByRangesTable.ClassByRange> classesByRanges = classesByMetric.entrySet().stream()
                 .filter(e -> project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType())
                         .getRangeType(e.getValue().getPsiValue()) == rangeType)
@@ -221,7 +220,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         updateUI();
     }
 
-    private void showResults(@NotNull MetricTreeMap<JavaCode> treeMap, JavaProject javaProject) {
+    private void showResults(@NotNull MetricTreeMap<CodeElement> treeMap, ProjectElement javaProject) {
         createTreeMapUIComponents();
         
         // Set up TreeMap actions to communicate with the UI
@@ -281,7 +280,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
             SwingUtilities.invokeLater(() -> {
                 // Get the JavaProject from the cache service - it should be available since the tree was just built
-                JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
+                ProjectElement javaProject = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
                 if (javaProject == null) {
                     // Fallback to class and methods metrics if project metrics not available
                     javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
@@ -310,7 +309,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void pieChartIsReady() {
             SwingUtilities.invokeLater(() -> {
-                Map<MetricType, Map<JavaClass, Metric>> classesByMetricTypes = project.getService(CacheService.class)
+                Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = project.getService(CacheService.class)
                         .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
                 List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(CacheService.class)
                         .getUserData(CacheService.PIE_CHART_LIST);
@@ -340,8 +339,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void metricTreeMapIsReady() {
             SwingUtilities.invokeLater(() -> {
-                JavaProject javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
-                MetricTreeMap<JavaCode> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
+                ProjectElement javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                MetricTreeMap<CodeElement> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
                 if (treeMap != null && javaProject != null) {
                     showResults(treeMap, javaProject);
                 }
@@ -356,7 +355,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void projectTreeMapCellClicked(JavaClass javaClass) {
+        public void projectTreeMapCellClicked(ClassElement javaClass) {
             SwingUtilities.invokeLater(() -> {
                 openInEditor(javaClass.getPsiClass());
                 metricsTrimmedSummaryTable.set(javaClass);

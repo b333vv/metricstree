@@ -16,27 +16,22 @@
 
 package org.b333vv.metric.ui.info;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.RangeType;
-import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.EditorUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.text.DefaultHighlighter;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +41,10 @@ import java.util.stream.Collectors;
 public class ClassesForProfileTable {
     private final Model model;
     private final JBScrollPane panel;
-    private Map<JavaClass, List<Metric>> classes;
+    private Map<ClassElement, List<Metric>> classes;
     private final Project project;
 
-    public ClassesForProfileTable(Map<JavaClass, List<Metric>> classesMap, Project project) {
+    public ClassesForProfileTable(Map<ClassElement, List<Metric>> classesMap, Project project) {
         this.project = project;
         this.classes = classesMap.entrySet().stream()
                 .filter(b -> !b.getValue().isEmpty())
@@ -74,7 +69,7 @@ public class ClassesForProfileTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-                JavaClass javaClass = (JavaClass) selectedCell;
+                ClassElement javaClass = (ClassElement) selectedCell;
                 EditorUtils.openInEditor(project, javaClass.getPsiClass());
             }
         });
@@ -113,7 +108,7 @@ public class ClassesForProfileTable {
 
         @Override
         public Object getValueAt(int row, int column) {
-            List<JavaClass> javaClasses = new ArrayList<>(classes.keySet());
+            List<ClassElement> javaClasses = new ArrayList<>(classes.keySet());
             if (column == 0) {
                 return javaClasses.get(row);
             }
@@ -124,7 +119,7 @@ public class ClassesForProfileTable {
         @Override
         public Class<?> getColumnClass(int column) {
             if (column == 0) {
-                return JavaClass.class;
+                return ClassElement.class;
             }
             return Metric.class;
         }
@@ -166,7 +161,7 @@ public class ClassesForProfileTable {
             if (value instanceof Metric) {
                 setText(((Metric) value).getPsiValue().toString());
             } else {
-                setText(((JavaClass) value).getName());
+                setText(((ClassElement) value).getName());
             }
         }
     }

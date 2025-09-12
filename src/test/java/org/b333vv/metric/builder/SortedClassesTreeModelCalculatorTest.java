@@ -2,8 +2,8 @@ package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -20,13 +20,13 @@ import static org.mockito.Mockito.when;
 public class SortedClassesTreeModelCalculatorTest {
 
     private Project mockProject;
-    private JavaProject mockJavaProject;
+    private ProjectElement mockJavaProject;
     private SortedClassesTreeModelCalculator calculator;
 
     @BeforeEach
     void setUp() {
         mockProject = mock(Project.class);
-        mockJavaProject = mock(JavaProject.class);
+        mockJavaProject = mock(ProjectElement.class);
         calculator = new SortedClassesTreeModelCalculator();
     }
 
@@ -41,11 +41,11 @@ public class SortedClassesTreeModelCalculatorTest {
     void calculateWithClassesAndMetrics() {
         PsiClass mockPsiClassA = mock(PsiClass.class);
         when(mockPsiClassA.getName()).thenReturn("ClassA");
-        JavaClass classA = new JavaClass(mockPsiClassA);
+        ClassElement classA = new ClassElement(mockPsiClassA);
 
         PsiClass mockPsiClassB = mock(PsiClass.class);
         when(mockPsiClassB.getName()).thenReturn("ClassB");
-        JavaClass classB = new JavaClass(mockPsiClassB);
+        ClassElement classB = new ClassElement(mockPsiClassB);
 
         Metric metricA = Metric.of(MetricType.ATFD, Value.of(10.0));
         Metric metricB = Metric.of(MetricType.ATFD, Value.of(5.0));

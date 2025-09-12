@@ -20,7 +20,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +61,7 @@ public class JavaParserClassVisitorsTest {
             }
             """;
 
-    private JavaClass javaClass;
+    private ClassElement javaClass;
     private ClassOrInterfaceDeclaration classDeclaration;
 
     @BeforeEach
@@ -72,7 +72,7 @@ public class JavaParserClassVisitorsTest {
         classDeclaration = cu.getClassByName("TestSubject").get();
 
         com.intellij.psi.PsiClass psiClass = mock(com.intellij.psi.PsiClass.class);
-        javaClass = new JavaClass(psiClass);
+        javaClass = new ClassElement(psiClass);
     }
 
     @Test

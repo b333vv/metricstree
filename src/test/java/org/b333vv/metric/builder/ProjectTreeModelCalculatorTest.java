@@ -1,9 +1,7 @@
 package org.b333vv.metric.builder;
 
-import com.intellij.analysis.AnalysisScope;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,7 @@ public class ProjectTreeModelCalculatorTest {
     private Project mockProject;
 
     @Mock
-    private JavaProject mockJavaProject;
+    private ProjectElement mockJavaProject;
 
     private ProjectTreeModelCalculator calculator;
 

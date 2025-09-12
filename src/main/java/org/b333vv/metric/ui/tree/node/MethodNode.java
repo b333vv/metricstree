@@ -17,7 +17,7 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 import icons.MetricsIcons;
 
@@ -25,13 +25,13 @@ import javax.swing.*;
 
 public class MethodNode extends AbstractNode {
 
-    private final JavaMethod javaMethod;
+    private final MethodElement javaMethod;
 
-    public MethodNode(JavaMethod javaMethod) {
+    public MethodNode(MethodElement javaMethod) {
         this.javaMethod = javaMethod;
     }
 
-    public JavaMethod getJavaMethod() {
+    public MethodElement getJavaMethod() {
         return javaMethod;
     }
 

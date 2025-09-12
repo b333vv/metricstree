@@ -21,20 +21,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-public class JavaFile extends JavaCode {
+public class FileElement extends CodeElement {
 
-    public JavaFile(@NotNull String name) {
+    public FileElement(@NotNull String name) {
         super(name);
     }
 
-    public void addClass(@NotNull JavaClass javaClass) {
+    public void addClass(@NotNull ClassElement javaClass) {
         addChild(javaClass);
     }
 
-    public Stream<JavaClass> classes() {
+    public Stream<ClassElement> classes() {
         return children.stream()
-                .filter(c -> c instanceof JavaClass)
-                .map(c -> (JavaClass) c)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .filter(c -> c instanceof ClassElement)
+                .map(c -> (ClassElement) c)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 }

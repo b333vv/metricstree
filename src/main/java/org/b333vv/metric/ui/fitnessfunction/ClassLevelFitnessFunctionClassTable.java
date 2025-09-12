@@ -24,7 +24,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.util.EditorUtils;
 import org.b333vv.metric.service.UIStateService;
@@ -52,7 +52,7 @@ public class ClassLevelFitnessFunctionClassTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-                JavaClass javaClass = (JavaClass) selectedCell;
+                ClassElement javaClass = (ClassElement) selectedCell;
                 if (this.project.getService(UIStateService.class).isProfileAutoScrollable()) {
                     EditorUtils.openInEditor(this.project, javaClass.getPsiClass());
                 }
@@ -63,7 +63,7 @@ public class ClassLevelFitnessFunctionClassTable {
         panel = new JBScrollPane(table);
     }
 
-    public void setClasses(List<JavaClass> classes) {
+    public void setClasses(List<ClassElement> classes) {
         model.set(classes);
         model.fireTableDataChanged();
     }
@@ -77,7 +77,7 @@ public class ClassLevelFitnessFunctionClassTable {
     }
 
     private static class Model extends AbstractTableModel {
-        private List<JavaClass> rows = List.of();
+        private List<ClassElement> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -106,14 +106,14 @@ public class ClassLevelFitnessFunctionClassTable {
             }
         }
 
-        public void set(List<JavaClass> rows) {
+        public void set(List<ClassElement> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
         @Override
         public Object getValueAt(int row, int column) {
-            JavaClass javaClass = rows.get(row);
+            ClassElement javaClass = rows.get(row);
             switch (column) {
                 case 0:
                     return javaClass;
@@ -124,7 +124,7 @@ public class ClassLevelFitnessFunctionClassTable {
             }
         }
 
-        private Object getPackage(JavaClass javaClass) {
+        private Object getPackage(ClassElement javaClass) {
             return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
                 PsiPackage psiPackage = ClassUtils.findPackage(javaClass.getPsiClass());
                 if (psiPackage == null) {
@@ -137,7 +137,7 @@ public class ClassLevelFitnessFunctionClassTable {
         @Override
         public Class<?> getColumnClass(int column) {
             if (column == 0) {
-                return JavaClass.class;
+                return ClassElement.class;
             }
             return String.class;
         }

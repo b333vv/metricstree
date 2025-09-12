@@ -15,9 +15,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.MethodElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.javaparser.util.TypeSolverProvider;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserClassVisitor;
 import org.b333vv.metric.model.javaparser.visitor.JavaParserMethodVisitor;
@@ -29,10 +29,8 @@ import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfAddedMe
 import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfChildrenVisitor;
 import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfOverriddenMethodsVisitor;
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -91,12 +89,12 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     }
 
     @Override
-    public JavaProject calculate(Project project, ProgressIndicator indicator) {
-        return new JavaProject(project.getName());
+    public ProjectElement calculate(Project project, ProgressIndicator indicator) {
+        return new ProjectElement(project.getName());
     }
 
     @Override
-    public void augment(JavaProject javaProject, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
+    public void augment(ProjectElement javaProject, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
         indicator.setText("Calculating metrics with JavaParser");
 
         TypeSolverProvider typeSolverProvider = new TypeSolverProvider();
@@ -213,7 +211,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
         });
     }
 
-    private void calculateDerivativeClassMetrics(JavaClass javaClass) {
+    private void calculateDerivativeClassMetrics(ClassElement javaClass) {
         // CLOC Calculation
         Value totalLOCValue = javaClass.methods()
                 .map(m -> {
@@ -284,7 +282,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
         }
     }
 
-    private void calculateDerivativeMethodMetrics(JavaMethod javaMethod) {
+    private void calculateDerivativeMethodMetrics(MethodElement javaMethod) {
         Metric hvlMetric = javaMethod.metric(HVL);
         Metric ccMetric = javaMethod.metric(CC);
         Metric locMetric = javaMethod.metric(LOC);
@@ -317,7 +315,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
      * Parse a compilation unit for a given JavaClass, handling both file-based and string-based parsing.
      * In test environments with temp filesystem, falls back to string-based parsing.
      */
-    private CompilationUnit parseClassCompilationUnit(JavaClass javaClass, JavaParser javaParser) {
+    private CompilationUnit parseClassCompilationUnit(ClassElement javaClass, JavaParser javaParser) {
         return ApplicationManager.getApplication().runReadAction((Computable<CompilationUnit>) () -> {
             try {
                 PsiClass psiClass = javaClass.getPsiClass();
@@ -357,7 +355,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     /**
      * Find the compilation unit that contains the given JavaClass from the pre-indexed map.
      */
-    private CompilationUnit findCompilationUnitForClass(JavaClass javaClass, Map<String, CompilationUnit> unitsByClass) {
+    private CompilationUnit findCompilationUnitForClass(ClassElement javaClass, Map<String, CompilationUnit> unitsByClass) {
         return ApplicationManager.getApplication().runReadAction((Computable<CompilationUnit>) () -> {
             try {
                 PsiClass psiClass = javaClass.getPsiClass();

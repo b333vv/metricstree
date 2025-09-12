@@ -2,7 +2,6 @@ package org.b333vv.metric.verification;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.github.javaparser.JavaParser;
@@ -12,16 +11,12 @@ import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.builder.DependenciesCalculator;
 import org.b333vv.metric.builder.JavaParserCalculationStrategy;
 import org.b333vv.metric.builder.PsiCalculationStrategy;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.util.ClassUtils;
-import org.b333vv.metric.model.visitor.type.NumberOfAttributesAndMethodsVisitor;
-import org.b333vv.metric.model.javaparser.visitor.type.JavaParserNumberOfAttributesAndMethodsVisitor;
 import org.b333vv.metric.service.CacheService;
 
-import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -36,7 +31,7 @@ public class SIZE2MetricVerificationTest extends BasePlatformTestCase {
     private static final long EXPECTED_BASE_CLASS_SIZE2 = 3;  // 1 field + 2 methods (baseField, constructor, baseMethod)
     private static final long EXPECTED_CHILD_CLASS_SIZE2 = 8;  // 3 fields + 5 methods (including inherited)
     
-    protected JavaProject javaProject;
+    protected ProjectElement javaProject;
 
     @Override
     protected String getTestDataPath() {

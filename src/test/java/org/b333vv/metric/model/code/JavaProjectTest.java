@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith; // Added
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations; // Will be removed by logic below
 import org.mockito.junit.jupiter.MockitoExtension; // Added
 
 import java.util.Arrays;
@@ -24,7 +23,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class) // Added
 public class JavaProjectTest {
 
-    private JavaProject javaProject;
+    private ProjectElement javaProject;
     private final String projectName = "TestProject";
 
     @Mock
@@ -35,7 +34,7 @@ public class JavaProjectTest {
     @BeforeEach
     void setUp() {
         // MockitoAnnotations.openMocks(this); // Removed
-        javaProject = new JavaProject(projectName); // Corrected constructor
+        javaProject = new ProjectElement(projectName); // Corrected constructor
     }
 
     // 1. Constructor and `getName()`
@@ -50,18 +49,18 @@ public class JavaProjectTest {
         assertTrue(javaProject.packages().collect(Collectors.toList()).isEmpty(), "Initially, packages() stream should be empty.");
 
         // PsiPackage mocks for JavaPackage constructor if needed, or null if PsiPackage is optional for the test's purpose
-        JavaPackage pkgA = new JavaPackage("com.a", null); // Corrected constructor
-        JavaPackage pkgC = new JavaPackage("com.c", null); // Corrected constructor
-        JavaPackage pkgB = new JavaPackage("com.b", null); // Corrected constructor
+        PackageElement pkgA = new PackageElement("com.a", null); // Corrected constructor
+        PackageElement pkgC = new PackageElement("com.c", null); // Corrected constructor
+        PackageElement pkgB = new PackageElement("com.b", null); // Corrected constructor
 
         javaProject.addPackage(pkgA); // This adds to JavaCode.children, used by packages()
         javaProject.addPackage(pkgC);
         javaProject.addPackage(pkgB);
 
-        List<JavaPackage> expectedPackages = Arrays.asList(pkgA, pkgB, pkgC);
-        expectedPackages.sort(Comparator.comparing(JavaCode::getName));
+        List<PackageElement> expectedPackages = Arrays.asList(pkgA, pkgB, pkgC);
+        expectedPackages.sort(Comparator.comparing(CodeElement::getName));
 
-        List<JavaPackage> actualPackages = javaProject.packages().collect(Collectors.toList());
+        List<PackageElement> actualPackages = javaProject.packages().collect(Collectors.toList());
         assertIterableEquals(expectedPackages, actualPackages, "Top-level packages should match and be in sorted order by name.");
     }
 
@@ -71,8 +70,8 @@ public class JavaProjectTest {
         assertTrue(javaProject.allPackagesIsEmpty(), "allPackagesIsEmpty should be true initially.");
         assertTrue(javaProject.allPackages().collect(Collectors.toList()).isEmpty(), "allPackages() stream should be empty initially.");
 
-        JavaPackage pkg1 = new JavaPackage("com.example.one", null); // Corrected constructor
-        JavaPackage pkg2 = new JavaPackage("com.example.two", null); // Corrected constructor
+        PackageElement pkg1 = new PackageElement("com.example.one", null); // Corrected constructor
+        PackageElement pkg2 = new PackageElement("com.example.two", null); // Corrected constructor
 
         javaProject.putToAllPackages("com.example.one", pkg1);
         javaProject.putToAllPackages("com.example.two", pkg2);
@@ -82,8 +81,8 @@ public class JavaProjectTest {
         assertEquals(pkg2, javaProject.getFromAllPackages("com.example.two"));
         assertNull(javaProject.getFromAllPackages("com.example.nonexistent"));
 
-        Set<JavaPackage> expectedAllPackages = new HashSet<>(Arrays.asList(pkg1, pkg2));
-        Set<JavaPackage> actualAllPackages = javaProject.allPackages().collect(Collectors.toSet());
+        Set<PackageElement> expectedAllPackages = new HashSet<>(Arrays.asList(pkg1, pkg2));
+        Set<PackageElement> actualAllPackages = javaProject.allPackages().collect(Collectors.toSet());
         assertEquals(expectedAllPackages, actualAllPackages, "allPackages() should contain all globally added packages.");
 
         javaProject.removeFromAllPackages("com.example.one");
@@ -103,16 +102,16 @@ public class JavaProjectTest {
         assertTrue(javaProject.allClasses().collect(Collectors.toList()).isEmpty(), "Initially, allClasses() stream should be empty.");
 
         when(mockPsiClass1.getName()).thenReturn("ClassA");
-        JavaClass classA = new JavaClass(mockPsiClass1); // Corrected constructor
+        ClassElement classA = new ClassElement(mockPsiClass1); // Corrected constructor
 
         when(mockPsiClass2.getName()).thenReturn("ClassB");
-        JavaClass classB = new JavaClass(mockPsiClass2); // Corrected constructor
+        ClassElement classB = new ClassElement(mockPsiClass2); // Corrected constructor
 
         javaProject.addToAllClasses(classA);
         javaProject.addToAllClasses(classB);
 
-        Set<JavaClass> expectedClasses = new HashSet<>(Arrays.asList(classA, classB));
-        Set<JavaClass> actualClasses = javaProject.allClasses().collect(Collectors.toSet());
+        Set<ClassElement> expectedClasses = new HashSet<>(Arrays.asList(classA, classB));
+        Set<ClassElement> actualClasses = javaProject.allClasses().collect(Collectors.toSet());
         assertEquals(expectedClasses, actualClasses, "allClasses() should contain all globally added classes.");
 
         // Test clearing or removing (if such functionality existed directly)

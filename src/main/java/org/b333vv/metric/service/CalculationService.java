@@ -2,16 +2,16 @@ package org.b333vv.metric.service;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.b333vv.metric.builder.DependenciesBuilder;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 
 public interface CalculationService {
     DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator);
 
-    JavaProject getOrBuildClassAndMethodModel(ProgressIndicator indicator);
+    ProjectElement getOrBuildClassAndMethodModel(ProgressIndicator indicator);
 
-    JavaProject getOrBuildPackageMetricsModel(ProgressIndicator indicator);
+    ProjectElement getOrBuildPackageMetricsModel(ProgressIndicator indicator);
 
-    JavaProject getOrBuildProjectMetricsModel(ProgressIndicator indicator);
+    ProjectElement getOrBuildProjectMetricsModel(ProgressIndicator indicator);
 
     void calculateProjectTree();
 

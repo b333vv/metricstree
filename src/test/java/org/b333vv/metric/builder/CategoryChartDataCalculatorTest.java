@@ -1,7 +1,7 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.junit.jupiter.api.Test;
 import org.knowm.xchart.CategoryChart;
 import org.mockito.Mockito;
@@ -12,7 +12,7 @@ public class CategoryChartDataCalculatorTest {
 
     @Test
     public void testCalculate() {
-        JavaProject javaProject = new JavaProject("testProject");
+        ProjectElement javaProject = new ProjectElement("testProject");
         Project project = Mockito.mock(Project.class);
 
         CategoryChartDataCalculator calculator = new CategoryChartDataCalculator();

@@ -17,14 +17,12 @@
 package org.b333vv.metric.ui.fitnessfunction;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiPackage;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.util.ClassUtils;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.PackageElement;
 import org.b333vv.metric.util.EditorUtils;
 import org.b333vv.metric.service.UIStateService;
 
@@ -51,7 +49,7 @@ public class PackageLevelFitnessFunctionClassTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-                JavaClass javaClass = (JavaClass) selectedCell;
+                ClassElement javaClass = (ClassElement) selectedCell;
                 if (this.project.getService(UIStateService.class).isProfileAutoScrollable()) {
                     EditorUtils.openInEditor(this.project, javaClass.getPsiClass());
                 }
@@ -62,7 +60,7 @@ public class PackageLevelFitnessFunctionClassTable {
         panel = new JBScrollPane(table);
     }
 
-    public void setClasses(List<JavaClass> classes) {
+    public void setClasses(List<ClassElement> classes) {
         model.set(classes);
         model.fireTableDataChanged();
     }
@@ -75,12 +73,12 @@ public class PackageLevelFitnessFunctionClassTable {
         model.set(List.of());
     }
 
-    public void set(JavaPackage javaPackage) {
+    public void set(PackageElement javaPackage) {
         model.set(javaPackage.classes().toList());
     }
 
     private static class Model extends AbstractTableModel {
-        private List<JavaClass> rows = List.of();
+        private List<ClassElement> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -107,14 +105,14 @@ public class PackageLevelFitnessFunctionClassTable {
             }
         }
 
-        public void set(List<JavaClass> rows) {
+        public void set(List<ClassElement> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
         @Override
         public Object getValueAt(int row, int column) {
-            JavaClass javaClass = rows.get(row);
+            ClassElement javaClass = rows.get(row);
             switch (column) {
                 case 0:
                     return javaClass;
@@ -126,7 +124,7 @@ public class PackageLevelFitnessFunctionClassTable {
         @Override
         public Class<?> getColumnClass(int column) {
             if (column == 0) {
-                return JavaClass.class;
+                return ClassElement.class;
             }
             return String.class;
         }

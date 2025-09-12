@@ -22,16 +22,15 @@ import com.intellij.psi.PsiSubstitutor;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.MethodSignature;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.MethodElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,14 +42,14 @@ public class CsvMethodMetricsBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, JavaProject javaProject) {
+    public void buildAndExport(String fileName, ProjectElement javaProject) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<JavaMethod> headerSupplierOpt = javaProject.allClasses().flatMap(JavaClass::methods).findAny();
+            Optional<MethodElement> headerSupplierOpt = javaProject.allClasses().flatMap(ClassElement::methods).findAny();
             if (headerSupplierOpt.isEmpty()) {
                 return;
             }
-            JavaMethod headerSupplier = headerSupplierOpt.get();
+            MethodElement headerSupplier = headerSupplierOpt.get();
             String header = "Method Name;" + headerSupplier.metrics()
                     .map(m -> m.getType().name())
                     .collect(Collectors.joining(";"));
@@ -59,7 +58,7 @@ public class CsvMethodMetricsBuilder {
             // Wrap PSI access in read action
             ApplicationManager.getApplication().runReadAction(() -> {
                 javaProject.allClasses()
-                        .flatMap(JavaClass::methods)
+                        .flatMap(ClassElement::methods)
                         .sorted((c1, c2) -> {
                             // Safely get qualified names with null checks
                             String name1 = getQualifiedNameSafely(c1);
@@ -78,7 +77,7 @@ public class CsvMethodMetricsBuilder {
         }
     }
     
-    private String getQualifiedNameSafely(JavaMethod javaMethod) {
+    private String getQualifiedNameSafely(MethodElement javaMethod) {
         try {
             String qualifiedName = javaMethod.getJavaClass().getPsiClass().getQualifiedName();
             return qualifiedName != null ? qualifiedName : "Unknown";
@@ -87,7 +86,7 @@ public class CsvMethodMetricsBuilder {
         }
     }
 
-    private String convertToCsv(JavaMethod javaMethod) {
+    private String convertToCsv(MethodElement javaMethod) {
         try {
             StringBuilder signature = new StringBuilder();
             MethodSignature methodSignature = javaMethod.getPsiMethod().getSignature(PsiSubstitutor.EMPTY);

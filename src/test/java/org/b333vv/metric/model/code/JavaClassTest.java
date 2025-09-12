@@ -30,7 +30,7 @@ public class JavaClassTest {
     // @Mock
     // private JavaCode mockParent; // Removed as JavaClass constructor is JavaClass(PsiClass)
 
-    private JavaClass javaClass;
+    private ClassElement javaClass;
     private final String className = "TestClass";
     // private final int startLine = 1; // Removed
     // private final int endLine = 100; // Removed
@@ -40,7 +40,7 @@ public class JavaClassTest {
     void setUp() {
         // MockitoAnnotations.openMocks(this); // Removed
         when(mockPsiClass.getName()).thenReturn(className);
-        javaClass = new JavaClass(mockPsiClass); // Corrected constructor
+        javaClass = new ClassElement(mockPsiClass); // Corrected constructor
     }
 
     // 1. Constructor and `getName()`
@@ -57,7 +57,7 @@ public class JavaClassTest {
         // then the behavior of JavaClass.getName() would depend on JavaCode.name default or handling.
         // For now, assuming PsiClass.getName() is expected to be non-null by contract or by Psi...
         when(mockPsiClass.getName()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> new JavaClass(mockPsiClass), // Corrected constructor
+        assertThrows(NullPointerException.class, () -> new ClassElement(mockPsiClass), // Corrected constructor
                 "Constructor should throw NullPointerException if psiClass.getName() is null due to Objects.requireNonNull.");
     }
 
@@ -73,23 +73,23 @@ public class JavaClassTest {
     void testAddMethodAndMethods() {
         assertTrue(javaClass.methods().collect(Collectors.toList()).isEmpty(), "Initially, methods stream should be empty.");
 
-        JavaMethod methodA = mock(JavaMethod.class);
+        MethodElement methodA = mock(MethodElement.class);
         when(methodA.getName()).thenReturn("methodA");
-        JavaMethod methodC = mock(JavaMethod.class);
+        MethodElement methodC = mock(MethodElement.class);
         when(methodC.getName()).thenReturn("methodC");
-        JavaMethod methodB = mock(JavaMethod.class);
+        MethodElement methodB = mock(MethodElement.class);
         when(methodB.getName()).thenReturn("methodB");
 
         javaClass.addMethod(methodA);
         javaClass.addMethod(methodC);
         javaClass.addMethod(methodB);
 
-        List<JavaMethod> expectedMethods = Arrays.asList(methodA, methodB, methodC);
+        List<MethodElement> expectedMethods = Arrays.asList(methodA, methodB, methodC);
         // Sorting by name for comparison
-        expectedMethods.sort(Comparator.comparing(JavaMethod::getName));
+        expectedMethods.sort(Comparator.comparing(MethodElement::getName));
 
 
-        List<JavaMethod> actualMethods = javaClass.methods().collect(Collectors.toList());
+        List<MethodElement> actualMethods = javaClass.methods().collect(Collectors.toList());
 
         assertEquals(expectedMethods.size(), actualMethods.size(), "Number of methods should match.");
         assertIterableEquals(expectedMethods, actualMethods, "Methods should match and be in sorted order by name.");
@@ -101,21 +101,21 @@ public class JavaClassTest {
     void testAddInnerClassAndInnerClasses() {
         assertTrue(javaClass.innerClasses().collect(Collectors.toList()).isEmpty(), "Initially, innerClasses stream should be empty.");
 
-        JavaClass innerA = mock(JavaClass.class);
+        ClassElement innerA = mock(ClassElement.class);
         when(innerA.getName()).thenReturn("InnerA");
-        JavaClass innerC = mock(JavaClass.class);
+        ClassElement innerC = mock(ClassElement.class);
         when(innerC.getName()).thenReturn("InnerC");
-        JavaClass innerB = mock(JavaClass.class);
+        ClassElement innerB = mock(ClassElement.class);
         when(innerB.getName()).thenReturn("InnerB");
 
         javaClass.addClass(innerA); // addClass is used for inner classes
         javaClass.addClass(innerC);
         javaClass.addClass(innerB);
 
-        List<JavaClass> expectedInnerClasses = Arrays.asList(innerA, innerB, innerC);
-        expectedInnerClasses.sort(Comparator.comparing(JavaClass::getName));
+        List<ClassElement> expectedInnerClasses = Arrays.asList(innerA, innerB, innerC);
+        expectedInnerClasses.sort(Comparator.comparing(ClassElement::getName));
 
-        List<JavaClass> actualInnerClasses = javaClass.innerClasses().collect(Collectors.toList());
+        List<ClassElement> actualInnerClasses = javaClass.innerClasses().collect(Collectors.toList());
 
         assertEquals(expectedInnerClasses.size(), actualInnerClasses.size(), "Number of inner classes should match.");
         assertIterableEquals(expectedInnerClasses, actualInnerClasses, "Inner classes should match and be in sorted order by name.");
@@ -125,13 +125,13 @@ public class JavaClassTest {
     @Test
     void testEqualsAndHashCode() {
         // javaClass is (mockPsiClass, className)
-        JavaClass javaClassSame = new JavaClass(mockPsiClass); // Corrected constructor - Same PsiClass, same name
+        ClassElement javaClassSame = new ClassElement(mockPsiClass); // Corrected constructor - Same PsiClass, same name
 
         when(mockPsiClass2.getName()).thenReturn(className); // Different PsiClass, same name
-        JavaClass javaClassDifferentPsi = new JavaClass(mockPsiClass2); // Corrected constructor
+        ClassElement javaClassDifferentPsi = new ClassElement(mockPsiClass2); // Corrected constructor
 
         when(mockPsiClass2.getName()).thenReturn("AnotherName"); // Different PsiClass, different name
-        JavaClass javaClassDifferentPsiAndName = new JavaClass(mockPsiClass2); // Corrected constructor
+        ClassElement javaClassDifferentPsiAndName = new ClassElement(mockPsiClass2); // Corrected constructor
 
         // Reflexivity
         assertEquals(javaClass, javaClass);

@@ -17,13 +17,12 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
 import org.b333vv.metric.util.SettingsService;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -43,7 +42,7 @@ public class ClassesByMetricsValuesCounter {
         project = myProject;
     }
 
-    public Map<MetricType, Map<RangeType, Double>> classesByMetricsValuesDistribution(JavaProject javaProject) {
+    public Map<MetricType, Map<RangeType, Double>> classesByMetricsValuesDistribution(ProjectElement javaProject) {
         numberOfClasses = javaProject.allClasses().count();
         return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
@@ -56,7 +55,7 @@ public class ClassesByMetricsValuesCounter {
     }
 
     private class ClassesByRangeTypeDistributionCollector
-            implements Collector<Map<JavaClass, List<Metric>>, Map<RangeType, Long>, Map<RangeType, Double>>
+            implements Collector<Map<ClassElement, List<Metric>>, Map<RangeType, Long>, Map<RangeType, Double>>
     {
 
         @Override
@@ -65,9 +64,9 @@ public class ClassesByMetricsValuesCounter {
         }
 
         @Override
-        public BiConsumer<Map<RangeType, Long>, Map<JavaClass, List<Metric>>> accumulator() {
+        public BiConsumer<Map<RangeType, Long>, Map<ClassElement, List<Metric>>> accumulator() {
             return (map, val) -> {
-                Map.Entry<JavaClass, List<Metric>> entry = val.entrySet().iterator().next();
+                Map.Entry<ClassElement, List<Metric>> entry = val.entrySet().iterator().next();
                 Metric metric = entry.getValue().get(0);
                 RangeType rangeType = project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue());
                 map.merge(rangeType, 1L, Long::sum);

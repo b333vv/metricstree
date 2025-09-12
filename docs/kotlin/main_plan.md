@@ -74,12 +74,12 @@ graph TD
     -   **Rationale/Goal:** Create a language-agnostic foundation. This is a breaking change that will guide the rest of the refactoring.
     -   **Estimated Effort (Optional):** M
     -   **Deliverable/Criteria for Completion:**
-        -   `JavaProject` -> `CodeProject`
-        -   `JavaPackage` -> `CodePackage`
-        -   `JavaFile` -> `CodeFile`
-        -   `JavaClass` -> `CodeClass`
-        -   `JavaMethod` -> `CodeMethod`
-        -   `JavaCode` -> `CodeElement` (or similar)
+        -   `JavaProject` -> `ProjectElement`
+        -   `JavaPackage` -> `PackageElement`
+        -   `JavaFile` -> `FileElement`
+        -   `JavaClass` -> `ClassElement`
+        -   `JavaMethod` -> `MethodElement`
+        -   `JavaCode` -> `CodeElement`
         -   All references throughout the codebase are updated using IDE refactoring tools.
 -   **Task 1.2:** Verify existing functionality.
     -   **Rationale/Goal:** Ensure that the renaming and associated fixes have not introduced regressions for Java metric calculation.

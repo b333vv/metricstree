@@ -27,9 +27,9 @@ import com.intellij.ui.JBSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.PackageElement;
 import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.fitnessfunction.*;
 import org.b333vv.metric.ui.info.*;
@@ -64,12 +64,12 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     private MetricsSummaryTable metricsSummaryTable;
 
     private final Project project;
-    private Map<FitnessFunction, Set<JavaPackage>> fitnessFunctionResult;
+    private Map<FitnessFunction, Set<PackageElement>> fitnessFunctionResult;
     private final Map<String, String> fitnessFunctionDescriptionMap;
 
     private MetricsTrimmedSummaryTable metricsTrimmedSummaryTable;
     private BottomPanel treeMapBottomPanel;
-    private MetricTreeMap<JavaCode> treeMap;
+    private MetricTreeMap<CodeElement> treeMap;
 
     public PackageLevelFitnessFunctionPanel(Project project) {
         super(false, true);
@@ -124,7 +124,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         return splitter;
     }
 
-    public void setDistribution(Map<FitnessFunction, Set<JavaPackage>> fitnessFunctionResult) {
+    public void setDistribution(Map<FitnessFunction, Set<PackageElement>> fitnessFunctionResult) {
         this.fitnessFunctionResult = fitnessFunctionResult;
     }
 
@@ -158,11 +158,11 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         classesTable.clear();
     }
 
-    private void showMetrics(JavaClass javaClass) {
+    private void showMetrics(ClassElement javaClass) {
         metricsSummaryTable.set(javaClass);
     }
 
-    private void showClasses(JavaPackage javaPackage) {
+    private void showClasses(PackageElement javaPackage) {
         classesTable.set(javaPackage);
     }
 
@@ -252,12 +252,12 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void packageLevelJavaClassSelected(JavaClass javaClass) {
+        public void packageLevelJavaClassSelected(ClassElement javaClass) {
             showMetrics(javaClass);
         }
 
         @Override
-        public void javaPackageSelected(JavaPackage javaPackage) {
+        public void javaPackageSelected(PackageElement javaPackage) {
             showClasses(javaPackage);
         }
 

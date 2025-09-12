@@ -12,7 +12,7 @@ import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.builder.DependenciesCalculator;
 import org.b333vv.metric.builder.JavaParserCalculationStrategy;
 import org.b333vv.metric.builder.PsiCalculationStrategy;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public abstract class MetricVerificationTest extends BasePlatformTestCase {
 
-    protected JavaProject javaProject;
+    protected ProjectElement javaProject;
 
     protected PsiJavaFile setupTest(String sourcePath) {
         System.out.println("=== SETUP TEST STARTED ===");

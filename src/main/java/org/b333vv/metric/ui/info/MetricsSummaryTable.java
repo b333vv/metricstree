@@ -101,22 +101,22 @@ public class MetricsSummaryTable {
         model.set(List.of());
     }
 
-    public void set(JavaCode javaCode) {
+    public void set(CodeElement codeElement) {
         if (withBorder) {
             String prefix = "";
-            if (javaCode instanceof JavaProject) {
+            if (codeElement instanceof ProjectElement) {
                 prefix = "Project: ";
-            } else if (javaCode instanceof JavaPackage) {
+            } else if (codeElement instanceof PackageElement) {
                 prefix = "Package: ";
-            } else if (javaCode instanceof JavaClass) {
+            } else if (codeElement instanceof ClassElement) {
                 prefix = "Class: ";
-            } else if (javaCode instanceof JavaMethod) {
+            } else if (codeElement instanceof MethodElement) {
                 prefix = "Method: ";
             }
-            Border b = IdeBorderFactory.createTitledBorder(prefix + javaCode.getName());
+            Border b = IdeBorderFactory.createTitledBorder(prefix + codeElement.getName());
             panel.setBorder(b);
         }
-        List<Metric> sortedMetrics = javaCode.metrics()
+        List<Metric> sortedMetrics = codeElement.metrics()
                 .sorted(Comparator.comparing(Metric::getType))
                 .collect(Collectors.toList());
         model.set(sortedMetrics);

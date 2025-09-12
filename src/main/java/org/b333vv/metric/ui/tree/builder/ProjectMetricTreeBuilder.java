@@ -17,12 +17,10 @@
 package org.b333vv.metric.ui.tree.builder;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricSet;
@@ -33,18 +31,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static icons.MetricsIcons.CLASS_METRIC;
 import static icons.MetricsIcons.PROJECT_METRIC;
-import static org.b333vv.metric.model.metric.MetricType.CMI;
 
 public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
-    public ProjectMetricTreeBuilder(JavaCode javaCode, Project project) {
-        super(javaCode, project);
+    public ProjectMetricTreeBuilder(CodeElement codeElement, Project project) {
+        super(codeElement, project);
     }
 
 //    public ProjectMetricTreeBuilder(JavaProject javaProject) {
@@ -53,7 +49,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
 
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
-            JavaProject javaProject = (JavaProject) javaCode;
+            ProjectElement javaProject = (ProjectElement) codeElement;
             ProjectNode projectNode = new ProjectNode(javaProject, "Project Metrics", AllIcons.Nodes.Project);
             model = new DefaultTreeModel(projectNode);
             model.setRoot(projectNode);
@@ -104,8 +100,8 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
     }
 
     private void addPackages(PackageNode parentNode) {
-        List<JavaPackage> sortedPackages = parentNode.getJavaPackage().subPackages().collect(Collectors.toList());
-        for (JavaPackage javaPackage : sortedPackages) {
+        List<PackageElement> sortedPackages = parentNode.getJavaPackage().subPackages().collect(Collectors.toList());
+        for (PackageElement javaPackage : sortedPackages) {
             PackageNode packageNode = new PackageNode(javaPackage);
             parentNode.add(packageNode);
             addPackages(packageNode);
@@ -162,7 +158,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                                         addTypeMetrics(c);
                                     });
                         } else if (f.classes().findFirst().isPresent()) {
-                            JavaClass javaClass = f.classes().findFirst().get();
+                            ClassElement javaClass = f.classes().findFirst().get();
                             ClassNode classNode = new ClassNode(javaClass);
                             parentNode.add(classNode);
                             addSubClasses(classNode);

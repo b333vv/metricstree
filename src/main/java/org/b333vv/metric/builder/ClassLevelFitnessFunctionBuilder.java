@@ -17,9 +17,9 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.MethodElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
@@ -35,10 +35,10 @@ import org.b333vv.metric.util.SettingsService;
 import java.util.*;
 
 public class ClassLevelFitnessFunctionBuilder {
-    public static Map<FitnessFunction, Set<JavaClass>> classesByMetricsProfileDistribution(Project project, JavaProject javaProject) {
-        Map<FitnessFunction, Set<JavaClass>> fitnessFunctionResult = new TreeMap<>();
+    public static Map<FitnessFunction, Set<ClassElement>> classesByMetricsProfileDistribution(Project project, ProjectElement javaProject) {
+        Map<FitnessFunction, Set<ClassElement>> fitnessFunctionResult = new TreeMap<>();
         for (FitnessFunction profile : fitnessFunctionResult(project)) {
-            Set<JavaClass> classes = new HashSet<>();
+            Set<ClassElement> classes = new HashSet<>();
             javaProject.allClasses()
                     .forEach(c -> {
                         if (checkClass(c, profile)) {
@@ -50,7 +50,7 @@ public class ClassLevelFitnessFunctionBuilder {
         return Collections.unmodifiableMap(fitnessFunctionResult);
     }
 
-    private static boolean checkClass(JavaClass javaClass, FitnessFunction profile) {
+    private static boolean checkClass(ClassElement javaClass, FitnessFunction profile) {
         for (Map.Entry<MetricType, Range> entry : profile.profile().entrySet()) {
             if (entry.getKey().level() == MetricLevel.CLASS) {
                 Metric m = javaClass.metric(entry.getKey());
@@ -71,7 +71,7 @@ public class ClassLevelFitnessFunctionBuilder {
         return true;
     }
 
-    private static boolean checkMethod(JavaMethod javaMethod, Map.Entry<MetricType, Range> entry) {
+    private static boolean checkMethod(MethodElement javaMethod, Map.Entry<MetricType, Range> entry) {
         Metric m = javaMethod.metric(entry.getKey());
         return m == null || entry.getValue().getRangeType(m.getPsiValue()) == RangeType.REGULAR;
     }

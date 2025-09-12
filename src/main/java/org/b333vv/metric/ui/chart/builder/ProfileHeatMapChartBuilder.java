@@ -19,7 +19,7 @@ package org.b333vv.metric.ui.chart.builder;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.util.CommonUtils;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.knowm.xchart.HeatMapChart;
@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProfileHeatMapChartBuilder {
-    private Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile;
+    private Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile;
 
-    public HeatMapChart createChart(Map<FitnessFunction, Set<JavaClass>> classesByMetricProfile) {
+    public HeatMapChart createChart(Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile) {
         this.classesByMetricProfile = classesByMetricProfile;
         HeatMapChart chart = new HeatMapChartBuilder()
                 .title("Correlation Between Metric Profiles")
@@ -45,7 +45,7 @@ public class ProfileHeatMapChartBuilder {
 
         Set<FitnessFunction> profiles = new TreeSet<>();
 
-        for (Map.Entry<FitnessFunction, Set<JavaClass>> profileEntry : classesByMetricProfile.entrySet()) {
+        for (Map.Entry<FitnessFunction, Set<ClassElement>> profileEntry : classesByMetricProfile.entrySet()) {
             if (profileEntry.getValue() != null && !profileEntry.getValue().isEmpty()) {
                 profiles.add(profileEntry.getKey());
             }
@@ -118,8 +118,8 @@ public class ProfileHeatMapChartBuilder {
     }
 
     private Number getHeatData(FitnessFunction profile1, FitnessFunction profile2) {
-        Set<JavaClass> classesInProfile1 = new HashSet<>(classesByMetricProfile.get(profile1));
-        Set<JavaClass> classesInProfile2 = new HashSet<>(classesByMetricProfile.get(profile2));
+        Set<ClassElement> classesInProfile1 = new HashSet<>(classesByMetricProfile.get(profile1));
+        Set<ClassElement> classesInProfile2 = new HashSet<>(classesByMetricProfile.get(profile2));
         int intersectSize = CommonUtils.sizeOfIntersection(classesInProfile1, classesInProfile2);
         classesInProfile1.addAll(classesInProfile2);
         int unionSize = classesInProfile1.size();

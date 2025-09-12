@@ -17,18 +17,18 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
-import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.model.code.PackageElement;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
 public class PackageNode extends AbstractNode {
 
-    private final JavaPackage javaPackage;
+    private final PackageElement javaPackage;
 
-    public PackageNode(JavaPackage javaPackage) {
+    public PackageNode(PackageElement javaPackage) {
         this.javaPackage = javaPackage;
     }
 
-    public JavaPackage getJavaPackage() {
+    public PackageElement getJavaPackage() {
         return javaPackage;
     }
 

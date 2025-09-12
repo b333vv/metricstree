@@ -19,15 +19,15 @@ package org.b333vv.metric.ui.tree.builder;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.b333vv.metric.builder.ClassModelBuilder;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.ui.tree.node.ClassNode;
 
 import javax.swing.tree.DefaultTreeModel;
 
 public class ClassMetricTreeBuilderTest extends LightJavaCodeInsightFixtureTestCase {
-    private JavaFile javaFile;
-    private JavaClass rootJavaClass;
+    private FileElement javaFile;
+    private ClassElement rootJavaClass;
     private DefaultTreeModel treeModel;
     private ClassNode rootClassNode;
 

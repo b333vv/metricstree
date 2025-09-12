@@ -22,11 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-public class JavaPackage extends JavaCode {
+public class PackageElement extends CodeElement {
     @Nullable
     private final PsiPackage psiPackage;
 
-    public JavaPackage(String name, @Nullable PsiPackage psiPackage) {
+    public PackageElement(String name, @Nullable PsiPackage psiPackage) {
         super(name);
         this.psiPackage = psiPackage;
     }
@@ -36,35 +36,35 @@ public class JavaPackage extends JavaCode {
         return psiPackage;
     }
 
-    public Stream<JavaClass> classes() {
+    public Stream<ClassElement> classes() {
         return files()
-                .flatMap(JavaFile::classes)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .flatMap(FileElement::classes)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 
-    public Stream<JavaFile> files() {
+    public Stream<FileElement> files() {
         return children.stream()
-                .filter(c -> c instanceof JavaFile)
-                .map(c -> (JavaFile) c)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .filter(c -> c instanceof FileElement)
+                .map(c -> (FileElement) c)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 
-    public Stream<JavaPackage> subPackages() {
+    public Stream<PackageElement> subPackages() {
         return children.stream()
-                .filter(c -> c instanceof JavaPackage)
-                .map(c -> (JavaPackage) c)
-                .sorted(Comparator.comparing(JavaCode::getName));
+                .filter(c -> c instanceof PackageElement)
+                .map(c -> (PackageElement) c)
+                .sorted(Comparator.comparing(CodeElement::getName));
     }
 
-    public void addClass(JavaClass javaClass) {
+    public void addClass(ClassElement javaClass) {
         addChild(javaClass);
     }
 
-    public void addPackage(JavaPackage javaPackage) {
+    public void addPackage(PackageElement javaPackage) {
         addChild(javaPackage);
     }
 
-    public void addFile(JavaFile javaFile) {
+    public void addFile(FileElement javaFile) {
         addChild(javaFile);
     }
 

@@ -16,10 +16,9 @@
 
 package org.b333vv.metric.builder;
 
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 
@@ -30,7 +29,7 @@ import static org.b333vv.metric.builder.ClassLevelFitnessFunctionBuilder.classes
 
 public class ClassFitnessFunctionCalculator {
 
-    public Map<FitnessFunction, Set<JavaClass>> calculate(Project project, JavaProject javaProject) {
+    public Map<FitnessFunction, Set<ClassElement>> calculate(Project project, ProjectElement javaProject) {
         return classesByMetricsProfileDistribution(project, javaProject);
     }
 }

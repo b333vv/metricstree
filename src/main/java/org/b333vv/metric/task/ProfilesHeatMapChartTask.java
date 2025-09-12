@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.ProfileHeatMapDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class ProfilesHeatMapChartTask extends Task.Backgroundable {
         HeatMapChart heatMapChart = myProject.getService(CacheService.class).getUserData(CacheService.HEAT_MAP_CHART);
         if (heatMapChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
             ProfileHeatMapDataCalculator calculator = new ProfileHeatMapDataCalculator();
             heatMapChart = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.HEAT_MAP_CHART, heatMapChart);

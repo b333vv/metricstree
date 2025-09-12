@@ -23,12 +23,10 @@ import com.intellij.openapi.Disposable;
  import com.intellij.openapi.util.UserDataHolder;
  import com.intellij.openapi.util.UserDataHolderBase;
  import com.intellij.openapi.vfs.*;
- import com.intellij.openapi.vfs.newvfs.events.*;
- import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.CompilationUnit;
  import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.*;
-import org.b333vv.metric.model.metric.MetricLevel;
- import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.MetricType;
  import org.b333vv.metric.model.metric.value.RangeType;
  import org.b333vv.metric.task.InvalidateCachesTask;
  import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
@@ -59,35 +57,35 @@ import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 public final class CacheService implements UserDataHolder, Disposable {
     // Cache keys
     public static final Key<DependenciesBuilder> DEPENDENCIES = Key.create("DEPENDENCIES");
-    public static final Key<JavaProject> CLASS_AND_METHODS_METRICS = Key.create("CLASS_AND_METHODS_METRICS");
-    public static final Key<JavaProject> PACKAGE_METRICS = Key.create("PACKAGE_METRICS");
-    public static final Key<JavaProject> PACKAGE_ONLY_METRICS = Key.create("PACKAGE_ONLY_METRICS");
-    public static final Key<JavaProject> PROJECT_METRICS = Key.create("PROJECT_METRICS");
+    public static final Key<ProjectElement> CLASS_AND_METHODS_METRICS = Key.create("CLASS_AND_METHODS_METRICS");
+    public static final Key<ProjectElement> PACKAGE_METRICS = Key.create("PACKAGE_METRICS");
+    public static final Key<ProjectElement> PACKAGE_ONLY_METRICS = Key.create("PACKAGE_ONLY_METRICS");
+    public static final Key<ProjectElement> PROJECT_METRICS = Key.create("PROJECT_METRICS");
     public static final Key<DefaultTreeModel> PROJECT_TREE = Key.create("PROJECT_TREE");
     public static final Key<ProjectMetricTreeBuilder> TREE_BUILDER = Key.create("TREE_BUILDER");
     public static final Key<DefaultTreeModel> CLASSES_BY_METRIC_TREE = Key.create("CLASSES_BY_METRIC_TREE");
-    public static final Key<Map<MetricType, Map<JavaClass, Metric>>> CLASSES_BY_METRIC_TYPES = Key.create("CLASSES_BY_METRIC_TYPES");
+    public static final Key<Map<MetricType, Map<ClassElement, Metric>>> CLASSES_BY_METRIC_TYPES = Key.create("CLASSES_BY_METRIC_TYPES");
     public static final Key<List<MetricPieChartBuilder.PieChartStructure>> PIE_CHART_LIST = Key.create("PIE_CHART_LIST");
     public static final Key<Map<MetricType, Map<RangeType, Double>>> CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART = Key.create("CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART");
     public static final Key<CategoryChart> CATEGORY_CHART = Key.create("CATEGORY_CHART");
     public static final Key<Map<String, Double>> INSTABILITY = Key.create("INSTABILITY");
     public static final Key<Map<String, Double>> ABSTRACTNESS = Key.create("ABSTRACTNESS");
     public static final Key<XYChart> XY_CHART = Key.create("XY_CHART");
-    public static final Key<Map<FitnessFunction, Set<JavaPackage>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key.create("PACKAGE_LEVEL_FITNESS_FUNCTION");
-    public static final Key<Map<FitnessFunction, Set<JavaClass>>> CLASS_LEVEL_FITNESS_FUNCTION =
+    public static final Key<Map<FitnessFunction, Set<PackageElement>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key.create("PACKAGE_LEVEL_FITNESS_FUNCTION");
+    public static final Key<Map<FitnessFunction, Set<ClassElement>>> CLASS_LEVEL_FITNESS_FUNCTION =
             Key.create("CLASS_LEVEL_FITNESS_FUNCTION");
-    public static final Key<Map<FitnessFunction, Set<JavaClass>>> CLASSES_BY_PROFILE = Key.create("CLASSES_BY_PROFILE");
+    public static final Key<Map<FitnessFunction, Set<ClassElement>>> CLASSES_BY_PROFILE = Key.create("CLASSES_BY_PROFILE");
     public static final Key<List<ProfileBoxChartBuilder.BoxChartStructure>> BOX_CHARTS = Key.create("BOX_CHARTS");
     public static final Key<CategoryChart> PROFILE_CATEGORY_CHART = Key.create("PROFILE_CATEGORY_CHART");
     public static final Key<HeatMapChart> HEAT_MAP_CHART = Key.create("HEAT_MAP_CHART");
     public static final Key<List<ProfileRadarChartBuilder.RadarChartStructure>> RADAR_CHART = Key.create("RADAR_CHART");
-    public static final Key<MetricTreeMap<JavaCode>> METRIC_TREE_MAP = Key.create("METRIC_TREE_MAP");
-    public static final Key<MetricTreeMap<JavaCode>> PROFILE_TREE_MAP = Key.create("PROFILE_TREE_MAP");
+    public static final Key<MetricTreeMap<CodeElement>> METRIC_TREE_MAP = Key.create("METRIC_TREE_MAP");
+    public static final Key<MetricTreeMap<CodeElement>> PROFILE_TREE_MAP = Key.create("PROFILE_TREE_MAP");
     public static final Key<XYChart> PROJECT_METRICS_HISTORY_XY_CHART = Key.create("PROJECT_METRICS_HISTORY_XY_CHART");
     public static final Key<List<CompilationUnit>> ALL_COMPILATION_UNITS = Key.create("ALL_COMPILATION_UNITS");
 
     private UserDataHolderBase userData = new UserDataHolderBase();
-    private final ConcurrentHashMap<String, JavaFile> javaFiles = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, FileElement> javaFiles = new ConcurrentHashMap<>();
     private final Project project;
     private final VirtualFileListener vfsListener;
 
@@ -107,11 +105,11 @@ public final class CacheService implements UserDataHolder, Disposable {
         return userData.getUserData(key);
     }
 
-    public JavaProject getProject() {
+    public ProjectElement getProject() {
         return getUserData(CLASS_AND_METHODS_METRICS);
     }
 
-    public Map<FitnessFunction, Set<JavaClass>> getClassesByProfile() {
+    public Map<FitnessFunction, Set<ClassElement>> getClassesByProfile() {
         return getUserData(CLASSES_BY_PROFILE);
     }
 
@@ -129,7 +127,7 @@ public final class CacheService implements UserDataHolder, Disposable {
      *
      * @param javaFile the JavaFile to add
      */
-    public void addJavaFile(VirtualFile virtualFile, JavaFile javaFile) {
+    public void addJavaFile(VirtualFile virtualFile, FileElement javaFile) {
         javaFiles.put(virtualFile.getPath(), javaFile);
     }
 
@@ -147,7 +145,7 @@ public final class CacheService implements UserDataHolder, Disposable {
      *
      * @param virtualFile the VirtualFile of the JavaFile to get
      */
-    public JavaFile getJavaFile(VirtualFile virtualFile) {
+    public FileElement getJavaFile(VirtualFile virtualFile) {
         return javaFiles.get(virtualFile.getPath());
     }
 
@@ -156,7 +154,7 @@ public final class CacheService implements UserDataHolder, Disposable {
      *
      * @return a stream of JavaFiles
      */
-    public Stream<JavaFile> getJavaFiles() {
+    public Stream<FileElement> getJavaFiles() {
         return javaFiles.values().stream();
     }
 

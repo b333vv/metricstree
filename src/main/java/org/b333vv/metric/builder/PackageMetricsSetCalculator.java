@@ -19,10 +19,9 @@ package org.b333vv.metric.builder;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.*;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.util.BucketedCount;
@@ -42,14 +41,14 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 public class PackageMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
-    private final JavaProject javaProject;
+    private final ProjectElement javaProject;
 
     private final BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
     private final Map<PsiPackage, HashSet<PsiClass>> dependents = new ConcurrentHashMap<>();
     private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
     private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
-    public PackageMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
+    public PackageMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement javaProject) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
         this.javaProject = javaProject;
@@ -60,7 +59,7 @@ public class PackageMetricsSetCalculator {
         javaProject.allPackages().forEach(this::handlePackage);
     }
 
-    private void handlePackage(@NotNull JavaPackage p) {
+    private void handlePackage(@NotNull PackageElement p) {
         int afferentCoupling = dependents.getOrDefault(p.getPsiPackage(), new HashSet<>()).size();
         int efferentCoupling = externalDependenciesPerPackageNumber.getBucketValue(p.getPsiPackage());
         Value instability = (afferentCoupling + efferentCoupling) == 0 ? Value.of(1.0) :
@@ -82,8 +81,8 @@ public class PackageMetricsSetCalculator {
         ApplicationManager.getApplication().runReadAction(() -> addStatisticMetrics(p));
     }
 
-    private void addStatisticMetrics(JavaPackage p) {
-        List<PsiClass> psiClasses = p.classes().map(JavaClass::getPsiClass).collect(Collectors.toList());
+    private void addStatisticMetrics(PackageElement p) {
+        List<PsiClass> psiClasses = p.classes().map(ClassElement::getPsiClass).collect(Collectors.toList());
         long concreteClassesNumber = 0;
         long abstractClassesNumber = 0;
         long staticClassesNumber = 0;
@@ -106,7 +105,7 @@ public class PackageMetricsSetCalculator {
 
         long nonCommentingSourceStatements = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == NCSS)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -115,7 +114,7 @@ public class PackageMetricsSetCalculator {
 
         long linesOfCode = p
                 .classes()
-                .flatMap(JavaClass::methods)
+                .flatMap(ClassElement::methods)
                 .map(javaMethod -> javaMethod.metric(LOC).getPsiValue())
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
@@ -123,7 +122,7 @@ public class PackageMetricsSetCalculator {
 
         double halsteadVolume = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHVL)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -132,7 +131,7 @@ public class PackageMetricsSetCalculator {
 
         double halsteadDifficulty = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHD)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -141,7 +140,7 @@ public class PackageMetricsSetCalculator {
 
         long halsteadLength = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHL)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -150,7 +149,7 @@ public class PackageMetricsSetCalculator {
 
         double halsteadEffort = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHEF)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -159,7 +158,7 @@ public class PackageMetricsSetCalculator {
 
         long halsteadVocabulary = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHVC)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -168,7 +167,7 @@ public class PackageMetricsSetCalculator {
 
         double halsteadErrors = p
                 .classes()
-                .flatMap(JavaCode::metrics)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHER)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -190,8 +189,8 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(PACHER, halsteadErrors));
 
         long packageCC = p
-                .classes().flatMap(JavaClass::methods)
-                .flatMap(JavaCode::metrics)
+                .classes().flatMap(ClassElement::methods)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
                 .map(Metric::getValue)
                 .reduce(Value::plus)

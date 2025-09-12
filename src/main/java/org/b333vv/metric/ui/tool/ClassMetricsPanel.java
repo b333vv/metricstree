@@ -31,9 +31,8 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.builder.ClassModelBuilder;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.service.UIStateService;
-import org.b333vv.metric.ui.settings.composition.ClassMetricsTreeSettings;
 import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.EditorUtils;
@@ -84,8 +83,8 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         uiStateService.setClassMetricsTreeExists(false);
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                 .printInfo("Built metrics tree for " + psiJavaFile.getName());
-        JavaFile jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
-            JavaFile javaFile = new ClassModelBuilder(psiJavaFile.getProject()).buildJavaFile(psiJavaFile);
+        FileElement jf = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
+            FileElement javaFile = new ClassModelBuilder(psiJavaFile.getProject()).buildJavaFile(psiJavaFile);
             return CachedValueProvider.Result.create(javaFile, psiJavaFile);
         });
 

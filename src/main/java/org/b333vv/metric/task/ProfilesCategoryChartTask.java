@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.ProfileCategoryChartDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class ProfilesCategoryChartTask extends Task.Backgroundable {
         CategoryChart categoryChart = myProject.getService(CacheService.class).getUserData(CacheService.PROFILE_CATEGORY_CHART);
         if (categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
             ProfileCategoryChartDataCalculator calculator = new ProfileCategoryChartDataCalculator();
             categoryChart = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.PROFILE_CATEGORY_CHART, categoryChart);

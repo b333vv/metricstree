@@ -28,11 +28,11 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class JavaMethod extends JavaCode {
+public class MethodElement extends CodeElement {
     private final PsiMethod psiMethod;
-    private final JavaClass javaClass;
+    private final ClassElement javaClass;
 
-    public JavaMethod(PsiMethod psiMethod, JavaClass javaClass) {
+    public MethodElement(PsiMethod psiMethod, ClassElement javaClass) {
         super(signature(psiMethod));
         this.psiMethod = psiMethod;
         this.javaClass = javaClass;
@@ -55,7 +55,7 @@ public class JavaMethod extends JavaCode {
         return psiMethod;
     }
 
-    public JavaClass getJavaClass() {
+    public ClassElement getJavaClass() {
         return javaClass;
     }
 
@@ -67,9 +67,9 @@ public class JavaMethod extends JavaCode {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JavaMethod)) return false;
+        if (!(o instanceof MethodElement)) return false;
         if (!super.equals(o)) return false;
-        JavaMethod that = (JavaMethod) o;
+        MethodElement that = (MethodElement) o;
         return Objects.equals(getPsiMethod(), that.getPsiMethod());
     }
 

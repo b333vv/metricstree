@@ -3,7 +3,6 @@ package org.b333vv.metric.builder;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -12,7 +11,7 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 
 public class PsiCalculationStrategy implements MetricCalculationStrategy {
 
@@ -21,11 +20,11 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
     private int progress = 0;
 
     @Override
-    public JavaProject calculate(Project project, ProgressIndicator indicator) {
+    public ProjectElement calculate(Project project, ProgressIndicator indicator) {
         this.indicator = indicator;
         AnalysisScope scope = new AnalysisScope(project);
         scope.setIncludeTestSource(false);
-        JavaProject javaProject = new JavaProject(project.getName());
+        ProjectElement javaProject = new ProjectElement(project.getName());
         ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
 
         indicator.setText("Initializing");

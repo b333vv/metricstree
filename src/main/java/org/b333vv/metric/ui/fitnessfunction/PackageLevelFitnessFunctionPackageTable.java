@@ -23,7 +23,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.model.code.PackageElement;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -53,7 +53,7 @@ public class PackageLevelFitnessFunctionPackageTable {
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() >= 0) {
                 Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-                JavaPackage javaPackage = (JavaPackage) selectedCell;
+                PackageElement javaPackage = (PackageElement) selectedCell;
                 this.project.getMessageBus()
                         .syncPublisher(MetricsEventListener.TOPIC).javaPackageSelected(javaPackage);
             }
@@ -61,7 +61,7 @@ public class PackageLevelFitnessFunctionPackageTable {
         panel = new JBScrollPane(table);
     }
 
-    public void setPackages(List<JavaPackage> packages) {
+    public void setPackages(List<PackageElement> packages) {
         model.set(packages);
         model.fireTableDataChanged();
     }
@@ -75,7 +75,7 @@ public class PackageLevelFitnessFunctionPackageTable {
     }
 
     private static class Model extends AbstractTableModel {
-        private List<JavaPackage> rows = List.of();
+        private List<PackageElement> rows = List.of();
 
         @Override
         public int getRowCount() {
@@ -95,14 +95,14 @@ public class PackageLevelFitnessFunctionPackageTable {
             };
         }
 
-        public void set(List<JavaPackage> rows) {
+        public void set(List<PackageElement> rows) {
             this.rows = rows;
             fireTableDataChanged();
         }
 
         @Override
         public Object getValueAt(int row, int column) {
-            JavaPackage javaPackage = rows.get(row);
+            PackageElement javaPackage = rows.get(row);
             return switch (column) {
                 case 0, 1 -> javaPackage;
                 default -> "";
@@ -111,14 +111,14 @@ public class PackageLevelFitnessFunctionPackageTable {
 
         @Override
         public Class<?> getColumnClass(int column) {
-            return JavaPackage.class;
+            return PackageElement.class;
         }
     }
 
     private static class PackageNameRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof JavaPackage javaPackage) {
+            if (value instanceof PackageElement javaPackage) {
                 value = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> 
                     javaPackage.getPsiPackage().getQualifiedName()
                 );

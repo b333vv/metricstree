@@ -77,7 +77,7 @@ public class MetricsTrimmedSummaryTable {
         model.set(List.of());
     }
 
-    public void set(JavaClass javaClass) {
+    public void set(ClassElement javaClass) {
         Border b = IdeBorderFactory.createTitledBorder("Class: " + javaClass.getName());
         panel.setBorder(b);
         List<Metric> sortedMetrics = javaClass.metrics()

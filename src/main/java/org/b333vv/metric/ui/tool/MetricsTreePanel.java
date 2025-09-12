@@ -171,28 +171,28 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof ProjectNode) {
-            JavaProject jProject = ((ProjectNode) node).getJavaProject();
+            ProjectElement jProject = ((ProjectNode) node).getJavaProject();
             bottomPanel.setData(jProject);
             metricsSummaryTable.set(jProject);
             rightPanelRepaint();
         } else if (node instanceof PackageNode) {
-            JavaPackage javaPackage = ((PackageNode) node).getJavaPackage();
+            PackageElement javaPackage = ((PackageNode) node).getJavaPackage();
             bottomPanel.setData(javaPackage);
             metricsSummaryTable.set(javaPackage);
             rightPanelRepaint();
         } else if (node instanceof FileNode) {
-            JavaFile javaFile = ((FileNode) node).getJavaFile();
+            FileElement javaFile = ((FileNode) node).getJavaFile();
             bottomPanel.setData(javaFile);
             metricsSummaryTable.clear();
             rightPanelRepaint();
         } else if (node instanceof ClassNode) {
-            JavaClass javaClass = ((ClassNode) node).getJavaClass();
+            ClassElement javaClass = ((ClassNode) node).getJavaClass();
             bottomPanel.setData(javaClass);
             metricsSummaryTable.set(javaClass);
             rightPanelRepaint();
             openInEditor(javaClass.getPsiClass());
         } else if (node instanceof MethodNode) {
-            JavaMethod javaMethod = ((MethodNode) node).getJavaMethod();
+            MethodElement javaMethod = ((MethodNode) node).getJavaMethod();
             bottomPanel.setData(javaMethod);
             metricsSummaryTable.set(javaMethod);
             rightPanelRepaint();

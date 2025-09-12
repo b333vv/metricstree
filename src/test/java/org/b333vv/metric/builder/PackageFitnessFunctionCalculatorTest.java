@@ -2,8 +2,8 @@ package org.b333vv.metric.builder;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.PackageElement;
+import org.b333vv.metric.model.code.ProjectElement;
 
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,13 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PackageFitnessFunctionCalculatorTest {
 
@@ -26,7 +24,7 @@ public class PackageFitnessFunctionCalculatorTest {
     @Mock
     private ProgressIndicator mockIndicator;
     @Mock
-    private JavaProject mockJavaProject;
+    private ProjectElement mockJavaProject;
 
     private PackageFitnessFunctionCalculator calculator;
 
@@ -46,7 +44,7 @@ public class PackageFitnessFunctionCalculatorTest {
         // In a real scenario, you'd need to ensure this static method is testable or mockable.
         // For the purpose of this test, we'll assume it works as expected and focus on the calculator's interaction.
 
-        Map<FitnessFunction, Set<JavaPackage>> result = calculator.calculate(mockProject, mockJavaProject);
+        Map<FitnessFunction, Set<PackageElement>> result = calculator.calculate(mockProject, mockJavaProject);
 
         assertNotNull(result);
         // Further assertions can be added if the static method's behavior can be controlled or verified.

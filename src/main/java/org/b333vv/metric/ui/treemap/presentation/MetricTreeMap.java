@@ -16,9 +16,7 @@
 
 package org.b333vv.metric.ui.treemap.presentation;
 
-import com.intellij.openapi.project.Project;
-import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.model.*;
 
@@ -41,7 +39,7 @@ public class MetricTreeMap<N> extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private Consumer<String> selectionAction;
-    private Consumer<JavaClass> clickedAction;
+    private Consumer<ClassElement> clickedAction;
 
     protected TreeModel<N> model;
     protected TreeMapLayout<N> layout;
@@ -85,11 +83,11 @@ public class MetricTreeMap<N> extends JPanel {
         return selectionAction;
     }
 
-    public void setClickedAction(Consumer<JavaClass> action) {
+    public void setClickedAction(Consumer<ClassElement> action) {
         clickedAction = action;
     }
 
-    public Consumer<JavaClass> getClickedAction() {
+    public Consumer<ClassElement> getClickedAction() {
         return clickedAction;
     }
 

@@ -5,32 +5,21 @@ import com.intellij.codeInsight.codeVision.CodeVisionAnchorKind;
 import com.intellij.codeInsight.codeVision.CodeVisionEntry;
 import com.intellij.codeInsight.codeVision.CodeVisionRelativeOrdering;
 import com.intellij.codeInsight.codeVision.ui.model.ClickableTextCodeVisionEntry;
-import com.intellij.codeInsight.codeVision.ui.model.CodeVisionPredefinedActionEntry;
-import com.intellij.codeInsight.codeVision.ui.model.TextCodeVisionEntry;
 import com.intellij.codeInsight.hints.InlayHintsUtils;
 import com.intellij.codeInsight.hints.codeVision.DaemonBoundCodeVisionProvider;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ex.util.EditorUtil;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.PsiExpressionCodeFragmentImpl;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.ui.awt.RelativePoint;
 import kotlin.Pair;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
 import org.b333vv.metric.builder.ClassModelBuilder;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -106,8 +95,8 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
         }
 
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
-        JavaFile javaFile = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
-            JavaFile jf = classModelBuilder.buildJavaFile(psiJavaFile);
+        FileElement javaFile = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
+            FileElement jf = classModelBuilder.buildJavaFile(psiJavaFile);
             return CachedValueProvider.Result.create(jf, psiJavaFile);
         });
 
@@ -128,8 +117,8 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
         return lenses;
     }
 
-    private Pair<String, List<MetricType>> getHintForClass(PsiElement psiClass, JavaFile javaFile) {
-        Optional<JavaClass> ojc = javaFile.classes().filter(c -> c.getName().equals(((PsiClass) psiClass).getName())).findFirst();
+    private Pair<String, List<MetricType>> getHintForClass(PsiElement psiClass, FileElement javaFile) {
+        Optional<ClassElement> ojc = javaFile.classes().filter(c -> c.getName().equals(((PsiClass) psiClass).getName())).findFirst();
         List<MetricType> metricTypes = new ArrayList<>();
         if (ojc.isPresent()) {
             String hint = ojc.get().metrics()

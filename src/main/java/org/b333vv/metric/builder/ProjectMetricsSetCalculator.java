@@ -23,9 +23,9 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.util.Bag;
@@ -41,7 +41,7 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 public class ProjectMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
-    private final JavaProject javaProject;
+    private final ProjectElement javaProject;
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
@@ -77,7 +77,7 @@ public class ProjectMetricsSetCalculator {
     double halsteadVolume = 0.0;
 
 
-    public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, JavaProject javaProject) {
+    public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement javaProject) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
         this.javaProject = javaProject;
@@ -147,8 +147,8 @@ public class ProjectMetricsSetCalculator {
 
     private void calculateMaintainabilityIndex() {
         long projectCC = javaProject
-                .allClasses().flatMap(JavaClass::methods)
-                .flatMap(JavaCode::metrics)
+                .allClasses().flatMap(ClassElement::methods)
+                .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -166,7 +166,7 @@ public class ProjectMetricsSetCalculator {
     private void calculateHalstead() {
 
         halsteadVolume = javaProject
-                .allPackages().flatMap(JavaCode::metrics)
+                .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PAHVL)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -174,7 +174,7 @@ public class ProjectMetricsSetCalculator {
                 .doubleValue();
 
         double halsteadDifficulty = javaProject
-                .allPackages().flatMap(JavaCode::metrics)
+                .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PAHD)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -182,7 +182,7 @@ public class ProjectMetricsSetCalculator {
                 .doubleValue();
 
         long halsteadLength = javaProject
-                .allPackages().flatMap(JavaCode::metrics)
+                .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHL)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -190,7 +190,7 @@ public class ProjectMetricsSetCalculator {
                 .longValue();
 
         double halsteadEffort = javaProject
-                .allPackages().flatMap(JavaCode::metrics)
+                .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHEF)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -198,7 +198,7 @@ public class ProjectMetricsSetCalculator {
                 .doubleValue();
 
         long halsteadVocabulary = javaProject
-                .allPackages().flatMap(JavaCode::metrics)
+                .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHVC)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -206,7 +206,7 @@ public class ProjectMetricsSetCalculator {
                 .longValue();
 
         double halsteadErrors = javaProject
-                .allPackages().flatMap(JavaCode::metrics)
+                .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHER)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -223,7 +223,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZCoupling() {
         return calculateZScore(
-                javaProject.allPackages().flatMap(JavaCode::metrics)
+                javaProject.allPackages().flatMap(CodeElement::metrics)
                     .filter(metric -> metric.getType() == Ce)
                     .map(Metric::getValue)
                     .collect(Collectors.toUnmodifiableList())
@@ -232,7 +232,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZCohesion() {
         return 1.0/calculateZScore(
-                javaProject.allClasses().flatMap(JavaCode::metrics)
+                javaProject.allClasses().flatMap(CodeElement::metrics)
                     .filter(metric -> metric.getType() == LCOM)
                     .map(Metric::getValue)
                     .collect(Collectors.toUnmodifiableList())
@@ -241,7 +241,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZMessaging() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(JavaCode::metrics)
+                javaProject.allClasses().flatMap(CodeElement::metrics)
                     .filter(metric -> metric.getType() == NOM)
                     .map(Metric::getValue)
                     .collect(Collectors.toUnmodifiableList())
@@ -250,7 +250,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZDesignSize() {
         return calculateZScore(
-                javaProject.allPackages().flatMap(JavaCode::metrics)
+                javaProject.allPackages().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == PNOCC)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -259,7 +259,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZComposition() {
             return calculateZScore(
-                    javaProject.allClasses().flatMap(JavaCode::metrics)
+                    javaProject.allClasses().flatMap(CodeElement::metrics)
                             .filter(metric -> metric.getType() == NOA)
                             .map(Metric::getValue)
                             .collect(Collectors.toUnmodifiableList())
@@ -268,7 +268,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZPolymorphism() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(JavaCode::metrics)
+                javaProject.allClasses().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == NOOM)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -277,7 +277,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZAbstraction() {
         return calculateZScore(
-                javaProject.allPackages().flatMap(JavaCode::metrics)
+                javaProject.allPackages().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == A)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -286,7 +286,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZComplexity() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(JavaCode::metrics)
+                javaProject.allClasses().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == WMC)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -295,7 +295,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZHierarchies() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(JavaCode::metrics)
+                javaProject.allClasses().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == DIT)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -303,10 +303,10 @@ public class ProjectMetricsSetCalculator {
     }
 
     private double calculateZInheritance() {
-        List<JavaCode> classes = javaProject.allClasses()
+        List<CodeElement> classes = javaProject.allClasses()
                 .collect(Collectors.toUnmodifiableList());
         double zInheritance = 0.0;
-        for (JavaCode aClass : classes) {
+        for (CodeElement aClass : classes) {
             if (aClass.metric(MetricType.NOM) == null) {
                 continue;
             }
@@ -334,7 +334,7 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void addClassesNonCommentingSourceStatements() {
-        long nonCommentingSourceStatements = javaProject.allClasses().flatMap(JavaCode::metrics)
+        long nonCommentingSourceStatements = javaProject.allClasses().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == NCSS)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
@@ -345,7 +345,7 @@ public class ProjectMetricsSetCalculator {
 
     private void addLinesOfCode() {
         linesOfCode = javaProject.allClasses()
-                .flatMap(JavaClass::methods)
+                .flatMap(ClassElement::methods)
                 .map(javaMethod -> javaMethod.metric(LOC).getPsiValue())
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)

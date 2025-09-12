@@ -27,8 +27,8 @@ import com.intellij.ui.JBSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBPanel;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.service.CacheService;
@@ -39,7 +39,6 @@ import org.b333vv.metric.ui.fitnessfunction.ClassLevelFitnessFunctionClassTable;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.b333vv.metric.ui.fitnessfunction.ClassLevelFitnessFunctionList;
 import org.b333vv.metric.ui.settings.fitnessfunction.ClassLevelFitnessFunctions;
-import org.b333vv.metric.ui.settings.fitnessfunction.PackageLevelFitnessFunctions;
 import org.b333vv.metric.ui.treemap.builder.ProfileColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.util.EditorUtils;
@@ -74,13 +73,13 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     private MetricsSummaryTable metricsSummaryTable;
 
     private final Project project;
-    private Map<FitnessFunction, Set<JavaClass>> distribution;
+    private Map<FitnessFunction, Set<ClassElement>> distribution;
     private List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList;
     private List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts;
 
     private MetricsTrimmedSummaryTable metricsTrimmedSummaryTable;
     private BottomPanel treeMapBottomPanel;
-    private MetricTreeMap<JavaCode> treeMap;
+    private MetricTreeMap<CodeElement> treeMap;
 
     public ClassLevelFitnessFunctionPanel(Project project) {
         super(false, true);
@@ -128,7 +127,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         return splitter;
     }
 
-    public void setDistribution(Map<FitnessFunction, Set<JavaClass>> distribution) {
+    public void setDistribution(Map<FitnessFunction, Set<ClassElement>> distribution) {
         this.distribution = distribution;
     }
 
@@ -142,7 +141,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         metricsSummaryTable.clear();
     }
 
-    private void showMetrics(JavaClass javaClass) {
+    private void showMetrics(ClassElement javaClass) {
         metricsSummaryTable.set(javaClass);
     }
 
@@ -359,7 +358,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void javaClassSelected(JavaClass javaClass) {
+        public void javaClassSelected(ClassElement javaClass) {
             showMetrics(javaClass);
         }
 
@@ -418,7 +417,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void profileTreeMapCellClicked(JavaClass javaClass) {
+        public void profileTreeMapCellClicked(ClassElement javaClass) {
             if (project.getService(UIStateService.class).isProfileAutoScrollable()) {
                 EditorUtils.openInEditor(project, javaClass.getPsiClass());
             }

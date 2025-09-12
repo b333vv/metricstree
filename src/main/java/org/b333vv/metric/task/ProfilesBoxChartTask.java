@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.builder.ProfileBoxChartDataCalculator;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
@@ -47,7 +47,7 @@ public class ProfilesBoxChartTask extends Task.Backgroundable {
         List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(CacheService.class).getUserData(CacheService.BOX_CHARTS);
         if (boxChartStructures == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<JavaClass>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
             ProfileBoxChartDataCalculator calculator = new ProfileBoxChartDataCalculator();
             boxChartStructures = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.BOX_CHARTS, boxChartStructures);

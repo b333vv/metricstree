@@ -23,7 +23,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.model.code.PackageElement;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Range;
 import org.b333vv.metric.model.metric.value.Value;
@@ -78,7 +78,7 @@ public class PackageLevelFitnessFunctionList {
         panel.setBorder(IdeBorderFactory.createTitledBorder(text));
     }
 
-    public void setProfiles(Map<FitnessFunction, Set<JavaPackage>> distribution) {
+    public void setProfiles(Map<FitnessFunction, Set<PackageElement>> distribution) {
         ArrayList<FitnessFunction> rows = new ArrayList<>(distribution.keySet());
         packagesCount = distribution.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().size()));

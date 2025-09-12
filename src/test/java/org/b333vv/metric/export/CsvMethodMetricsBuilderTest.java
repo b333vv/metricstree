@@ -1,7 +1,7 @@
 package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CsvMethodMetricsBuilderTest {
 
     private Project mockProject;
-    private JavaProject mockJavaProject;
+    private ProjectElement mockJavaProject;
     private String testFileName = "test_method_report.csv";
 
     @BeforeEach
     void setUp() {
         mockProject = Mockito.mock(Project.class);
-        mockJavaProject = Mockito.mock(JavaProject.class);
+        mockJavaProject = Mockito.mock(ProjectElement.class);
     }
 
     @Test

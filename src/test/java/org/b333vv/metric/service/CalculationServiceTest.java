@@ -2,8 +2,8 @@ package org.b333vv.metric.service;
 
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.builder.MetricsBackgroundableTask;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+
+import org.b333vv.metric.model.code.ProjectElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.project.DumbService;
 import org.b333vv.metric.builder.DependenciesBuilder;
-import org.b333vv.metric.model.code.JavaProject;
 import org.b333vv.metric.builder.DependenciesCalculator;
 
 import org.b333vv.metric.builder.PackageMetricsSetCalculator;
@@ -29,7 +28,6 @@ import javax.swing.tree.DefaultTreeModel;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import org.b333vv.metric.util.SettingsService;
-import org.b333vv.metric.builder.ProjectTreeModelCalculator;
 
 @ExtendWith(MockitoExtension.class)
 public class CalculationServiceTest {
@@ -110,7 +108,7 @@ public class CalculationServiceTest {
 
                 // Mock the MetricCalculationStrategy
                 MetricCalculationStrategy mockMetricCalculationStrategy = mock(MetricCalculationStrategy.class);
-                JavaProject mockJavaProject = mock(JavaProject.class);
+                ProjectElement mockJavaProject = mock(ProjectElement.class);
                 when(mockMetricCalculationStrategy.calculate(any(), any())).thenReturn(mockJavaProject);
                 // Need to ensure that the CalculationServiceImpl uses this mocked strategy
                 // This will be handled by mocking SettingsService to return JAVAPARSER and then injecting the mockMetricCalculationStrategy
@@ -139,10 +137,10 @@ public class CalculationServiceTest {
                 verify(mockCacheService, times(1)).putUserData(eq(CacheService.CLASS_AND_METHODS_METRICS), eq(mockJavaProject));
 
                 verify(mockPackageMetricsSetCalculator, times(1)).calculate();
-                verify(mockCacheService, times(1)).putUserData(eq(CacheService.PACKAGE_METRICS), any(JavaProject.class)); // PackageMetricsSetCalculator modifies the passed JavaProject
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.PACKAGE_METRICS), any(ProjectElement.class)); // PackageMetricsSetCalculator modifies the passed JavaProject
 
                 verify(mockProjectMetricsSetCalculator, times(1)).calculate();
-                verify(mockCacheService, times(1)).putUserData(eq(CacheService.PROJECT_METRICS), any(JavaProject.class)); // ProjectMetricsSetCalculator modifies the passed JavaProject
+                verify(mockCacheService, times(1)).putUserData(eq(CacheService.PROJECT_METRICS), any(ProjectElement.class)); // ProjectMetricsSetCalculator modifies the passed JavaProject
             }
         }
     }

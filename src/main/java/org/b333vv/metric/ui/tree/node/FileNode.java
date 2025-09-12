@@ -17,22 +17,20 @@
 package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.psi.util.PsiUtil;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaFile;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
 import javax.swing.*;
 
 public class FileNode extends AbstractNode {
 
-    private final JavaFile javaFile;
+    private final FileElement javaFile;
 
-    public FileNode(JavaFile javaFile) {
+    public FileNode(FileElement javaFile) {
         this.javaFile = javaFile;
     }
 
-    public JavaFile getJavaFile() {
+    public FileElement getJavaFile() {
         return javaFile;
     }
 

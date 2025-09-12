@@ -16,19 +16,18 @@
 
 package org.b333vv.metric.builder;
 
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase; // Changed base class
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 // import org.b333vv.metric.util.MetricsUtils; // Removed
 
-import org.b333vv.metric.model.code.JavaFile; // Added for buildJavaFile
 // import java.util.Map; // No longer needed
 // import java.util.function.Function; // No longer needed
-import java.util.stream.Collectors;
+
 
 public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed base class
 
@@ -59,7 +58,7 @@ public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed bas
             "    }\n" +
             "}\n";
 
-    private JavaClass javaClassModel;
+    private ClassElement javaClassModel;
 
     @Override
     protected void setUp() throws Exception {
@@ -71,7 +70,7 @@ public class ClassModelBuilderTest extends BasePlatformTestCase { // Changed bas
         // PsiClass psiClass = psiJavaFile.getClasses()[0]; // Not needed directly for model building via buildJavaFile
 
         ClassModelBuilder classModelBuilder = new ClassModelBuilder(getProject());
-        JavaFile javaFileModel = classModelBuilder.buildJavaFile(psiJavaFile);
+        FileElement javaFileModel = classModelBuilder.buildJavaFile(psiJavaFile);
         assertNotNull("JavaFile model should not be null", javaFileModel);
         this.javaClassModel = javaFileModel.classes().findFirst().orElse(null);
         assertNotNull("JavaClass model should not be null", this.javaClassModel);

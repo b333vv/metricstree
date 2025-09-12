@@ -17,8 +17,8 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 
 public class ClassesByMetricsValuesDistributor {
-    public static Map<MetricType, Map<JavaClass, Metric>> classesByMetricsValuesDistribution(JavaProject javaProject, Project project) {
+    public static Map<MetricType, Map<ClassElement, Metric>> classesByMetricsValuesDistribution(ProjectElement javaProject, Project project) {
         return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> metric.getType().isLongValue()
@@ -48,26 +48,26 @@ public class ClassesByMetricsValuesDistributor {
     }
 
     private static class SortedByMetricsValuesClassesCollector
-            implements Collector<Map<JavaClass, List<Metric>>, Map<JavaClass, Metric>, Map<JavaClass, Metric>>
+            implements Collector<Map<ClassElement, List<Metric>>, Map<ClassElement, Metric>, Map<ClassElement, Metric>>
     {
 
         @Override
-        public Supplier<Map<JavaClass, Metric>> supplier() {
+        public Supplier<Map<ClassElement, Metric>> supplier() {
             return LinkedHashMap::new;
         }
 
         @Override
-        public BiConsumer<Map<JavaClass, Metric>, Map<JavaClass, List<Metric>>> accumulator() {
+        public BiConsumer<Map<ClassElement, Metric>, Map<ClassElement, List<Metric>>> accumulator() {
             return (map, val) -> {
-                Map.Entry<JavaClass, List<Metric>> entry = val.entrySet().iterator().next();
-                JavaClass javaClass = entry.getKey();
+                Map.Entry<ClassElement, List<Metric>> entry = val.entrySet().iterator().next();
+                ClassElement javaClass = entry.getKey();
                 Metric metric = entry.getValue().get(0);
                 map.put(javaClass, metric);
             };
         }
 
         @Override
-        public Function<Map<JavaClass, Metric>, Map<JavaClass, Metric>> finisher() {
+        public Function<Map<ClassElement, Metric>, Map<ClassElement, Metric>> finisher() {
             return CollectionUtils::sortByValueReversed;
         }
 
@@ -77,7 +77,7 @@ public class ClassesByMetricsValuesDistributor {
         }
 
         @Override
-        public BinaryOperator<Map<JavaClass, Metric>> combiner() {
+        public BinaryOperator<Map<ClassElement, Metric>> combiner() {
             return (map1, map2) -> {
                 map2.forEach(map1::put);
                 return map1;

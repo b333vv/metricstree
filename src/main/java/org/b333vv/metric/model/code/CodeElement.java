@@ -21,7 +21,6 @@ import com.intellij.psi.PsiElementVisitor;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -29,15 +28,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public abstract class JavaCode {
+public abstract class CodeElement {
     private final String name;
     private final Map<MetricType, Metric> metrics;
-    protected final Set<JavaCode> children;
+    protected final Set<CodeElement> children;
 
-    public JavaCode(@NotNull String name) {
+    public CodeElement(@NotNull String name) {
         this.name = name;
         this.metrics = new ConcurrentHashMap<>();
-        this.children = new ConcurrentHashMap<JavaCode, Boolean>().keySet(true);
+        this.children = new ConcurrentHashMap<CodeElement, Boolean>().keySet(true);
     }
 
     public String getName() {
@@ -54,8 +53,8 @@ public abstract class JavaCode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        JavaCode javaCode = (JavaCode) o;
-        return Objects.equal(getName(), javaCode.getName());
+        CodeElement codeElement = (CodeElement) o;
+        return Objects.equal(getName(), codeElement.getName());
     }
 
     @Override
@@ -71,7 +70,7 @@ public abstract class JavaCode {
         metrics.remove(metricType);
     }
 
-    protected void addChild(@NotNull JavaCode child) {
+    protected void addChild(@NotNull CodeElement child) {
         children.add(child);
     }
 

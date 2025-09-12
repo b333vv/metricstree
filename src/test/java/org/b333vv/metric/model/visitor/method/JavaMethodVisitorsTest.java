@@ -3,8 +3,8 @@ package org.b333vv.metric.model.visitor.method;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaMethod;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
@@ -24,9 +24,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testLinesOfCodeVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         LinesOfCodeVisitor linesOfCodeVisitor = new LinesOfCodeVisitor();
         javaMethod.accept(linesOfCodeVisitor);
@@ -38,9 +38,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testConditionNestingDepthVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         ConditionNestingDepthVisitor conditionNestingDepthVisitor = new ConditionNestingDepthVisitor();
         javaMethod.accept(conditionNestingDepthVisitor);
@@ -52,9 +52,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testLoopNestingDepthVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         LoopNestingDepthVisitor loopNestingDepthVisitor = new LoopNestingDepthVisitor();
         javaMethod.accept(loopNestingDepthVisitor);
@@ -66,9 +66,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testMcCabeCyclomaticComplexityVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         McCabeCyclomaticComplexityVisitor mcCabeCyclomaticComplexityVisitor = new McCabeCyclomaticComplexityVisitor();
         javaMethod.accept(mcCabeCyclomaticComplexityVisitor);
@@ -80,9 +80,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testNumberOfLoopsVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         NumberOfLoopsVisitor numberOfLoopsVisitor = new NumberOfLoopsVisitor();
         javaMethod.accept(numberOfLoopsVisitor);
@@ -94,9 +94,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testNumberOfParametersVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         NumberOfParametersVisitor numberOfParametersVisitor = new NumberOfParametersVisitor();
         javaMethod.accept(numberOfParametersVisitor);
@@ -108,9 +108,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testLocalityOfAttributeAccessesVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         LocalityOfAttributeAccessesVisitor localityOfAttributeAccessesVisitor = new LocalityOfAttributeAccessesVisitor();
         javaMethod.accept(localityOfAttributeAccessesVisitor);
@@ -122,9 +122,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testForeignDataProvidersVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         ForeignDataProvidersVisitor foreignDataProvidersVisitor = new ForeignDataProvidersVisitor();
         javaMethod.accept(foreignDataProvidersVisitor);
@@ -136,9 +136,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testNumberOfAccessedVariablesVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         NumberOfAccessedVariablesVisitor numberOfAccessedVariablesVisitor = new NumberOfAccessedVariablesVisitor();
         javaMethod.accept(numberOfAccessedVariablesVisitor);
@@ -150,9 +150,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testMaximumNestingDepthVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         MaximumNestingDepthVisitor maximumNestingDepthVisitor = new MaximumNestingDepthVisitor();
         javaMethod.accept(maximumNestingDepthVisitor);
@@ -164,9 +164,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testCouplingIntensityVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         CouplingIntensityVisitor couplingIntensityVisitor = new CouplingIntensityVisitor();
         javaMethod.accept(couplingIntensityVisitor);
@@ -178,9 +178,9 @@ public class JavaMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCase 
 
     public void testCouplingDispersionVisitor() {
         PsiClass psiClass = myFixture.findClass("java.util.HashMap");
-        JavaClass javaClass = new JavaClass(psiClass);
+        ClassElement javaClass = new ClassElement(psiClass);
         PsiMethod psiMethod = psiClass.findMethodsByName("removeNode", false)[0];
-        JavaMethod javaMethod = new JavaMethod(psiMethod, javaClass);
+        MethodElement javaMethod = new MethodElement(psiMethod, javaClass);
 
         CouplingDispersionVisitor couplingDispersionVisitor = new CouplingDispersionVisitor();
         javaMethod.accept(couplingDispersionVisitor);

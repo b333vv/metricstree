@@ -18,20 +18,20 @@ package org.b333vv.metric.ui.tree.node;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.psi.util.PsiUtil;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
 
 import javax.swing.*;
 
 public class ClassNode extends AbstractNode {
 
-    protected final JavaClass javaClass;
+    protected final ClassElement javaClass;
 
-    public ClassNode(JavaClass javaClass) {
+    public ClassNode(ClassElement javaClass) {
         this.javaClass = javaClass;
     }
 
-    public JavaClass getJavaClass() {
+    public ClassElement getJavaClass() {
         return javaClass;
     }
 

@@ -19,7 +19,7 @@ package org.b333vv.metric.ui.tree.node;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.ui.SimpleTextAttributes;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.ui.tree.TreeCellRenderer;
@@ -29,12 +29,12 @@ public class SortedByMetricsValueClassNode extends ClassNode {
 
     private final Metric metric;
 
-    public SortedByMetricsValueClassNode(JavaClass javaClass, Metric metric) {
+    public SortedByMetricsValueClassNode(ClassElement javaClass, Metric metric) {
         super(javaClass);
         this.metric = metric;
     }
 
-    public JavaClass getJavaClass() {
+    public ClassElement getJavaClass() {
         return javaClass;
     }
 

@@ -4,7 +4,7 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.b333vv.metric.builder.SortedClassesTreeModelCalculator;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 
 
 import javax.swing.tree.DefaultTreeModel;
@@ -24,7 +24,7 @@ public final class ClassMetricsTreeService {
         DefaultTreeModel treeModel = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TREE);
 
         if (treeModel == null) {
-            JavaProject javaProject = calculationService.getOrBuildClassAndMethodModel(indicator);
+            ProjectElement javaProject = calculationService.getOrBuildClassAndMethodModel(indicator);
             SortedClassesTreeModelCalculator calculator = new SortedClassesTreeModelCalculator();
             treeModel = calculator.calculate(javaProject, project);
             cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TREE, treeModel);

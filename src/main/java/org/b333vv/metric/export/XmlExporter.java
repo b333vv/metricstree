@@ -17,6 +17,7 @@
 package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
+import org.b333vv.metric.model.code.ProjectElement;
 
 public class XmlExporter {
 
@@ -26,7 +27,7 @@ public class XmlExporter {
         this.project = project;
     }
 
-    public void export(String fileName, org.b333vv.metric.model.code.JavaProject javaProject) {
+    public void export(String fileName, ProjectElement javaProject) {
         new XmlReportBuilder(project).buildAndExport(fileName, javaProject);
     }
 }

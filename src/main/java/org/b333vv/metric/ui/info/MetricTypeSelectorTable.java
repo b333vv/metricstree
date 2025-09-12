@@ -23,8 +23,8 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBUI;
 import icons.MetricsIcons;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.MetricLevel;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.RangeType;
@@ -39,11 +39,11 @@ public class MetricTypeSelectorTable {
     private final Model model;
     private final JBScrollPane panel;
     private final Set<MetricType> metricTypes;
-    private final Set<JavaClass> javaClasses;
+    private final Set<ClassElement> javaClasses;
     private final JBTable table;
     private final Project project;
 
-    public MetricTypeSelectorTable(JavaProject javaProject, Consumer<MetricType> selectAction, Project project) {
+    public MetricTypeSelectorTable(ProjectElement javaProject, Consumer<MetricType> selectAction, Project project) {
         this.project = project;
         this.javaClasses = javaProject.allClasses().collect(Collectors.toUnmodifiableSet());
         this.metricTypes = Arrays.stream(MetricType.values())

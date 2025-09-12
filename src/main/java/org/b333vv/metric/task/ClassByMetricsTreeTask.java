@@ -19,15 +19,9 @@ package org.b333vv.metric.task;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.Task;
-import org.b333vv.metric.service.TaskQueueService;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaProject;
-import org.b333vv.metric.ui.tree.builder.SortedByMetricsValuesClassesTreeBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.service.ClassMetricsTreeService;
-
-import javax.swing.tree.DefaultTreeModel;
 
 public class ClassByMetricsTreeTask extends Task.Backgroundable {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values tree from cache";

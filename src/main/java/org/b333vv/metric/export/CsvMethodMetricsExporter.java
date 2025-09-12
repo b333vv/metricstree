@@ -17,7 +17,7 @@
 package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.ProjectElement;
 
 public class CsvMethodMetricsExporter {
 
@@ -27,7 +27,7 @@ public class CsvMethodMetricsExporter {
         this.project = project;
     }
 
-    public void export(String fileName, JavaProject javaProject) {
+    public void export(String fileName, ProjectElement javaProject) {
         new CsvMethodMetricsBuilder(project).buildAndExport(fileName, javaProject);
     }
 }

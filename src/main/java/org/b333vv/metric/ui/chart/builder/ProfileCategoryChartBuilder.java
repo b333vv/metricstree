@@ -18,7 +18,7 @@ package org.b333vv.metric.ui.chart.builder;
 
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.util.ui.UIUtil;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
@@ -31,7 +31,7 @@ import java.util.*;
 
 public class ProfileCategoryChartBuilder {
 
-    public CategoryChart createChart(Map<FitnessFunction, Set<JavaClass>> classesByProfiles) {
+    public CategoryChart createChart(Map<FitnessFunction, Set<ClassElement>> classesByProfiles) {
         // Check for null input to prevent NullPointerException
         if (classesByProfiles == null) {
             classesByProfiles = new HashMap<>();

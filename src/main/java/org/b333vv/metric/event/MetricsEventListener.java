@@ -17,8 +17,8 @@
 package org.b333vv.metric.event;
 
 import com.intellij.util.messages.Topic;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaPackage;
+import org.b333vv.metric.model.code.ClassElement;
+import org.b333vv.metric.model.code.PackageElement;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
 import org.jetbrains.annotations.NotNull;
@@ -62,13 +62,13 @@ public interface MetricsEventListener {
     default void metricsProfileSelected(FitnessFunction profile) {
     }
 
-    default void javaClassSelected(JavaClass javaClass) {
+    default void javaClassSelected(ClassElement javaClass) {
     }
 
-    default void packageLevelJavaClassSelected(JavaClass javaClass) {
+    default void packageLevelJavaClassSelected(ClassElement javaClass) {
     }
 
-    default void javaPackageSelected(JavaPackage javaPackage) {
+    default void javaPackageSelected(PackageElement javaPackage) {
     }
 
     default void projectMetricsTreeIsReady(DefaultTreeModel treeModel) {
@@ -125,10 +125,10 @@ public interface MetricsEventListener {
     default void setProfilePanelBottomText(String text) {
     }
 
-    default void projectTreeMapCellClicked(JavaClass javaClass) {
+    default void projectTreeMapCellClicked(ClassElement javaClass) {
     }
 
-    default void profileTreeMapCellClicked(JavaClass javaClass) {
+    default void profileTreeMapCellClicked(ClassElement javaClass) {
     }
 
     default void profileTreeMapIsReady() {

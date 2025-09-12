@@ -32,11 +32,11 @@ public class JavaMethodTest {
     @Mock
     private PsiMethod mockPsiMethod2;
     @Mock
-    private JavaClass mockJavaClass; // Parent class
+    private ClassElement mockJavaClass; // Parent class
     @Mock
     private MethodSignature mockMethodSignature;
 
-    private JavaMethod javaMethod;
+    private MethodElement javaMethod;
     private final String methodName = "testMethod";
     // private final int startLine = 5; // Removed
     // private final int endLine = 25; // Removed
@@ -51,7 +51,7 @@ public class JavaMethodTest {
         when(mockMethodSignature.getParameterTypes()).thenReturn(PsiType.EMPTY_ARRAY); // Default to no params
 
         // javaMethod instance for some tests, others will create their own
-        javaMethod = new JavaMethod(mockPsiMethod, mockJavaClass); // Corrected constructor
+        javaMethod = new MethodElement(mockPsiMethod, mockJavaClass); // Corrected constructor
     }
 
     // 1. `signature()` static method
@@ -59,7 +59,7 @@ public class JavaMethodTest {
     void testSignatureStaticMethodNoParams() {
         // Setup already done in @BeforeEach for mockPsiMethod
         String expectedSignature = methodName + "()";
-        assertEquals(expectedSignature, JavaMethod.signature(mockPsiMethod));
+        assertEquals(expectedSignature, MethodElement.signature(mockPsiMethod));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class JavaMethodTest {
         when(mockMethodSignature.getParameterTypes()).thenReturn(new PsiType[]{mockParamType1, mockParamType2});
 
         String expectedSignature = methodName + "(String, int)";
-        assertEquals(expectedSignature, JavaMethod.signature(mockPsiMethod));
+        assertEquals(expectedSignature, MethodElement.signature(mockPsiMethod));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class JavaMethodTest {
         when(mockMethodSignature.getParameterTypes()).thenReturn(new PsiType[]{mockParamType});
 
         String expectedSignature = methodName + "(boolean)";
-        assertEquals(expectedSignature, JavaMethod.signature(mockPsiMethod));
+        assertEquals(expectedSignature, MethodElement.signature(mockPsiMethod));
     }
 
 
@@ -99,19 +99,19 @@ public class JavaMethodTest {
     @Test
     void testEqualsAndHashCode() {
         // javaMethod uses mockPsiMethod, methodName + "()"
-        JavaMethod javaMethodSamePsi = new JavaMethod(mockPsiMethod, mockJavaClass); // Corrected constructor
+        MethodElement javaMethodSamePsi = new MethodElement(mockPsiMethod, mockJavaClass); // Corrected constructor
 
         // Different PsiMethod, but we'll mock it to produce the same signature
         when(mockPsiMethod2.getName()).thenReturn(methodName);
         MethodSignature mockMethodSignature2 = mock(MethodSignature.class);
         when(mockMethodSignature2.getParameterTypes()).thenReturn(PsiType.EMPTY_ARRAY);
         when(mockPsiMethod2.getSignature(PsiSubstitutor.EMPTY)).thenReturn(mockMethodSignature2);
-        JavaMethod javaMethodDifferentPsiSameSig = new JavaMethod(mockPsiMethod2, mockJavaClass); // Corrected constructor
+        MethodElement javaMethodDifferentPsiSameSig = new MethodElement(mockPsiMethod2, mockJavaClass); // Corrected constructor
 
         // Different PsiMethod, different signature (name)
         when(mockPsiMethod2.getName()).thenReturn("anotherMethod");
         // Signature will be anotherMethod()
-        JavaMethod javaMethodDifferentPsiDifferentSig = new JavaMethod(mockPsiMethod2, mockJavaClass); // Corrected constructor
+        MethodElement javaMethodDifferentPsiDifferentSig = new MethodElement(mockPsiMethod2, mockJavaClass); // Corrected constructor
 
         // Reflexivity
         assertEquals(javaMethod, javaMethod);

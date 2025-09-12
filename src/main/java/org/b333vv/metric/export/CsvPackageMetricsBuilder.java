@@ -18,8 +18,8 @@ package org.b333vv.metric.export;
 
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.PackageElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 
 import java.io.File;
@@ -37,14 +37,14 @@ public class CsvPackageMetricsBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, JavaProject javaProject) {
+    public void buildAndExport(String fileName, ProjectElement javaProject) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<JavaPackage> headerSupplierOpt = javaProject.allPackages().findAny();
+            Optional<PackageElement> headerSupplierOpt = javaProject.allPackages().findAny();
             if (headerSupplierOpt.isEmpty()) {
                 return;
             }
-            JavaPackage headerSupplier = headerSupplierOpt.get();
+            PackageElement headerSupplier = headerSupplierOpt.get();
             String header = "Package Name;" + headerSupplier.metrics()
                     .map(m -> m.getType().name())
                     .collect(Collectors.joining(";"));
@@ -63,7 +63,7 @@ public class CsvPackageMetricsBuilder {
         }
     }
 
-    private String convertToCsv(JavaPackage javaPackage) {
+    private String convertToCsv(PackageElement javaPackage) {
         String packageName = Objects.requireNonNull(javaPackage.getPsiPackage().getQualifiedName()) + ";";
         String metrics = javaPackage.metrics()
                 .map(Metric::getFormattedValue)

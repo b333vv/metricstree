@@ -16,15 +16,12 @@
 
 package org.b333vv.metric.ui.info;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.util.EditorController;
 import org.b333vv.metric.util.EditorUtils;
 
 import javax.swing.table.AbstractTableModel;
@@ -55,7 +52,7 @@ public class ClassesByRangesTable {
 
         table.getSelectionModel().addListSelectionListener(event -> {
             Object selectedCell = table.getValueAt(table.getSelectedRow(), 0);
-            JavaClass javaClass = (JavaClass) selectedCell;
+            ClassElement javaClass = (ClassElement) selectedCell;
             EditorUtils.openInEditor(project, javaClass.getPsiClass());
         });
 
@@ -125,24 +122,24 @@ public class ClassesByRangesTable {
         @Override
         public Class<?> getColumnClass(int column) {
             if (column == 0) {
-                return JavaClass.class;
+                return ClassElement.class;
             }
             return String.class;
         }
     }
 
     public static class ClassByRange {
-        private final JavaClass javaClass;
+        private final ClassElement javaClass;
         private final String range;
         private final Value value;
 
-        public ClassByRange(JavaClass javaClass, String range, Value value) {
+        public ClassByRange(ClassElement javaClass, String range, Value value) {
             this.javaClass = javaClass;
             this.range = range;
             this.value = value;
         }
 
-        public JavaClass getJavaClass() {
+        public ClassElement getJavaClass() {
             return javaClass;
         }
 

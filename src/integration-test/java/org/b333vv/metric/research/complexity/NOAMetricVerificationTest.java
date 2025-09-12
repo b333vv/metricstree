@@ -2,7 +2,7 @@ package org.b333vv.metric.research.complexity;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.b333vv.metric.model.code.JavaClass;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.visitor.type.NumberOfAttributesVisitor;
@@ -146,7 +146,7 @@ public class NOAMetricVerificationTest extends BasePlatformTestCase {
                 return Value.UNDEFINED;
             }
             
-            JavaClass javaClass = new JavaClass(psiClass);
+            ClassElement javaClass = new ClassElement(psiClass);
             NumberOfAttributesVisitor visitor = new NumberOfAttributesVisitor();
             javaClass.accept(visitor);
             

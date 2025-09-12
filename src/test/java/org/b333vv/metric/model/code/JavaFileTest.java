@@ -2,7 +2,6 @@ package org.b333vv.metric.model.code;
 
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
-import org.b333vv.metric.model.metric.value.Value;
 import com.intellij.psi.PsiClass; // Added for mocking
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,19 +18,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JavaFileTest {
 
-    private JavaFile javaFile;
+    private FileElement javaFile;
     private final String fileName = "TestFile.java";
 
     // Helper to create JavaClass with mocked PsiClass
-    private JavaClass createMockJavaClass(String name) {
+    private ClassElement createMockJavaClass(String name) {
         PsiClass mockPsi = mock(PsiClass.class);
         when(mockPsi.getName()).thenReturn(name);
-        return new JavaClass(mockPsi);
+        return new ClassElement(mockPsi);
     }
 
     @BeforeEach
     void setUp() {
-        javaFile = new JavaFile(fileName); // Corrected constructor
+        javaFile = new FileElement(fileName); // Corrected constructor
     }
 
     // 1. Constructor and `getName()`
@@ -47,18 +46,18 @@ public class JavaFileTest {
         assertTrue(javaFile.classes().collect(Collectors.toList()).isEmpty(), "Initially, classes stream should be empty.");
 
         // Add classes
-        JavaClass classA = createMockJavaClass("ClassA");
-        JavaClass classC = createMockJavaClass("ClassC");
-        JavaClass classB = createMockJavaClass("ClassB");
+        ClassElement classA = createMockJavaClass("ClassA");
+        ClassElement classC = createMockJavaClass("ClassC");
+        ClassElement classB = createMockJavaClass("ClassB");
 
         javaFile.addClass(classA);
         javaFile.addClass(classC);
         javaFile.addClass(classB);
 
-        List<JavaClass> expectedClasses = Arrays.asList(classA, classB, classC);
-        expectedClasses.sort(Comparator.comparing(JavaCode::getName)); // Ensure expected list is sorted by name
+        List<ClassElement> expectedClasses = Arrays.asList(classA, classB, classC);
+        expectedClasses.sort(Comparator.comparing(CodeElement::getName)); // Ensure expected list is sorted by name
 
-        List<JavaClass> actualClasses = javaFile.classes().collect(Collectors.toList());
+        List<ClassElement> actualClasses = javaFile.classes().collect(Collectors.toList());
 
         assertEquals(expectedClasses.size(), actualClasses.size(), "Number of classes should match.");
         for (int i = 0; i < expectedClasses.size(); i++) {

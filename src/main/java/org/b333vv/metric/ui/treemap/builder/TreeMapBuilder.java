@@ -16,11 +16,9 @@
 
 package org.b333vv.metric.ui.treemap.builder;
 
-import org.b333vv.metric.event.MetricsEventListener;
-import org.b333vv.metric.model.code.JavaClass;
-import org.b333vv.metric.model.code.JavaCode;
-import org.b333vv.metric.model.code.JavaPackage;
-import org.b333vv.metric.model.code.JavaProject;
+import org.b333vv.metric.model.code.*;
+import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.ui.treemap.model.*;
 import org.b333vv.metric.ui.treemap.model.Rectangle;
 import org.b333vv.metric.ui.treemap.presentation.CushionRectangleRendererEx;
@@ -30,12 +28,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public class TreeMapBuilder implements SelectionChangeListener<JavaCode>, LabelProvider<JavaCode> {
+public class TreeMapBuilder implements SelectionChangeListener<CodeElement>, LabelProvider<CodeElement> {
 
-    private final GenericTreeModel<JavaCode> model = new GenericTreeModel<>();
-    private final MetricTreeMap<JavaCode> treeMap = new MetricTreeMap<>();
+    private final GenericTreeModel<CodeElement> model = new GenericTreeModel<>();
+    private final MetricTreeMap<CodeElement> treeMap = new MetricTreeMap<>();
 
-    public TreeMapBuilder(@NotNull JavaProject javaProject) {
+    public TreeMapBuilder(@NotNull ProjectElement javaProject) {
         treeMap.setLabelProvider(this);
         treeMap.setRectangleRenderer(new CushionRectangleRendererEx<>(160));
         treeMap.addSelectionChangeListener(this);
@@ -51,16 +49,16 @@ public class TreeMapBuilder implements SelectionChangeListener<JavaCode>, LabelP
 //        treeMap.setColorProvider(colorProvider);
 //    }
 
-    public MetricTreeMap<JavaCode> getTreeMap() {
+    public MetricTreeMap<CodeElement> getTreeMap() {
         return treeMap;
     }
 
     @Override
-    public void selectionChanged(TreeModel<Rectangle<JavaCode>> model, Rectangle<JavaCode> rectangle, String label) {
+    public void selectionChanged(TreeModel<Rectangle<CodeElement>> model, Rectangle<CodeElement> rectangle, String label) {
         if (label != null) {
-            final JavaCode node = rectangle.getNode();
-            if (node instanceof JavaClass) {
-                String name = ((JavaClass) node).getPsiClass().getQualifiedName();
+            final CodeElement node = rectangle.getNode();
+            if (node instanceof ClassElement) {
+                String name = ((ClassElement) node).getPsiClass().getQualifiedName();
                 Consumer<String> selectionAction = treeMap.getSelectionChangedAction();
                 if (selectionAction != null) {
                     selectionAction.accept("Class: " + name);
@@ -70,8 +68,8 @@ public class TreeMapBuilder implements SelectionChangeListener<JavaCode>, LabelP
     }
 
     @Override
-    public String getLabel(final TreeModel<Rectangle<JavaCode>> model, final Rectangle<JavaCode> rectangle) {
-        if (rectangle.getNode() instanceof JavaPackage) {
+    public String getLabel(final TreeModel<Rectangle<CodeElement>> model, final Rectangle<CodeElement> rectangle) {
+        if (rectangle.getNode() instanceof PackageElement) {
             return rectangle.getNode().getName();
         }
         return "";
