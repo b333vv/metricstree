@@ -21,6 +21,14 @@ import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinLinesOfCodeVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinMcCabeCyclomaticComplexityVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinConditionNestingDepthVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinLoopNestingDepthVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinNumberOfParametersVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinLocalityOfAttributeAccessesVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinForeignDataProvidersVisitor;
+import org.b333vv.metric.model.visitor.kotlin.method.KotlinNumberOfAccessedVariablesVisitor;
 import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.model.code.MethodElement;
@@ -34,6 +42,7 @@ import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 import org.b333vv.metric.util.SettingsService;
+import org.jetbrains.kotlin.psi.*;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -55,6 +64,102 @@ public abstract class ModelBuilder {
                     .toList();
         }
         return javaClassVisitorList;
+    }
+
+    protected FileElement createKotlinFile(@NotNull KtFile ktFile) {
+        FileElement kotlinFile = new FileElement(ktFile.getName());
+        Project project = ktFile.getProject();
+        for (KtDeclaration decl : ktFile.getDeclarations()) {
+            if (decl instanceof KtClassOrObject) {
+                KtClassOrObject ktClass = (KtClassOrObject) decl;
+                ClassElement klass = new ClassElement(ktClass);
+
+                // Apply Kotlin class-level visitors where applicable
+                // Example: WMC, CBO, LCOM, etc., if implemented
+                // For now, we focus on method-level wiring; class-level Kotlin visitors can be added similarly
+
+                kotlinFile.addClass(klass);
+
+                buildKotlinConstructors(klass, ktClass);
+                buildKotlinFunctions(klass, ktClass);
+
+                addMaintainabilityIndexForClass(klass);
+                addLinesOfCodeIndexForClass(klass);
+                addCognitiveComplexityForClass(klass);
+                addToAllClasses(klass);
+            }
+        }
+        return kotlinFile;
+    }
+
+    protected void buildKotlinConstructors(@NotNull ClassElement klass, @NotNull KtClassOrObject ktClass) {
+        Project project = (klass.getPsiClass() != null) ? klass.getPsiClass().getProject() : ktClass.getProject();
+        if (ktClass instanceof KtClass) {
+            KtPrimaryConstructor primary = ((KtClass) ktClass).getPrimaryConstructor();
+            if (primary != null) {
+                MethodElement ctorEl = new MethodElement(primary, klass);
+                klass.addMethod(ctorEl);
+                applyKotlinMethodVisitors(ctorEl, primary);
+                addMaintainabilityIndexForMethod(ctorEl);
+            }
+            for (KtSecondaryConstructor s : ((KtClass) ktClass).getSecondaryConstructors()) {
+                MethodElement ctorEl = new MethodElement(s, klass);
+                klass.addMethod(ctorEl);
+                applyKotlinMethodVisitors(ctorEl, s);
+                addMaintainabilityIndexForMethod(ctorEl);
+            }
+        }
+    }
+
+    protected void buildKotlinFunctions(@NotNull ClassElement klass, @NotNull KtClassOrObject ktClass) {
+        for (KtDeclaration d : ktClass.getDeclarations()) {
+            if (d instanceof KtNamedFunction) {
+                KtNamedFunction f = (KtNamedFunction) d;
+                MethodElement m = new MethodElement(f, klass);
+                klass.addMethod(m);
+                applyKotlinMethodVisitors(m, f);
+                addMaintainabilityIndexForMethod(m);
+            }
+            if (d instanceof KtClassOrObject) {
+                // nested class
+                buildKotlinConstructors(klass, (KtClassOrObject) d);
+                buildKotlinFunctions(klass, (KtClassOrObject) d);
+            }
+        }
+    }
+
+    protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtNamedFunction function) {
+        KotlinLinesOfCodeVisitor loc = new KotlinLinesOfCodeVisitor();
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        KotlinConditionNestingDepthVisitor cnd = new KotlinConditionNestingDepthVisitor();
+        KotlinLoopNestingDepthVisitor lnd = new KotlinLoopNestingDepthVisitor();
+        KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
+        KotlinLocalityOfAttributeAccessesVisitor laa = new KotlinLocalityOfAttributeAccessesVisitor();
+        KotlinForeignDataProvidersVisitor fdp = new KotlinForeignDataProvidersVisitor();
+        KotlinNumberOfAccessedVariablesVisitor noav = new KotlinNumberOfAccessedVariablesVisitor();
+
+        loc.computeFor(function); if (loc.getMetric()!=null) method.addMetric(loc.getMetric());
+        cc.computeFor(function); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
+        cnd.computeFor(function); if (cnd.getMetric()!=null) method.addMetric(cnd.getMetric());
+        lnd.computeFor(function); if (lnd.getMetric()!=null) method.addMetric(lnd.getMetric());
+        nopm.computeFor(function); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
+        laa.computeFor(function); if (laa.getMetric()!=null) method.addMetric(laa.getMetric());
+        fdp.computeFor(function); if (fdp.getMetric()!=null) method.addMetric(fdp.getMetric());
+        noav.computeFor(function); if (noav.getMetric()!=null) method.addMetric(noav.getMetric());
+    }
+
+    protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtPrimaryConstructor ctor) {
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
+        cc.computeFor(ctor); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
+        nopm.computeFor(ctor); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
+    }
+
+    protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtSecondaryConstructor ctor) {
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
+        cc.computeFor(ctor); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
+        nopm.computeFor(ctor); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
     }
 
     protected List<JavaMethodVisitor> getMethodVisitorList(Project project) {

@@ -20,6 +20,8 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.psi.KtClassOrObject;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -27,10 +29,18 @@ import java.util.stream.Stream;
 
 public class ClassElement extends CodeElement {
     private final PsiClass psiClass;
+    private final KtClassOrObject ktClass;
 
     public ClassElement(@NotNull PsiClass psiClass) {
         super(Objects.requireNonNull(psiClass.getName()));
         this.psiClass = psiClass;
+        this.ktClass = null;
+    }
+
+    public ClassElement(@NotNull KtClassOrObject ktClass) {
+        super(Objects.requireNonNull(ktClass.getName()));
+        this.psiClass = null;
+        this.ktClass = ktClass;
     }
 
     public void addClass(@NotNull ClassElement javaClass) {
@@ -60,9 +70,9 @@ public class ClassElement extends CodeElement {
         return this.getName();
     }
 
-    public PsiClass getPsiClass() {
-        return psiClass;
-    }
+    public @Nullable PsiClass getPsiClass() { return psiClass; }
+
+    public @Nullable KtClassOrObject getKtClassOrObject() { return ktClass; }
 
     @Override
     public boolean equals(Object o) {
@@ -70,12 +80,13 @@ public class ClassElement extends CodeElement {
         if (!(o instanceof ClassElement)) return false;
         if (!super.equals(o)) return false;
         ClassElement javaClass = (ClassElement) o;
-        return Objects.equals(getPsiClass(), javaClass.getPsiClass());
+        return Objects.equals(getPsiClass(), javaClass.getPsiClass())
+                && Objects.equals(getKtClassOrObject(), javaClass.getKtClassOrObject());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getPsiClass());
+        return Objects.hash(super.hashCode(), getPsiClass(), getKtClassOrObject());
     }
 
     @Override

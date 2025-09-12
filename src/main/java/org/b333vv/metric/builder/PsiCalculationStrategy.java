@@ -11,6 +11,7 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
+import org.jetbrains.kotlin.psi.KtFile;
 import org.b333vv.metric.model.code.ProjectElement;
 
 public class PsiCalculationStrategy implements MetricCalculationStrategy {
@@ -49,7 +50,10 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
                 return;
             }
             final FileType fileType = psiFile.getFileType();
-            if (!fileType.getName().equals("JAVA") || fileType.isBinary()) {
+            final String ftName = fileType.getName();
+            final boolean isJava = "JAVA".equals(ftName);
+            final boolean isKotlin = "Kotlin".equals(ftName) || "KOTLIN".equals(ftName);
+            if ((!isJava && !isKotlin) || fileType.isBinary()) {
                 return;
             }
             final VirtualFile virtualFile = psiFile.getVirtualFile();
@@ -61,8 +65,12 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
             final String fileName = psiFile.getName();
             indicator.setText("Calculating metrics on class and method levels: processing file " + fileName + "...");
             progress++;
-            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+            if (isJava) {
+                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+                projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+            } else if (isKotlin && psiFile instanceof KtFile) {
+                projectModelBuilder.addKotlinFileToProject((KtFile) psiFile);
+            }
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }

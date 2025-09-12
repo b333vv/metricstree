@@ -22,6 +22,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.impl.file.PsiPackageImpl;
+import com.intellij.psi.JavaPsiFacade;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
@@ -34,6 +35,8 @@ import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 import org.b333vv.metric.util.SettingsService;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.psi.KtFile;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,8 +53,60 @@ public class ProjectModelBuilder extends ModelBuilder {
         this.javaProject = javaProject;
     }
 
+    private PackageElement findOrCreatePackageByFqn(@NotNull Project project, @NotNull FqName fqName) {
+        String fqn = fqName.asString();
+        PackageElement existing = javaProject.getFromAllPackages(fqn);
+        if (existing != null) return existing;
+
+        // Try to resolve via JavaPsiFacade
+        PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage(fqn);
+        if (psiPackage == null) {
+            psiPackage = new PsiPackageImpl(null, fqn);
+        }
+        // Ensure parent hierarchy exists
+        String[] parts = fqn.isEmpty() ? new String[0] : fqn.split("\\.");
+        PackageElement current;
+        if (parts.length == 0) {
+            current = javaProject.getFromAllPackages("");
+            if (current == null) {
+                current = new PackageElement("", new PsiPackageImpl(null, ""));
+                javaProject.putToAllPackages("", current);
+                javaProject.addPackage(current);
+            }
+            return current;
+        }
+        // build from root
+        StringBuilder path = new StringBuilder();
+        current = javaProject.getFromAllPackages("");
+        if (current == null) {
+            current = new PackageElement("", new PsiPackageImpl(null, ""));
+            javaProject.putToAllPackages("", current);
+            javaProject.addPackage(current);
+        }
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) path.append('.');
+            path.append(parts[i]);
+            String qn = path.toString();
+            PackageElement next = javaProject.getFromAllPackages(qn);
+            if (next == null) {
+                PsiPackage p = JavaPsiFacade.getInstance(project).findPackage(qn);
+                if (p == null) p = new PsiPackageImpl(null, qn);
+                next = new PackageElement(parts[i], p);
+                javaProject.putToAllPackages(qn, next);
+                current.addPackage(next);
+            }
+            current = next;
+        }
+        return current;
+    }
+
     public void addJavaFileToJavaProject(@NotNull PsiJavaFile psiJavaFile) {
         findOrCreateJavaPackage(psiJavaFile).addFile(createJavaFile(psiJavaFile));
+    }
+
+    public void addKotlinFileToProject(@NotNull KtFile ktFile) {
+        PackageElement pkg = findOrCreatePackageByFqn(ktFile.getProject(), ktFile.getPackageFqName());
+        pkg.addFile(createKotlinFile(ktFile));
     }
 
     @Override
