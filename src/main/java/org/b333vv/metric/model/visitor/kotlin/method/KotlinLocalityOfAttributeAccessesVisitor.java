@@ -140,10 +140,14 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
     }
 
     private KtClassOrObject findOwnerClass(@NotNull KtElement element) {
-        KtElement e = element;
+        PsiElement e = element;
         while (e != null && !(e instanceof KtClassOrObject)) {
-            e = (KtElement) e.getParent();
+            e = e.getParent();
+            // If parent is not a Kotlin PSI, break to avoid invalid casts
+            if (e != null && !(e instanceof KtElement)) {
+                break;
+            }
         }
-        return (KtClassOrObject) e;
+        return (e instanceof KtClassOrObject) ? (KtClassOrObject) e : null;
     }
 }

@@ -83,7 +83,7 @@ public class ClassModelBuilder extends ModelBuilder {
             // Kotlin builder not available -> Kotlin plugin/classes missing; safely ignore
             project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
                     .printInfo("[ClassModelBuilder] KotlinModelBuilder not found in classloader");
-        } catch (NoClassDefFoundError | LinkageError e) {
+        } catch (LinkageError e) {
             // Kotlin PSI or transitive deps missing in classloader; safely ignore for non-Java files
             project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
                     .printInfo("[ClassModelBuilder] Linkage error during Kotlin reflection: " + e.getClass().getSimpleName());

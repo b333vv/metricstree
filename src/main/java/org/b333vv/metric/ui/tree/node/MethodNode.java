@@ -36,9 +36,17 @@ public class MethodNode extends AbstractNode {
     }
 
     public Icon getIcon() {
-        return javaMethod.getPsiMethod().isConstructor() ?
-                MetricsIcons.CONSTRUCTOR :
-                AllIcons.Nodes.Method;
+        if (javaMethod.getPsiMethod() != null) {
+            return javaMethod.getPsiMethod().isConstructor() ?
+                    MetricsIcons.CONSTRUCTOR :
+                    AllIcons.Nodes.Method;
+        }
+        // Kotlin constructors
+        if (javaMethod.getKtPrimaryConstructor() != null || javaMethod.getKtSecondaryConstructor() != null) {
+            return MetricsIcons.CONSTRUCTOR;
+        }
+        // Kotlin functions or unknown -> default method icon
+        return AllIcons.Nodes.Method;
     }
 
     @Override

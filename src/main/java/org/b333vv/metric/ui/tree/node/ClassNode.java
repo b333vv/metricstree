@@ -36,6 +36,10 @@ public class ClassNode extends AbstractNode {
     }
 
     public Icon getIcon() {
+        if (javaClass.getPsiClass() == null) {
+            // Kotlin or synthetic class: fallback to generic class icon
+            return AllIcons.Nodes.Class;
+        }
         if (javaClass.getPsiClass().isInterface()) {
             return AllIcons.Nodes.Interface;
         }
