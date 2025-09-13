@@ -82,7 +82,10 @@ public class PackageMetricsSetCalculator {
     }
 
     private void addStatisticMetrics(PackageElement p) {
-        List<PsiClass> psiClasses = p.classes().map(ClassElement::getPsiClass).collect(Collectors.toList());
+        List<PsiClass> psiClasses = p.classes()
+                .map(ClassElement::getPsiClass)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
         long concreteClassesNumber = 0;
         long abstractClassesNumber = 0;
         long staticClassesNumber = 0;
