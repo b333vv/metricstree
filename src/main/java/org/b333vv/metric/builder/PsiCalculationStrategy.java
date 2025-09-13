@@ -11,7 +11,6 @@ import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import org.jetbrains.kotlin.psi.KtFile;
 import org.b333vv.metric.model.code.ProjectElement;
 
 public class PsiCalculationStrategy implements MetricCalculationStrategy {
@@ -68,8 +67,8 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
             if (isJava) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
                 projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
-            } else if (isKotlin && psiFile instanceof KtFile) {
-                projectModelBuilder.addKotlinFileToProject((KtFile) psiFile);
+            } else if (isKotlin) {
+                projectModelBuilder.addKotlinFileToProjectReflective(psiFile);
             }
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);

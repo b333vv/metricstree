@@ -37,6 +37,7 @@ import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.ui.tree.builder.ClassMetricTreeBuilder;
 import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
+// Avoid direct Kotlin PSI imports to keep plugin working without Kotlin
 
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
@@ -67,6 +68,14 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         }
     }
 
+    public void update(@NotNull PsiFile file) {
+        project.getService(UIStateService.class).setClassMetricsValuesEvolutionAdded(false);
+        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).cancelMetricsValuesEvolutionCalculation();
+        if (project.getService(SettingsService.class).getClassMetricsTreeSettings().isShowClassMetricsTree()) {
+            DumbService.getInstance(project).runWhenSmart(() -> calculateMetrics(file));
+        }
+    }
+
     public void refresh() {
         // Вместо использования кеша, получаем PsiJavaFile по VirtualFile
         VirtualFile selectedFile = EditorUtils.getSelectedFile(project);
@@ -74,6 +83,8 @@ public class ClassMetricsPanel extends MetricsTreePanel {
             PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
             if (psiFile instanceof PsiJavaFile) {
                 update((PsiJavaFile) psiFile);
+            } else {
+                update(psiFile);
             }
         }
     }
@@ -91,6 +102,33 @@ public class ClassMetricsPanel extends MetricsTreePanel {
         metricTreeBuilder = new ClassMetricTreeBuilder(jf, psiJavaFile.getProject());
         buildTreeModel();
         uiStateService.setClassMetricsTreeExists(true);
+    }
+
+    private void calculateMetrics(@NotNull PsiFile psiFile) {
+        UIStateService uiStateService = project.getService(UIStateService.class);
+        uiStateService.setClassMetricsTreeExists(false);
+        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                .printInfo("Built metrics tree for " + psiFile.getName());
+
+        FileElement f;
+        if (psiFile instanceof PsiJavaFile) {
+            // Keep caching for Java files
+            f = CachedValuesManager.getCachedValue(psiFile, () -> {
+                FileElement fe = new ClassModelBuilder(psiFile.getProject()).buildJavaFile((PsiJavaFile) psiFile);
+                return CachedValueProvider.Result.create(fe, psiFile);
+            });
+        } else {
+            // Compute directly for non-Java to avoid caching nulls
+            f = new ClassModelBuilder(psiFile.getProject()).buildFile(psiFile);
+        }
+
+        if (f != null) {
+            metricTreeBuilder = new ClassMetricTreeBuilder(f, psiFile.getProject());
+            buildTreeModel();
+            uiStateService.setClassMetricsTreeExists(true);
+        } else {
+            clear();
+        }
     }
 
     private class ClassMetricsEventListener implements MetricsEventListener {
@@ -148,10 +186,15 @@ public class ClassMetricsPanel extends MetricsTreePanel {
             if (fileType.isBinary()) {
                 return;
             }
-            if (!fileType.getName().equals("JAVA")) {
+            final String ftName = fileType.getName();
+            if ("JAVA".equals(ftName) && psiFile instanceof PsiJavaFile) {
+                update((PsiJavaFile) psiFile);
                 return;
             }
-            update((PsiJavaFile) psiFile);
+            if (("Kotlin".equals(ftName) || "KOTLIN".equals(ftName))) {
+                update(psiFile);
+                return;
+            }
         }
     }
 }

@@ -42,17 +42,6 @@ import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 import org.b333vv.metric.util.SettingsService;
-import org.jetbrains.kotlin.psi.*;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinWeightedMethodCountVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfMethodsVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfAttributesVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinNonCommentingSourceStatementsVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinResponseForClassVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinCouplingBetweenObjectsVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinLackOfCohesionOfMethodsVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinDepthOfInheritanceTreeVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinNumberOfChildrenVisitor;
-import org.b333vv.metric.model.visitor.kotlin.type.KotlinTightClassCohesionVisitor;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -76,182 +65,8 @@ public abstract class ModelBuilder {
         return javaClassVisitorList;
     }
 
-    protected FileElement createKotlinFile(@NotNull KtFile ktFile) {
-        FileElement kotlinFile = new FileElement(ktFile.getName());
-        Project project = ktFile.getProject();
-        for (KtDeclaration decl : ktFile.getDeclarations()) {
-            if (decl instanceof KtClassOrObject) {
-                KtClassOrObject ktClass = (KtClassOrObject) decl;
-                ClassElement klass = new ClassElement(ktClass);
 
-                // Apply Kotlin class-level visitors where applicable
-                if (ktClass instanceof KtClass) {
-                    // Existing class-level metrics (gated by settings)
-                    if (isMetricEnabled(project, WMC)) {
-                        KotlinWeightedMethodCountVisitor wmc = new KotlinWeightedMethodCountVisitor();
-                        wmc.computeFor((KtClass) ktClass);
-                        if (wmc.getMetric() != null) klass.addMetric(wmc.getMetric());
-                    }
-                    if (isMetricEnabled(project, NOM)) {
-                        KotlinNumberOfMethodsVisitor nom = new KotlinNumberOfMethodsVisitor();
-                        nom.computeFor((KtClass) ktClass);
-                        if (nom.getMetric() != null) klass.addMetric(nom.getMetric());
-                    }
-                    if (isMetricEnabled(project, NOA)) {
-                        KotlinNumberOfAttributesVisitor noa = new KotlinNumberOfAttributesVisitor();
-                        noa.computeFor((KtClass) ktClass);
-                        if (noa.getMetric() != null) klass.addMetric(noa.getMetric());
-                    }
-                    if (isMetricEnabled(project, NCSS)) {
-                        KotlinNonCommentingSourceStatementsVisitor ncss = new KotlinNonCommentingSourceStatementsVisitor();
-                        ncss.computeFor((KtClass) ktClass);
-                        if (ncss.getMetric() != null) klass.addMetric(ncss.getMetric());
-                    }
-
-                    // Additional class-level metrics for parity (gated by settings)
-                    if (isMetricEnabled(project, RFC)) {
-                        KotlinResponseForClassVisitor rfc = new KotlinResponseForClassVisitor();
-                        rfc.computeFor((KtClass) ktClass);
-                        if (rfc.getMetric() != null) klass.addMetric(rfc.getMetric());
-                    }
-                    if (isMetricEnabled(project, CBO)) {
-                        KotlinCouplingBetweenObjectsVisitor cbo = new KotlinCouplingBetweenObjectsVisitor();
-                        cbo.computeFor((KtClass) ktClass);
-                        if (cbo.getMetric() != null) klass.addMetric(cbo.getMetric());
-                    }
-                    if (isMetricEnabled(project, LCOM)) {
-                        KotlinLackOfCohesionOfMethodsVisitor lcom = new KotlinLackOfCohesionOfMethodsVisitor();
-                        lcom.computeFor((KtClass) ktClass);
-                        if (lcom.getMetric() != null) klass.addMetric(lcom.getMetric());
-                    }
-                    if (isMetricEnabled(project, DIT)) {
-                        KotlinDepthOfInheritanceTreeVisitor dit = new KotlinDepthOfInheritanceTreeVisitor();
-                        dit.computeFor((KtClass) ktClass);
-                        if (dit.getMetric() != null) klass.addMetric(dit.getMetric());
-                    }
-                    if (isMetricEnabled(project, NOC)) {
-                        KotlinNumberOfChildrenVisitor noc = new KotlinNumberOfChildrenVisitor();
-                        noc.computeFor((KtClass) ktClass);
-                        if (noc.getMetric() != null) klass.addMetric(noc.getMetric());
-                    }
-                    if (isMetricEnabled(project, TCC)) {
-                        KotlinTightClassCohesionVisitor tcc = new KotlinTightClassCohesionVisitor();
-                        tcc.computeFor((KtClass) ktClass);
-                        if (tcc.getMetric() != null) klass.addMetric(tcc.getMetric());
-                    }
-                }
-
-                kotlinFile.addClass(klass);
-
-                buildKotlinConstructors(klass, ktClass);
-                buildKotlinFunctions(klass, ktClass);
-
-                addMaintainabilityIndexForClass(klass);
-                addLinesOfCodeIndexForClass(klass);
-                addCognitiveComplexityForClass(klass);
-                addToAllClasses(klass);
-            }
-        }
-        return kotlinFile;
-    }
-
-    protected void buildKotlinConstructors(@NotNull ClassElement klass, @NotNull KtClassOrObject ktClass) {
-        Project project = (klass.getPsiClass() != null) ? klass.getPsiClass().getProject() : ktClass.getProject();
-        if (ktClass instanceof KtClass) {
-            KtPrimaryConstructor primary = ((KtClass) ktClass).getPrimaryConstructor();
-            if (primary != null) {
-                MethodElement ctorEl = new MethodElement(primary, klass);
-                klass.addMethod(ctorEl);
-                applyKotlinMethodVisitors(ctorEl, primary);
-                addMaintainabilityIndexForMethod(ctorEl);
-            }
-            for (KtSecondaryConstructor s : ((KtClass) ktClass).getSecondaryConstructors()) {
-                MethodElement ctorEl = new MethodElement(s, klass);
-                klass.addMethod(ctorEl);
-                applyKotlinMethodVisitors(ctorEl, s);
-                addMaintainabilityIndexForMethod(ctorEl);
-            }
-        }
-    }
-
-    protected void buildKotlinFunctions(@NotNull ClassElement klass, @NotNull KtClassOrObject ktClass) {
-        for (KtDeclaration d : ktClass.getDeclarations()) {
-            if (d instanceof KtNamedFunction) {
-                KtNamedFunction f = (KtNamedFunction) d;
-                MethodElement m = new MethodElement(f, klass);
-                klass.addMethod(m);
-                applyKotlinMethodVisitors(m, f);
-                addMaintainabilityIndexForMethod(m);
-            }
-            if (d instanceof KtClassOrObject) {
-                // nested class
-                buildKotlinConstructors(klass, (KtClassOrObject) d);
-                buildKotlinFunctions(klass, (KtClassOrObject) d);
-            }
-        }
-    }
-
-    protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtNamedFunction function) {
-        Project project = function.getProject();
-        if (isMetricEnabled(project, LOC)) {
-            KotlinLinesOfCodeVisitor loc = new KotlinLinesOfCodeVisitor();
-            loc.computeFor(function); if (loc.getMetric()!=null) method.addMetric(loc.getMetric());
-        }
-        if (isMetricEnabled(project, CC)) {
-            KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-            cc.computeFor(function); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
-        }
-        if (isMetricEnabled(project, CND)) {
-            KotlinConditionNestingDepthVisitor cnd = new KotlinConditionNestingDepthVisitor();
-            cnd.computeFor(function); if (cnd.getMetric()!=null) method.addMetric(cnd.getMetric());
-        }
-        if (isMetricEnabled(project, LND)) {
-            KotlinLoopNestingDepthVisitor lnd = new KotlinLoopNestingDepthVisitor();
-            lnd.computeFor(function); if (lnd.getMetric()!=null) method.addMetric(lnd.getMetric());
-        }
-        if (isMetricEnabled(project, NOPM)) {
-            KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
-            nopm.computeFor(function); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
-        }
-        if (isMetricEnabled(project, LAA)) {
-            KotlinLocalityOfAttributeAccessesVisitor laa = new KotlinLocalityOfAttributeAccessesVisitor();
-            laa.computeFor(function); if (laa.getMetric()!=null) method.addMetric(laa.getMetric());
-        }
-        if (isMetricEnabled(project, FDP)) {
-            KotlinForeignDataProvidersVisitor fdp = new KotlinForeignDataProvidersVisitor();
-            fdp.computeFor(function); if (fdp.getMetric()!=null) method.addMetric(fdp.getMetric());
-        }
-        if (isMetricEnabled(project, NOAV)) {
-            KotlinNumberOfAccessedVariablesVisitor noav = new KotlinNumberOfAccessedVariablesVisitor();
-            noav.computeFor(function); if (noav.getMetric()!=null) method.addMetric(noav.getMetric());
-        }
-    }
-
-    protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtPrimaryConstructor ctor) {
-        Project project = ctor.getProject();
-        if (isMetricEnabled(project, CC)) {
-            KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-            cc.computeFor(ctor); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
-        }
-        if (isMetricEnabled(project, NOPM)) {
-            KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
-            nopm.computeFor(ctor); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
-        }
-    }
-
-    protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtSecondaryConstructor ctor) {
-        Project project = ctor.getProject();
-        if (isMetricEnabled(project, CC)) {
-            KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-            cc.computeFor(ctor); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
-        }
-        if (isMetricEnabled(project, NOPM)) {
-            KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
-            nopm.computeFor(ctor); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
-        }
-    }
-
-    private boolean isMetricEnabled(@NotNull Project project, @NotNull MetricType type) {
+    protected boolean isMetricEnabled(@NotNull Project project, @NotNull MetricType type) {
         return project.getService(SettingsService.class)
                 .getClassMetricsTreeSettings()
                 .getMetricsList()
@@ -405,7 +220,7 @@ public abstract class ModelBuilder {
         javaClass.addMetric(Metric.of(MetricType.CCC, cognitiveComplexity));
     }
 
-    private void addMaintainabilityIndexForMethod(MethodElement javaMethod) {
+    protected void addMaintainabilityIndexForMethod(MethodElement javaMethod) {
         long cyclomaticComplexity = javaMethod.metrics()
                 .filter(metric -> metric.getType() == CC)
                 .map(Metric::getValue)

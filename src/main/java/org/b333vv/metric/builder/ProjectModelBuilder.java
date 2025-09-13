@@ -35,8 +35,7 @@ import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.settings.composition.MetricsTreeSettingsStub;
 import org.jetbrains.annotations.NotNull;
 import org.b333vv.metric.util.SettingsService;
-import org.jetbrains.kotlin.name.FqName;
-import org.jetbrains.kotlin.psi.KtFile;
+// Avoid direct Kotlin imports to keep startup safe
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,8 +52,7 @@ public class ProjectModelBuilder extends ModelBuilder {
         this.javaProject = javaProject;
     }
 
-    private PackageElement findOrCreatePackageByFqn(@NotNull Project project, @NotNull FqName fqName) {
-        String fqn = fqName.asString();
+    private PackageElement findOrCreatePackageByFqn(@NotNull Project project, @NotNull String fqn) {
         PackageElement existing = javaProject.getFromAllPackages(fqn);
         if (existing != null) return existing;
 
@@ -104,9 +102,41 @@ public class ProjectModelBuilder extends ModelBuilder {
         findOrCreateJavaPackage(psiJavaFile).addFile(createJavaFile(psiJavaFile));
     }
 
-    public void addKotlinFileToProject(@NotNull KtFile ktFile) {
-        PackageElement pkg = findOrCreatePackageByFqn(ktFile.getProject(), ktFile.getPackageFqName());
-        pkg.addFile(createKotlinFile(ktFile));
+    public void addKotlinFileToProjectReflective(@NotNull com.intellij.psi.PsiFile psiFile) {
+        try {
+            if ("Kotlin".equals(psiFile.getFileType().getName()) || "KOTLIN".equals(psiFile.getFileType().getName())) {
+                // Read package FQN via reflection: ktFile.getPackageFqName().toString()
+                java.lang.reflect.Method getPkg = psiFile.getClass().getMethod("getPackageFqName");
+                Object fqNameObj = getPkg.invoke(psiFile);
+                String fqn = String.valueOf(fqNameObj); // FqName#toString
+
+                // Build FileElement via KotlinModelBuilder
+                Class<?> kmbClass = Class.forName("org.b333vv.metric.builder.KotlinModelBuilder");
+                java.lang.reflect.Constructor<?> ctor = kmbClass.getConstructor(Project.class);
+                Object kmb = ctor.newInstance(((com.intellij.psi.PsiFile) psiFile).getProject());
+
+                java.lang.reflect.Method create = null;
+                for (java.lang.reflect.Method m : kmbClass.getDeclaredMethods()) {
+                    if (m.getName().equals("createKotlinFile") && m.getParameterCount() == 1) {
+                        if (m.getParameterTypes()[0].isAssignableFrom(psiFile.getClass())) {
+                            create = m; break;
+                        }
+                    }
+                }
+                if (create != null) {
+                    create.setAccessible(true);
+                    Object fileEl = create.invoke(kmb, psiFile);
+                    if (fileEl instanceof org.b333vv.metric.model.code.FileElement) {
+                        PackageElement pkg = findOrCreatePackageByFqn(psiFile.getProject(), fqn);
+                        pkg.addFile((org.b333vv.metric.model.code.FileElement) fileEl);
+                    }
+                }
+            }
+        } catch (ClassNotFoundException | LinkageError e) {
+            // Kotlin not available; skip safely
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to add Kotlin file reflectively", e);
+        }
     }
 
     @Override
