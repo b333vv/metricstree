@@ -43,6 +43,13 @@ public class ClassElement extends CodeElement {
         this.ktClass = ktClass;
     }
 
+    // Synthetic class element used as a container for top-level declarations (e.g., Kotlin files without classes)
+    public ClassElement(@NotNull String syntheticName) {
+        super(Objects.requireNonNull(syntheticName));
+        this.psiClass = null;
+        this.ktClass = null;
+    }
+
     public void addClass(@NotNull ClassElement javaClass) {
         addChild(javaClass);
     }

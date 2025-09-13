@@ -94,11 +94,14 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
     }
 
     private KtClassOrObject findOwnerClass(@NotNull KtElement element) {
-        KtElement e = element;
+        PsiElement e = element;
         while (e != null && !(e instanceof KtClassOrObject)) {
-            e = (KtElement) e.getParent();
+            e = e.getParent();
+            if (e != null && !(e instanceof KtElement)) {
+                break;
+            }
         }
-        return (KtClassOrObject) e;
+        return (e instanceof KtClassOrObject) ? (KtClassOrObject) e : null;
     }
 
     private KtClassOrObject findOwnerClass(@NotNull KtProperty property) {

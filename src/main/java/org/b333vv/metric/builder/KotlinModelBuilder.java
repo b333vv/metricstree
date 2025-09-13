@@ -36,6 +36,7 @@ public class KotlinModelBuilder extends ModelBuilder {
     protected FileElement createKotlinFile(@NotNull KtFile ktFile) {
         FileElement kotlinFile = new FileElement(ktFile.getName());
         Project project = ktFile.getProject();
+        boolean anyClasses = false;
         for (KtDeclaration decl : ktFile.getDeclarations()) {
             if (decl instanceof KtClassOrObject) {
                 KtClassOrObject ktClass = (KtClassOrObject) decl;
@@ -104,7 +105,28 @@ public class KotlinModelBuilder extends ModelBuilder {
                 addLinesOfCodeIndexForClass(klass);
                 addCognitiveComplexityForClass(klass);
                 addToAllClasses(klass);
+                anyClasses = true;
             }
+        }
+        // If no classes/objects declared, create a synthetic class to host top-level functions
+        if (!anyClasses) {
+            String syntheticName = ktFile.getName();
+            ClassElement synthetic = new ClassElement(syntheticName);
+            kotlinFile.addClass(synthetic);
+            // top-level functions
+            for (KtDeclaration d : ktFile.getDeclarations()) {
+                if (d instanceof KtNamedFunction) {
+                    KtNamedFunction f = (KtNamedFunction) d;
+                    MethodElement m = new MethodElement(f, synthetic);
+                    synthetic.addMethod(m);
+                    applyKotlinMethodVisitors(m, f);
+                    addMaintainabilityIndexForMethod(m);
+                }
+            }
+            addMaintainabilityIndexForClass(synthetic);
+            addLinesOfCodeIndexForClass(synthetic);
+            addCognitiveComplexityForClass(synthetic);
+            addToAllClasses(synthetic);
         }
         return kotlinFile;
     }
