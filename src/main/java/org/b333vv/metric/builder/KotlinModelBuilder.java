@@ -119,7 +119,12 @@ public class KotlinModelBuilder extends ModelBuilder {
                     KtNamedFunction f = (KtNamedFunction) d;
                     MethodElement m = new MethodElement(f, synthetic);
                     synthetic.addMethod(m);
-                    applyKotlinMethodVisitors(m, f);
+                    try {
+                        applyKotlinMethodVisitors(m, f);
+                    } catch (Throwable t) {
+                        project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                                .printInfo("[KotlinModelBuilder] Skipped method visitors for top-level function due to: " + t.getClass().getSimpleName());
+                    }
                     addMaintainabilityIndexForMethod(m);
                 }
             }
@@ -138,13 +143,23 @@ public class KotlinModelBuilder extends ModelBuilder {
             if (primary != null) {
                 MethodElement ctorEl = new MethodElement(primary, klass);
                 klass.addMethod(ctorEl);
-                applyKotlinMethodVisitors(ctorEl, primary);
+                try {
+                    applyKotlinMethodVisitors(ctorEl, primary);
+                } catch (Throwable t) {
+                    project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                            .printInfo("[KotlinModelBuilder] Skipped visitors for primary ctor due to: " + t.getClass().getSimpleName());
+                }
                 addMaintainabilityIndexForMethod(ctorEl);
             }
             for (KtSecondaryConstructor s : ((KtClass) ktClass).getSecondaryConstructors()) {
                 MethodElement ctorEl = new MethodElement(s, klass);
                 klass.addMethod(ctorEl);
-                applyKotlinMethodVisitors(ctorEl, s);
+                try {
+                    applyKotlinMethodVisitors(ctorEl, s);
+                } catch (Throwable t) {
+                    project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                            .printInfo("[KotlinModelBuilder] Skipped visitors for secondary ctor due to: " + t.getClass().getSimpleName());
+                }
                 addMaintainabilityIndexForMethod(ctorEl);
             }
         }
@@ -156,7 +171,12 @@ public class KotlinModelBuilder extends ModelBuilder {
                 KtNamedFunction f = (KtNamedFunction) d;
                 MethodElement m = new MethodElement(f, klass);
                 klass.addMethod(m);
-                applyKotlinMethodVisitors(m, f);
+                try {
+                    applyKotlinMethodVisitors(m, f);
+                } catch (Throwable t) {
+                    project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                            .printInfo("[KotlinModelBuilder] Skipped visitors for function due to: " + t.getClass().getSimpleName());
+                }
                 addMaintainabilityIndexForMethod(m);
             }
             if (d instanceof KtClassOrObject) {

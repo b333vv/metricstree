@@ -103,10 +103,14 @@ public class KotlinNumberOfAccessedVariablesVisitor extends KotlinMethodVisitor 
     }
 
     private KtClassOrObject findOwnerClass(@NotNull KtElement element) {
-        KtElement e = element;
-        while (e != null && !(e instanceof KtClassOrObject)) {
-            e = (KtElement) e.getParent();
+        org.jetbrains.kotlin.psi.KtElement e = element;
+        com.intellij.psi.PsiElement p = e;
+        while (p != null && !(p instanceof KtClassOrObject)) {
+            p = p.getParent();
+            if (p != null && !(p instanceof org.jetbrains.kotlin.psi.KtElement)) {
+                break;
+            }
         }
-        return (KtClassOrObject) e;
+        return (p instanceof KtClassOrObject) ? (KtClassOrObject) p : null;
     }
 }
