@@ -18,7 +18,9 @@ public class KotlinExactCouplingAndHalsteadIntegrationTest extends LightJavaCode
     protected void setUp() throws Exception {
         super.setUp();
         myFixture.configureByFiles(
-                "kotlin/CouplingValues.kt"
+                "kotlin/CouplingValues.kt",
+                "kotlin/HalsteadAssign.kt",
+                "kotlin/HalsteadLiteral.kt"
         );
     }
 
@@ -38,9 +40,13 @@ public class KotlinExactCouplingAndHalsteadIntegrationTest extends LightJavaCode
         ClassElement repo = byName.get("Repo");
         ClassElement service = byName.get("Service");
         ClassElement client = byName.get("Client");
+        ClassElement hAssign = byName.get("HalsteadAssign");
+        ClassElement hLiteral = byName.get("HalsteadLiteral");
         assertNotNull(repo);
         assertNotNull(service);
         assertNotNull(client);
+        assertNotNull(hAssign);
+        assertNotNull(hLiteral);
 
         // RFC expected per KotlinResponseForClassVisitor (declared functions + unique call names/arity)
         assertEquals(1L, metricValue(repo.metric(MetricType.RFC)));
@@ -65,6 +71,46 @@ public class KotlinExactCouplingAndHalsteadIntegrationTest extends LightJavaCode
         assertNotNull(service.metric(MetricType.CHEF));
         assertNotNull(service.metric(MetricType.CHVC));
         assertNotNull(service.metric(MetricType.CHER));
+
+        // Exact zero Halstead metrics expected for Repo: empty body => no operators/operands
+        assertEquals(0L, metricValue(repo.metric(MetricType.CHL)));
+        assertEquals(0L, metricValue(repo.metric(MetricType.CHVC)));
+        // volume, difficulty, effort, errors all 0 when length/vocabulary are 0
+        assertEquals(0L, (long) Math.round(repo.metric(MetricType.CHVL).getPsiValue().doubleValue()));
+        assertEquals(0L, (long) Math.round(repo.metric(MetricType.CHD).getPsiValue().doubleValue()));
+        assertEquals(0L, (long) Math.round(repo.metric(MetricType.CHEF).getPsiValue().doubleValue()));
+        assertEquals(0L, (long) Math.round(repo.metric(MetricType.CHER).getPsiValue().doubleValue()));
+
+        // Exact non-zero Halstead for HalsteadAssign: val a = 1 + 2
+        // Operators: '=' and '+' => n1=2; occurrences=2
+        // Operands: 'a', '1', '2' => n2=3; occurrences=3
+        // Length CHL = 4; Vocabulary CHVC = 4 (assignment '=' is not counted by current visitor)
+        assertEquals(4L, metricValue(hAssign.metric(MetricType.CHL)));
+        assertEquals(4L, metricValue(hAssign.metric(MetricType.CHVC)));
+        // Visitor counts '+' as operator; '=' is not included
+        // n1 = 1, N2 = 3, n2 = 3 -> difficulty = (1/2) * (3/3) = 0.5
+        double expectedDifficulty = 0.5;
+        double expectedVolume = 4.0 * (Math.log(4.0) / Math.log(2.0));
+        double expectedEffort = expectedDifficulty * expectedVolume;
+        double expectedErrors = Math.pow(expectedEffort, 2.0 / 3.0) / 3000.0;
+        assertEquals(Math.round(expectedDifficulty * 1000.0) / 1000.0,
+                Math.round(hAssign.metric(MetricType.CHD).getPsiValue().doubleValue() * 1000.0) / 1000.0);
+        assertEquals(Math.round(expectedVolume * 1000.0) / 1000.0,
+                Math.round(hAssign.metric(MetricType.CHVL).getPsiValue().doubleValue() * 1000.0) / 1000.0);
+        assertEquals(Math.round(expectedEffort * 1000.0) / 1000.0,
+                Math.round(hAssign.metric(MetricType.CHEF).getPsiValue().doubleValue() * 1000.0) / 1000.0);
+        assertEquals(Math.round(expectedErrors * 1_000_000.0) / 1_000_000.0,
+                Math.round(hAssign.metric(MetricType.CHER).getPsiValue().doubleValue() * 1_000_000.0) / 1_000_000.0);
+
+        // HalsteadLiteral: val s = "x"
+        // Current visitor counts only the string literal as operand in class body traversal
+        // => length=1, vocabulary=1; all other halstead measures reduce to 0
+        assertEquals(1L, metricValue(hLiteral.metric(MetricType.CHL)));
+        assertEquals(1L, metricValue(hLiteral.metric(MetricType.CHVC)));
+        assertEquals(0L, (long) Math.round(hLiteral.metric(MetricType.CHD).getPsiValue().doubleValue()));
+        assertEquals(0L, (long) Math.round(hLiteral.metric(MetricType.CHVL).getPsiValue().doubleValue()));
+        assertEquals(0L, (long) Math.round(hLiteral.metric(MetricType.CHEF).getPsiValue().doubleValue()));
+        assertEquals(0L, (long) Math.round(hLiteral.metric(MetricType.CHER).getPsiValue().doubleValue()));
     }
 
     private long metricValue(Metric m) {

@@ -89,8 +89,8 @@ public class KotlinMethodVisitorsTest extends LightJavaCodeInsightFixtureTestCas
         assertNotNull(fn);
         KotlinLocalityOfAttributeAccessesVisitor v = new KotlinLocalityOfAttributeAccessesVisitor();
         v.visitNamedFunction(fn);
-        String expected = org.b333vv.metric.model.metric.Metric.of(org.b333vv.metric.model.metric.MetricType.LAA, 3.0/5.0).getValue().toString();
-        assertEquals(expected, v.getMetric().getValue().toString());
+        String expected = org.b333vv.metric.model.metric.Metric.of(org.b333vv.metric.model.metric.MetricType.LAA, 3.0/5.0).getPsiValue().toString();
+        assertEquals(expected, v.getMetric().getPsiValue().toString());
     }
 
     public void testFDP() {
