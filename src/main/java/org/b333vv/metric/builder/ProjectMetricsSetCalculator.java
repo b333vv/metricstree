@@ -26,6 +26,10 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
+import org.jetbrains.kotlin.psi.KtClassOrObject;
+import org.jetbrains.kotlin.psi.KtDeclaration;
+import org.jetbrains.kotlin.psi.KtFile;
 import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.code.ProjectElement;
@@ -374,7 +378,10 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void addMethodInheritanceFactor() {
-        Value methodInheritanceFactor = Value.of((double) inheritedMethods).divide(Value.of((double) availableMethods));
+        Value methodInheritanceFactor = Value.ZERO;
+        if (availableMethods > 0) {
+            methodInheritanceFactor = Value.of((double) inheritedMethods).divide(Value.of((double) availableMethods));
+        }
         javaProject.addMetric(Metric.of(MIF, methodInheritanceFactor));
     }
 
@@ -391,9 +398,11 @@ public class ProjectMetricsSetCalculator {
                             .times(Value.of(classes - 1))));
         }
         final Value denominator = Value.of(methodsNumber).times(Value.of(classesNumber - 1));
-        final Value numerator = denominator.minus(totalMethodsVisibility);
-
-        Value methodHidingFactor = numerator.divide(denominator);
+        Value methodHidingFactor = Value.ZERO;
+        if (!denominator.equals(Value.ZERO)) {
+            final Value numerator = denominator.minus(totalMethodsVisibility);
+            methodHidingFactor = numerator.divide(denominator);
+        }
 
         javaProject.addMetric(Metric.of(MHF, methodHidingFactor));
     }
@@ -402,14 +411,20 @@ public class ProjectMetricsSetCalculator {
         Value numerator = Value.of((double) totalCoupling);
         Value denominator = Value.of((double) classesNumber)
                 .times(Value.of((double) (classesNumber - 1))).divide(Value.of(2.0));
-        Value couplingFactor = numerator.divide(denominator);
+        Value couplingFactor = Value.ZERO;
+        if (!denominator.equals(Value.ZERO)) {
+            couplingFactor = numerator.divide(denominator);
+        }
 
         javaProject.addMetric(Metric.of(CF, couplingFactor));
     }
 
     private void addAttributeInheritanceFactor() {
-        Value attributeInheritanceFactor = Value.of((double) inheritedFields)
-                .divide(Value.of((double) availableFields));
+        Value attributeInheritanceFactor = Value.ZERO;
+        if (availableFields > 0) {
+            attributeInheritanceFactor = Value.of((double) inheritedFields)
+                    .divide(Value.of((double) availableFields));
+        }
 
         javaProject.addMetric(Metric.of(AIF, attributeInheritanceFactor));
     }
@@ -427,9 +442,11 @@ public class ProjectMetricsSetCalculator {
                             .times(Value.of(classes - 1))));
         }
         final Value denominator = Value.of(attributesNumber).times(Value.of(classesNumber - 1));
-        final Value numerator = denominator.minus(totalAttributesVisibility);
-
-        Value attributeHidingFactor = numerator.divide(denominator);
+        Value attributeHidingFactor = Value.ZERO;
+        if (!denominator.equals(Value.ZERO)) {
+            final Value numerator = denominator.minus(totalAttributesVisibility);
+            attributeHidingFactor = numerator.divide(denominator);
+        }
 
         javaProject.addMetric(Metric.of(AHF, attributeHidingFactor));
     }
@@ -438,6 +455,69 @@ public class ProjectMetricsSetCalculator {
         @Override
         public void visitFile(PsiFile psiFile) {
             super.visitFile(psiFile);
+            // Include Kotlin files by converting Kt classes to light Java PsiClass
+            if (psiFile instanceof KtFile) {
+                KtFile ktFile = (KtFile) psiFile;
+                for (KtDeclaration decl : ktFile.getDeclarations()) {
+                    if (decl instanceof KtClassOrObject) {
+                        PsiClass light = LightClassUtilsKt.toLightClass((KtClassOrObject) decl);
+                        if (light != null) {
+                            indicator.checkCanceled();
+
+                            // Process same as for Java classes
+                            processAttributeInheritanceFactor(light);
+                            processAttributeAndMethodHidingFactor(light);
+                            processCouplingFactor(light);
+                            processMethodInheritanceFactor(light);
+                            processPolymorphismFactor(light);
+                            processStatisticMetrics(light);
+
+                            // Simulate visit of methods to collect visibility stats
+                            for (PsiMethod psiMethod : light.getMethods()) {
+                                methodsNumber++;
+                                final PsiClass containingClass = psiMethod.getContainingClass();
+                                if (psiMethod.hasModifierProperty(PsiModifier.PRIVATE) ||
+                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PRIVATE))) {
+                                    // private: not visible outside
+                                } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) ||
+                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PROTECTED))) {
+                                    totalMethodsVisibility = totalMethodsVisibility.plus(Value.of(getSubclassCount(containingClass)));
+                                } else if ((psiMethod.hasModifierProperty(PsiModifier.PUBLIC) || (containingClass != null && containingClass.isInterface())) &&
+                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PUBLIC))) {
+                                    publicMethodsNumber++;
+                                } else if (containingClass != null) {
+                                    final String packageName = ClassUtils.calculatePackageName(containingClass);
+                                    packageVisibleMethodsPerPackage.add(packageName);
+                                }
+                            }
+
+                            // Simulate visit of fields to collect visibility stats
+                            for (PsiField psiField : light.getFields()) {
+                                attributesNumber++;
+                                final PsiClass containingClass = psiField.getContainingClass();
+                                if (psiField.hasModifierProperty(PsiModifier.PRIVATE) ||
+                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PRIVATE))) {
+                                    // private: not visible outside
+                                } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) ||
+                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PROTECTED))) {
+                                    totalAttributesVisibility = totalAttributesVisibility.plus(Value.of(getSubclassCount(containingClass)));
+                                } else if ((psiField.hasModifierProperty(PsiModifier.PUBLIC) || (containingClass != null && containingClass.isInterface())) &&
+                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PUBLIC))) {
+                                    publicAttributesNumber++;
+                                } else if (containingClass != null) {
+                                    final String packageName = ClassUtils.calculatePackageName(containingClass);
+                                    packageVisibleAttributesPerPackage.add(packageName);
+                                }
+                            }
+
+                            indicator.setText("Calculating metrics on project level: processing class " + light.getName() + "...");
+                            progress++;
+                            indicator.setIndeterminate(false);
+                            indicator.setFraction((double) progress / (double) filesCount);
+                        }
+                    }
+                }
+            }
         }
         @Override
         public void visitClass(PsiClass aClass) {
