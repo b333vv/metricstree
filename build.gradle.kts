@@ -116,6 +116,9 @@ tasks {
         testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
         implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.10")
         testImplementation(project(":metric-verification-data"))
+        // Kotlin-specific verification data module for tests
+        testImplementation(project(":metric-verification-data-kotlin"))
+        add("integrationTestImplementation", project(":metric-verification-data-kotlin"))
     }
     register("integrationTest", org.gradle.api.tasks.testing.Test::class.java) {
         description = "Runs integration tests."
