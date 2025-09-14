@@ -58,7 +58,21 @@ public class TreeMapBuilder implements SelectionChangeListener<CodeElement>, Lab
         if (label != null) {
             final CodeElement node = rectangle.getNode();
             if (node instanceof ClassElement) {
-                String name = ((ClassElement) node).getPsiClass().getQualifiedName();
+                ClassElement clazz = (ClassElement) node;
+                String name = null;
+                if (clazz.getPsiClass() != null) {
+                    name = clazz.getPsiClass().getQualifiedName();
+                } else if (clazz.getKtClassOrObject() != null) {
+                    // Try FQ name first, fallback to simple name
+                    if (clazz.getKtClassOrObject().getFqName() != null) {
+                        name = clazz.getKtClassOrObject().getFqName().asString();
+                    } else {
+                        name = clazz.getKtClassOrObject().getName();
+                    }
+                }
+                if (name == null || name.isEmpty()) {
+                    name = clazz.getName();
+                }
                 Consumer<String> selectionAction = treeMap.getSelectionChangedAction();
                 if (selectionAction != null) {
                     selectionAction.accept("Class: " + name);

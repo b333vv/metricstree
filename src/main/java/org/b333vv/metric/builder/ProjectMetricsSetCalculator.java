@@ -19,10 +19,13 @@ package org.b333vv.metric.builder;
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.code.ProjectElement;
@@ -311,7 +314,8 @@ public class ProjectMetricsSetCalculator {
                 continue;
             }
             Value nom = aClass.metric(NOM).getPsiValue();
-            Value noom = aClass.metric(NOOM).getPsiValue();
+            Metric noomMetric = aClass.metric(NOOM);
+            Value noom = noomMetric != null ? noomMetric.getPsiValue() : Value.ZERO;
             if (nom.isGreaterThan(Value.of(0))) {
                 zInheritance = zInheritance + (noom.divide(nom.times(Value.of(100)))).doubleValue();
             }
@@ -346,7 +350,10 @@ public class ProjectMetricsSetCalculator {
     private void addLinesOfCode() {
         linesOfCode = javaProject.allClasses()
                 .flatMap(ClassElement::methods)
-                .map(javaMethod -> javaMethod.metric(LOC).getPsiValue())
+                .map(javaMethod -> {
+                    Metric m = javaMethod.metric(LOC);
+                    return m != null ? m.getPsiValue() : Value.ZERO;
+                })
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();
@@ -528,10 +535,18 @@ public class ProjectMetricsSetCalculator {
         public boolean classIsInLibrary(@NotNull PsiClass psiClass) {
             PsiFile file = psiClass.getContainingFile();
             if (file == null) {
-                return false;
+                // If we cannot resolve a file for the class, treat it as library to be safe
+                return true;
             }
-            String fileName = file.getName();
-            return !fileName.endsWith(".java");
+            VirtualFile vFile = file.getVirtualFile();
+            if (vFile == null) {
+                return true;
+            }
+            ProjectFileIndex index = ProjectRootManager.getInstance(file.getProject()).getFileIndex();
+            // Class is considered in library only if it is indexed as library; Kotlin sources are in content/source
+            boolean inLibrary = index.isInLibrary(vFile);
+            boolean inContentOrSource = index.isInContent(vFile) || index.isInSource(vFile);
+            return inLibrary || !inContentOrSource;
         }
 
         private void processCouplingFactor(PsiClass psiClass) {

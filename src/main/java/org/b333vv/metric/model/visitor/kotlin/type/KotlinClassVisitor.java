@@ -6,15 +6,16 @@ package org.b333vv.metric.model.visitor.kotlin.type;
 import org.b333vv.metric.model.metric.Metric;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.psi.KtClass;
-import org.jetbrains.kotlin.psi.KtVisitorVoid;
+import org.jetbrains.kotlin.psi.KtTreeVisitorVoid;
 
 /**
  * Base class for Kotlin class-level visitors operating on Kotlin PSI (KtClass, KtObjectDeclaration, etc.).
  *
  * Mirrors the intent of {@code org.b333vv.metric.model.visitor.type.JavaClassVisitor},
- * but works with Kotlin PSI directly. Integration with the domain model will be wired in Phase 3.
+ * but works with Kotlin PSI directly. Uses KtTreeVisitorVoid to ensure recursive traversal of child nodes
+ * so overridden visit* methods are invoked for nested elements (functions, properties, statements, etc.).
  */
-public abstract class KotlinClassVisitor extends KtVisitorVoid {
+public abstract class KotlinClassVisitor extends KtTreeVisitorVoid {
     protected Metric metric;
 
     /**
