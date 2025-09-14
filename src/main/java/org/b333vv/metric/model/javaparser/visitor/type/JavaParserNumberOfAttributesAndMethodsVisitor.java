@@ -7,8 +7,6 @@ import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 
 import java.util.function.Consumer;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Optional;
 
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
@@ -24,77 +22,38 @@ public class JavaParserNumberOfAttributesAndMethodsVisitor extends JavaParserCla
         try {
             ResolvedReferenceTypeDeclaration resolvedClass = n.resolve();
 
-            // Count all non-static fields including inherited ones
-            Set<String> countedFields = new HashSet<>();
+            // Count all non-static fields including inherited ones (mirror PSI getAllFields)
             long attributes = 0;
-            
-            // Add fields from current class
+            // Fields declared in the current class
             for (ResolvedFieldDeclaration f : resolvedClass.getDeclaredFields()) {
-                if (!f.isStatic() && !countedFields.contains(f.getName())) {
-                    countedFields.add(f.getName());
+                if (!f.isStatic()) {
                     attributes++;
                 }
             }
-            
-            // Add fields from ancestors (but not Object class)
+            // Fields declared in all ancestors (including Object if any; Object has none)
             for (ResolvedReferenceType ancestor : resolvedClass.getAncestors(true)) {
                 Optional<ResolvedReferenceTypeDeclaration> opt = ancestor.getTypeDeclaration();
                 if (opt.isPresent()) {
                     ResolvedReferenceTypeDeclaration ad = opt.get();
-                    // Skip Object class
-                    if (!"java.lang.Object".equals(ad.getQualifiedName())) {
-                        for (ResolvedFieldDeclaration f : ad.getDeclaredFields()) {
-                            if (!f.isStatic() && !countedFields.contains(f.getName())) {
-                                countedFields.add(f.getName());
-                                attributes++;
-                            }
+                    for (ResolvedFieldDeclaration f : ad.getDeclaredFields()) {
+                        if (!f.isStatic()) {
+                            attributes++;
                         }
                     }
                 }
             }
             
-            // Count all non-static methods including inherited ones and constructors
-            Set<String> countedMethods = new HashSet<>();
+            // Count all non-static methods including inherited ones (mirror PSI getAllMethods). Do NOT count constructors.
             long methods = 0;
-            
-            // Add constructors from current class
-            methods += resolvedClass.getConstructors().size();
-            
-            // Add constructors from ancestors (but not Object class)
-            for (ResolvedReferenceType ancestor : resolvedClass.getAncestors(true)) {
-                Optional<ResolvedReferenceTypeDeclaration> opt = ancestor.getTypeDeclaration();
-                if (opt.isPresent()) {
-                    ResolvedReferenceTypeDeclaration ad = opt.get();
-                    // Skip Object class
-                    if (!"java.lang.Object".equals(ad.getQualifiedName())) {
-                        methods += ad.getConstructors().size();
-                    }
-                }
-            }
-            
-            // Add methods using getAllMethods to get inherited methods, but exclude Object methods and constructors
             for (MethodUsage m : resolvedClass.getAllMethods()) {
-                // Skip methods from Object class
-                if ("java.lang.Object".equals(m.getDeclaration().declaringType().getQualifiedName())) {
-                    continue;
-                }
-                
-                // Skip constructors (they are handled separately)
-                if (m.getName().equals("<init>")) {
-                    continue;
-                }
-                
-                // Only count methods that are not static and not already counted
-                String methodSignature = m.getDeclaration().getQualifiedSignature();
-                if (!m.getDeclaration().isStatic() && !countedMethods.contains(methodSignature)) {
-                    countedMethods.add(methodSignature);
+                if (!m.getDeclaration().isStatic()) {
                     methods++;
                 }
             }
 
             size2 = attributes + methods;
         } catch (Throwable e) {
-            // Fallback: count declared elements only
+            // Fallback: count declared elements only (resolution failed)
             long attributes = n.getFields().stream()
                     .filter(f -> !f.isStatic())
                     .mapToLong(f -> f.getVariables().size())
@@ -104,9 +63,7 @@ public class JavaParserNumberOfAttributesAndMethodsVisitor extends JavaParserCla
                     .filter(m -> !m.isStatic())
                     .count();
             
-            long constructors = n.getConstructors().size();
-            
-            size2 = attributes + methods + constructors;
+            size2 = attributes + methods;
         }
 
         Metric metric = Metric.of(MetricType.SIZE2, Value.of(size2));
