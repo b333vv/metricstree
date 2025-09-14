@@ -33,6 +33,17 @@ public class KotlinModelBuilder extends ModelBuilder {
         this.project = project;
     }
 
+    /**
+     * Reflective bridge for {@link #createKotlinFile(KtFile)} to avoid compile-time dependency
+     * from callers that only have a PsiFile instance. Public for reflective invocation.
+     */
+    public org.b333vv.metric.model.code.FileElement createKotlinFileBridge(com.intellij.psi.PsiFile psiFile) {
+        if (psiFile instanceof KtFile) {
+            return createKotlinFile((KtFile) psiFile);
+        }
+        return null;
+    }
+
     protected FileElement createKotlinFile(@NotNull KtFile ktFile) {
         FileElement kotlinFile = new FileElement(ktFile.getName());
         Project project = ktFile.getProject();
@@ -48,6 +59,16 @@ public class KotlinModelBuilder extends ModelBuilder {
                         KotlinWeightedMethodCountVisitor wmc = new KotlinWeightedMethodCountVisitor();
                         wmc.computeFor((KtClass) ktClass);
                         if (wmc.getMetric() != null) klass.addMetric(wmc.getMetric());
+                    }
+                    if (isMetricEnabled(project, ATFD)) {
+                        KotlinAccessToForeignDataVisitor atfd = new KotlinAccessToForeignDataVisitor();
+                        atfd.computeFor((KtClass) ktClass);
+                        if (atfd.getMetric() != null) klass.addMetric(atfd.getMetric());
+                    }
+                    if (isMetricEnabled(project, DAC)) {
+                        KotlinDataAbstractionCouplingVisitor dac = new KotlinDataAbstractionCouplingVisitor();
+                        dac.computeFor((KtClass) ktClass);
+                        if (dac.getMetric() != null) klass.addMetric(dac.getMetric());
                     }
                     if (isMetricEnabled(project, NOM)) {
                         KotlinNumberOfMethodsVisitor nom = new KotlinNumberOfMethodsVisitor();
@@ -74,6 +95,11 @@ public class KotlinModelBuilder extends ModelBuilder {
                         cbo.computeFor((KtClass) ktClass);
                         if (cbo.getMetric() != null) klass.addMetric(cbo.getMetric());
                     }
+                    if (isMetricEnabled(project, MPC)) {
+                        KotlinMessagePassingCouplingVisitor mpc = new KotlinMessagePassingCouplingVisitor();
+                        mpc.computeFor((KtClass) ktClass);
+                        if (mpc.getMetric() != null) klass.addMetric(mpc.getMetric());
+                    }
                     if (isMetricEnabled(project, LCOM)) {
                         KotlinLackOfCohesionOfMethodsVisitor lcom = new KotlinLackOfCohesionOfMethodsVisitor();
                         lcom.computeFor((KtClass) ktClass);
@@ -93,6 +119,48 @@ public class KotlinModelBuilder extends ModelBuilder {
                         KotlinTightClassCohesionVisitor tcc = new KotlinTightClassCohesionVisitor();
                         tcc.computeFor((KtClass) ktClass);
                         if (tcc.getMetric() != null) klass.addMetric(tcc.getMetric());
+                    }
+                    if (isMetricEnabled(project, NOAC)) {
+                        KotlinNumberOfAccessorMethodsVisitor noac = new KotlinNumberOfAccessorMethodsVisitor();
+                        noac.computeFor((KtClass) ktClass);
+                        if (noac.getMetric() != null) klass.addMetric(noac.getMetric());
+                    }
+                    if (isMetricEnabled(project, NOAM)) {
+                        KotlinNumberOfAddedMethodsVisitor noam = new KotlinNumberOfAddedMethodsVisitor();
+                        noam.computeFor((KtClass) ktClass);
+                        if (noam.getMetric() != null) klass.addMetric(noam.getMetric());
+                    }
+                    if (isMetricEnabled(project, NOO)) {
+                        KotlinNumberOfOperationsVisitor noo = new KotlinNumberOfOperationsVisitor();
+                        noo.computeFor((KtClass) ktClass);
+                        if (noo.getMetric() != null) klass.addMetric(noo.getMetric());
+                    }
+                    if (isMetricEnabled(project, NOOM)) {
+                        KotlinNumberOfOverriddenMethodsVisitor noom = new KotlinNumberOfOverriddenMethodsVisitor();
+                        noom.computeFor((KtClass) ktClass);
+                        if (noom.getMetric() != null) klass.addMetric(noom.getMetric());
+                    }
+                    if (isMetricEnabled(project, NOPA)) {
+                        KotlinNumberOfPublicAttributesVisitor nopa = new KotlinNumberOfPublicAttributesVisitor();
+                        nopa.computeFor((KtClass) ktClass);
+                        if (nopa.getMetric() != null) klass.addMetric(nopa.getMetric());
+                    }
+                    if (isMetricEnabled(project, SIZE2)) {
+                        KotlinNumberOfAttributesAndMethodsVisitor size2 = new KotlinNumberOfAttributesAndMethodsVisitor();
+                        size2.computeFor((KtClass) ktClass);
+                        if (size2.getMetric() != null) klass.addMetric(size2.getMetric());
+                    }
+                    if (isMetricEnabled(project, WOC)) {
+                        KotlinWeightOfAClassVisitor woc = new KotlinWeightOfAClassVisitor();
+                        woc.computeFor((KtClass) ktClass);
+                        if (woc.getMetric() != null) klass.addMetric(woc.getMetric());
+                    }
+
+                    // Always compute Kotlin Halstead class metrics (mirrors Java pipeline behavior)
+                    KotlinHalsteadClassVisitor kh = new KotlinHalsteadClassVisitor();
+                    kh.computeFor((KtClass) ktClass);
+                    for (org.b333vv.metric.model.metric.Metric m : kh.buildMetrics()) {
+                        klass.addMetric(m);
                     }
                 }
 
@@ -204,9 +272,21 @@ public class KotlinModelBuilder extends ModelBuilder {
             KotlinLoopNestingDepthVisitor lnd = new KotlinLoopNestingDepthVisitor();
             lnd.computeFor(function); if (lnd.getMetric()!=null) method.addMetric(lnd.getMetric());
         }
+        if (isMetricEnabled(project, CCM)) {
+            KotlinCognitiveComplexityVisitor ccm = new KotlinCognitiveComplexityVisitor();
+            ccm.computeFor(function); if (ccm.getMetric()!=null) method.addMetric(ccm.getMetric());
+        }
+        if (isMetricEnabled(project, MND)) {
+            KotlinMaximumNestingDepthVisitor mnd = new KotlinMaximumNestingDepthVisitor();
+            mnd.computeFor(function); if (mnd.getMetric()!=null) method.addMetric(mnd.getMetric());
+        }
         if (isMetricEnabled(project, NOPM)) {
             KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
             nopm.computeFor(function); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
+        }
+        if (isMetricEnabled(project, NOL)) {
+            KotlinNumberOfLoopsVisitor nol = new KotlinNumberOfLoopsVisitor();
+            nol.computeFor(function); if (nol.getMetric()!=null) method.addMetric(nol.getMetric());
         }
         if (isMetricEnabled(project, LAA)) {
             KotlinLocalityOfAttributeAccessesVisitor laa = new KotlinLocalityOfAttributeAccessesVisitor();
@@ -216,10 +296,22 @@ public class KotlinModelBuilder extends ModelBuilder {
             KotlinForeignDataProvidersVisitor fdp = new KotlinForeignDataProvidersVisitor();
             fdp.computeFor(function); if (fdp.getMetric()!=null) method.addMetric(fdp.getMetric());
         }
+        if (isMetricEnabled(project, CINT)) {
+            KotlinCouplingIntensityVisitor cint = new KotlinCouplingIntensityVisitor();
+            cint.computeFor(function); if (cint.getMetric()!=null) method.addMetric(cint.getMetric());
+        }
+        if (isMetricEnabled(project, CDISP)) {
+            KotlinCouplingDispersionVisitor cdisp = new KotlinCouplingDispersionVisitor();
+            cdisp.computeFor(function); if (cdisp.getMetric()!=null) method.addMetric(cdisp.getMetric());
+        }
         if (isMetricEnabled(project, NOAV)) {
             KotlinNumberOfAccessedVariablesVisitor noav = new KotlinNumberOfAccessedVariablesVisitor();
             noav.computeFor(function); if (noav.getMetric()!=null) method.addMetric(noav.getMetric());
         }
+        // Halstead metrics for methods: always compute full suite similar to Java pipeline
+        KotlinHalsteadMethodVisitor hal = new KotlinHalsteadMethodVisitor();
+        hal.computeFor(function);
+        for (org.b333vv.metric.model.metric.Metric m : hal.buildMetrics()) { method.addMetric(m); }
     }
 
     protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtPrimaryConstructor ctor) {
@@ -228,10 +320,26 @@ public class KotlinModelBuilder extends ModelBuilder {
             KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
             cc.computeFor(ctor); if (cc.getMetric()!=null) method.addMetric(cc.getMetric());
         }
+        if (isMetricEnabled(project, CCM)) {
+            KotlinCognitiveComplexityVisitor ccm = new KotlinCognitiveComplexityVisitor();
+            ccm.computeFor(ctor); if (ccm.getMetric()!=null) method.addMetric(ccm.getMetric());
+        }
         if (isMetricEnabled(project, NOPM)) {
             KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
             nopm.computeFor(ctor); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
         }
+        if (isMetricEnabled(project, NOL)) {
+            KotlinNumberOfLoopsVisitor nol = new KotlinNumberOfLoopsVisitor();
+            nol.computeFor(ctor); if (nol.getMetric()!=null) method.addMetric(nol.getMetric());
+        }
+        if (isMetricEnabled(project, MND)) {
+            KotlinMaximumNestingDepthVisitor mnd = new KotlinMaximumNestingDepthVisitor();
+            mnd.computeFor(ctor); if (mnd.getMetric()!=null) method.addMetric(mnd.getMetric());
+        }
+        // Halstead metrics for constructors (likely zero or minimal)
+        KotlinHalsteadMethodVisitor hal = new KotlinHalsteadMethodVisitor();
+        hal.computeFor(ctor);
+        for (org.b333vv.metric.model.metric.Metric m : hal.buildMetrics()) { method.addMetric(m); }
     }
 
     protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtSecondaryConstructor ctor) {
@@ -244,6 +352,10 @@ public class KotlinModelBuilder extends ModelBuilder {
             KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
             nopm.computeFor(ctor); if (nopm.getMetric()!=null) method.addMetric(nopm.getMetric());
         }
+        // Halstead metrics for constructors
+        KotlinHalsteadMethodVisitor hal = new KotlinHalsteadMethodVisitor();
+        hal.computeFor(ctor);
+        for (org.b333vv.metric.model.metric.Metric m : hal.buildMetrics()) { method.addMetric(m); }
     }
 
     @Override

@@ -109,26 +109,26 @@ public class ProjectModelBuilder extends ModelBuilder {
                 java.lang.reflect.Method getPkg = psiFile.getClass().getMethod("getPackageFqName");
                 Object fqNameObj = getPkg.invoke(psiFile);
                 String fqn = String.valueOf(fqNameObj); // FqName#toString
+                if (fqn == null || "<root>".equals(fqn) || "ROOT".equals(fqn)) {
+                    fqn = ""; // normalize to default package
+                }
 
                 // Build FileElement via KotlinModelBuilder
                 Class<?> kmbClass = Class.forName("org.b333vv.metric.builder.KotlinModelBuilder");
                 java.lang.reflect.Constructor<?> ctor = kmbClass.getConstructor(Project.class);
                 Object kmb = ctor.newInstance(((com.intellij.psi.PsiFile) psiFile).getProject());
 
-                java.lang.reflect.Method create = null;
-                for (java.lang.reflect.Method m : kmbClass.getDeclaredMethods()) {
-                    if (m.getName().equals("createKotlinFile") && m.getParameterCount() == 1) {
-                        if (m.getParameterTypes()[0].isAssignableFrom(psiFile.getClass())) {
-                            create = m; break;
-                        }
-                    }
-                }
-                if (create != null) {
-                    create.setAccessible(true);
-                    Object fileEl = create.invoke(kmb, psiFile);
+                java.lang.reflect.Method bridge = kmbClass.getMethod("createKotlinFileBridge", com.intellij.psi.PsiFile.class);
+                if (bridge != null) {
+                    Object fileEl = bridge.invoke(kmb, psiFile);
                     if (fileEl instanceof org.b333vv.metric.model.code.FileElement) {
+                        org.b333vv.metric.model.code.FileElement fe = (org.b333vv.metric.model.code.FileElement) fileEl;
                         PackageElement pkg = findOrCreatePackageByFqn(psiFile.getProject(), fqn);
-                        pkg.addFile((org.b333vv.metric.model.code.FileElement) fileEl);
+                        pkg.addFile(fe);
+                        // Ensure ProjectElement.allClasses is populated for Kotlin classes
+                        long count = fe.classes().peek(javaProject::addToAllClasses).count();
+                        psiFile.getProject().getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                                .printInfo("[ProjectModelBuilder] Kotlin file '" + psiFile.getName() + "' -> added " + count + " classes into package '" + fqn + "'");
                     }
                 }
             }

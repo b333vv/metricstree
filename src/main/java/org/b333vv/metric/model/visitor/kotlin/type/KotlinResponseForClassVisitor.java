@@ -27,23 +27,22 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
         try {
             Set<String> responses = new HashSet<>();
 
-            // Declared methods: functions and constructors
-            if (klass.getPrimaryConstructor() != null) {
-                responses.add("<init>");
-            }
-            responses.addAll(klass.getSecondaryConstructors().stream().map(c -> "<init>").toList());
-
+            // Declared methods: functions only (match Java RFC which uses psiClass.getMethods())
             KtClassBody body = klass.getBody();
             if (body != null) {
                 for (KtDeclaration decl : body.getDeclarations()) {
                     if (decl instanceof KtNamedFunction) {
-                        String sig = ((KtNamedFunction) decl).getName();
-                        if (sig != null) responses.add(sig);
+                        KtNamedFunction f = (KtNamedFunction) decl;
+                        String name = f.getName();
+                        if (name != null) {
+                            int arity = f.getValueParameters().size();
+                            responses.add(name + "/" + arity);
+                        }
                     }
                 }
             }
 
-            // Traverse class to collect call expressions
+            // Traverse class to collect call expressions (use simple name + arity)
             klass.accept(new KtTreeVisitorVoid() {
                 @Override
                 public void visitCallExpression(@NotNull KtCallExpression expression) {
@@ -51,7 +50,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
                     if (calleeExpr instanceof KtSimpleNameExpression) {
                         String name = ((KtSimpleNameExpression) calleeExpr).getReferencedName();
                         if (name != null && !name.isEmpty()) {
-                            responses.add(name);
+                            int arity = expression.getValueArguments().size();
+                            responses.add(name + "/" + arity);
                         }
                     }
                     super.visitCallExpression(expression);
