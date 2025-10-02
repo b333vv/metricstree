@@ -181,6 +181,7 @@ public class CalculationServiceImpl implements CalculationService {
                             List<CompilationUnit> allUnits = getOrBuildAllCompilationUnits(progressIndicator); // Call the new method
                             JavaParserCalculationStrategy javaParserStrategy = new JavaParserCalculationStrategy();
                             javaParserStrategy.augment(newJavaProject, project, allUnits, progressIndicator); // Pass the list
+                            logMetricDifferences(newJavaProject);
                         }
                         return newJavaProject;
                     },
@@ -866,5 +867,30 @@ public class CalculationServiceImpl implements CalculationService {
             );
             taskQueueService.queue(genericTask);
         }
+    }
+
+    private void logMetricDifferences(ProjectElement javaProject) {
+        javaProject.allClasses().forEach(classElement -> {
+            classElement.metrics().forEach(metric -> {
+                if (metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                    String message = "Class:" + classElement.getName() + " " +
+                            "Metric:" + metric.getType().name() + " " +
+                            "PSI:" + metric.getPsiValue() + " " +
+                            "JavaParser:" + metric.getJavaParserValue();
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
+                }
+            });
+            classElement.methods().forEach(methodElement -> {
+                methodElement.metrics().forEach(metric -> {
+                    if (metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                        String message = "Class.Method name:" + classElement.getName() + "." + methodElement.getName() + " " +
+                                "Metric:" + metric.getType().name() + " " +
+                                "PSI:" + metric.getPsiValue() + " " +
+                                "JavaParser:" + metric.getJavaParserValue();
+                        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
+                    }
+                });
+            });
+        });
     }
 }
