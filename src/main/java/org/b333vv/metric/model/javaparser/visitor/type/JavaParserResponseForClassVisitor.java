@@ -15,29 +15,24 @@ public class JavaParserResponseForClassVisitor extends JavaParserClassVisitor {
 
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
-        Set<String> declaredMethods = new HashSet<>();
+        Set<String> allMethodsAndCalls = new HashSet<>();
         n.getMethods().forEach(method -> {
             try {
-                declaredMethods.add(method.resolve().getQualifiedSignature());
+                allMethodsAndCalls.add(method.resolve().getQualifiedSignature());
             } catch (Exception e) {
                 // Unsolved symbol
             }
         });
 
-        Set<String> externalCalls = new HashSet<>();
         n.walk(MethodCallExpr.class, mce -> {
             try {
-                if (mce.resolve().declaringType().getQualifiedName().equals(n.resolve().getQualifiedName())) {
-                    // Method call is to a method within the same class
-                } else {
-                    externalCalls.add(mce.resolve().getQualifiedSignature());
-                }
+                allMethodsAndCalls.add(mce.resolve().getQualifiedSignature());
             } catch (Exception e) {
                 // Unsolved symbol
             }
         });
 
-        Metric metric = Metric.of(MetricType.RFC, Value.of(declaredMethods.size() + externalCalls.size()));
+        Metric metric = Metric.of(MetricType.RFC, Value.of(allMethodsAndCalls.size()));
         collector.accept(metric);
     }
 }
