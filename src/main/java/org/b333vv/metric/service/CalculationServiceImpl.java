@@ -870,9 +870,14 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     private void logMetricDifferences(ProjectElement javaProject) {
+        boolean isLogging = true;
+        MetricType metricType = MetricType.RFC;
+        if (!isLogging) {
+            return;
+        }
         javaProject.allClasses().forEach(classElement -> {
             classElement.metrics().forEach(metric -> {
-                if (metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                if (metric.getType() == metricType && metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
                     String message = "Class:" + classElement.getName() + " " +
                             "Metric:" + metric.getType().name() + " " +
                             "PSI:" + metric.getPsiValue() + " " +
