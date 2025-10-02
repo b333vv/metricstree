@@ -871,13 +871,14 @@ public class CalculationServiceImpl implements CalculationService {
 
     private void logMetricDifferences(ProjectElement javaProject) {
         boolean isLogging = true;
-        MetricType metricType = MetricType.RFC;
+        MetricType classMetricType = MetricType.RFC;
+        MetricType methodMetricType = MetricType.RFC;
         if (!isLogging) {
             return;
         }
         javaProject.allClasses().forEach(classElement -> {
             classElement.metrics().forEach(metric -> {
-                if (metric.getType() == metricType && metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                if (metric.getType() == classMetricType && metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
                     String message = "Class:" + classElement.getName() + " " +
                             "Metric:" + metric.getType().name() + " " +
                             "PSI:" + metric.getPsiValue() + " " +
@@ -887,7 +888,7 @@ public class CalculationServiceImpl implements CalculationService {
             });
             classElement.methods().forEach(methodElement -> {
                 methodElement.metrics().forEach(metric -> {
-                    if (metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                    if (metric.getType() == methodMetricType && metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
                         String message = "Class.Method name:" + classElement.getName() + "." + methodElement.getName() + " " +
                                 "Metric:" + metric.getType().name() + " " +
                                 "PSI:" + metric.getPsiValue() + " " +
