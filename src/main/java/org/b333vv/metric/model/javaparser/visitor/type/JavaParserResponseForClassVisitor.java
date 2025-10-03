@@ -7,6 +7,8 @@ import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
 
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -15,10 +17,10 @@ public class JavaParserResponseForClassVisitor extends JavaParserClassVisitor {
 
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Consumer<Metric> collector) {
-        Set<String> allMethodsAndCalls = new HashSet<>();
-        n.getMethods().forEach(method -> {
+        Set<ResolvedMethodDeclaration> allMethodsAndCalls = new HashSet<>();
+        n.resolve().getAllMethods().forEach(method -> {
             try {
-                allMethodsAndCalls.add(method.resolve().getQualifiedSignature());
+                allMethodsAndCalls.add(method.getDeclaration());
             } catch (Exception e) {
                 // Unsolved symbol
             }
@@ -26,7 +28,7 @@ public class JavaParserResponseForClassVisitor extends JavaParserClassVisitor {
 
         n.walk(MethodCallExpr.class, mce -> {
             try {
-                allMethodsAndCalls.add(mce.resolve().getQualifiedSignature());
+                allMethodsAndCalls.add(mce.resolve());
             } catch (Exception e) {
                 // Unsolved symbol
             }
