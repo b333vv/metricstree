@@ -871,8 +871,8 @@ public class CalculationServiceImpl implements CalculationService {
 
     private void logMetricDifferences(ProjectElement javaProject) {
         boolean isLogging = true;
-        MetricType classMetricType = MetricType.RFC;
-        MetricType methodMetricType = MetricType.RFC;
+        MetricType classMetricType = MetricType.CBO;
+        MetricType methodMetricType = MetricType.CBO;
         if (!isLogging) {
             return;
         }
