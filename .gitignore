@@ -9,6 +9,7 @@ build
 gradle
 classes
 out
+bmad
 .gitignore
 
 gemini.md
