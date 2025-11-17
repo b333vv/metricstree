@@ -79,8 +79,24 @@ public class CsvMethodMetricsBuilder {
     
     private String getQualifiedNameSafely(MethodElement javaMethod) {
         try {
-            String qualifiedName = javaMethod.getJavaClass().getPsiClass().getQualifiedName();
-            return qualifiedName != null ? qualifiedName : "Unknown";
+            ClassElement classElement = javaMethod.getJavaClass();
+            if (classElement != null) {
+                if (classElement.getPsiClass() != null) {
+                    String qualifiedName = classElement.getPsiClass().getQualifiedName();
+                    return qualifiedName != null ? qualifiedName : "Unknown";
+                } else if (classElement.getKtClassOrObject() != null) {
+                    // For Kotlin classes, try to get a qualified name
+                    String ktName = classElement.getKtClassOrObject().getName();
+                    String containingFile = classElement.getKtClassOrObject().getContainingFile().getName();
+                    // Create a qualified name using file name + class name
+                    String baseName = containingFile.replace(".kt", "");
+                    return baseName + "." + ktName;
+                } else {
+                    // For synthetic class elements, use the name directly
+                    return classElement.getName();
+                }
+            }
+            return "Unknown";
         } catch (Exception e) {
             return "Unknown";
         }
@@ -89,17 +105,23 @@ public class CsvMethodMetricsBuilder {
     private String convertToCsv(MethodElement javaMethod) {
         try {
             StringBuilder signature = new StringBuilder();
-            MethodSignature methodSignature = javaMethod.getPsiMethod().getSignature(PsiSubstitutor.EMPTY);
-            signature.append(javaMethod.getPsiMethod().getName());
-            signature.append("(");
-            signature.append(Arrays.stream(
-                            methodSignature.getParameterTypes())
-                    .map(PsiType::getPresentableText)
-                    .collect(Collectors.joining(", ")));
-            signature.append(")");
+            // Get the method signature safely
+            if (javaMethod.getPsiMethod() != null) {
+                MethodSignature methodSignature = javaMethod.getPsiMethod().getSignature(PsiSubstitutor.EMPTY);
+                signature.append(javaMethod.getPsiMethod().getName());
+                signature.append("(");
+                signature.append(Arrays.stream(
+                                methodSignature.getParameterTypes())
+                        .map(PsiType::getPresentableText)
+                        .collect(Collectors.joining(", ")));
+                signature.append(")");
+            } else {
+                // For Kotlin methods, use the existing name
+                signature.append(javaMethod.getName());
+            }
             
-            String qualifiedName = javaMethod.getJavaClass().getPsiClass().getQualifiedName();
-            String methodName = (qualifiedName != null ? qualifiedName : "Unknown") + "." + signature + ";";
+            String qualifiedName = getQualifiedNameSafely(javaMethod);
+            String methodName = (qualifiedName != null && !qualifiedName.equals("Unknown") ? qualifiedName : "Unknown") + "." + signature + ";";
             
             String metrics = javaMethod.metrics()
                     .map(Metric::getFormattedValue)

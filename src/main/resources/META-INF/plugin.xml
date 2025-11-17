@@ -242,14 +242,14 @@
       ]]>
     </change-notes>
 
-    <version>2025.2.1-javaparser-beta</version>
+    <version>2025.2.1</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
     <depends>Git4Idea</depends>
-    <depends optional="true">org.jetbrains.kotlin</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
 <!--    <idea-version since-build="203.8084"/>-->
     <idea-version since-build="223.8214"/>
@@ -459,12 +459,13 @@
                 icon="MetricsIcons.PROFILE_TABLE">
         </action>
 
-        <action id="Metrics.BuildProjectMetricsHistoryXYChart"
-                class="org.b333vv.metric.actions.BuildProjectMetricsHistoryXYChartAction"
-                text="Build Project Metrics History XY Chart"
-                description="Build project metrics history XY chart"
-                icon="MetricsIcons.BAR_LINE">
-        </action>
+        // TODO remove implementation
+<!--        <action id="Metrics.BuildProjectMetricsHistoryXYChart"-->
+<!--                class="org.b333vv.metric.actions.BuildProjectMetricsHistoryXYChartAction"-->
+<!--                text="Build Project Metrics History XY Chart"-->
+<!--                description="Build project metrics history XY chart"-->
+<!--                icon="MetricsIcons.BAR_LINE">-->
+<!--        </action>-->
 
         <group
                 id="Metrics.ExportMetricsToCsv"
@@ -642,8 +643,8 @@
 <!--            <reference id="Metrics.BuildProjectMetricXYChart"/>-->
             <reference id="Metrics.BuildAllMetricsDistributionChart"/>
             <reference id="Metrics.BuildByTypeMetricsDistributionChart"/>
-            <separator/>
-            <reference id="Metrics.BuildProjectMetricsHistoryXYChart"/>
+<!--            <separator/>-->
+<!--            <reference id="Metrics.BuildProjectMetricsHistoryXYChart"/>-->
             <separator/>
             <reference id="Metrics.ExportMetricsToCsv"/>
             <reference id="Metrics.ExportMetricsToXml"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 b333vv
+ * Copyright 2020 b33vv
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class ProjectMetricsSet2Json {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("There are no saved project metrics.");
 //            MetricsUtils.getConsole().error("There are no saved project metrics.");
-            return null;
+            return new TreeSet<>(new ProjectMetricsStampComparator()); // Return empty TreeSet instead of null
         }
 
         File[] fileList = Objects.requireNonNull(directory.listFiles());

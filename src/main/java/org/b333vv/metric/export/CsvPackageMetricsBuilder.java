@@ -50,8 +50,11 @@ public class CsvPackageMetricsBuilder {
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
             javaProject.allPackages()
-                    .sorted((c1, c2) -> Objects.requireNonNull(c1.getPsiPackage().getQualifiedName())
-                            .compareTo(Objects.requireNonNull(c2.getPsiPackage().getQualifiedName())))
+                    .sorted((c1, c2) -> {
+                        String name1 = getPackageNameSafely(c1);
+                        String name2 = getPackageNameSafely(c2);
+                        return Objects.requireNonNull(name1).compareTo(Objects.requireNonNull(name2));
+                    })
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
@@ -63,8 +66,17 @@ public class CsvPackageMetricsBuilder {
         }
     }
 
+    private String getPackageNameSafely(PackageElement packageElement) {
+        if (packageElement.getPsiPackage() != null) {
+            return packageElement.getPsiPackage().getQualifiedName();
+        } else {
+            // For packages without PSI package, use the name directly
+            return packageElement.getName();
+        }
+    }
+
     private String convertToCsv(PackageElement javaPackage) {
-        String packageName = Objects.requireNonNull(javaPackage.getPsiPackage().getQualifiedName()) + ";";
+        String packageName = Objects.requireNonNull(getPackageNameSafely(javaPackage)) + ";";
         String metrics = javaPackage.metrics()
                 .map(Metric::getFormattedValue)
                 .collect(Collectors.joining(";"));

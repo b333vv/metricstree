@@ -39,13 +39,16 @@ public class SortedByMetricsValueClassNode extends ClassNode {
     }
 
     private String getDelta() {
-        return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> 
-            " [+" + metric.getPsiValue()
+        return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+            if (javaClass.getPsiClass() == null) {
+                return "";
+            }
+            return " [+" + metric.getPsiValue()
                     .minus(javaClass.getPsiClass().getProject().getService(
                             SettingsService.class
                     ).getRangeForMetric(metric.getType()).getRegularTo())
-                    .plus(Value.ONE) + "]"
-        );
+                    .plus(Value.ONE) + "]";
+        });
     }
 
     @Override

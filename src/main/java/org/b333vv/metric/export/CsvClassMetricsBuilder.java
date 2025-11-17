@@ -52,8 +52,11 @@ public class CsvClassMetricsBuilder {
             printWriter.println(header);
             javaProject.allClasses()
                     .sorted((c1, c2) -> com.intellij.openapi.application.ApplicationManager.getApplication().<Integer>runReadAction(
-                            (Computable<Integer>) () -> Objects.requireNonNull(c1.getPsiClass().getQualifiedName())
-                                    .compareTo(Objects.requireNonNull(c2.getPsiClass().getQualifiedName()))))
+                            (Computable<Integer>) () -> {
+                                String name1 = getClassQualifiedName(c1);
+                                String name2 = getClassQualifiedName(c2);
+                                return Objects.requireNonNull(name1).compareTo(Objects.requireNonNull(name2));
+                            }))
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
@@ -66,9 +69,27 @@ public class CsvClassMetricsBuilder {
         }
     }
 
+    private String getClassQualifiedName(ClassElement classElement) {
+        return com.intellij.openapi.application.ApplicationManager.getApplication().runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
+            if (classElement.getPsiClass() != null) {
+                return classElement.getPsiClass().getQualifiedName();
+            } else if (classElement.getKtClassOrObject() != null) {
+                // For Kotlin classes, try to get a qualified name
+                String ktName = classElement.getKtClassOrObject().getName();
+                String containingFile = classElement.getKtClassOrObject().getContainingFile().getName();
+                // Create a qualified name using file name + class name
+                String baseName = containingFile.replace(".kt", "");
+                return baseName + "." + ktName;
+            } else {
+                // For synthetic class elements, use the name directly
+                return classElement.getName();
+            }
+        });
+    }
+
     private String convertToCsv(ClassElement javaClass) {
         return com.intellij.openapi.application.ApplicationManager.getApplication().runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
-            String className = Objects.requireNonNull(javaClass.getPsiClass().getQualifiedName()) + ";";
+            String className = Objects.requireNonNull(getClassQualifiedName(javaClass)) + ";";
             String metrics = javaClass.metrics()
                     .map(Metric::getFormattedValue)
                     .collect(Collectors.joining(";"));

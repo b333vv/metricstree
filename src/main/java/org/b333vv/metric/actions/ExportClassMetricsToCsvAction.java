@@ -41,8 +41,8 @@ public class ExportClassMetricsToCsvAction extends AbstractAction {
             );
             VirtualFileWrapper fileWrapper = FileChooserFactory.getInstance()
                     .createSaveFileDialog(descriptor, project)
-                    .save(project.getName() + ".csv");
-            if (fileWrapper != null && fileWrapper.getFile() != null) {
+                    .save(project.getName() + "_class.csv");
+            if (fileWrapper != null) {
                 String filePath = fileWrapper.getFile().getAbsolutePath();
                 project.getService(CalculationService.class).exportClassMetricsToCsv(filePath);
             } else {

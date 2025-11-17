@@ -38,6 +38,44 @@ import java.util.stream.Collectors;
 
 public class ProjectMetricsHistoryXYChartBuilder {
     public XYChart createChart(TreeSet<JSONObject> metricsStampSet) {
+        // Check if metricsStampSet is null and return an empty chart if so
+        if (metricsStampSet == null || metricsStampSet.isEmpty()) {
+            XYChart chart = new XYChartBuilder()
+                    .width(150)
+                    .height(150)
+                    .build();
+
+            chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line);
+            chart.getStyler().setDatePattern("dd.MM.yy HH:mm");
+            chart.getStyler().setPlotMargin(0);
+            chart.getStyler().setPlotContentSize(.95);
+            Color annotationColor = EditorColorsManager.getInstance().getGlobalScheme().getDefaultForeground();
+            Color backgroundColor = UIUtil.getPanelBackground();
+
+            chart.getStyler().setAnnotationsFontColor(annotationColor);
+            chart.getStyler().setPlotContentSize(.6);
+            chart.getStyler().setChartFontColor(annotationColor);
+            chart.getStyler().setChartBackgroundColor(backgroundColor);
+            chart.getStyler().setPlotBackgroundColor(backgroundColor);
+            chart.getStyler().setPlotBorderVisible(false);
+            chart.getStyler().setAxisTickLabelsColor(annotationColor);
+            chart.getStyler().setAxisTickMarksColor(annotationColor);
+            chart.getStyler().setHasAnnotations(false);
+            chart.getStyler().setPlotGridVerticalLinesVisible(true);
+            chart.getStyler().setLegendVisible(true);
+            chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+            chart.getStyler().setLegendLayout(Styler.LegendLayout.Vertical);
+            chart.getStyler().setLegendBackgroundColor(backgroundColor);
+            chart.getStyler().setToolTipsEnabled(true);
+            chart.getStyler().setToolTipBackgroundColor(backgroundColor);
+            chart.getStyler().setToolTipBorderColor(annotationColor);
+            chart.getStyler().setToolTipHighlightColor(backgroundColor);
+            chart.getStyler().setToolTipType(Styler.ToolTipType.xAndYLabels);
+            chart.getStyler().setMarkerSize(5);
+            chart.getStyler().setSeriesMarkers(new Marker[]{new Circle()});
+            
+            return chart;
+        }
 
         XYChart chart = new XYChartBuilder()
                 .width(150)
