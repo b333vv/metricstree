@@ -76,6 +76,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction(actionId), false);
         actionToolbar.setOrientation(SwingConstants.VERTICAL);
+        actionToolbar.setTargetComponent(mainPanel); // Set target component to avoid toolbar warnings
         setToolbar(actionToolbar.getComponent());
     }
 
