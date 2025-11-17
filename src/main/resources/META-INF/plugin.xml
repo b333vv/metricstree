@@ -254,7 +254,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
     <depends>Git4Idea</depends>
-    <depends>org.jetbrains.kotlin</depends>
+    <depends optional="true">org.jetbrains.kotlin</depends>
 
 <!--    <idea-version since-build="203.8084"/>-->
     <idea-version since-build="223.8214"/>
