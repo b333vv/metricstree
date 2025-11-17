@@ -38,10 +38,10 @@ import static org.b333vv.metric.builder.ClassesByMetricsValuesDistributor.classe
 public class SortedByMetricsValuesClassesTreeBuilder {
 
     @Nullable
-    public DefaultTreeModel createMetricTreeModel(ProjectElement javaProject, Project project) {
-        Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = classesByMetricsValuesDistribution(javaProject, project);
+    public DefaultTreeModel createMetricTreeModel(ProjectElement projectElement, Project project) {
+        Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = classesByMetricsValuesDistribution(projectElement, project);
 
-        ProjectNode projectNode = new ProjectNode(javaProject, "class distribution by metric values", MetricsIcons.SORT_BY_VALUES);
+        ProjectNode projectNode = new ProjectNode(projectElement, "class distribution by metric values", MetricsIcons.SORT_BY_VALUES);
         DefaultTreeModel model = new DefaultTreeModel(projectNode);
         model.setRoot(projectNode);
 

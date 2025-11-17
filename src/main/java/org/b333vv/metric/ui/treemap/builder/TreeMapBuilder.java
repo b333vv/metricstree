@@ -33,7 +33,7 @@ public class TreeMapBuilder implements SelectionChangeListener<CodeElement>, Lab
     private final GenericTreeModel<CodeElement> model = new GenericTreeModel<>();
     private final MetricTreeMap<CodeElement> treeMap = new MetricTreeMap<>();
 
-    public TreeMapBuilder(@NotNull ProjectElement javaProject) {
+    public TreeMapBuilder(@NotNull ProjectElement projectElement) {
         treeMap.setLabelProvider(this);
         treeMap.setRectangleRenderer(new CushionRectangleRendererEx<>(160));
         treeMap.addSelectionChangeListener(this);
@@ -42,7 +42,7 @@ public class TreeMapBuilder implements SelectionChangeListener<CodeElement>, Lab
 //        treeMap.setColorProvider(new MetricTypeColorProvider(MetricType.NCSS));
 //        treeMap.setColorProvider(colorProvider);
 
-        treeMap.setTreeModel(TreeMapModel.createTreeModel(javaProject));
+        treeMap.setTreeModel(TreeMapModel.createTreeModel(projectElement));
     }
 
 //    public void setColorProvider(@NotNull ColorProvider<JavaCode, Color> colorProvider) {

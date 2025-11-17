@@ -27,7 +27,7 @@ public class XmlExporter {
         this.project = project;
     }
 
-    public void export(String fileName, ProjectElement javaProject) {
-        new XmlReportBuilder(project).buildAndExport(fileName, javaProject);
+    public void export(String fileName, ProjectElement projectElement) {
+        new XmlReportBuilder(project).buildAndExport(fileName, projectElement);
     }
 }

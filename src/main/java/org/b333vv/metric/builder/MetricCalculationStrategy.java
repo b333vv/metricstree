@@ -10,7 +10,7 @@ import java.util.List;
 public interface MetricCalculationStrategy {
     ProjectElement calculate(Project project, ProgressIndicator indicator);
 
-    default void augment(ProjectElement javaProject, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
+    default void augment(ProjectElement projectElement, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
         // default implementation does nothing
     }
 }

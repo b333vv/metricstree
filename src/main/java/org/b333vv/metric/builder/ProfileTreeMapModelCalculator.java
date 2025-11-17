@@ -6,8 +6,8 @@ import org.b333vv.metric.ui.treemap.builder.TreeMapBuilder;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 
 public class ProfileTreeMapModelCalculator {
-    public MetricTreeMap<CodeElement> calculate(ProjectElement javaProject) {
-        TreeMapBuilder treeMapBuilder = new TreeMapBuilder(javaProject);
+    public MetricTreeMap<CodeElement> calculate(ProjectElement projectElement) {
+        TreeMapBuilder treeMapBuilder = new TreeMapBuilder(projectElement);
         return treeMapBuilder.getTreeMap();
     }
 }

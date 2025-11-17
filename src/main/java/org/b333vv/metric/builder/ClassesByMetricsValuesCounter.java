@@ -42,9 +42,9 @@ public class ClassesByMetricsValuesCounter {
         project = myProject;
     }
 
-    public Map<MetricType, Map<RangeType, Double>> classesByMetricsValuesDistribution(ProjectElement javaProject) {
-        numberOfClasses = javaProject.allClasses().count();
-        return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
+    public Map<MetricType, Map<RangeType, Double>> classesByMetricsValuesDistribution(ProjectElement projectElement) {
+        numberOfClasses = projectElement.allClasses().count();
+        return Collections.unmodifiableMap(projectElement.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> metric.getType().isLongValue()
                                 && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) != RangeType.UNDEFINED)

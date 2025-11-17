@@ -37,10 +37,10 @@ public class CsvPackageMetricsBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, ProjectElement javaProject) {
+    public void buildAndExport(String fileName, ProjectElement projectElement) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<PackageElement> headerSupplierOpt = javaProject.allPackages().findAny();
+            Optional<PackageElement> headerSupplierOpt = projectElement.allPackages().findAny();
             if (headerSupplierOpt.isEmpty()) {
                 return;
             }
@@ -49,7 +49,7 @@ public class CsvPackageMetricsBuilder {
                     .map(m -> m.getType().name())
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
-            javaProject.allPackages()
+            projectElement.allPackages()
                     .sorted((c1, c2) -> {
                         String name1 = getPackageNameSafely(c1);
                         String name2 = getPackageNameSafely(c2);

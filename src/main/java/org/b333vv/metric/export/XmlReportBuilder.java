@@ -45,10 +45,10 @@ public class XmlReportBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, ProjectElement javaProject) {
+    public void buildAndExport(String fileName, ProjectElement projectElement) {
         File xmlOutputFile = new File(fileName);
         try {
-            Document outputDocument = createDocument(javaProject);
+            Document outputDocument = createDocument(projectElement);
             if (outputDocument == null) {
                 return;
             }
@@ -69,18 +69,18 @@ public class XmlReportBuilder {
     }
 
     @Nullable
-    private Document createDocument(ProjectElement javaProject) {
+    private Document createDocument(ProjectElement projectElement) {
         Document doc = null;
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             doc = docBuilder.newDocument();
-            Element projectElement = doc.createElement("Project");
-            doc.appendChild(projectElement);
-            addMetricsForNode(javaProject, projectElement, doc);
+            Element project = doc.createElement("Project");
+            doc.appendChild(project);
+            addMetricsForNode(projectElement, project, doc);
             Element packagesElement = doc.createElement("Packages");
-            projectElement.appendChild(packagesElement);
-            List<PackageElement> sortedPackages = javaProject.packages().collect(Collectors.toList());
+            project.appendChild(packagesElement);
+            List<PackageElement> sortedPackages = projectElement.packages().toList();
             for (PackageElement packageNode : sortedPackages) {
                 Element packageElement = doc.createElement("Package");
                 packageElement.setAttribute("name", packageNode.getName());

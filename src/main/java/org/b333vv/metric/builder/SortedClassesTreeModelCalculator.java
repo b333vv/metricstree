@@ -8,8 +8,8 @@ import javax.swing.tree.DefaultTreeModel;
 
 public class SortedClassesTreeModelCalculator {
 
-    public DefaultTreeModel calculate(ProjectElement javaProject, Project project) {
+    public DefaultTreeModel calculate(ProjectElement projectElement, Project project) {
         SortedByMetricsValuesClassesTreeBuilder builder = new SortedByMetricsValuesClassesTreeBuilder();
-        return builder.createMetricTreeModel(javaProject, project);
+        return builder.createMetricTreeModel(projectElement, project);
     }
 }

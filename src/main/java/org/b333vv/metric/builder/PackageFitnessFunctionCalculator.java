@@ -29,7 +29,7 @@ import static org.b333vv.metric.builder.PackageLevelFitnessFunctionBuilder.packa
 
 public class PackageFitnessFunctionCalculator {
 
-    public Map<FitnessFunction, Set<PackageElement>> calculate(Project project, ProjectElement javaProject) {
-        return packageLevelFitnessFunctionResult(project, javaProject);
+    public Map<FitnessFunction, Set<PackageElement>> calculate(Project project, ProjectElement projectElement) {
+        return packageLevelFitnessFunctionResult(project, projectElement);
     }
 }

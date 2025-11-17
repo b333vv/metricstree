@@ -8,8 +8,8 @@ import java.util.List;
 
 public class PieChartDataCalculator {
 
-    public List<MetricPieChartBuilder.PieChartStructure> calculate(ProjectElement javaProject, Project project) {
+    public List<MetricPieChartBuilder.PieChartStructure> calculate(ProjectElement projectElement, Project project) {
         ClassesByMetricsValuesCounter counter = new ClassesByMetricsValuesCounter(project);
-        return new MetricPieChartBuilder().createChart(counter.classesByMetricsValuesDistribution(javaProject));
+        return new MetricPieChartBuilder().createChart(counter.classesByMetricsValuesDistribution(projectElement));
     }
 }

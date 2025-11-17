@@ -29,7 +29,7 @@ import static org.b333vv.metric.builder.ClassLevelFitnessFunctionBuilder.classes
 
 public class ClassFitnessFunctionCalculator {
 
-    public Map<FitnessFunction, Set<ClassElement>> calculate(Project project, ProjectElement javaProject) {
-        return classesByMetricsProfileDistribution(project, javaProject);
+    public Map<FitnessFunction, Set<ClassElement>> calculate(Project project, ProjectElement projectElement) {
+        return classesByMetricsProfileDistribution(project, projectElement);
     }
 }

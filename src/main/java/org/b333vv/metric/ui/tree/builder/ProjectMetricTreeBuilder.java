@@ -43,14 +43,14 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
         super(codeElement, project);
     }
 
-//    public ProjectMetricTreeBuilder(JavaProject javaProject) {
-//        super(javaProject);
+//    public ProjectMetricTreeBuilder(projectElement projectElement) {
+//        super(projectElement);
 //    }
 
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
-            ProjectElement javaProject = (ProjectElement) codeElement;
-            ProjectNode projectNode = new ProjectNode(javaProject, "Project Metrics", AllIcons.Nodes.Project);
+            ProjectElement projectElement = (ProjectElement) codeElement;
+            ProjectNode projectNode = new ProjectNode(projectElement, "Project Metrics", AllIcons.Nodes.Project);
             model = new DefaultTreeModel(projectNode);
             model.setRoot(projectNode);
             if (getMetricsTreeFilter().isProjectMetricsVisible()) {
@@ -62,7 +62,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         if (metricSet.level() == MetricLevel.PROJECT || metricSet.level() == MetricLevel.PROJECT_PACKAGE) {
                             MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, PROJECT_METRIC);
                             projectNode.add(metricsSetNode);
-                            addMetrics(javaProject.metrics()
+                            addMetrics(projectElement.metrics()
                                             .filter(m -> m.getType().set() == metricSet),
                                     metricsSetNode,
                                     PROJECT_METRIC);
@@ -70,10 +70,10 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                     }
                 } else {
                     if (getMetricsTreeFilter().isMoodMetricsSetVisible()) {
-                        addMetrics(javaProject.metrics(), projectNode, PROJECT_METRIC);
+                        addMetrics(projectElement.metrics(), projectNode, PROJECT_METRIC);
                     }
                     else {
-                        addMetrics(javaProject.metrics()
+                        addMetrics(projectElement.metrics()
                                 .filter(m -> m.getType().set() == MetricSet.STATISTIC), projectNode, PROJECT_METRIC);
                     }
                 }
@@ -82,7 +82,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
             if (getMetricsTreeFilter().isPackageMetricsVisible()
                     || getMetricsTreeFilter().isClassMetricsVisible()
                     || getMetricsTreeFilter().isMethodMetricsVisible()) {
-                javaProject.packages()
+                projectElement.packages()
                         .map(PackageNode::new)
                         .forEach(packageNode -> {
                             projectNode.add(packageNode);

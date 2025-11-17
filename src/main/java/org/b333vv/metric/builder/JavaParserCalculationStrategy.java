@@ -94,7 +94,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     }
 
     @Override
-    public void augment(ProjectElement javaProject, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
+    public void augment(ProjectElement projectElement, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
         indicator.setText("Calculating metrics with JavaParser");
 
         TypeSolverProvider typeSolverProvider = new TypeSolverProvider();
@@ -139,7 +139,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
             });
         }
 
-        javaProject.allClasses().forEach(javaClass -> {
+        projectElement.allClasses().forEach(javaClass -> {
             indicator.setText2("Processing class: " + javaClass.getName());
             if (indicator.isCanceled()) {
                 return;

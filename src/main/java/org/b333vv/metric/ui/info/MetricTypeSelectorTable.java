@@ -43,9 +43,9 @@ public class MetricTypeSelectorTable {
     private final JBTable table;
     private final Project project;
 
-    public MetricTypeSelectorTable(ProjectElement javaProject, Consumer<MetricType> selectAction, Project project) {
+    public MetricTypeSelectorTable(ProjectElement projectElement, Consumer<MetricType> selectAction, Project project) {
         this.project = project;
-        this.javaClasses = javaProject.allClasses().collect(Collectors.toUnmodifiableSet());
+        this.javaClasses = projectElement.allClasses().collect(Collectors.toUnmodifiableSet());
         this.metricTypes = Arrays.stream(MetricType.values())
                 .filter(mt -> mt.level() == MetricLevel.CLASS)
                 .sorted(Comparator.comparing(MetricType::description))

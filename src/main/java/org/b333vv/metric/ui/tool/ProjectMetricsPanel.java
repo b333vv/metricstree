@@ -220,7 +220,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         updateUI();
     }
 
-    private void showResults(@NotNull MetricTreeMap<CodeElement> treeMap, ProjectElement javaProject) {
+    private void showResults(@NotNull MetricTreeMap<CodeElement> treeMap, ProjectElement projectElement) {
         createTreeMapUIComponents();
         
         // Set up TreeMap actions to communicate with the UI
@@ -229,7 +229,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectTreeMapCellClicked(javaClass);
         });
         
-        MetricTypeSelectorTable metricTypeSelectorTable = new MetricTypeSelectorTable(javaProject, metricType -> {
+        MetricTypeSelectorTable metricTypeSelectorTable = new MetricTypeSelectorTable(projectElement, metricType -> {
             treeMap.setColorProvider(new MetricTypeColorProvider(metricType, project));
             treeMap.updateUI();
             treeMap.refresh();
@@ -279,22 +279,22 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
             SwingUtilities.invokeLater(() -> {
-                // Get the JavaProject from the cache service - it should be available since the tree was just built
-                ProjectElement javaProject = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
-                if (javaProject == null) {
+                // Get the projectElement from the cache service - it should be available since the tree was just built
+                ProjectElement projectElement = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
+                if (projectElement == null) {
                     // Fallback to class and methods metrics if project metrics not available
-                    javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                    projectElement = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
                 }
                 
-                if (javaProject != null) {
-                    metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(javaProject, project);
+                if (projectElement != null) {
+                    metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(projectElement, project);
                     showResults(treeModel);
                     buildProjectMetricsTree();
                     project.getService(UIStateService.class).setProjectTreeActive(true);
                 } else {
                     // If still null, log an error and don't proceed
                     project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                           .printInfo("Error: JavaProject is null when trying to display metrics tree");
+                           .printInfo("Error: projectElement is null when trying to display metrics tree");
                 }
             });
         }
@@ -339,10 +339,10 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void metricTreeMapIsReady() {
             SwingUtilities.invokeLater(() -> {
-                ProjectElement javaProject = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                ProjectElement projectElement = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
                 MetricTreeMap<CodeElement> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
-                if (treeMap != null && javaProject != null) {
-                    showResults(treeMap, javaProject);
+                if (treeMap != null && projectElement != null) {
+                    showResults(treeMap, projectElement);
                 }
             });
         }

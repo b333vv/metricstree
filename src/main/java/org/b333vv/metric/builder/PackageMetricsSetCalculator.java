@@ -41,22 +41,22 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 public class PackageMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
-    private final ProjectElement javaProject;
+    private final ProjectElement projectElement;
 
     private final BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
     private final Map<PsiPackage, HashSet<PsiClass>> dependents = new ConcurrentHashMap<>();
     private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
     private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
-    public PackageMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement javaProject) {
+    public PackageMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement projectElement) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
-        this.javaProject = javaProject;
+        this.projectElement = projectElement;
     }
 
     public void calculate() {
         scope.accept(new Visitor());
-        javaProject.allPackages().forEach(this::handlePackage);
+        projectElement.allPackages().forEach(this::handlePackage);
     }
 
     private void handlePackage(@NotNull PackageElement p) {

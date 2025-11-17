@@ -33,7 +33,7 @@ public class PackagesCalculator {
 
     private final AnalysisScope scope;
     private final PackagesModelBuilder packagesModelBuilder;
-    private final ProjectElement javaProject;
+    private final ProjectElement projectElement;
 
     private ProgressIndicator indicator;
     private int filesCount;
@@ -41,8 +41,8 @@ public class PackagesCalculator {
 
     public PackagesCalculator(AnalysisScope scope) {
         this.scope = scope;
-        this.javaProject = new ProjectElement(scope.getProject().getName());
-        packagesModelBuilder = new PackagesModelBuilder(javaProject);
+        this.projectElement = new ProjectElement(scope.getProject().getName());
+        packagesModelBuilder = new PackagesModelBuilder(projectElement);
     }
 
     public ProjectElement calculatePackagesStructure() {
@@ -52,7 +52,7 @@ public class PackagesCalculator {
         filesCount = scope.getFileCount();
         indicator.setText("Building packages structure");
         scope.accept(new PsiJavaFileVisitor());
-        return javaProject;
+        return projectElement;
     }
 
     private class PsiJavaFileVisitor extends PsiElementVisitor {
@@ -77,7 +77,7 @@ public class PackagesCalculator {
             indicator.setText("Building packages structure: processing file " + fileName + "...");
             progress++;
             PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            packagesModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+            packagesModelBuilder.addJavaFileToprojectElement(psiJavaFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }

@@ -34,10 +34,10 @@ public class XyChartDataCalculator {
         }
     }
     
-    public XyChartResult calculate(ProjectElement javaProject, Project project) {
+    public XyChartResult calculate(ProjectElement projectElement, Project project) {
         Map<String, Double> instability = new TreeMap<>();
         Map<String, Double> abstractness = new TreeMap<>();
-        ProjectMetricXYChartDataBuilder.build(javaProject, instability, abstractness);
+        ProjectMetricXYChartDataBuilder.build(projectElement, instability, abstractness);
 
         ProjectMetricXYChartBuilder projectMetricXYChartBuilder = new ProjectMetricXYChartBuilder(project);
         XYChart chart = projectMetricXYChartBuilder.createChart(instability, abstractness);

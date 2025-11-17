@@ -45,15 +45,15 @@ import java.util.stream.Stream;
 
 public class ProjectModelBuilder extends ModelBuilder {
 
-    private final ProjectElement javaProject;
+    private final ProjectElement projectElement;
 
-    public ProjectModelBuilder(ProjectElement javaProject) {
+    public ProjectModelBuilder(ProjectElement projectElement) {
         super();
-        this.javaProject = javaProject;
+        this.projectElement = projectElement;
     }
 
     private PackageElement findOrCreatePackageByFqn(@NotNull Project project, @NotNull String fqn) {
-        PackageElement existing = javaProject.getFromAllPackages(fqn);
+        PackageElement existing = projectElement.getFromAllPackages(fqn);
         if (existing != null) return existing;
 
         // Try to resolve via JavaPsiFacade
@@ -65,32 +65,32 @@ public class ProjectModelBuilder extends ModelBuilder {
         String[] parts = fqn.isEmpty() ? new String[0] : fqn.split("\\.");
         PackageElement current;
         if (parts.length == 0) {
-            current = javaProject.getFromAllPackages("");
+            current = projectElement.getFromAllPackages("");
             if (current == null) {
                 current = new PackageElement("", new PsiPackageImpl(null, ""));
-                javaProject.putToAllPackages("", current);
-                javaProject.addPackage(current);
+                projectElement.putToAllPackages("", current);
+                projectElement.addPackage(current);
             }
             return current;
         }
         // build from root
         StringBuilder path = new StringBuilder();
-        current = javaProject.getFromAllPackages("");
+        current = projectElement.getFromAllPackages("");
         if (current == null) {
             current = new PackageElement("", new PsiPackageImpl(null, ""));
-            javaProject.putToAllPackages("", current);
-            javaProject.addPackage(current);
+            projectElement.putToAllPackages("", current);
+            projectElement.addPackage(current);
         }
         for (int i = 0; i < parts.length; i++) {
             if (i > 0) path.append('.');
             path.append(parts[i]);
             String qn = path.toString();
-            PackageElement next = javaProject.getFromAllPackages(qn);
+            PackageElement next = projectElement.getFromAllPackages(qn);
             if (next == null) {
                 PsiPackage p = JavaPsiFacade.getInstance(project).findPackage(qn);
                 if (p == null) p = new PsiPackageImpl(null, qn);
                 next = new PackageElement(parts[i], p);
-                javaProject.putToAllPackages(qn, next);
+                projectElement.putToAllPackages(qn, next);
                 current.addPackage(next);
             }
             current = next;
@@ -98,7 +98,7 @@ public class ProjectModelBuilder extends ModelBuilder {
         return current;
     }
 
-    public void addJavaFileToJavaProject(@NotNull PsiJavaFile psiJavaFile) {
+    public void addJavaFileToprojectElement(@NotNull PsiJavaFile psiJavaFile) {
         findOrCreateJavaPackage(psiJavaFile).addFile(createJavaFile(psiJavaFile));
     }
 
@@ -126,7 +126,7 @@ public class ProjectModelBuilder extends ModelBuilder {
                         PackageElement pkg = findOrCreatePackageByFqn(psiFile.getProject(), fqn);
                         pkg.addFile(fe);
                         // Ensure ProjectElement.allClasses is populated for Kotlin classes
-                        long count = fe.classes().peek(javaProject::addToAllClasses).count();
+                        long count = fe.classes().peek(projectElement::addToAllClasses).count();
                         psiFile.getProject().getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
                                 .printInfo("[ProjectModelBuilder] Kotlin file '" + psiFile.getName() + "' -> added " + count + " classes into package '" + fqn + "'");
                     }
@@ -190,7 +190,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     public PackageElement findOrCreateJavaPackage(@NotNull PsiJavaFile psiJavaFile) {
         List<PsiPackage> packageList = ClassUtils.getPackagesRecursive(psiJavaFile);
-        if (javaProject.allPackagesIsEmpty()) {
+        if (projectElement.allPackagesIsEmpty()) {
             return makeNewRootJavaPackage(packageList);
         } else {
             Collections.reverse(packageList);
@@ -198,9 +198,9 @@ public class ProjectModelBuilder extends ModelBuilder {
             int j = 0;
             PackageElement aPackage = null;
             for (int i = 0; i < psiPackages.length; i++) {
-                PackageElement javaPackage = javaProject.getFromAllPackages(psiPackages[i].getQualifiedName());
+                PackageElement javaPackage = projectElement.getFromAllPackages(psiPackages[i].getQualifiedName());
                 if (javaPackage != null) {
-                    aPackage = javaProject.getFromAllPackages(psiPackages[i].getQualifiedName());
+                    aPackage = projectElement.getFromAllPackages(psiPackages[i].getQualifiedName());
                     j = i;
                     break;
                 }
@@ -211,7 +211,7 @@ public class ProjectModelBuilder extends ModelBuilder {
             }
             for (int i = j - 1; i >= 0; i--) {
                 PackageElement newPackage = new PackageElement(psiPackages[i].getName(), psiPackages[i]);
-                javaProject.putToAllPackages(newPackage.getPsiPackage().getQualifiedName(), newPackage);
+                projectElement.putToAllPackages(newPackage.getPsiPackage().getQualifiedName(), newPackage);
                 aPackage.addPackage(newPackage);
                 aPackage = newPackage;
             }
@@ -225,18 +225,18 @@ public class ProjectModelBuilder extends ModelBuilder {
         PackageElement firstJavaPackage;
         if (!psiPackageIterator.hasNext()) {
             firstJavaPackage = new PackageElement("", new PsiPackageImpl(null, ""));
-            javaProject.putToAllPackages("", firstJavaPackage);
+            projectElement.putToAllPackages("", firstJavaPackage);
         } else {
             PsiPackage firstPsiPackage = psiPackageIterator.next();
             firstJavaPackage = new PackageElement(firstPsiPackage.getName(), firstPsiPackage);
-            javaProject.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
+            projectElement.putToAllPackages(firstJavaPackage.getPsiPackage().getQualifiedName(), firstJavaPackage);
         }
-        javaProject.addPackage(firstJavaPackage);
+        projectElement.addPackage(firstJavaPackage);
         PackageElement currentJavaPackage = firstJavaPackage;
         while (psiPackageIterator.hasNext()) {
             PsiPackage aPsiPackage = psiPackageIterator.next();
             PackageElement aJavaPackage = new PackageElement(aPsiPackage.getName(), aPsiPackage);
-            javaProject.putToAllPackages(aJavaPackage.getPsiPackage().getQualifiedName(), aJavaPackage);
+            projectElement.putToAllPackages(aJavaPackage.getPsiPackage().getQualifiedName(), aJavaPackage);
             currentJavaPackage.addPackage(aJavaPackage);
             currentJavaPackage = aJavaPackage;
         }
@@ -245,7 +245,7 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     @Override
     protected void addToAllClasses(@NotNull ClassElement javaClass) {
-        javaProject.addToAllClasses(javaClass);
+        projectElement.addToAllClasses(javaClass);
     }
 
 //    @Override
@@ -275,7 +275,7 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
 //    public void calculateDeferredMetrics() {
-//        javaProject.allClasses().forEach(c -> {
+//        projectElement.allClasses().forEach(c -> {
 //            MetricsService.getDeferredMetricTypes().forEach(t -> c.accept(t.visitor()));
 //        });
 //    }

@@ -42,7 +42,7 @@ public class ProjectMetricsSet2Json {
         }
     }
 
-    public static void takeProjectMetricsSnapshot(Project project, ProjectElement javaProject) {
+    public static void takeProjectMetricsSnapshot(Project project, ProjectElement projectElement) {
         long epoch = Instant.now().toEpochMilli();
         String snapshotTime = "" + epoch;
         String directoryPath = project.getBasePath() +
@@ -52,7 +52,7 @@ public class ProjectMetricsSet2Json {
                 "metrics";
         long epoch1 = Long.parseLong(snapshotTime);
         LocalDateTime dateTime = Instant.ofEpochMilli(epoch1).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        Map<String, String> projectMetrics = javaProject.metrics()
+        Map<String, String> projectMetrics = projectElement.metrics()
                 .filter(m -> m.getType().level() == MetricLevel.PROJECT)
                 .collect(Collectors.toMap(m -> m.getType().name(), m -> m.getPsiValue().toString()));
 

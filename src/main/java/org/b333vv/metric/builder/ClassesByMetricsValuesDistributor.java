@@ -36,8 +36,8 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 
 public class ClassesByMetricsValuesDistributor {
-    public static Map<MetricType, Map<ClassElement, Metric>> classesByMetricsValuesDistribution(ProjectElement javaProject, Project project) {
-        return Collections.unmodifiableMap(javaProject.allClasses().flatMap(
+    public static Map<MetricType, Map<ClassElement, Metric>> classesByMetricsValuesDistribution(ProjectElement projectElement, Project project) {
+        return Collections.unmodifiableMap(projectElement.allClasses().flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> metric.getType().isLongValue()
                                 && project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) != RangeType.UNDEFINED)

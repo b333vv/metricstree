@@ -27,7 +27,7 @@ public class CsvPackageMetricsExporter {
         this.project = project;
     }
 
-    public void export(String fileName, ProjectElement javaProject) {
-        new CsvPackageMetricsBuilder(project).buildAndExport(fileName, javaProject);
+    public void export(String fileName, ProjectElement projectElement) {
+        new CsvPackageMetricsBuilder(project).buildAndExport(fileName, projectElement);
     }
 }

@@ -43,17 +43,17 @@ public class PackageOnlyMetricTask extends Task.Backgroundable {
     public void run(@NotNull ProgressIndicator indicator) {
         
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        ProjectElement javaProject = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_ONLY_METRICS);
-        if (javaProject == null) {
+        ProjectElement projectElement = myProject.getService(CacheService.class).getUserData(CacheService.PACKAGE_ONLY_METRICS);
+        if (projectElement == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
             AnalysisScope scope = new AnalysisScope(myProject);
             scope.setIncludeTestSource(false);
             PackagesCalculator packagesCalculator = new PackagesCalculator(scope);
-            javaProject = packagesCalculator.calculatePackagesStructure();
+            projectElement = packagesCalculator.calculatePackagesStructure();
             PackageMetricsSetCalculator packageMetricsSetCalculator = new PackageMetricsSetCalculator(scope,
-                    myProject.getService(CacheService.class).getUserData(CacheService.DEPENDENCIES), javaProject);
+                    myProject.getService(CacheService.class).getUserData(CacheService.DEPENDENCIES), projectElement);
             packageMetricsSetCalculator.calculate();
-            myProject.getService(CacheService.class).putUserData(CacheService.PACKAGE_ONLY_METRICS, javaProject);
+            myProject.getService(CacheService.class).putUserData(CacheService.PACKAGE_ONLY_METRICS, projectElement);
         }
     }
 

@@ -24,14 +24,14 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
         this.indicator = indicator;
         AnalysisScope scope = new AnalysisScope(project);
         scope.setIncludeTestSource(false);
-        ProjectElement javaProject = new ProjectElement(project.getName());
-        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
+        ProjectElement projectElement = new ProjectElement(project.getName());
+        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(projectElement);
 
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();
         indicator.setText("Calculating metrics");
         scope.accept(new PsiJavaFileVisitor(projectModelBuilder));
-        return javaProject;
+        return projectElement;
     }
 
     private class PsiJavaFileVisitor extends PsiElementVisitor {
@@ -66,7 +66,7 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
             progress++;
             if (isJava) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-                projectModelBuilder.addJavaFileToJavaProject(psiJavaFile);
+                projectModelBuilder.addJavaFileToprojectElement(psiJavaFile);
             } else if (isKotlin) {
                 projectModelBuilder.addKotlinFileToProjectReflective(psiFile);
             }

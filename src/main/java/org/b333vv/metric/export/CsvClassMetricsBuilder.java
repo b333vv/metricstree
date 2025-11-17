@@ -38,10 +38,10 @@ public class CsvClassMetricsBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, ProjectElement javaProject) {
+    public void buildAndExport(String fileName, ProjectElement projectElement) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<ClassElement> headerSupplierOpt = javaProject.allClasses().findAny();
+            Optional<ClassElement> headerSupplierOpt = projectElement.allClasses().findAny();
             if (headerSupplierOpt.isEmpty()) {
                 return;
             }
@@ -50,7 +50,7 @@ public class CsvClassMetricsBuilder {
                     .map(m -> m.getType().name())
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
-            javaProject.allClasses()
+            projectElement.allClasses()
                     .sorted((c1, c2) -> com.intellij.openapi.application.ApplicationManager.getApplication().<Integer>runReadAction(
                             (Computable<Integer>) () -> {
                                 String name1 = getClassQualifiedName(c1);

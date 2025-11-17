@@ -24,25 +24,25 @@ import javax.swing.*;
 
 public class ProjectNode extends AbstractNode {
 
-    private final ProjectElement javaProject;
+    private final ProjectElement projectElement;
     private final String description;
     private final Icon icon;
 
-    public ProjectNode(ProjectElement javaProject, String description, Icon icon) {
-        this.javaProject = javaProject;
+    public ProjectNode(ProjectElement projectElement, String description, Icon icon) {
+        this.projectElement = projectElement;
         this.description = description;
         this.icon = icon;
     }
 
-    public ProjectElement getJavaProject() {
-        return javaProject;
+    public ProjectElement getprojectElement() {
+        return projectElement;
     }
 
     @Override
     public void render(TreeCellRenderer renderer) {
 //        renderer.setIcon(AllIcons.General.ProjectStructure);
         renderer.setIcon(icon);
-        renderer.append(javaProject.getName());
+        renderer.append(projectElement.getName());
         renderer.append(" (" + description + ")", SimpleTextAttributes.GRAY_SMALL_ATTRIBUTES);
     }
 }

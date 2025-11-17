@@ -35,11 +35,11 @@ import org.b333vv.metric.util.SettingsService;
 import java.util.*;
 
 public class ClassLevelFitnessFunctionBuilder {
-    public static Map<FitnessFunction, Set<ClassElement>> classesByMetricsProfileDistribution(Project project, ProjectElement javaProject) {
+    public static Map<FitnessFunction, Set<ClassElement>> classesByMetricsProfileDistribution(Project project, ProjectElement projectElement) {
         Map<FitnessFunction, Set<ClassElement>> fitnessFunctionResult = new TreeMap<>();
         for (FitnessFunction profile : fitnessFunctionResult(project)) {
             Set<ClassElement> classes = new HashSet<>();
-            javaProject.allClasses()
+            projectElement.allClasses()
                     .forEach(c -> {
                         if (checkClass(c, profile)) {
                             classes.add(c);

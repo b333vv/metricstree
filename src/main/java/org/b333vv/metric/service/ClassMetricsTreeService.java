@@ -24,9 +24,9 @@ public final class ClassMetricsTreeService {
         DefaultTreeModel treeModel = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TREE);
 
         if (treeModel == null) {
-            ProjectElement javaProject = calculationService.getOrBuildClassAndMethodModel(indicator);
+            ProjectElement projectElement = calculationService.getOrBuildClassAndMethodModel(indicator);
             SortedClassesTreeModelCalculator calculator = new SortedClassesTreeModelCalculator();
-            treeModel = calculator.calculate(javaProject, project);
+            treeModel = calculator.calculate(projectElement, project);
             cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TREE, treeModel);
         }
         return treeModel;

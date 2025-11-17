@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2025.2.1:
+                <ul>
+                    <li>Kotlin support added.</li>
+                </ul>
+            </li>
             <li>2025.1.4:
                 <ul>
                     <li>The internal structure continued to be improved.</li>

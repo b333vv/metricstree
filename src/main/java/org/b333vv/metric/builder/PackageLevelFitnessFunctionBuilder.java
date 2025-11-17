@@ -34,11 +34,11 @@ import  org.b333vv.metric.util.SettingsService;
 import java.util.*;
 
 public class PackageLevelFitnessFunctionBuilder {
-    public static Map<FitnessFunction, Set<PackageElement>> packageLevelFitnessFunctionResult(Project project, ProjectElement javaProject) {
+    public static Map<FitnessFunction, Set<PackageElement>> packageLevelFitnessFunctionResult(Project project, ProjectElement projectElement) {
         Map<FitnessFunction, Set<PackageElement>> fitnessFunctionResult = new TreeMap<>();
         for (FitnessFunction profile : fitnessFunctionResult(project)) {
             Set<PackageElement> packages = new HashSet<>();
-            javaProject.allPackages()
+            projectElement.allPackages()
                     .forEach(p -> {
                         if (checkPackage(p, profile)) {
                             packages.add(p);

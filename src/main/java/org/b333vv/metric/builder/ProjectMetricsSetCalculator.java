@@ -48,7 +48,7 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 public class ProjectMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
-    private final ProjectElement javaProject;
+    private final ProjectElement projectElement;
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
@@ -84,10 +84,10 @@ public class ProjectMetricsSetCalculator {
     double halsteadVolume = 0.0;
 
 
-    public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement javaProject) {
+    public ProjectMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement projectElement) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
-        this.javaProject = javaProject;
+        this.projectElement = projectElement;
     }
 
     public void calculate() {
@@ -129,12 +129,12 @@ public class ProjectMetricsSetCalculator {
         double Effectiveness = 0.2 * zAbstraction + 0.2 * zEncapsulation + 0.2 * zComposition
                 + 0.2 * zInheritance + 0.2 * zPolymorphism;
 
-        javaProject.addMetric(Metric.of(MetricType.Reusability, Reusability));
-        javaProject.addMetric(Metric.of(MetricType.Flexibility, Flexibility));
-        javaProject.addMetric(Metric.of(MetricType.Understandability, Understandability));
-        javaProject.addMetric(Metric.of(MetricType.Functionality, Functionality));
-        javaProject.addMetric(Metric.of(MetricType.Extendibility, Extendibility));
-        javaProject.addMetric(Metric.of(MetricType.Effectiveness, Effectiveness));
+        projectElement.addMetric(Metric.of(MetricType.Reusability, Reusability));
+        projectElement.addMetric(Metric.of(MetricType.Flexibility, Flexibility));
+        projectElement.addMetric(Metric.of(MetricType.Understandability, Understandability));
+        projectElement.addMetric(Metric.of(MetricType.Functionality, Functionality));
+        projectElement.addMetric(Metric.of(MetricType.Extendibility, Extendibility));
+        projectElement.addMetric(Metric.of(MetricType.Effectiveness, Effectiveness));
     }
 
     private void calculateStatistics() {
@@ -153,7 +153,7 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void calculateMaintainabilityIndex() {
-        long projectCC = javaProject
+        long projectCC = projectElement
                 .allClasses().flatMap(ClassElement::methods)
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
@@ -168,11 +168,11 @@ public class ProjectMetricsSetCalculator {
                     - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
         }
 
-        javaProject.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
+        projectElement.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
     }
     private void calculateHalstead() {
 
-        halsteadVolume = javaProject
+        halsteadVolume = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PAHVL)
                 .map(Metric::getValue)
@@ -180,7 +180,7 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        double halsteadDifficulty = javaProject
+        double halsteadDifficulty = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PAHD)
                 .map(Metric::getValue)
@@ -188,7 +188,7 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        long halsteadLength = javaProject
+        long halsteadLength = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHL)
                 .map(Metric::getValue)
@@ -196,7 +196,7 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        double halsteadEffort = javaProject
+        double halsteadEffort = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHEF)
                 .map(Metric::getValue)
@@ -204,7 +204,7 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        long halsteadVocabulary = javaProject
+        long halsteadVocabulary = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHVC)
                 .map(Metric::getValue)
@@ -212,7 +212,7 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        double halsteadErrors = javaProject
+        double halsteadErrors = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PACHER)
                 .map(Metric::getValue)
@@ -220,17 +220,17 @@ public class ProjectMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        javaProject.addMetric(Metric.of(PRHVL, halsteadVolume));
-        javaProject.addMetric(Metric.of(PRHD, halsteadDifficulty));
-        javaProject.addMetric(Metric.of(PRCHL, halsteadLength));
-        javaProject.addMetric(Metric.of(PRCHEF, halsteadEffort));
-        javaProject.addMetric(Metric.of(PRCHVC, halsteadVocabulary));
-        javaProject.addMetric(Metric.of(PRCHER, halsteadErrors));
+        projectElement.addMetric(Metric.of(PRHVL, halsteadVolume));
+        projectElement.addMetric(Metric.of(PRHD, halsteadDifficulty));
+        projectElement.addMetric(Metric.of(PRCHL, halsteadLength));
+        projectElement.addMetric(Metric.of(PRCHEF, halsteadEffort));
+        projectElement.addMetric(Metric.of(PRCHVC, halsteadVocabulary));
+        projectElement.addMetric(Metric.of(PRCHER, halsteadErrors));
     }
 
     private double calculateZCoupling() {
         return calculateZScore(
-                javaProject.allPackages().flatMap(CodeElement::metrics)
+                projectElement.allPackages().flatMap(CodeElement::metrics)
                     .filter(metric -> metric.getType() == Ce)
                     .map(Metric::getValue)
                     .collect(Collectors.toUnmodifiableList())
@@ -239,7 +239,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZCohesion() {
         return 1.0/calculateZScore(
-                javaProject.allClasses().flatMap(CodeElement::metrics)
+                projectElement.allClasses().flatMap(CodeElement::metrics)
                     .filter(metric -> metric.getType() == LCOM)
                     .map(Metric::getValue)
                     .collect(Collectors.toUnmodifiableList())
@@ -248,7 +248,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZMessaging() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(CodeElement::metrics)
+                projectElement.allClasses().flatMap(CodeElement::metrics)
                     .filter(metric -> metric.getType() == NOM)
                     .map(Metric::getValue)
                     .collect(Collectors.toUnmodifiableList())
@@ -257,7 +257,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZDesignSize() {
         return calculateZScore(
-                javaProject.allPackages().flatMap(CodeElement::metrics)
+                projectElement.allPackages().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == PNOCC)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -266,7 +266,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZComposition() {
             return calculateZScore(
-                    javaProject.allClasses().flatMap(CodeElement::metrics)
+                    projectElement.allClasses().flatMap(CodeElement::metrics)
                             .filter(metric -> metric.getType() == NOA)
                             .map(Metric::getValue)
                             .collect(Collectors.toUnmodifiableList())
@@ -275,7 +275,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZPolymorphism() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(CodeElement::metrics)
+                projectElement.allClasses().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == NOOM)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -284,7 +284,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZAbstraction() {
         return calculateZScore(
-                javaProject.allPackages().flatMap(CodeElement::metrics)
+                projectElement.allPackages().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == A)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -293,7 +293,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZComplexity() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(CodeElement::metrics)
+                projectElement.allClasses().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == WMC)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -302,7 +302,7 @@ public class ProjectMetricsSetCalculator {
 
     private double calculateZHierarchies() {
         return calculateZScore(
-                javaProject.allClasses().flatMap(CodeElement::metrics)
+                projectElement.allClasses().flatMap(CodeElement::metrics)
                         .filter(metric -> metric.getType() == DIT)
                         .map(Metric::getValue)
                         .collect(Collectors.toUnmodifiableList())
@@ -310,7 +310,7 @@ public class ProjectMetricsSetCalculator {
     }
 
     private double calculateZInheritance() {
-        List<CodeElement> classes = javaProject.allClasses()
+        List<CodeElement> classes = projectElement.allClasses()
                 .collect(Collectors.toUnmodifiableList());
         double zInheritance = 0.0;
         for (CodeElement aClass : classes) {
@@ -342,17 +342,17 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void addClassesNonCommentingSourceStatements() {
-        long nonCommentingSourceStatements = javaProject.allClasses().flatMap(CodeElement::metrics)
+        long nonCommentingSourceStatements = projectElement.allClasses().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == NCSS)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();
-        javaProject.addMetric(Metric.of(PNCSS, nonCommentingSourceStatements));
+        projectElement.addMetric(Metric.of(PNCSS, nonCommentingSourceStatements));
     }
 
     private void addLinesOfCode() {
-        linesOfCode = javaProject.allClasses()
+        linesOfCode = projectElement.allClasses()
                 .flatMap(ClassElement::methods)
                 .map(javaMethod -> {
                     Metric m = javaMethod.metric(LOC);
@@ -361,20 +361,20 @@ public class ProjectMetricsSetCalculator {
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .longValue();
-        javaProject.addMetric(Metric.of(PLOC, linesOfCode));
+        projectElement.addMetric(Metric.of(PLOC, linesOfCode));
     }
 
     private void addClassesCounters() {
-        javaProject.addMetric(Metric.of(PNOCC, concreteClassesNumber));
-        javaProject.addMetric(Metric.of(PNOAC, abstractClassesNumber));
-        javaProject.addMetric(Metric.of(PNOSC, staticClassesNumber));
-        javaProject.addMetric(Metric.of(PNOI, interfacesNumber));
+        projectElement.addMetric(Metric.of(PNOCC, concreteClassesNumber));
+        projectElement.addMetric(Metric.of(PNOAC, abstractClassesNumber));
+        projectElement.addMetric(Metric.of(PNOSC, staticClassesNumber));
+        projectElement.addMetric(Metric.of(PNOI, interfacesNumber));
     }
 
     private void addPolymorphismFactor() {
         Value polymorphismFactor = overridePotentialsNumber == 0 ? Value.of(1.0) :
                 Value.of((double) overridingMethodsNumber).divide(Value.of((double) overridePotentialsNumber));
-        javaProject.addMetric(Metric.of(PF, polymorphismFactor));
+        projectElement.addMetric(Metric.of(PF, polymorphismFactor));
     }
 
     private void addMethodInheritanceFactor() {
@@ -382,7 +382,7 @@ public class ProjectMetricsSetCalculator {
         if (availableMethods > 0) {
             methodInheritanceFactor = Value.of((double) inheritedMethods).divide(Value.of((double) availableMethods));
         }
-        javaProject.addMetric(Metric.of(MIF, methodInheritanceFactor));
+        projectElement.addMetric(Metric.of(MIF, methodInheritanceFactor));
     }
 
     private void addMethodHidingFactor() {
@@ -404,7 +404,7 @@ public class ProjectMetricsSetCalculator {
             methodHidingFactor = numerator.divide(denominator);
         }
 
-        javaProject.addMetric(Metric.of(MHF, methodHidingFactor));
+        projectElement.addMetric(Metric.of(MHF, methodHidingFactor));
     }
 
     private void addCouplingFactor() {
@@ -416,7 +416,7 @@ public class ProjectMetricsSetCalculator {
             couplingFactor = numerator.divide(denominator);
         }
 
-        javaProject.addMetric(Metric.of(CF, couplingFactor));
+        projectElement.addMetric(Metric.of(CF, couplingFactor));
     }
 
     private void addAttributeInheritanceFactor() {
@@ -426,7 +426,7 @@ public class ProjectMetricsSetCalculator {
                     .divide(Value.of((double) availableFields));
         }
 
-        javaProject.addMetric(Metric.of(AIF, attributeInheritanceFactor));
+        projectElement.addMetric(Metric.of(AIF, attributeInheritanceFactor));
     }
 
     private void addAttributeHidingFactor() {
@@ -448,7 +448,7 @@ public class ProjectMetricsSetCalculator {
             attributeHidingFactor = numerator.divide(denominator);
         }
 
-        javaProject.addMetric(Metric.of(AHF, attributeHidingFactor));
+        projectElement.addMetric(Metric.of(AHF, attributeHidingFactor));
     }
 
     private class Visitor extends JavaRecursiveElementVisitor {

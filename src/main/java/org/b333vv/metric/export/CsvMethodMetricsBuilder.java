@@ -42,10 +42,10 @@ public class CsvMethodMetricsBuilder {
         this.project = project;
     }
 
-    public void buildAndExport(String fileName, ProjectElement javaProject) {
+    public void buildAndExport(String fileName, ProjectElement projectElement) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<MethodElement> headerSupplierOpt = javaProject.allClasses().flatMap(ClassElement::methods).findAny();
+            Optional<MethodElement> headerSupplierOpt = projectElement.allClasses().flatMap(ClassElement::methods).findAny();
             if (headerSupplierOpt.isEmpty()) {
                 return;
             }
@@ -57,7 +57,7 @@ public class CsvMethodMetricsBuilder {
             
             // Wrap PSI access in read action
             ApplicationManager.getApplication().runReadAction(() -> {
-                javaProject.allClasses()
+                projectElement.allClasses()
                         .flatMap(ClassElement::methods)
                         .sorted((c1, c2) -> {
                             // Safely get qualified names with null checks

@@ -171,7 +171,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
             rightPanel.revalidate();
             rightPanel.repaint();
         } else if (node instanceof ProjectNode) {
-            ProjectElement jProject = ((ProjectNode) node).getJavaProject();
+            ProjectElement jProject = ((ProjectNode) node).getprojectElement();
             bottomPanel.setData(jProject);
             metricsSummaryTable.set(jProject);
             rightPanelRepaint();

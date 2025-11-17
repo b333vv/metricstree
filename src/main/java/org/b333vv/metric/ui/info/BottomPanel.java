@@ -72,8 +72,8 @@ public class BottomPanel {
                 + "]");
     }
 
-    public void setData(@NotNull ProjectElement javaProject) {
-        updateDescription("Project: " + javaProject.getName());
+    public void setData(@NotNull ProjectElement projectElement) {
+        updateDescription("Project: " + projectElement.getName());
     }
 
     public void setData(@NotNull PackageElement javaPackage) {

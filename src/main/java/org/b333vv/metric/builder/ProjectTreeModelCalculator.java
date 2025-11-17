@@ -26,19 +26,19 @@ public class ProjectTreeModelCalculator {
         
         // Ensure the project metrics are built before creating the tree
         CalculationService calculationService = project.getService(CalculationService.class);
-        ProjectElement javaProject;
+        ProjectElement projectElement;
         if (calculationService instanceof org.b333vv.metric.service.CalculationServiceImpl) {
-            javaProject = ((org.b333vv.metric.service.CalculationServiceImpl) calculationService).getOrBuildProjectMetricsModel(indicator);
+            projectElement = ((org.b333vv.metric.service.CalculationServiceImpl) calculationService).getOrBuildProjectMetricsModel(indicator);
         } else {
             // Fallback to cache service for compatibility
-            javaProject = project.getService(CacheService.class).getProject();
+            projectElement = project.getService(CacheService.class).getProject();
         }
         
-        if (javaProject == null) {
-            throw new IllegalStateException("JavaProject is null - metrics calculation may have failed");
+        if (projectElement == null) {
+            throw new IllegalStateException("projectElement is null - metrics calculation may have failed");
         }
         
-        ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(javaProject, project);
+        ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(projectElement, project);
         return projectMetricTreeBuilder.createMetricTreeModel();
     }
 }

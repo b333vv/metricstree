@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
 
 public class TreeMapModel extends GenericTreeModel<CodeElement> {
 
-	public static WeightedTreeModel<CodeElement> createTreeModel(final ProjectElement javaProject) {
+	public static WeightedTreeModel<CodeElement> createTreeModel(final ProjectElement projectElement) {
 		final TreeMapModel result = new TreeMapModel();
-		result.add(javaProject, 0, null);
-		List<ClassElement> sortedClasses = javaProject.allClasses()
+		result.add(projectElement, 0, null);
+		List<ClassElement> sortedClasses = projectElement.allClasses()
 				.sorted(Comparator.comparing(CodeElement::getName))
 				.collect(Collectors.toList());
 		for (ClassElement javaClass : sortedClasses) {
-			result.add(javaClass, getWeight(javaClass), javaProject);
+			result.add(javaClass, getWeight(javaClass), projectElement);
 		}
 		return result;
 	}

@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 
 public class ProjectMetricXYChartDataBuilder {
-    public static void build(ProjectElement javaProject, Map<String, Double> instability, Map<String, Double> abstractness) {
-        Map<String, Double> myInstability = javaProject.allPackages()
+    public static void build(ProjectElement projectElement, Map<String, Double> instability, Map<String, Double> abstractness) {
+        Map<String, Double> myInstability = projectElement.allPackages()
             .flatMap(
                 inner -> inner.metrics()
                         .filter(metric -> metric.getType() == MetricType.I)
@@ -40,7 +40,7 @@ public class ProjectMetricXYChartDataBuilder {
                         .map(ProjectMetricXYChartDataBuilder::convert))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (x, y) -> y, TreeMap::new));
 
-        Map<String, Double> myAbstractness = javaProject.allPackages()
+        Map<String, Double> myAbstractness = projectElement.allPackages()
                 .flatMap(
                         inner -> inner.metrics()
                                 .filter(metric -> metric.getType() == MetricType.A)
