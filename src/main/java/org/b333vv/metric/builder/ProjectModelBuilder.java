@@ -98,7 +98,7 @@ public class ProjectModelBuilder extends ModelBuilder {
         return current;
     }
 
-    public void addJavaFileToprojectElement(@NotNull PsiJavaFile psiJavaFile) {
+    public void addJavaFileToProjectElement(@NotNull PsiJavaFile psiJavaFile) {
         findOrCreateJavaPackage(psiJavaFile).addFile(createJavaFile(psiJavaFile));
     }
 
@@ -127,8 +127,8 @@ public class ProjectModelBuilder extends ModelBuilder {
                         pkg.addFile(fe);
                         // Ensure ProjectElement.allClasses is populated for Kotlin classes
                         long count = fe.classes().peek(projectElement::addToAllClasses).count();
-                        psiFile.getProject().getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
-                                .printInfo("[ProjectModelBuilder] Kotlin file '" + psiFile.getName() + "' -> added " + count + " classes into package '" + fqn + "'");
+//                        psiFile.getProject().getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+//                                .printInfo("[ProjectModelBuilder] Kotlin file '" + psiFile.getName() + "' -> added " + count + " classes into package '" + fqn + "'");
                     }
                 }
             }

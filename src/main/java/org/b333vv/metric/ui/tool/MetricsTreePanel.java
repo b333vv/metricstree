@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.psi.PsiElement;
@@ -117,6 +118,17 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
     }
 
     JComponent createSplitter(JComponent c1, JComponent c2, String proportion) {
+        // Check if project is disposed before accessing PropertiesComponent
+        if (project == null || project.isDisposed()) {
+            // Return a default splitter with a reasonable default proportion
+            final JBSplitter splitter = new JBSplitter(false);
+            splitter.setFirstComponent(c1);
+            splitter.setSecondComponent(c2);
+            splitter.setProportion(0.65f);
+            splitter.setHonorComponentsMinimumSize(true);
+            return splitter;
+        }
+
         float savedProportion = PropertiesComponent.getInstance(project)
                 .getFloat(proportion, (float) 0.65);
 
@@ -126,8 +138,13 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         splitter.setProportion(savedProportion);
         splitter.setHonorComponentsMinimumSize(true);
         splitter.addPropertyChangeListener(Splitter.PROP_PROPORTION,
-                evt -> PropertiesComponent.getInstance(project).setValue(proportion,
-                        Float.toString(splitter.getProportion())));
+                evt -> {
+                    // Check if project is disposed before saving the property
+                    if (!project.isDisposed()) {
+                        PropertiesComponent.getInstance(project).setValue(proportion,
+                                Float.toString(splitter.getProportion()));
+                    }
+                });
         return splitter;
     }
 
@@ -232,6 +249,11 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
 
     protected void clear() {
         SwingUtilities.invokeLater(() -> {
+            // Check if project is disposed before proceeding with UI updates
+            if (project.isDisposed()) {
+                return;
+            }
+            
             rightPanel.removeAll();
             mainPanel.removeAll();
             updateUI();

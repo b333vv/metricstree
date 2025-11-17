@@ -66,7 +66,7 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
             progress++;
             if (isJava) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-                projectModelBuilder.addJavaFileToprojectElement(psiJavaFile);
+                projectModelBuilder.addJavaFileToProjectElement(psiJavaFile);
             } else if (isKotlin) {
                 projectModelBuilder.addKotlinFileToProjectReflective(psiFile);
             }

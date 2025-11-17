@@ -148,6 +148,7 @@ public class CalculationServiceImpl implements CalculationService {
     public DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator) {
         DependenciesBuilder dependencies = cacheService.getUserData(CacheService.DEPENDENCIES);
         if (dependencies == null) {
+            long startTime = System.nanoTime();
             dependencies = runTaskSynchronously(
                     "Building Dependencies Model",
                     (progressIndicator) -> {
@@ -158,6 +159,10 @@ public class CalculationServiceImpl implements CalculationService {
                     },
                     indicator
             );
+            long endTime = System.nanoTime();
+            long duration = endTime - startTime;
+            String message = String.format("Dependencies building completed in %.3f seconds", duration / 1_000_000.0);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putUserData(CacheService.DEPENDENCIES, dependencies);
         }
         return dependencies;
@@ -169,24 +174,39 @@ public class CalculationServiceImpl implements CalculationService {
             // Ensure dependencies are built first
             DependenciesBuilder dependencies = getOrBuildDependencies(indicator);
 
+            long startTime = System.nanoTime();
             projectElement = runTaskSynchronously(
                     "Building Class and Method Metrics Model",
                     (progressIndicator) -> {
                         // Stage 1: Always run PSI
+                        long psiStartTime = System.nanoTime();
                         PsiCalculationStrategy psiStrategy = new PsiCalculationStrategy();
                         ProjectElement newprojectElement = psiStrategy.calculate(project, progressIndicator);
+                        long psiEndTime = System.nanoTime();
+                        long psiDuration = psiEndTime - psiStartTime;
+                        String psiMessage = String.format("PSI calculation completed in %.3f seconds", psiDuration / 1_000_000.0);
+                        project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(psiMessage);
 
                         // Stage 2: Conditionally augment with JavaParser
                         if (settingsService.getCalculationEngine() == CalculationEngine.JAVAPARSER) {
                             List<CompilationUnit> allUnits = getOrBuildAllCompilationUnits(progressIndicator); // Call the new method
+                            long javaParserStartTime = System.nanoTime();
                             JavaParserCalculationStrategy javaParserStrategy = new JavaParserCalculationStrategy();
                             javaParserStrategy.augment(newprojectElement, project, allUnits, progressIndicator); // Pass the list
-                            logMetricDifferences(newprojectElement);
+                            long javaParserEndTime = System.nanoTime();
+                            long javaParserDuration = javaParserEndTime - javaParserStartTime;
+                            String javaParserMessage = String.format("JavaParser augmentation completed in %.3f seconds", javaParserDuration / 1_000_000_000.0);
+                            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(javaParserMessage);
+//                            logMetricDifferences(newprojectElement);
                         }
                         return newprojectElement;
                     },
                     indicator
             );
+            long endTime = System.nanoTime();
+            long duration = endTime - startTime;
+            String message = String.format("Class and Method Model building completed in %.3f seconds", duration / 1_000_000.0);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putUserData(CacheService.CLASS_AND_METHODS_METRICS, projectElement);
         }
         return projectElement;
@@ -198,6 +218,7 @@ public class CalculationServiceImpl implements CalculationService {
             // Ensure class and method model is built first
             ProjectElement classAndMethodModel = getOrBuildClassAndMethodModel(indicator);
 
+            long startTime = System.nanoTime();
             projectElement = runTaskSynchronously(
                     "Building Package Metrics Model",
                     (progressIndicator) -> {
@@ -210,6 +231,10 @@ public class CalculationServiceImpl implements CalculationService {
                     },
                     indicator
             );
+            long endTime = System.nanoTime();
+            long duration = endTime - startTime;
+            String message = String.format("Package Metrics Model building completed in %.3f seconds", duration / 1_000_000_000.0);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putUserData(CacheService.PACKAGE_METRICS, projectElement);
         }
         return projectElement;
@@ -221,6 +246,7 @@ public class CalculationServiceImpl implements CalculationService {
             // Ensure package metrics model is built first
             ProjectElement packageMetricsModel = getOrBuildPackageMetricsModel(indicator);
 
+            long startTime = System.nanoTime();
             projectElement = runTaskSynchronously(
                     "Building Project Metrics Model",
                     (progressIndicator) -> {
@@ -233,6 +259,10 @@ public class CalculationServiceImpl implements CalculationService {
                     },
                     indicator
             );
+            long endTime = System.nanoTime();
+            long duration = endTime - startTime;
+            String message = String.format("Project Metrics Model building completed in %.3f seconds", duration / 1_000_000.0);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putUserData(CacheService.PROJECT_METRICS, projectElement);
         }
         return projectElement;
@@ -247,7 +277,15 @@ public class CalculationServiceImpl implements CalculationService {
         if (treeModel != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsTreeIsReady(treeModel);
         } else {
-            Function<ProgressIndicator, DefaultTreeModel> taskLogic = (indicator) -> new ProjectTreeModelCalculator(project).calculate();
+            Function<ProgressIndicator, DefaultTreeModel> taskLogic = (indicator) -> {
+                long startTime = System.nanoTime();
+                DefaultTreeModel model = new ProjectTreeModelCalculator(project).calculate();
+                long endTime = System.nanoTime();
+                long duration = endTime - startTime;
+                String message = String.format("Project Tree Model calculation completed in %.3f seconds", duration / 1_000_000_000.0);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
+                return model;
+            };
             Consumer<DefaultTreeModel> onSuccessCallback = (model) -> {
                 cacheService.putUserData(CacheService.PROJECT_TREE, model);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
