@@ -94,8 +94,8 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
             return lenses;
         }
 
-        ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
         FileElement javaFile = CachedValuesManager.getCachedValue(psiJavaFile, () -> {
+            ClassModelBuilder classModelBuilder = new ClassModelBuilder(psiJavaFile.getProject());
             FileElement jf = classModelBuilder.buildJavaFile(psiJavaFile);
             return CachedValueProvider.Result.create(jf, psiJavaFile);
         });
@@ -166,7 +166,7 @@ public class MetricsTreeCodeVisionProvider implements DaemonBoundCodeVisionProvi
 //            ListPopup popup = JBPopupFactory.getInstance().createListPopup(null, new MetricsTreePopup(psiClass, metricTypes);
 //            popup.show(new RelativePoint(event));
 
-            return null;
+             return null;
         }
     }
 

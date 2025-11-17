@@ -48,8 +48,6 @@ public class ClassModelBuilder extends ModelBuilder {
         // Reflectively handle Kotlin file via KotlinModelBuilder to avoid touching ModelBuilder's methods
         try {
             if ("Kotlin".equals(psiFile.getFileType().getName()) || "KOTLIN".equals(psiFile.getFileType().getName())) {
-                project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
-                        .printInfo("[ClassModelBuilder] Kotlin file detected: " + psiFile.getName());
                 Class<?> kmbClass = Class.forName("org.b333vv.metric.builder.KotlinModelBuilder");
                 java.lang.reflect.Constructor<?> ctor = kmbClass.getConstructor(Project.class);
                 Object kmb = ctor.newInstance(project);
@@ -66,18 +64,10 @@ public class ClassModelBuilder extends ModelBuilder {
                     }
                 }
                 if (target != null) {
-                    project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
-                            .printInfo("[ClassModelBuilder] Invoking KotlinModelBuilder.createKotlinFile via reflection");
                     target.setAccessible(true);
                     Object res = target.invoke(kmb, psiFile);
-                    if (res == null) {
-                        project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
-                                .printInfo("[ClassModelBuilder] createKotlinFile returned null for: " + psiFile.getName());
-                    }
                     return (FileElement) res;
                 }
-                project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
-                        .printInfo("[ClassModelBuilder] createKotlinFile method not found on KotlinModelBuilder");
             }
         } catch (ClassNotFoundException e) {
             // Kotlin builder not available -> Kotlin plugin/classes missing; safely ignore
