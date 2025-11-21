@@ -43,7 +43,7 @@ public class ClassByMetricsTreeTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classByMetricTreeIsReady();
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classByMetricTreeIsReady(null);
     }
 
     @Override

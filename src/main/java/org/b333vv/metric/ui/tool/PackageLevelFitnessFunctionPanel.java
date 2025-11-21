@@ -238,7 +238,8 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     private class PackageLevelFitnessFunctionEventListener implements MetricsEventListener {
 
         @Override
-        public void packageLevelFitnessFunctionIsReady() {
+        public void packageLevelFitnessFunctionIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             createProfileUIComponents();
             fitnessFunctionResult = project.getService(CacheService.class)
                     .getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
@@ -248,7 +249,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void xyChartIsReady() {
+        public void xyChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.XY_CHART);
             Map<String, Double> instability = project.getService(CacheService.class)
                     .getUserData(CacheService.INSTABILITY);

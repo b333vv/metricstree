@@ -21,13 +21,19 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Service(Service.Level.PROJECT)
 public final class TaskQueueService {
+    private final Project project;
     private final ConcurrentLinkedQueue<Task.Backgroundable> taskQueue = new ConcurrentLinkedQueue<>();
     private volatile boolean isProcessing = false;
+
+    public TaskQueueService(Project project) {
+        this.project = project;
+    }
 
     public void queue(Task.Backgroundable task) {
         taskQueue.offer(task);
@@ -45,6 +51,17 @@ public final class TaskQueueService {
                 ProgressManager.getInstance().run(nextTask);
             } finally {
                 isProcessing = false;
+                // Update action toolbar to re-enable UI controls
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    // Notify the UI that actions need to be updated
+                    com.intellij.openapi.wm.ToolWindowManager toolWindowManager = com.intellij.openapi.wm.ToolWindowManager
+                            .getInstance(project);
+                    com.intellij.openapi.wm.ToolWindow toolWindow = toolWindowManager.getToolWindow("MetricsTree");
+                    if (toolWindow != null) {
+                        // This will trigger an update of all actions in the toolbar
+                        toolWindow.getComponent().repaint();
+                    }
+                }, ModalityState.NON_MODAL);
                 // Process next task if queue is not empty
                 if (!taskQueue.isEmpty()) {
                     ApplicationManager.getApplication().invokeLater(this::processNextTask, ModalityState.NON_MODAL);

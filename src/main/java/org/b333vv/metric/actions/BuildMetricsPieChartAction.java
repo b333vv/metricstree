@@ -17,10 +17,12 @@
 package org.b333vv.metric.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
+import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.ui.settings.ranges.BasicMetricsValidRangesSettings;
 import org.b333vv.metric.util.SettingsService;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +34,8 @@ public class BuildMetricsPieChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectPanel();
-            project.getService(CalculationService.class).calculatePieChart();
+            Module module = project.getService(UIStateService.class).getSelectedModule();
+            project.getService(CalculationService.class).calculatePieChart(module);
         }
     }
 
@@ -40,11 +43,13 @@ public class BuildMetricsPieChartAction extends AbstractAction {
     public void update(AnActionEvent e) {
         Project project = e.getProject();
         if (project != null) {
-            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(SettingsService.class).getBasicMetricsSettings();
+            BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project.getService(SettingsService.class)
+                    .getBasicMetricsSettings();
             e.getPresentation().setEnabled(
                     project.getService(SettingsService.class).isControlValidRanges()
                             && basicMetricsValidRangesSettings.getControlledMetricsList().stream()
-                            .anyMatch(s -> s.getLevel().equals("Class Level")) &&
+                                    .anyMatch(s -> s.getLevel().equals("Class Level"))
+                            &&
                             project.getService(TaskQueueService.class).isQueueEmpty());
         }
     }

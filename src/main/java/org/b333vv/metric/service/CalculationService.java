@@ -17,11 +17,11 @@ public interface CalculationService {
 
     void calculateProjectTree(@Nullable Module module);
 
-    void calculatePieChart();
+    void calculatePieChart(@Nullable Module module);
 
-    void calculateCategoryChart();
+    void calculateCategoryChart(@Nullable Module module);
 
-    void calculateXyChart();
+    void calculateXyChart(@Nullable Module module);
 
     void calculateProfileBoxCharts();
 
@@ -31,7 +31,7 @@ public interface CalculationService {
 
     void calculateProfileRadarCharts();
 
-    void calculateMetricTreeMap();
+    void calculateMetricTreeMap(@Nullable Module module);
 
     void calculateProfileTreeMap();
 
@@ -45,7 +45,7 @@ public interface CalculationService {
 
     void exportPackageMetricsToCsv(String fileName);
 
-    void calculateClassFitnessFunctions();
+    void calculateClassFitnessFunctions(@Nullable Module module);
 
     void calculatePackageFitnessFunctions(@Nullable Module module);
 }

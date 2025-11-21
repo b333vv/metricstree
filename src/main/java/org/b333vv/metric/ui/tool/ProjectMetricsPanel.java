@@ -304,16 +304,16 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
+        public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel,
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
-                // Get the projectElement from the cache service - it should be available since
-                // the tree was just built
+                // Get the projectElement from the module-specific cache
                 ProjectElement projectElement = project.getService(CacheService.class)
-                        .getUserData(CacheService.PROJECT_METRICS);
+                        .getProjectMetrics(module);
                 if (projectElement == null) {
                     // Fallback to class and methods metrics if project metrics not available
                     projectElement = project.getService(CacheService.class)
-                            .getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                            .getClassAndMethodMetrics(module);
                 }
 
                 if (projectElement != null) {
@@ -331,14 +331,15 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void classByMetricTreeIsReady() {
+        public void classByMetricTreeIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
                 showResults(project.getService(CacheService.class).getUserData(CacheService.CLASSES_BY_METRIC_TREE));
             });
         }
 
         @Override
-        public void pieChartIsReady() {
+        public void pieChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
                 Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = project.getService(CacheService.class)
                         .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
@@ -349,7 +350,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void categoryChartIsReady() {
+        public void categoryChartIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
                 Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(CacheService.class)
                         .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
@@ -369,10 +371,11 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         @Override
-        public void metricTreeMapIsReady() {
+        public void metricTreeMapIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
                 ProjectElement projectElement = project.getService(CacheService.class)
-                        .getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                        .getClassAndMethodMetrics(module);
                 MetricTreeMap<CodeElement> treeMap = project.getService(CacheService.class)
                         .getUserData(CacheService.METRIC_TREE_MAP);
                 if (treeMap != null && projectElement != null) {

@@ -146,7 +146,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     }
 
     private void clearPanels() {
-//        distribution = null;
+        // distribution = null;
         boxChartList = null;
         if (profilesPanel != null) {
             profilesPanel.removeAll();
@@ -255,7 +255,8 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         scrollablePanel.getHorizontalScrollBar().setUnitIncrement(10);
         mainPanel.add(scrollablePanel);
 
-        ClassesForProfileTable classesForProfileTable = new ClassesForProfileTable(chartStructure.getClasses(), project);
+        ClassesForProfileTable classesForProfileTable = new ClassesForProfileTable(chartStructure.getClasses(),
+                project);
         JScrollPane classesForProfileScrollablePanel = ScrollPaneFactory.createScrollPane(
                 classesForProfileTable.getComponent(),
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -340,9 +341,11 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     private class ClassLevelFitnessFunctionEventListener implements MetricsEventListener {
 
         @Override
-        public void classLevelFitnessFunctionIsReady() {
+        public void classLevelFitnessFunctionIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             createProfileUIComponents();
-            distribution = project.getService(CacheService.class).getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+            distribution = project.getService(CacheService.class)
+                    .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
             if (distribution != null) {
                 showProfiles();
             }
@@ -382,13 +385,15 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void profilesRadarChartIsReady() {
-            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = project.getService(CacheService.class).getUserData(CacheService.RADAR_CHART);
+            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = project.getService(CacheService.class)
+                    .getUserData(CacheService.RADAR_CHART);
             showRadarCharts(Objects.requireNonNull(radarCharts));
         }
 
         @Override
         public void profilesCategoryChartIsReady() {
-            CategoryChart categoryChart = project.getService(CacheService.class).getUserData(CacheService.PROFILE_CATEGORY_CHART);
+            CategoryChart categoryChart = project.getService(CacheService.class)
+                    .getUserData(CacheService.PROFILE_CATEGORY_CHART);
             showResults(Objects.requireNonNull(categoryChart));
         }
 
@@ -405,7 +410,8 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void profileTreeMapIsReady() {
             treeMap = project.getService(CacheService.class).getUserData(CacheService.PROFILE_TREE_MAP);
-            distribution = project.getService(CacheService.class).getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+            distribution = project.getService(CacheService.class)
+                    .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
             if (treeMap != null && distribution != null) {
                 showTreeMap();
             }

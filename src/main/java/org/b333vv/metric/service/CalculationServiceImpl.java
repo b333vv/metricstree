@@ -227,6 +227,7 @@ public class CalculationServiceImpl implements CalculationService {
                     duration / 1_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putClassAndMethodMetrics(module, projectElement);
+
         }
         return projectElement;
     }
@@ -261,6 +262,7 @@ public class CalculationServiceImpl implements CalculationService {
                     duration / 1_000_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putPackageMetrics(module, projectElement);
+
         }
         return projectElement;
     }
@@ -295,6 +297,7 @@ public class CalculationServiceImpl implements CalculationService {
                     duration / 1_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
             cacheService.putProjectMetrics(module, projectElement);
+
         }
         return projectElement;
     }
@@ -306,7 +309,8 @@ public class CalculationServiceImpl implements CalculationService {
         DefaultTreeModel treeModel = cacheService.getUserData(CacheService.PROJECT_TREE);
 
         if (treeModel != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsTreeIsReady(treeModel);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsTreeIsReady(treeModel,
+                    module);
         } else {
             Function<ProgressIndicator, DefaultTreeModel> taskLogic = (indicator) -> {
                 long startTime = System.nanoTime();
@@ -321,7 +325,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<DefaultTreeModel> onSuccessCallback = (model) -> {
                 cacheService.putUserData(CacheService.PROJECT_TREE, model);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                        .projectMetricsTreeIsReady(model);
+                        .projectMetricsTreeIsReady(model, module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building tree model canceled");
@@ -340,19 +344,19 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculatePieChart() {
+    public void calculatePieChart(@Nullable Module module) {
         List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService
                 .getUserData(CacheService.PIE_CHART_LIST);
         Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = cacheService
                 .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
 
         if (pieChartList != null && classesByMetricTypes != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady(module);
         } else {
             Function<ProgressIndicator, List<MetricPieChartBuilder.PieChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building classes distribution by metric values pie chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Generate classes by metric types data
                 Map<MetricType, Map<ClassElement, Metric>> newClassesByMetricTypes = generateClassesByMetricTypes(
@@ -370,7 +374,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<List<MetricPieChartBuilder.PieChartStructure>> onSuccessCallback = (newPieChartList) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building classes distribution by metric values pie chart finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building classes distribution by metric values pie chart canceled");
@@ -402,18 +406,18 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateCategoryChart() {
+    public void calculateCategoryChart(@Nullable Module module) {
         CategoryChart categoryChart = cacheService.getUserData(CacheService.CATEGORY_CHART);
         Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = cacheService
                 .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
 
         if (categoryChart != null && classesByMetricTypes != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady(module);
         } else {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building classes distribution by metric values category chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Generate the distribution data first
                 ClassesByMetricsValuesCounter distributor = new ClassesByMetricsValuesCounter(project);
@@ -431,7 +435,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<CategoryChart> onSuccessCallback = (calculatedCategoryChart) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building classes distribution by metric values category chart finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building classes distribution by metric values category chart canceled");
@@ -450,10 +454,10 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateMetricTreeMap() {
+    public void calculateMetricTreeMap(@Nullable Module module) {
         MetricTreeMap<CodeElement> metricTreeMap = cacheService.getUserData(CacheService.METRIC_TREE_MAP);
         if (metricTreeMap != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady(module);
         } else {
             Function<ProgressIndicator, MetricTreeMap<CodeElement>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -467,7 +471,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<MetricTreeMap<CodeElement>> onSuccessCallback = (newMetricTreeMap) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building treemap with metric types distribution finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building treemap with metric types distribution canceled");
@@ -486,13 +490,13 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateXyChart() {
+    public void calculateXyChart(@Nullable Module module) {
         XYChart xyChart = cacheService.getUserData(CacheService.XY_CHART);
         Map<String, Double> instability = cacheService.getUserData(CacheService.INSTABILITY);
         Map<String, Double> abstractness = cacheService.getUserData(CacheService.ABSTRACTNESS);
 
         if (xyChart != null && instability != null && abstractness != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady(module);
         } else {
             Function<ProgressIndicator, XYChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -511,7 +515,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<XYChart> onSuccessCallback = (newXyChart) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building XY chart finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building XY chart canceled");
@@ -923,11 +927,11 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateClassFitnessFunctions() {
+    public void calculateClassFitnessFunctions(@Nullable Module module) {
         Map<FitnessFunction, Set<ClassElement>> classFitnessFunctions = cacheService
                 .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classFitnessFunctions != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady(module);
         } else {
             Function<ProgressIndicator, Map<FitnessFunction, Set<ClassElement>>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -942,7 +946,8 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<Map<FitnessFunction, Set<ClassElement>>> onSuccessCallback = (newClassFitnessFunctions) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building class level fitness functions finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .classLevelFitnessFunctionIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building class level fitness functions canceled");
@@ -965,7 +970,8 @@ public class CalculationServiceImpl implements CalculationService {
         Map<FitnessFunction, Set<PackageElement>> packageFitnessFunctions = cacheService
                 .getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
         if (packageFitnessFunctions != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .packageLevelFitnessFunctionIsReady(module);
         } else {
             Function<ProgressIndicator, Map<FitnessFunction, Set<PackageElement>>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -979,7 +985,8 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<Map<FitnessFunction, Set<PackageElement>>> onSuccessCallback = (newPackageFitnessFunctions) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building package level fitness functions finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .packageLevelFitnessFunctionIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building package level fitness functions canceled");

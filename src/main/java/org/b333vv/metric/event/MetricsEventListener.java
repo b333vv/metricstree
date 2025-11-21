@@ -71,28 +71,32 @@ public interface MetricsEventListener {
     default void javaPackageSelected(PackageElement javaPackage) {
     }
 
-    default void projectMetricsTreeIsReady(DefaultTreeModel treeModel) {
+    default void projectMetricsTreeIsReady(DefaultTreeModel treeModel,
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
-    default void pieChartIsReady() {
+    default void pieChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
     default void printInfo(String info) {
     }
 
-    default void categoryChartIsReady() {
+    default void categoryChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
-    default void xyChartIsReady() {
+    default void xyChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
-    default void classByMetricTreeIsReady() {
+    default void classByMetricTreeIsReady(
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
-    default void classLevelFitnessFunctionIsReady() {
+    default void classLevelFitnessFunctionIsReady(
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
-    default void packageLevelFitnessFunctionIsReady() {
+    default void packageLevelFitnessFunctionIsReady(
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
     default void packageLevelFitnessFunctionSelected(FitnessFunction fitnessFunction) {
@@ -107,7 +111,7 @@ public interface MetricsEventListener {
     default void profilesHeatMapChartIsReady() {
     }
 
-    default void profilesRadarChartIsReady(){
+    default void profilesRadarChartIsReady() {
     }
 
     default void profilesCategoryChartIsReady() {
@@ -116,7 +120,7 @@ public interface MetricsEventListener {
     default void currentMetricProfile(FitnessFunction fitnessFunction) {
     }
 
-    default void metricTreeMapIsReady() {
+    default void metricTreeMapIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
     }
 
     default void setProjectPanelBottomText(String text) {

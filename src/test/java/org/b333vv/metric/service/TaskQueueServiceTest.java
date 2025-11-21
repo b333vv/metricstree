@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,8 @@ public class TaskQueueServiceTest {
     private Application mockApplication;
     @Mock
     private Task.Backgroundable mockTask;
+    @Mock
+    private Project mockProject;
 
     private MockedStatic<ProgressManager> progressManagerMockedStatic;
     private MockedStatic<ApplicationManager> applicationManagerMockedStatic;
@@ -36,7 +39,7 @@ public class TaskQueueServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new TaskQueueService();
+        service = new TaskQueueService(mockProject);
         progressManagerMockedStatic = mockStatic(ProgressManager.class);
         progressManagerMockedStatic.when(ProgressManager::getInstance).thenReturn(mockProgressManager);
 
