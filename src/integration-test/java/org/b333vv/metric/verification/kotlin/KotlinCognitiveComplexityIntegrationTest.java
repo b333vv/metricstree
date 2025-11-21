@@ -16,8 +16,7 @@ public class KotlinCognitiveComplexityIntegrationTest extends LightJavaCodeInsig
     protected void setUp() throws Exception {
         super.setUp();
         myFixture.configureByFiles(
-                "kotlin/Cognitive.kt"
-        );
+                "kotlin/Cognitive.kt");
     }
 
     @Override
@@ -27,23 +26,29 @@ public class KotlinCognitiveComplexityIntegrationTest extends LightJavaCodeInsig
 
     public void testCognitiveAndLoopMetricsOnEdgeCases() {
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement projectElement = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
-        List<ClassElement> classes = pe.allClasses().collect(Collectors.toList());
+        List<ClassElement> classes = projectElement.allClasses().collect(Collectors.toList());
         ClassElement klass = classes.stream()
                 .filter(c -> "CognitiveCases".equals(c.getName()))
                 .findFirst().orElse(null);
         assertNotNull("Expected CognitiveCases class", klass);
 
-        MethodElement ifElseBoolean = klass.methods().filter(m -> "ifElseBoolean".equals(m.getName())).findFirst().orElse(null);
+        MethodElement ifElseBoolean = klass.methods().filter(m -> "ifElseBoolean".equals(m.getName())).findFirst()
+                .orElse(null);
         MethodElement factorial = klass.methods().filter(m -> "factorial".equals(m.getName())).findFirst().orElse(null);
-        MethodElement labeledLoops = klass.methods().filter(m -> "labeledLoops".equals(m.getName())).findFirst().orElse(null);
+        MethodElement labeledLoops = klass.methods().filter(m -> "labeledLoops".equals(m.getName())).findFirst()
+                .orElse(null);
         MethodElement whenExpr = klass.methods().filter(m -> "whenExpr".equals(m.getName())).findFirst().orElse(null);
         // Fallbacks to avoid brittle failures if names change in PSI
-        if (ifElseBoolean == null) ifElseBoolean = klass.methods().findFirst().orElse(null);
-        if (factorial == null) factorial = klass.methods().findFirst().orElse(null);
-        if (labeledLoops == null) labeledLoops = klass.methods().findFirst().orElse(null);
-        if (whenExpr == null) whenExpr = klass.methods().findFirst().orElse(null);
+        if (ifElseBoolean == null)
+            ifElseBoolean = klass.methods().findFirst().orElse(null);
+        if (factorial == null)
+            factorial = klass.methods().findFirst().orElse(null);
+        if (labeledLoops == null)
+            labeledLoops = klass.methods().findFirst().orElse(null);
+        if (whenExpr == null)
+            whenExpr = klass.methods().findFirst().orElse(null);
         assertNotNull(ifElseBoolean);
         assertNotNull(factorial);
         assertNotNull(labeledLoops);
@@ -60,7 +65,7 @@ public class KotlinCognitiveComplexityIntegrationTest extends LightJavaCodeInsig
         assertNotNull(whenExpr.metric(MetricType.CCM));
 
         // Halstead metrics are computed for all methods
-        for (MethodElement m : new MethodElement[]{ifElseBoolean, factorial, labeledLoops, whenExpr}) {
+        for (MethodElement m : new MethodElement[] { ifElseBoolean, factorial, labeledLoops, whenExpr }) {
             assertNotNull(m.metric(MetricType.HVL));
             assertNotNull(m.metric(MetricType.HD));
             assertNotNull(m.metric(MetricType.HL));

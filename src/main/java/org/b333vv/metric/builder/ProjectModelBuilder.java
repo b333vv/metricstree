@@ -54,7 +54,8 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     private PackageElement findOrCreatePackageByFqn(@NotNull Project project, @NotNull String fqn) {
         PackageElement existing = projectElement.getFromAllPackages(fqn);
-        if (existing != null) return existing;
+        if (existing != null)
+            return existing;
 
         // Try to resolve via JavaPsiFacade
         PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage(fqn);
@@ -82,13 +83,15 @@ public class ProjectModelBuilder extends ModelBuilder {
             projectElement.addPackage(current);
         }
         for (int i = 0; i < parts.length; i++) {
-            if (i > 0) path.append('.');
+            if (i > 0)
+                path.append('.');
             path.append(parts[i]);
             String qn = path.toString();
             PackageElement next = projectElement.getFromAllPackages(qn);
             if (next == null) {
                 PsiPackage p = JavaPsiFacade.getInstance(project).findPackage(qn);
-                if (p == null) p = new PsiPackageImpl(null, qn);
+                if (p == null)
+                    p = new PsiPackageImpl(null, qn);
                 next = new PackageElement(parts[i], p);
                 projectElement.putToAllPackages(qn, next);
                 current.addPackage(next);
@@ -99,6 +102,12 @@ public class ProjectModelBuilder extends ModelBuilder {
     }
 
     public void addJavaFileToProjectElement(@NotNull PsiJavaFile psiJavaFile) {
+        Project project = psiJavaFile.getProject();
+        boolean includeTestFiles = project.getService(SettingsService.class).getOtherSettings().isIncludeTestFiles();
+        if (!includeTestFiles && com.intellij.openapi.roots.ProjectFileIndex.getInstance(project)
+                .isInTestSourceContent(psiJavaFile.getVirtualFile())) {
+            return;
+        }
         findOrCreateJavaPackage(psiJavaFile).addFile(createJavaFile(psiJavaFile));
     }
 
@@ -118,7 +127,8 @@ public class ProjectModelBuilder extends ModelBuilder {
                 java.lang.reflect.Constructor<?> ctor = kmbClass.getConstructor(Project.class);
                 Object kmb = ctor.newInstance(((com.intellij.psi.PsiFile) psiFile).getProject());
 
-                java.lang.reflect.Method bridge = kmbClass.getMethod("createKotlinFileBridge", com.intellij.psi.PsiFile.class);
+                java.lang.reflect.Method bridge = kmbClass.getMethod("createKotlinFileBridge",
+                        com.intellij.psi.PsiFile.class);
                 if (bridge != null) {
                     Object fileEl = bridge.invoke(kmb, psiFile);
                     if (fileEl instanceof org.b333vv.metric.model.code.FileElement) {
@@ -127,8 +137,9 @@ public class ProjectModelBuilder extends ModelBuilder {
                         pkg.addFile(fe);
                         // Ensure ProjectElement.allClasses is populated for Kotlin classes
                         long count = fe.classes().peek(projectElement::addToAllClasses).count();
-//                        psiFile.getProject().getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
-//                                .printInfo("[ProjectModelBuilder] Kotlin file '" + psiFile.getName() + "' -> added " + count + " classes into package '" + fqn + "'");
+                        // psiFile.getProject().getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                        // .printInfo("[ProjectModelBuilder] Kotlin file '" + psiFile.getName() + "' ->
+                        // added " + count + " classes into package '" + fqn + "'");
                     }
                 }
             }
@@ -154,7 +165,7 @@ public class ProjectModelBuilder extends ModelBuilder {
         for (PsiClass psiClass : psiJavaFile.getClasses()) {
             ClassElement javaClass = new ClassElement(psiClass);
 
-//            classVisitors().forEach(javaClass::accept);
+            // classVisitors().forEach(javaClass::accept);
 
             project.getService(SettingsService.class).getClassMetricsTreeSettings().getMetricsList().stream()
                     .filter(MetricsTreeSettingsStub::isNeedToConsider)
@@ -248,10 +259,10 @@ public class ProjectModelBuilder extends ModelBuilder {
         projectElement.addToAllClasses(javaClass);
     }
 
-//    @Override
-//    protected Stream<JavaRecursiveElementVisitor> classVisitors() {
-//        return MetricsService.classVisitorsForProjectMetricsTree();
-//    }
+    // @Override
+    // protected Stream<JavaRecursiveElementVisitor> classVisitors() {
+    // return MetricsService.classVisitorsForProjectMetricsTree();
+    // }
 
     @Override
     protected Stream<JavaRecursiveElementVisitor> classVisitors() {
@@ -260,12 +271,12 @@ public class ProjectModelBuilder extends ModelBuilder {
                 .filter(m -> m instanceof JavaClassVisitor);
     }
 
-//
+    //
 
-//    @Override
-//    protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
-//        return MetricsService.methodsVisitorsForProjectMetricsTree();
-//    }
+    // @Override
+    // protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
+    // return MetricsService.methodsVisitorsForProjectMetricsTree();
+    // }
 
     @Override
     protected Stream<JavaRecursiveElementVisitor> methodVisitors() {
@@ -274,9 +285,9 @@ public class ProjectModelBuilder extends ModelBuilder {
                 .filter(m -> m instanceof JavaMethodVisitor);
     }
 
-//    public void calculateDeferredMetrics() {
-//        projectElement.allClasses().forEach(c -> {
-//            MetricsService.getDeferredMetricTypes().forEach(t -> c.accept(t.visitor()));
-//        });
-//    }
+    // public void calculateDeferredMetrics() {
+    // projectElement.allClasses().forEach(c -> {
+    // MetricsService.getDeferredMetricTypes().forEach(t -> c.accept(t.visitor()));
+    // });
+    // }
 }

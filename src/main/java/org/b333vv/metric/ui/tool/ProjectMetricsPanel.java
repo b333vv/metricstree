@@ -56,7 +56,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-
 public class ProjectMetricsPanel extends MetricsTreePanel {
     private static final String SPLIT_PROPORTION_2PANELS = "PROJECT_2PANELS_PROPORTION";
     private static final String SPLIT_PROPORTION_3PANELS = "PROJECT_3PANELS_PROPORTION";
@@ -71,10 +70,33 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     private ProjectMetricsPanel(Project project) {
         super(project, "Metrics.ProjectMetricsToolbar", SPLIT_PROPORTION_2PANELS);
+
+        // Re-create toolbar with ModuleSelector
+        com.intellij.openapi.actionSystem.ActionManager actionManager = com.intellij.openapi.actionSystem.ActionManager
+                .getInstance();
+        com.intellij.openapi.actionSystem.DefaultActionGroup originalGroup = (com.intellij.openapi.actionSystem.DefaultActionGroup) actionManager
+                .getAction("Metrics.ProjectMetricsToolbar");
+        com.intellij.openapi.actionSystem.DefaultActionGroup newGroup = new com.intellij.openapi.actionSystem.DefaultActionGroup();
+
+        newGroup.add(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
+            actionManager.tryToExecute(
+                    actionManager.getAction("Metrics.CalculateProjectMetrics"),
+                    null, null, com.intellij.openapi.actionSystem.ActionPlaces.UNKNOWN, true);
+        }));
+        newGroup.addSeparator();
+        newGroup.addAll(originalGroup);
+
+        com.intellij.openapi.actionSystem.ActionToolbar actionToolbar = actionManager
+                .createActionToolbar("Metrics Toolbar", newGroup, false);
+        actionToolbar.setOrientation(SwingConstants.VERTICAL);
+        actionToolbar.setTargetComponent(mainPanel);
+        setToolbar(actionToolbar.getComponent());
+
         MetricsEventListener metricsEventListener = new ProjectMetricsEventListener();
         ButtonsEventListener buttonsEventListener = new PressedButtonsEventListener();
         project.getMessageBus().connect(project).subscribe(MetricsEventListener.TOPIC, metricsEventListener);
-        project.getMessageBus().connect(project).subscribe(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC, buttonsEventListener);
+        project.getMessageBus().connect(project).subscribe(ButtonsEventListener.BUTTONS_EVENT_LISTENER_TOPIC,
+                buttonsEventListener);
     }
 
     public static ProjectMetricsPanel newInstance(Project project) {
@@ -92,7 +114,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         mainPanel = new JBPanel<>(new BorderLayout());
         mainPanel.add(treeMapBottomPanel.getPanel(), BorderLayout.NORTH);
         rightPanel = new JBPanel<>(new BorderLayout());
-        super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROJECT_TREE_MAP_2"), rightPanel, "PROJECT_TREE_MAP_1"));
+        super.setContent(createSplitter(createSplitter(leftPanel, mainPanel, "PROJECT_TREE_MAP_2"), rightPanel,
+                "PROJECT_TREE_MAP_1"));
     }
 
     private void showResults(Set<MetricType> metricTypes, CategoryChart categoryChart) {
@@ -112,7 +135,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         rightPanel.add(scrollableTablePanel);
     }
 
-    private void showResults(Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes, List<MetricPieChartBuilder.PieChartStructure> chartList) {
+    private void showResults(Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes,
+            List<MetricPieChartBuilder.PieChartStructure> chartList) {
         mainPanel = new JBPanel<>(new BorderLayout());
         rightPanel = new JBPanel<>(new BorderLayout());
         super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_PIE_CHART"));
@@ -143,7 +167,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         JTextPane explanation = new JTextPane();
         explanation.setContentType("text/html");
-        String explanationText = "<html><body style=\"font-family:'Open Sans', sans-serif;\">By default, each time project-level metrics values are calculated, " +
+        String explanationText = "<html><body style=\"font-family:'Open Sans', sans-serif;\">By default, each time project-level metrics values are calculated, "
+                +
                 "they are saved in the file &lt;project folder&gt;/.idea/metrics/&lt;time stamp&gt;.json. " +
                 "You can control this behavior in the configuration form (Other Settings Tab) by clicking &nbsp</body></html>";
         explanation.setText(explanationText);
@@ -172,7 +197,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         scrollableMetricDescriptionPanel.getVerticalScrollBar().setUnitIncrement(10);
         rightPanel.add(scrollableMetricDescriptionPanel);
 
-        ProjectMetricsHistoryBottomPanel projectMetricsHistoryBottomPanel = new ProjectMetricsHistoryBottomPanel(project);
+        ProjectMetricsHistoryBottomPanel projectMetricsHistoryBottomPanel = new ProjectMetricsHistoryBottomPanel(
+                project);
 
         projectMetricsHistoryXyChartPanel = new XChartPanel<>(xyChart);
         mainPanel.add(ScrollPaneFactory.createScrollPane(projectMetricsHistoryXyChartPanel), BorderLayout.CENTER);
@@ -202,7 +228,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                 .filter(e -> project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType())
                         .getRangeType(e.getValue().getPsiValue()) == rangeType)
                 .map(e -> new ClassesByRangesTable.ClassByRange(e.getKey(),
-                        project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType()).getRangeByRangeType(rangeType),
+                        project.getService(SettingsService.class).getRangeForMetric(e.getValue().getType())
+                                .getRangeByRangeType(rangeType),
                         e.getValue().getPsiValue()))
                 .collect(toList());
         ClassesByRangesTable classesByRangesTable = new ClassesByRangesTable(classesByRanges, project);
@@ -222,13 +249,13 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     private void showResults(@NotNull MetricTreeMap<CodeElement> treeMap, ProjectElement projectElement) {
         createTreeMapUIComponents();
-        
+
         // Set up TreeMap actions to communicate with the UI
         treeMap.setSelectionChangedAction(text -> treeMapBottomPanel.setData(text));
         treeMap.setClickedAction(javaClass -> {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectTreeMapCellClicked(javaClass);
         });
-        
+
         MetricTypeSelectorTable metricTypeSelectorTable = new MetricTypeSelectorTable(projectElement, metricType -> {
             treeMap.setColorProvider(new MetricTypeColorProvider(metricType, project));
             treeMap.updateUI();
@@ -261,7 +288,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     @Override
-    public void update(@NotNull PsiJavaFile file) {}
+    public void update(@NotNull PsiJavaFile file) {
+    }
 
     private class ProjectMetricsEventListener implements MetricsEventListener {
 
@@ -279,22 +307,26 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void projectMetricsTreeIsReady(javax.swing.tree.DefaultTreeModel treeModel) {
             SwingUtilities.invokeLater(() -> {
-                // Get the projectElement from the cache service - it should be available since the tree was just built
-                ProjectElement projectElement = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS);
+                // Get the projectElement from the cache service - it should be available since
+                // the tree was just built
+                ProjectElement projectElement = project.getService(CacheService.class)
+                        .getUserData(CacheService.PROJECT_METRICS);
                 if (projectElement == null) {
                     // Fallback to class and methods metrics if project metrics not available
-                    projectElement = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                    projectElement = project.getService(CacheService.class)
+                            .getUserData(CacheService.CLASS_AND_METHODS_METRICS);
                 }
-                
+
                 if (projectElement != null) {
-                    metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(projectElement, project);
+                    metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(projectElement,
+                            project);
                     showResults(treeModel);
                     buildProjectMetricsTree();
                     project.getService(UIStateService.class).setProjectTreeActive(true);
                 } else {
                     // If still null, log an error and don't proceed
                     project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                           .printInfo("Error: projectElement is null when trying to display metrics tree");
+                            .printInfo("Error: projectElement is null when trying to display metrics tree");
                 }
             });
         }
@@ -331,7 +363,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void projectMetricsHistoryXyChartIsReady() {
             SwingUtilities.invokeLater(() -> {
-                XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
+                XYChart xyChart = project.getService(CacheService.class)
+                        .getUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART);
                 showResults(xyChart);
             });
         }
@@ -339,8 +372,10 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         @Override
         public void metricTreeMapIsReady() {
             SwingUtilities.invokeLater(() -> {
-                ProjectElement projectElement = project.getService(CacheService.class).getUserData(CacheService.CLASS_AND_METHODS_METRICS);
-                MetricTreeMap<CodeElement> treeMap = project.getService(CacheService.class).getUserData(CacheService.METRIC_TREE_MAP);
+                ProjectElement projectElement = project.getService(CacheService.class)
+                        .getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+                MetricTreeMap<CodeElement> treeMap = project.getService(CacheService.class)
+                        .getUserData(CacheService.METRIC_TREE_MAP);
                 if (treeMap != null && projectElement != null) {
                     showResults(treeMap, projectElement);
                 }

@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import org.b333vv.metric.builder.SortedClassesTreeModelCalculator;
 import org.b333vv.metric.model.code.ProjectElement;
 
-
 import javax.swing.tree.DefaultTreeModel;
 
 @Service(Service.Level.PROJECT)
@@ -24,7 +23,7 @@ public final class ClassMetricsTreeService {
         DefaultTreeModel treeModel = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TREE);
 
         if (treeModel == null) {
-            ProjectElement projectElement = calculationService.getOrBuildClassAndMethodModel(indicator);
+            ProjectElement projectElement = calculationService.getOrBuildClassAndMethodModel(indicator, null);
             SortedClassesTreeModelCalculator calculator = new SortedClassesTreeModelCalculator();
             treeModel = calculator.calculate(projectElement, project);
             cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TREE, treeModel);

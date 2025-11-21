@@ -17,8 +17,7 @@ public class KotlinAllMethodMetricsIntegrationTest extends LightJavaCodeInsightF
     protected void setUp() throws Exception {
         super.setUp();
         myFixture.configureByFiles(
-                "kotlin/MethodMetrics.kt"
-        );
+                "kotlin/MethodMetrics.kt");
     }
 
     @Override
@@ -28,9 +27,9 @@ public class KotlinAllMethodMetricsIntegrationTest extends LightJavaCodeInsightF
 
     public void testAllMethodMetricsAreCalculatedForKotlin() {
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement projectElement = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
-        List<ClassElement> classes = pe.allClasses().collect(Collectors.toList());
+        List<ClassElement> classes = projectElement.allClasses().collect(Collectors.toList());
         ClassElement methodMetrics = classes.stream()
                 .filter(c -> "MethodMetrics".equals(c.getName()))
                 .findFirst().orElse(null);
@@ -45,8 +44,7 @@ public class KotlinAllMethodMetricsIntegrationTest extends LightJavaCodeInsightF
                 MetricType.LOC, MetricType.NOPM, MetricType.LAA, MetricType.FDP,
                 MetricType.NOAV, MetricType.MND, MetricType.CINT, MetricType.CDISP,
                 MetricType.HVL, MetricType.HD, MetricType.HL, MetricType.HEF,
-                MetricType.HVC, MetricType.HER, MetricType.CCM
-        );
+                MetricType.HVC, MetricType.HER, MetricType.CCM);
         for (MetricType mt : required) {
             assertNotNull("Expected method metric: " + mt, any.metric(mt));
         }

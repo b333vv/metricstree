@@ -68,8 +68,7 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 new JavaParserWeightOfAClassVisitor(),
                 new JavaParserHalsteadClassVisitor(),
                 new JavaParserNumberOfOverriddenMethodsVisitor(),
-                new JavaParserNumberOfAddedMethodsVisitor()
-        );
+                new JavaParserNumberOfAddedMethodsVisitor());
         methodVisitors = List.of(
                 new JavaParserNumberOfLoopsVisitor(),
                 new JavaParserLinesOfCodeVisitor(),
@@ -84,24 +83,26 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 new JavaParserMethodCognitiveComplexityVisitor(),
                 new JavaParserMethodComplexityVisitor(),
                 new JavaParserNumberOfAccessedVariablesVisitor(),
-                new JavaParserHalsteadMethodVisitor()
-        );
+                new JavaParserHalsteadMethodVisitor());
     }
 
     @Override
-    public ProjectElement calculate(Project project, ProgressIndicator indicator) {
+    public ProjectElement calculate(Project project, ProgressIndicator indicator,
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
         return new ProjectElement(project.getName());
     }
 
     @Override
-    public void augment(ProjectElement projectElement, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
+    public void augment(ProjectElement projectElement, Project project, List<CompilationUnit> allUnits,
+            ProgressIndicator indicator) {
         indicator.setText("Calculating metrics with JavaParser");
 
         TypeSolverProvider typeSolverProvider = new TypeSolverProvider();
         ParserConfiguration parserConfiguration = new ParserConfiguration()
-                .setSymbolResolver(new JavaSymbolSolver(typeSolverProvider.getTypeSolver(project, allUnits))); 
-        
-        // Re-parse ALL units together with the enhanced TypeSolver to ensure shared context
+                .setSymbolResolver(new JavaSymbolSolver(typeSolverProvider.getTypeSolver(project, allUnits)));
+
+        // Re-parse ALL units together with the enhanced TypeSolver to ensure shared
+        // context
         List<CompilationUnit> enhancedUnits = new ArrayList<>();
         for (CompilationUnit originalUnit : allUnits) {
             try {
@@ -116,24 +117,24 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 System.err.println("Exception during enhanced parsing: " + e.getMessage());
             }
         }
-        
+
         System.out.println("Enhanced parsing complete. " + enhancedUnits.size() + " units processed.");
 
         // Build class declarations from enhanced units
         List<ClassOrInterfaceDeclaration> allClassDeclarations = enhancedUnits.stream()
                 .flatMap(cu -> cu.findAll(ClassOrInterfaceDeclaration.class).stream())
                 .collect(Collectors.toList());
-        
+
         // Create mapping from class names to their enhanced compilation units
         Map<String, CompilationUnit> enhancedUnitsByClass = new HashMap<>();
         for (CompilationUnit unit : enhancedUnits) {
             String packageName = unit.getPackageDeclaration()
                     .map(pd -> pd.getNameAsString())
                     .orElse("");
-            
+
             unit.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
-                String key = packageName.isEmpty() ? classDecl.getNameAsString() 
-                           : packageName + "." + classDecl.getNameAsString();
+                String key = packageName.isEmpty() ? classDecl.getNameAsString()
+                        : packageName + "." + classDecl.getNameAsString();
                 enhancedUnitsByClass.put(key, unit);
                 enhancedUnitsByClass.put(classDecl.getNameAsString(), unit); // fallback key
             });
@@ -147,8 +148,8 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
             try {
                 // Find the enhanced compilation unit for this class
                 CompilationUnit cu = null;
-                
-                // Try with package qualification first  
+
+                // Try with package qualification first
                 String className = javaClass.getName();
                 String packageName = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
                     PsiClass psiClass = javaClass.getPsiClass();
@@ -157,16 +158,17 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                     }
                     return "";
                 });
-                
+
                 String qualifiedKey = packageName.isEmpty() ? className : packageName + "." + className;
                 cu = enhancedUnitsByClass.get(qualifiedKey);
-                
+
                 // Fallback to simple class name
                 if (cu == null) {
                     cu = enhancedUnitsByClass.get(className);
                 }
                 if (cu != null) {
-                    cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals(javaClass.getName()))
+                    cu.findFirst(ClassOrInterfaceDeclaration.class,
+                            c -> c.getNameAsString().equals(javaClass.getName()))
                             .ifPresent(classDeclaration -> {
                                 Consumer<Metric> classMetricConsumer = (m) -> {
                                     Metric metric = javaClass.metric(m.getType());
@@ -179,15 +181,22 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                                     visitor.visit(classDeclaration, classMetricConsumer);
                                 }
                                 // Handle context-dependent visitors separately
-                                new JavaParserNumberOfChildrenVisitor(allClassDeclarations).visit(classDeclaration, classMetricConsumer);
-                                new JavaParserForeignDataProvidersVisitor(allClassDeclarations).visit(classDeclaration, classMetricConsumer);
+                                new JavaParserNumberOfChildrenVisitor(allClassDeclarations).visit(classDeclaration,
+                                        classMetricConsumer);
+                                new JavaParserForeignDataProvidersVisitor(allClassDeclarations).visit(classDeclaration,
+                                        classMetricConsumer);
 
                                 javaClass.methods().forEach(javaMethod -> {
                                     PsiMethod psiMethod = javaMethod.getPsiMethod();
-                                    String methodName = ApplicationManager.getApplication().runReadAction((Computable<String>) psiMethod::getName);
-                                    int paramCount = ApplicationManager.getApplication().runReadAction((Computable<Integer>) () -> psiMethod.getParameterList().getParametersCount());
-                                    classDeclaration.findFirst(MethodDeclaration.class, m -> m.getNameAsString().equals(methodName) &&
-                                            m.getParameters().size() == paramCount)
+                                    String methodName = ApplicationManager.getApplication()
+                                            .runReadAction((Computable<String>) psiMethod::getName);
+                                    int paramCount = ApplicationManager.getApplication()
+                                            .runReadAction((Computable<Integer>) () -> psiMethod.getParameterList()
+                                                    .getParametersCount());
+                                    classDeclaration
+                                            .findFirst(MethodDeclaration.class,
+                                                    m -> m.getNameAsString().equals(methodName) &&
+                                                            m.getParameters().size() == paramCount)
                                             .ifPresent(methodDeclaration -> {
                                                 Consumer<Metric> methodMetricConsumer = (m) -> {
                                                     Metric metric = javaMethod.metric(m.getType());
@@ -216,7 +225,8 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
         Value totalLOCValue = javaClass.methods()
                 .map(m -> {
                     Metric metric = m.metric(LOC);
-                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue() : Value.UNDEFINED;
+                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue()
+                            : Value.UNDEFINED;
                 })
                 .reduce(Value.ZERO, (acc, next) -> {
                     if (acc == Value.UNDEFINED || next == Value.UNDEFINED) {
@@ -233,7 +243,8 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
         long cognitiveComplexity = javaClass.methods()
                 .mapToLong(javaMethod -> {
                     Metric ccmMetric = javaMethod.metric(CCM);
-                    if (ccmMetric != null && ccmMetric.getJavaParserValue() != null && ccmMetric.getJavaParserValue() != Value.UNDEFINED) {
+                    if (ccmMetric != null && ccmMetric.getJavaParserValue() != null
+                            && ccmMetric.getJavaParserValue() != Value.UNDEFINED) {
                         return ccmMetric.getJavaParserValue().longValue();
                     }
                     return 0L;
@@ -248,12 +259,14 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
         // CMI Calculation
         Metric chvlMetric = javaClass.metric(CHVL);
         Value halsteadVolumeValue = (chvlMetric != null && chvlMetric.getJavaParserValue() != null)
-                ? chvlMetric.getJavaParserValue() : Value.UNDEFINED;
+                ? chvlMetric.getJavaParserValue()
+                : Value.UNDEFINED;
 
         Value totalCCValue = javaClass.methods()
                 .map(m -> {
                     Metric metric = m.metric(CC);
-                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue() : Value.UNDEFINED;
+                    return (metric != null && metric.getJavaParserValue() != null) ? metric.getJavaParserValue()
+                            : Value.UNDEFINED;
                 })
                 .reduce(Value.ZERO, (acc, next) -> {
                     if (acc == Value.UNDEFINED || next == Value.UNDEFINED) {
@@ -266,8 +279,10 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
 
         Metric cmiMetric = javaClass.metric(CMI);
         if (cmiMetric != null) {
-            if (halsteadVolumeValue == Value.UNDEFINED || totalCCValue == Value.UNDEFINED || totalLOCValue == Value.UNDEFINED
-                || halsteadVolumeValue.doubleValue() <= 0.0 || totalCCValue.longValue() <= 0L || totalLOCValue.longValue() <= 0L) {
+            if (halsteadVolumeValue == Value.UNDEFINED || totalCCValue == Value.UNDEFINED
+                    || totalLOCValue == Value.UNDEFINED
+                    || halsteadVolumeValue.doubleValue() <= 0.0 || totalCCValue.longValue() <= 0L
+                    || totalLOCValue.longValue() <= 0L) {
                 cmiMetric.setJavaParserValue(Value.UNDEFINED);
             } else {
                 double halsteadVolume = halsteadVolumeValue.doubleValue();
@@ -275,8 +290,8 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 long linesOfCode = totalLOCValue.longValue();
 
                 double maintainabilityIndex = Math.max(0.0, (171.0 - 5.2 * Math.log(halsteadVolume)
-                            - 0.23 * cyclomaticComplexity
-                            - 16.2 * Math.log((double) linesOfCode)) * 100.0 / 171.0);
+                        - 0.23 * cyclomaticComplexity
+                        - 16.2 * Math.log((double) linesOfCode)) * 100.0 / 171.0);
                 cmiMetric.setJavaParserValue(Value.of(maintainabilityIndex));
             }
         }
@@ -287,13 +302,20 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
         Metric ccMetric = javaMethod.metric(CC);
         Metric locMetric = javaMethod.metric(LOC);
 
-        Value halsteadVolume = (hvlMetric != null && hvlMetric.getJavaParserValue() != null) ? hvlMetric.getJavaParserValue() : Value.UNDEFINED;
-        Value cyclomaticComplexity = (ccMetric != null && ccMetric.getJavaParserValue() != null) ? ccMetric.getJavaParserValue() : Value.UNDEFINED;
-        Value linesOfCode = (locMetric != null && locMetric.getJavaParserValue() != null) ? locMetric.getJavaParserValue() : Value.UNDEFINED;
+        Value halsteadVolume = (hvlMetric != null && hvlMetric.getJavaParserValue() != null)
+                ? hvlMetric.getJavaParserValue()
+                : Value.UNDEFINED;
+        Value cyclomaticComplexity = (ccMetric != null && ccMetric.getJavaParserValue() != null)
+                ? ccMetric.getJavaParserValue()
+                : Value.UNDEFINED;
+        Value linesOfCode = (locMetric != null && locMetric.getJavaParserValue() != null)
+                ? locMetric.getJavaParserValue()
+                : Value.UNDEFINED;
 
         Metric mmiMetric = javaMethod.metric(MMI);
         if (mmiMetric != null) {
-            if (halsteadVolume == Value.UNDEFINED || cyclomaticComplexity == Value.UNDEFINED || linesOfCode == Value.UNDEFINED) {
+            if (halsteadVolume == Value.UNDEFINED || cyclomaticComplexity == Value.UNDEFINED
+                    || linesOfCode == Value.UNDEFINED) {
                 mmiMetric.setJavaParserValue(Value.UNDEFINED);
             } else {
                 double hvl = halsteadVolume.doubleValue();
@@ -312,8 +334,10 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     }
 
     /**
-     * Parse a compilation unit for a given JavaClass, handling both file-based and string-based parsing.
-     * In test environments with temp filesystem, falls back to string-based parsing.
+     * Parse a compilation unit for a given JavaClass, handling both file-based and
+     * string-based parsing.
+     * In test environments with temp filesystem, falls back to string-based
+     * parsing.
      */
     private CompilationUnit parseClassCompilationUnit(ClassElement javaClass, JavaParser javaParser) {
         return ApplicationManager.getApplication().runReadAction((Computable<CompilationUnit>) () -> {
@@ -321,14 +345,14 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                 PsiClass psiClass = javaClass.getPsiClass();
                 VirtualFile virtualFile = psiClass.getContainingFile().getVirtualFile();
                 String filePath = virtualFile.getPath();
-                
+
                 // Try file-based parsing first (for production environment)
                 try {
                     return javaParser.parse(Paths.get(filePath)).getResult().orElse(null);
                 } catch (Exception e) {
                     // Fall back to string-based parsing (for test environment)
                     System.out.println("File-based parsing failed, trying string-based parsing: " + e.getMessage());
-                    
+
                     try {
                         String sourceCode = new String(virtualFile.contentsToByteArray(), virtualFile.getCharset());
                         System.out.println("Source code length: " + sourceCode.length() + " characters");
@@ -337,11 +361,13 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
                             System.out.println("String-based parsing successful for: " + javaClass.getName());
                             return parseResult.getResult().orElse(null);
                         } else {
-                            System.err.println("String-based parsing failed for " + javaClass.getName() + ": " + parseResult.getProblems());
+                            System.err.println("String-based parsing failed for " + javaClass.getName() + ": "
+                                    + parseResult.getProblems());
                             return null;
                         }
                     } catch (Exception stringParseException) {
-                        System.err.println("Both file and string parsing failed for " + javaClass.getName() + ": " + stringParseException.getMessage());
+                        System.err.println("Both file and string parsing failed for " + javaClass.getName() + ": "
+                                + stringParseException.getMessage());
                         return null;
                     }
                 }
@@ -353,39 +379,42 @@ public class JavaParserCalculationStrategy implements MetricCalculationStrategy 
     }
 
     /**
-     * Find the compilation unit that contains the given JavaClass from the pre-indexed map.
+     * Find the compilation unit that contains the given JavaClass from the
+     * pre-indexed map.
      */
-    private CompilationUnit findCompilationUnitForClass(ClassElement javaClass, Map<String, CompilationUnit> unitsByClass) {
+    private CompilationUnit findCompilationUnitForClass(ClassElement javaClass,
+            Map<String, CompilationUnit> unitsByClass) {
         return ApplicationManager.getApplication().runReadAction((Computable<CompilationUnit>) () -> {
             try {
                 PsiClass psiClass = javaClass.getPsiClass();
                 String className = psiClass.getName();
                 String packageName = "";
-                
+
                 // Get package name if available
                 if (psiClass.getContainingFile() instanceof PsiJavaFile) {
                     PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
                     packageName = javaFile.getPackageName();
                 }
-                
+
                 // Create the key to look up the compilation unit
                 String key = packageName.isEmpty() ? className : packageName + "." + className;
                 CompilationUnit unit = unitsByClass.get(key);
-                
+
                 if (unit != null) {
                     return unit;
                 }
-                
+
                 // Fallback: try just the class name
                 unit = unitsByClass.get(className);
                 if (unit != null) {
                     return unit;
                 }
-                
+
                 // Last resort: use the original parsing method
                 return parseClassCompilationUnit(javaClass, new JavaParser());
             } catch (Exception e) {
-                System.err.println("Failed to find compilation unit for class " + javaClass.getName() + ": " + e.getMessage());
+                System.err.println(
+                        "Failed to find compilation unit for class " + javaClass.getName() + ": " + e.getMessage());
                 return null;
             }
         });

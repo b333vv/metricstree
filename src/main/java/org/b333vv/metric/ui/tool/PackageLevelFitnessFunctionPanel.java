@@ -74,11 +74,23 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     public PackageLevelFitnessFunctionPanel(Project project) {
         super(false, true);
         this.project = project;
-        PackageLevelFitnessFunctions packageLevelFitnessFunctions = project.getService(PackageLevelFitnessFunctions.class);
+        PackageLevelFitnessFunctions packageLevelFitnessFunctions = project
+                .getService(PackageLevelFitnessFunctions.class);
         fitnessFunctionDescriptionMap = packageLevelFitnessFunctions.getProfilesDescription();
         ActionManager actionManager = ActionManager.getInstance();
-        ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
-                (DefaultActionGroup) actionManager.getAction("Metrics.PackageLevelFitnessFunctionToolbar"), false);
+        DefaultActionGroup originalGroup = (DefaultActionGroup) actionManager
+                .getAction("Metrics.PackageLevelFitnessFunctionToolbar");
+        DefaultActionGroup newGroup = new DefaultActionGroup();
+
+        newGroup.add(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
+            actionManager.tryToExecute(
+                    actionManager.getAction("Metrics.BuildPackageLevelFitnessFunction"),
+                    null, null, com.intellij.openapi.actionSystem.ActionPlaces.UNKNOWN, true);
+        }));
+        newGroup.addSeparator();
+        newGroup.addAll(originalGroup);
+
+        ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar", newGroup, false);
         actionToolbar.setOrientation(SwingConstants.VERTICAL);
         setToolbar(actionToolbar.getComponent());
         MetricsEventListener metricsEventListener = new PackageLevelFitnessFunctionEventListener();
@@ -138,7 +150,8 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_XY_CHART"));
 
         chartPanel = new XChartPanel<>(xyChart);
-        PackageLevelFitnessFunctionPanel.CoordinateListener mouseListener = new PackageLevelFitnessFunctionPanel.CoordinateListener(xyChart);
+        PackageLevelFitnessFunctionPanel.CoordinateListener mouseListener = new PackageLevelFitnessFunctionPanel.CoordinateListener(
+                xyChart);
         chartPanel.addMouseListener(mouseListener);
         mainPanel.add(ScrollPaneFactory.createScrollPane(chartPanel), BorderLayout.CENTER);
         packageMetricsTable = new PackageMetricsTable(instability, abstractness, project);
@@ -228,7 +241,8 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void packageLevelFitnessFunctionIsReady() {
             createProfileUIComponents();
-            fitnessFunctionResult = project.getService(CacheService.class).getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
+            fitnessFunctionResult = project.getService(CacheService.class)
+                    .getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
             if (fitnessFunctionResult != null) {
                 showResult();
             }
@@ -237,8 +251,10 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         @Override
         public void xyChartIsReady() {
             XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.XY_CHART);
-            Map<String, Double> instability = project.getService(CacheService.class).getUserData(CacheService.INSTABILITY);
-            Map<String, Double> abstractness = project.getService(CacheService.class).getUserData(CacheService.ABSTRACTNESS);
+            Map<String, Double> instability = project.getService(CacheService.class)
+                    .getUserData(CacheService.INSTABILITY);
+            Map<String, Double> abstractness = project.getService(CacheService.class)
+                    .getUserData(CacheService.ABSTRACTNESS);
             showResults(xyChart, instability, abstractness);
         }
 
@@ -247,7 +263,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
             if (packagesPanel != null) {
                 showPackages(fitnessFunction);
             } else {
-//                updateTreeMap(fitnessFunction);
+                // updateTreeMap(fitnessFunction);
             }
         }
 
@@ -267,11 +283,14 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
     }
+
     public class CoordinateListener extends MouseAdapter {
         private final XYChart chart;
+
         public CoordinateListener(XYChart chart) {
             this.chart = chart;
         }
+
         @Override
         public void mousePressed(MouseEvent e) {
             double chartX = chart.getChartXFromCoordinate(e.getX());

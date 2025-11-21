@@ -20,9 +20,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.CalculationService;
-import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.service.TaskQueueService;
-import org.b333vv.metric.service.TaskQueueService;
+
+import com.intellij.openapi.module.Module;
+import org.b333vv.metric.service.UIStateService;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildPackageLevelFitnessFunctionAction extends AbstractAction {
@@ -32,7 +32,8 @@ public class BuildPackageLevelFitnessFunctionAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearPackageFitnessFunctionPanel();
-            project.getService(CalculationService.class).calculatePackageFitnessFunctions();
+            Module module = project.getService(UIStateService.class).getSelectedModule();
+            project.getService(CalculationService.class).calculatePackageFitnessFunctions(module);
         }
     }
 

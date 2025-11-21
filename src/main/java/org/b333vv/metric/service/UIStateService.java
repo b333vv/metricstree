@@ -21,7 +21,8 @@ import org.b333vv.metric.ui.tree.MetricsTreeFilter;
 
 /**
  * Service for managing UI-related state in the MetricsTree plugin.
- * This service replaces static state management previously handled by MetricsUtils.
+ * This service replaces static state management previously handled by
+ * MetricsUtils.
  */
 @Service
 public final class UIStateService {
@@ -34,6 +35,7 @@ public final class UIStateService {
     private boolean projectTreeActive = false;
     private boolean classMetricsValuesEvolutionCalculationPerforming = false;
     private boolean classMetricsValuesEvolutionAdded = false;
+    private com.intellij.openapi.module.Module selectedModule;
 
     /**
      * Returns the filter for class metrics tree.
@@ -160,5 +162,23 @@ public final class UIStateService {
      */
     public boolean setProjectTreeActive(boolean value) {
         return projectTreeActive = value;
+    }
+
+    /**
+     * Returns the selected module.
+     *
+     * @return the selected module, or null if no module is selected (project scope)
+     */
+    public com.intellij.openapi.module.Module getSelectedModule() {
+        return selectedModule;
+    }
+
+    /**
+     * Sets the selected module.
+     *
+     * @param selectedModule the module to select, or null for project scope
+     */
+    public void setSelectedModule(com.intellij.openapi.module.Module selectedModule) {
+        this.selectedModule = selectedModule;
     }
 }

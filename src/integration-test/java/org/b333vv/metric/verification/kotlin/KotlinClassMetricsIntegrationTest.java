@@ -20,8 +20,7 @@ public class KotlinClassMetricsIntegrationTest extends LightJavaCodeInsightFixtu
                 "kotlin/Base.kt",
                 "kotlin/Derived.kt",
                 "kotlin/RfcSample.kt",
-                "kotlin/MethodMetrics.kt"
-        );
+                "kotlin/MethodMetrics.kt");
     }
 
     @Override
@@ -31,24 +30,25 @@ public class KotlinClassMetricsIntegrationTest extends LightJavaCodeInsightFixtu
 
     public void testClassLevelMetricsPresenceForKotlin() {
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement projectElement = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
-        List<ClassElement> classes = pe.allClasses().collect(Collectors.toList());
+        List<ClassElement> classes = projectElement.allClasses().collect(Collectors.toList());
         // Just ensure we found at least one class from test data
         ClassElement any = classes.stream().filter(c -> c.getName() != null).findFirst().orElse(null);
         assertNotNull(any);
 
-        // Verify a broad set of class-level metrics are available (values may vary by implementation)
+        // Verify a broad set of class-level metrics are available (values may vary by
+        // implementation)
         Set<MetricType> required = Set.of(
                 MetricType.WMC, MetricType.NOM, MetricType.NCSS,
                 MetricType.DIT, MetricType.RFC, MetricType.LCOM, MetricType.NOC,
                 MetricType.NOA, MetricType.NOO, MetricType.NOOM, MetricType.NOAM, MetricType.SIZE2,
                 MetricType.CBO, MetricType.MPC, MetricType.DAC,
                 MetricType.ATFD, MetricType.NOPA, MetricType.NOAC, MetricType.WOC,
-                MetricType.TCC
-        );
+                MetricType.TCC);
         for (MetricType type : required) {
-            // Some metrics can be null when not applicable to a specific class; check presence across any class
+            // Some metrics can be null when not applicable to a specific class; check
+            // presence across any class
             boolean presentSomewhere = classes.stream().anyMatch(c -> c.metric(type) != null);
             assertTrue("Expected presence of class metric: " + type, presentSomewhere);
         }

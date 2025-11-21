@@ -15,16 +15,14 @@ import java.util.stream.Collectors;
 
 public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
 
-    private static final String FILE1_STRING =
-            "package com.example.pkg1;\n" +
+    private static final String FILE1_STRING = "package com.example.pkg1;\n" +
             "public class ClassA {\n" +
             "    public int fieldA = 10;\n" +
             "    public ClassA() {}\n" + // Constructor
             "    public void methodA1() {}\n" +
             "}";
 
-    private static final String FILE2_STRING =
-            "package com.example.pkg2;\n" +
+    private static final String FILE2_STRING = "package com.example.pkg2;\n" +
             "public class ClassB {\n" +
             "    public ClassB() {}\n" + // Constructor
             "    public void methodB1() {}\n" +
@@ -39,44 +37,51 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        // It's good practice to set current project for any utilities that might rely on it.
+        // It's good practice to set current project for any utilities that might rely
+        // on it.
         // MetricsUtils.setCurrentProject(getProject()); // Removed
 
         javaProject = new ProjectElement("TestProject");
-        // Assuming ProjectModelBuilder itself does not need MetricsUtils.setCurrentProject directly
-        // but the underlying ClassModelBuilder might, which is usually called by ProjectModelBuilder.
+        // Assuming ProjectModelBuilder itself does not need
+        // MetricsUtils.setCurrentProject directly
+        // but the underlying ClassModelBuilder might, which is usually called by
+        // ProjectModelBuilder.
         ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
 
         // Note: configureByText creates files in a light PSI file system.
-        // The path provided to configureByText helps IntelliJ understand package structure.
+        // The path provided to configureByText helps IntelliJ understand package
+        // structure.
         PsiFile psiFile1 = myFixture.addFileToProject("com/example/pkg1/File1.java", FILE1_STRING);
         PsiFile psiFile2 = myFixture.addFileToProject("com/example/pkg2/File2.java", FILE2_STRING);
 
-        projectModelBuilder.addJavaFileToJavaProject((PsiJavaFile) psiFile1);
-        projectModelBuilder.addJavaFileToJavaProject((PsiJavaFile) psiFile2);
+        projectModelBuilder.addJavaFileToProjectElement((PsiJavaFile) psiFile1);
+        projectModelBuilder.addJavaFileToProjectElement((PsiJavaFile) psiFile2);
     }
 
     public void testProjectStructure() {
         assertNotNull("JavaProject model should not be null.", javaProject);
 
         // 3. Assert the `JavaProject` structure
-        // Package names are derived from PsiPackage.getName(), which is the last segment.
+        // Package names are derived from PsiPackage.getName(), which is the last
+        // segment.
         // The ProjectModelBuilder stores them in allPackages map with FQN.
         assertNotNull("Package pkg1 not found by FQN.", javaProject.getFromAllPackages("com.example.pkg1"));
         assertNotNull("Package pkg2 not found by FQN.", javaProject.getFromAllPackages("com.example.pkg2"));
 
         // javaProject.packages() returns top-level packages added as direct children.
-        // ProjectModelBuilder.findOrCreateJavaPackage likely creates a hierarchy and adds only the
-        // top-most non-existent package part as a direct child of JavaProject (e.g. "com").
+        // ProjectModelBuilder.findOrCreateJavaPackage likely creates a hierarchy and
+        // adds only the
+        // top-most non-existent package part as a direct child of JavaProject (e.g.
+        // "com").
         // Let's check allPackages for the specific ones we expect.
         assertEquals("Should have two 'com.example.pkgX' packages in allPackages", 2L,
-                javaProject.allPackages().filter(p -> p.getPsiPackage() != null && p.getPsiPackage().getQualifiedName().startsWith("com.example.pkg")).count());
-
+                javaProject.allPackages().filter(p -> p.getPsiPackage() != null
+                        && p.getPsiPackage().getQualifiedName().startsWith("com.example.pkg")).count());
 
         Set<String> expectedClassNames = Set.of("ClassA", "ClassB", "InnerB1");
         Set<String> actualClassNames = javaProject.allClasses()
-                                             .map(ClassElement::getName) // Assuming JavaClass.getName() returns simple name
-                                             .collect(Collectors.toSet());
+                .map(ClassElement::getName) // Assuming JavaClass.getName() returns simple name
+                .collect(Collectors.toSet());
         assertEquals("Mismatch in all class names globally.", expectedClassNames, actualClassNames);
     }
 
@@ -131,7 +136,8 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
         // Assertions for InnerB1
         ClassElement innerB1 = classB.innerClasses().findFirst().orElse(null);
         assertNotNull("InnerB1 should exist in ClassB.", innerB1);
-        // Inner class name might be "ClassB.InnerB1" or just "InnerB1" depending on JavaClass.getName()
+        // Inner class name might be "ClassB.InnerB1" or just "InnerB1" depending on
+        // JavaClass.getName()
         // It's typically just the class's own name: "InnerB1"
         assertEquals("InnerB1 name mismatch.", "InnerB1", innerB1.getName());
         // Constructor + methodIB1 = 2 methods

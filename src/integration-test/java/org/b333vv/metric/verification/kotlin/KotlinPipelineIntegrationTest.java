@@ -19,8 +19,7 @@ public class KotlinPipelineIntegrationTest extends LightJavaCodeInsightFixtureTe
     protected void setUp() throws Exception {
         super.setUp();
         myFixture.configureByFiles(
-                "kotlin/MethodMetrics.kt"
-        );
+                "kotlin/MethodMetrics.kt");
     }
 
     @Override
@@ -30,7 +29,7 @@ public class KotlinPipelineIntegrationTest extends LightJavaCodeInsightFixtureTe
 
     public void testPipelineCalculatesKotlinClassAndMethodMetrics() {
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
         // Find Kotlin class from test data
         List<ClassElement> classes = pe.allClasses().collect(Collectors.toList());
@@ -40,7 +39,8 @@ public class KotlinPipelineIntegrationTest extends LightJavaCodeInsightFixtureTe
                 .orElse(null);
         assertNotNull("Expected to find class MethodMetrics in ProjectElement", methodMetrics);
 
-        // Assert some class-level metrics are present (values may vary by implementation)
+        // Assert some class-level metrics are present (values may vary by
+        // implementation)
         assertNotNull("WMC metric expected", methodMetrics.metric(MetricType.WMC));
         assertNotNull("NOM metric expected", methodMetrics.metric(MetricType.NOM));
         assertNotNull("NCSS metric expected", methodMetrics.metric(MetricType.NCSS));
@@ -55,7 +55,8 @@ public class KotlinPipelineIntegrationTest extends LightJavaCodeInsightFixtureTe
     }
 
     public void testSettingsTogglesAffectKotlinMetrics() {
-        // Disable NCSS (class-level) and CC (method-level), run pipeline, verify metrics are absent
+        // Disable NCSS (class-level) and CC (method-level), run pipeline, verify
+        // metrics are absent
         ClassMetricsTreeSettings settings = getProject().getService(ClassMetricsTreeSettings.class);
         java.util.List<MetricsTreeSettingsStub> metrics = settings.getMetricsList();
         java.util.List<MetricsTreeSettingsStub> disabled = metrics.stream().map(stub -> {
@@ -68,10 +69,11 @@ public class KotlinPipelineIntegrationTest extends LightJavaCodeInsightFixtureTe
         settings.setClassTreeMetrics(disabled);
 
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
         java.util.List<ClassElement> classes = pe.allClasses().collect(java.util.stream.Collectors.toList());
-        ClassElement methodMetrics = classes.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst().orElse(null);
+        ClassElement methodMetrics = classes.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst()
+                .orElse(null);
         assertNotNull(methodMetrics);
         // NCSS should be disabled
         assertNull("NCSS should be disabled and absent", methodMetrics.metric(MetricType.NCSS));
@@ -81,12 +83,15 @@ public class KotlinPipelineIntegrationTest extends LightJavaCodeInsightFixtureTe
         assertNull("CC should be disabled and absent on method", any.metric(MetricType.CC));
 
         // Re-enable NCSS and CC and verify presence again
-        java.util.List<MetricsTreeSettingsStub> enabled = metrics.stream().map(stub -> new MetricsTreeSettingsStub(stub.getType(), true)).collect(java.util.stream.Collectors.toList());
+        java.util.List<MetricsTreeSettingsStub> enabled = metrics.stream()
+                .map(stub -> new MetricsTreeSettingsStub(stub.getType(), true))
+                .collect(java.util.stream.Collectors.toList());
         settings.setClassTreeMetrics(enabled);
 
-        ProjectElement pe2 = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement pe2 = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
         java.util.List<ClassElement> classes2 = pe2.allClasses().collect(java.util.stream.Collectors.toList());
-        ClassElement methodMetrics2 = classes2.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst().orElse(null);
+        ClassElement methodMetrics2 = classes2.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst()
+                .orElse(null);
         assertNotNull(methodMetrics2);
         assertNotNull("NCSS should be present after enabling", methodMetrics2.metric(MetricType.NCSS));
         MethodElement any2 = methodMetrics2.methods().findFirst().orElse(null);

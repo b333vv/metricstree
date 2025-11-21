@@ -19,25 +19,32 @@ public class ProjectTreeModelCalculator {
         this.project = project;
     }
 
-    public DefaultTreeModel calculate() {
-        AnalysisScope scope = new AnalysisScope(project);
-        scope.setIncludeTestSource(false);
+    public DefaultTreeModel calculate(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        AnalysisScope scope;
+        if (module != null) {
+            scope = new AnalysisScope(module);
+            scope.setIncludeTestSource(true);
+        } else {
+            scope = new AnalysisScope(project);
+            scope.setIncludeTestSource(false);
+        }
         ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
-        
+
         // Ensure the project metrics are built before creating the tree
         CalculationService calculationService = project.getService(CalculationService.class);
         ProjectElement projectElement;
         if (calculationService instanceof org.b333vv.metric.service.CalculationServiceImpl) {
-            projectElement = ((org.b333vv.metric.service.CalculationServiceImpl) calculationService).getOrBuildProjectMetricsModel(indicator);
+            projectElement = ((org.b333vv.metric.service.CalculationServiceImpl) calculationService)
+                    .getOrBuildProjectMetricsModel(indicator, module);
         } else {
             // Fallback to cache service for compatibility
-            projectElement = project.getService(CacheService.class).getProject();
+            projectElement = project.getService(CacheService.class).getProjectMetrics(module);
         }
-        
+
         if (projectElement == null) {
             throw new IllegalStateException("projectElement is null - metrics calculation may have failed");
         }
-        
+
         ProjectMetricTreeBuilder projectMetricTreeBuilder = new ProjectMetricTreeBuilder(projectElement, project);
         return projectMetricTreeBuilder.createMetricTreeModel();
     }

@@ -27,10 +27,10 @@ public class SIZE2MetricVerificationTest extends BasePlatformTestCase {
     private static final String TEST_DATA_PATH = "com/verification/complexity";
     private static final String BASE_CLASS_NAME = "SIZE2_BaseClass";
     private static final String CHILD_CLASS_NAME = "SIZE2_ChildClass";
-    
-    private static final long EXPECTED_BASE_CLASS_SIZE2 = 3;  // 1 field + 2 methods (baseField, constructor, baseMethod)
-    private static final long EXPECTED_CHILD_CLASS_SIZE2 = 8;  // 3 fields + 5 methods (including inherited)
-    
+
+    private static final long EXPECTED_BASE_CLASS_SIZE2 = 3; // 1 field + 2 methods (baseField, constructor, baseMethod)
+    private static final long EXPECTED_CHILD_CLASS_SIZE2 = 8; // 3 fields + 5 methods (including inherited)
+
     protected ProjectElement javaProject;
 
     @Override
@@ -50,43 +50,45 @@ public class SIZE2MetricVerificationTest extends BasePlatformTestCase {
             PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.configureByFile(sourcePath);
 
             EmptyProgressIndicator indicator = new EmptyProgressIndicator();
-            
+
             // Build dependencies first (required by some metrics)
             AnalysisScope scope = new AnalysisScope(getProject());
             scope.setIncludeTestSource(false);
             DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
             DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
             DependenciesBuilder builtDependencies = dependenciesCalculator.calculateDependencies(indicator);
-            
+
             // Cache the dependencies for the visitors to use
             CacheService cacheService = getProject().getService(CacheService.class);
             cacheService.putUserData(CacheService.DEPENDENCIES, builtDependencies);
-            
+
             // Calculate PSI-based metrics
             PsiCalculationStrategy psiCalculationStrategy = new PsiCalculationStrategy();
-            javaProject = psiCalculationStrategy.calculate(getProject(), indicator);
-            
+            javaProject = psiCalculationStrategy.calculate(getProject(), indicator, null);
+
             // Augment with JavaParser-based metrics
             JavaParserCalculationStrategy javaParserCalculationStrategy = new JavaParserCalculationStrategy();
-            
-            // Parse all compilation units from the test project for enhanced type resolution
+
+            // Parse all compilation units from the test project for enhanced type
+            // resolution
             List<CompilationUnit> testUnits = parseTestCompilationUnits(sourcePath);
-            
+
             javaParserCalculationStrategy.augment(javaProject, getProject(), testUnits, indicator);
-            
+
             return psiJavaFile;
         } catch (Exception e) {
             throw e;
         }
     }
-    
+
     /**
-     * Parse all compilation units from the test project to enable enhanced type resolution.
+     * Parse all compilation units from the test project to enable enhanced type
+     * resolution.
      */
     private List<CompilationUnit> parseTestCompilationUnits(String sourcePath) {
         List<CompilationUnit> units = new ArrayList<>();
         JavaParser javaParser = new JavaParser();
-        
+
         try {
             com.intellij.openapi.vfs.VirtualFile virtualFile = myFixture.findFileInTempDir(sourcePath);
             if (virtualFile != null) {
@@ -101,7 +103,7 @@ public class SIZE2MetricVerificationTest extends BasePlatformTestCase {
         } catch (Exception e) {
             // Ignore parsing errors
         }
-        
+
         return units;
     }
 
@@ -132,8 +134,9 @@ public class SIZE2MetricVerificationTest extends BasePlatformTestCase {
     public void testSIZE2CalculationForBaseClass() {
         Value psiResult = getPsiValue(BASE_CLASS_NAME, MetricType.SIZE2);
         Value javaParserResult = getJavaParserValue(BASE_CLASS_NAME, MetricType.SIZE2);
-        
-        // Both implementations should count: 1 instance field + 2 instance methods (constructor + baseMethod)
+
+        // Both implementations should count: 1 instance field + 2 instance methods
+        // (constructor + baseMethod)
         // Static members should be excluded
         assertThat(psiResult.longValue()).isEqualTo(EXPECTED_BASE_CLASS_SIZE2);
         assertThat(javaParserResult.longValue()).isEqualTo(EXPECTED_BASE_CLASS_SIZE2);
@@ -142,23 +145,24 @@ public class SIZE2MetricVerificationTest extends BasePlatformTestCase {
     public void testSIZE2CalculationForChildClass() {
         Value psiResult = getPsiValue(CHILD_CLASS_NAME, MetricType.SIZE2);
         Value javaParserResult = getJavaParserValue(CHILD_CLASS_NAME, MetricType.SIZE2);
-        
+
         // Both implementations should count:
-        // 3 fields (1 inherited + 2 declared) + 5 methods (2 inherited + 3 declared) = 8
+        // 3 fields (1 inherited + 2 declared) + 5 methods (2 inherited + 3 declared) =
+        // 8
         assertThat(psiResult.longValue()).isEqualTo(EXPECTED_CHILD_CLASS_SIZE2);
         assertThat(javaParserResult.longValue()).isEqualTo(EXPECTED_CHILD_CLASS_SIZE2);
     }
 
     public void testPSICalculatorHandlesInheritedMembers() {
         Value psiResult = getPsiValue(CHILD_CLASS_NAME, MetricType.SIZE2);
-        
+
         // Verify that the visitor correctly includes inherited members
         assertThat(psiResult.longValue()).isEqualTo(EXPECTED_CHILD_CLASS_SIZE2);
     }
 
     public void testJavaParserCalculatorHandlesInheritedMembers() {
         Value javaParserResult = getJavaParserValue(CHILD_CLASS_NAME, MetricType.SIZE2);
-        
+
         // Verify that the visitor correctly includes inherited members
         assertThat(javaParserResult.longValue()).isEqualTo(EXPECTED_CHILD_CLASS_SIZE2);
     }

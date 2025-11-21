@@ -28,14 +28,14 @@ public class ProjectTreeModelCalculatorTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        
+
         when(mockProject.getService(CacheService.class).getProject()).thenReturn(mockJavaProject);
         calculator = new ProjectTreeModelCalculator(mockProject);
     }
 
     @Test
     public void testCalculate() {
-        DefaultTreeModel treeModel = calculator.calculate();
+        DefaultTreeModel treeModel = calculator.calculate(null);
         assertNotNull(treeModel);
         assertNotNull(treeModel.getRoot());
     }

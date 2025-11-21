@@ -20,10 +20,17 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
     private int progress = 0;
 
     @Override
-    public ProjectElement calculate(Project project, ProgressIndicator indicator) {
+    public ProjectElement calculate(Project project, ProgressIndicator indicator,
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
         this.indicator = indicator;
-        AnalysisScope scope = new AnalysisScope(project);
-        scope.setIncludeTestSource(false);
+        AnalysisScope scope;
+        if (module != null) {
+            scope = new AnalysisScope(module);
+            scope.setIncludeTestSource(true);
+        } else {
+            scope = new AnalysisScope(project);
+            scope.setIncludeTestSource(false);
+        }
         ProjectElement projectElement = new ProjectElement(project.getName());
         ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(projectElement);
 

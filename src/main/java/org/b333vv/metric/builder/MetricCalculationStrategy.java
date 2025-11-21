@@ -8,9 +8,10 @@ import org.b333vv.metric.model.code.ProjectElement;
 import java.util.List;
 
 public interface MetricCalculationStrategy {
-    ProjectElement calculate(Project project, ProgressIndicator indicator);
+    ProjectElement calculate(Project project, ProgressIndicator indicator, com.intellij.openapi.module.Module module);
 
-    default void augment(ProjectElement projectElement, Project project, List<CompilationUnit> allUnits, ProgressIndicator indicator) {
+    default void augment(ProjectElement projectElement, Project project, List<CompilationUnit> allUnits,
+            ProgressIndicator indicator) {
         // default implementation does nothing
     }
 }

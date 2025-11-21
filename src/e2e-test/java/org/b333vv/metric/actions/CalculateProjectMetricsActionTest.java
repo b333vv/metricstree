@@ -17,6 +17,8 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
@@ -69,6 +71,6 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
 
         action.actionPerformed(event);
 
-        Mockito.verify(mockCalculationService, Mockito.times(1)).calculateProjectTree();
+        verify(mockCalculationService, times(1)).calculateProjectTree(null);
     }
 }

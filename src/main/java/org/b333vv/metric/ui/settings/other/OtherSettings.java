@@ -22,13 +22,11 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
-@State(
-        name = "OtherSettings",
-        storages = {@Storage("other-settings.xml")}
-)
+@State(name = "OtherSettings", storages = { @Storage("other-settings.xml") })
 public final class OtherSettings implements PersistentStateComponent<OtherSettings> {
 
     private boolean projectMetricsStampStored;
+    private boolean includeTestFiles;
     private CalculationEngine calculationEngine = CalculationEngine.PSI;
 
     public OtherSettings() {
@@ -38,7 +36,16 @@ public final class OtherSettings implements PersistentStateComponent<OtherSettin
     private void loadInitialValues() {
 
         projectMetricsStampStored = true;
+        includeTestFiles = false;
 
+    }
+
+    public boolean isIncludeTestFiles() {
+        return includeTestFiles;
+    }
+
+    public void setIncludeTestFiles(boolean includeTestFiles) {
+        this.includeTestFiles = includeTestFiles;
     }
 
     public boolean isProjectMetricsStampStored() {

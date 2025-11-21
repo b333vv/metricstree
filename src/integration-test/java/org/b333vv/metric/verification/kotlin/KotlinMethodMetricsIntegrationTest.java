@@ -20,8 +20,7 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
     protected void setUp() throws Exception {
         super.setUp();
         myFixture.configureByFiles(
-                "kotlin/MethodMetrics.kt"
-        );
+                "kotlin/MethodMetrics.kt");
     }
 
     @Override
@@ -38,7 +37,7 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
         settings.setClassTreeMetrics(all);
 
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
         List<ClassElement> classes = pe.allClasses().collect(Collectors.toList());
         ClassElement methodMetrics = classes.stream()
@@ -47,7 +46,8 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
         assertNotNull("Expected to find class MethodMetrics in ProjectElement", methodMetrics);
 
         // Pick known methods by name where applicable
-        MethodElement lndTriple = methodMetrics.methods().filter(m -> "lndTriple".equals(m.getName())).findFirst().orElse(null);
+        MethodElement lndTriple = methodMetrics.methods().filter(m -> "lndTriple".equals(m.getName())).findFirst()
+                .orElse(null);
         MethodElement any = methodMetrics.methods().findFirst().orElse(null);
         assertNotNull(any);
 
@@ -56,7 +56,8 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
         assertNotNull("CC metric expected", any.metric(MetricType.CC));
         assertNotNull("CCM metric expected", any.metric(MetricType.CCM));
 
-        // Presence checks for new Kotlin method metrics (values may be zero depending on body)
+        // Presence checks for new Kotlin method metrics (values may be zero depending
+        // on body)
         assertNotNull("HVL metric expected", any.metric(MetricType.HVL));
         assertNotNull("HD metric expected", any.metric(MetricType.HD));
         assertNotNull("HL metric expected", any.metric(MetricType.HL));
@@ -85,7 +86,8 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
                 .map(stub -> new MetricsTreeSettingsStub(stub.getType(), true))
                 .collect(Collectors.toList());
         settings.setClassTreeMetrics(metrics);
-        Set<MetricType> toDisable = Set.of(MetricType.CCM, MetricType.NOL, MetricType.MND, MetricType.CINT, MetricType.CDISP);
+        Set<MetricType> toDisable = Set.of(MetricType.CCM, MetricType.NOL, MetricType.MND, MetricType.CINT,
+                MetricType.CDISP);
         List<MetricsTreeSettingsStub> disabled = metrics.stream().map(stub -> {
             boolean enabled = !toDisable.contains(stub.getType());
             return new MetricsTreeSettingsStub(stub.getType(), enabled);
@@ -93,10 +95,11 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
         settings.setClassTreeMetrics(disabled);
 
         PsiCalculationStrategy strategy = new PsiCalculationStrategy();
-        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement pe = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
 
         List<ClassElement> classes = pe.allClasses().collect(Collectors.toList());
-        ClassElement methodMetrics = classes.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst().orElse(null);
+        ClassElement methodMetrics = classes.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst()
+                .orElse(null);
         assertNotNull(methodMetrics);
         MethodElement any = methodMetrics.methods().findFirst().orElse(null);
         assertNotNull(any);
@@ -109,12 +112,14 @@ public class KotlinMethodMetricsIntegrationTest extends LightJavaCodeInsightFixt
         // HVL remains enabled by design in current pipeline; do not assert disabled
 
         // Re-enable all and verify presence again
-        List<MetricsTreeSettingsStub> enabled = metrics.stream().map(stub -> new MetricsTreeSettingsStub(stub.getType(), true)).collect(Collectors.toList());
+        List<MetricsTreeSettingsStub> enabled = metrics.stream()
+                .map(stub -> new MetricsTreeSettingsStub(stub.getType(), true)).collect(Collectors.toList());
         settings.setClassTreeMetrics(enabled);
 
-        ProjectElement pe2 = strategy.calculate(getProject(), new EmptyProgressIndicator());
+        ProjectElement pe2 = strategy.calculate(getProject(), new EmptyProgressIndicator(), null);
         List<ClassElement> classes2 = pe2.allClasses().collect(Collectors.toList());
-        ClassElement methodMetrics2 = classes2.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst().orElse(null);
+        ClassElement methodMetrics2 = classes2.stream().filter(c -> "MethodMetrics".equals(c.getName())).findFirst()
+                .orElse(null);
         assertNotNull(methodMetrics2);
         MethodElement any2 = methodMetrics2.methods().findFirst().orElse(null);
         assertNotNull(any2);

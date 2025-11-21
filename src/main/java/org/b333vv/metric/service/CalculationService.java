@@ -1,19 +1,21 @@
 package org.b333vv.metric.service;
 
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.ProjectElement;
+import org.jetbrains.annotations.Nullable;
 
 public interface CalculationService {
-    DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator);
+    DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator, @Nullable Module module);
 
-    ProjectElement getOrBuildClassAndMethodModel(ProgressIndicator indicator);
+    ProjectElement getOrBuildClassAndMethodModel(ProgressIndicator indicator, @Nullable Module module);
 
-    ProjectElement getOrBuildPackageMetricsModel(ProgressIndicator indicator);
+    ProjectElement getOrBuildPackageMetricsModel(ProgressIndicator indicator, @Nullable Module module);
 
-    ProjectElement getOrBuildProjectMetricsModel(ProgressIndicator indicator);
+    ProjectElement getOrBuildProjectMetricsModel(ProgressIndicator indicator, @Nullable Module module);
 
-    void calculateProjectTree();
+    void calculateProjectTree(@Nullable Module module);
 
     void calculatePieChart();
 
@@ -45,5 +47,5 @@ public interface CalculationService {
 
     void calculateClassFitnessFunctions();
 
-    void calculatePackageFitnessFunctions();
+    void calculatePackageFitnessFunctions(@Nullable Module module);
 }

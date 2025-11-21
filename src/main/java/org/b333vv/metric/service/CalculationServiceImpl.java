@@ -3,6 +3,8 @@ package org.b333vv.metric.service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.analysis.AnalysisScope;
+import com.intellij.openapi.module.Module;
+import org.jetbrains.annotations.Nullable;
 
 import org.b333vv.metric.builder.MetricsBackgroundableTask;
 import org.b333vv.metric.builder.ProjectTreeModelCalculator;
@@ -18,7 +20,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.b333vv.metric.builder.PieChartDataCalculator;
-
 
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.builder.CategoryChartDataCalculator;
@@ -72,7 +73,6 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-
 public class CalculationServiceImpl implements CalculationService {
     private final Project project;
     private final TaskQueueService taskQueueService;
@@ -87,7 +87,8 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     // Helper method to run a task synchronously and get its result
-    private <T> T runTaskSynchronously(String title, Function<ProgressIndicator, T> taskLogic, ProgressIndicator indicator) {
+    private <T> T runTaskSynchronously(String title, Function<ProgressIndicator, T> taskLogic,
+            ProgressIndicator indicator) {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<T> result = new AtomicReference<>();
 
@@ -119,60 +120,69 @@ public class CalculationServiceImpl implements CalculationService {
         List<CompilationUnit> allUnits = cacheService.getUserData(CacheService.ALL_COMPILATION_UNITS);
         if (allUnits == null) {
             allUnits = runTaskSynchronously(
-                "Parsing All Project Sources",
-                (progressIndicator) -> {
-                    List<CompilationUnit> units = new ArrayList<>();
-                    JavaParser javaParser = new JavaParser(); // Use a simple parser, no symbol solving needed here.
-                    ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
+                    "Parsing All Project Sources",
+                    (progressIndicator) -> {
+                        List<CompilationUnit> units = new ArrayList<>();
+                        JavaParser javaParser = new JavaParser(); // Use a simple parser, no symbol solving needed here.
+                        ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
 
-                    fileIndex.iterateContent(fileOrDir -> {
-                        if (!fileOrDir.isDirectory() && "java".equals(fileOrDir.getExtension()) && !fileIndex.isInLibrarySource(fileOrDir) && !fileIndex.isInTestSourceContent(fileOrDir)) {
-                            try {
-                                ParseResult<CompilationUnit> result = javaParser.parse(Paths.get(fileOrDir.getPath()));
-                                result.ifSuccessful(units::add);
-                            } catch (Exception e) {
-                                // Log or handle parsing errors if necessary
+                        fileIndex.iterateContent(fileOrDir -> {
+                            if (!fileOrDir.isDirectory() && "java".equals(fileOrDir.getExtension())
+                                    && !fileIndex.isInLibrarySource(fileOrDir)
+                                    && !fileIndex.isInTestSourceContent(fileOrDir)) {
+                                try {
+                                    ParseResult<CompilationUnit> result = javaParser
+                                            .parse(Paths.get(fileOrDir.getPath()));
+                                    result.ifSuccessful(units::add);
+                                } catch (Exception e) {
+                                    // Log or handle parsing errors if necessary
+                                }
                             }
-                        }
-                        return true; // continue iteration
-                    });
-                    return units;
-                },
-                indicator
-            );
+                            return true; // continue iteration
+                        });
+                        return units;
+                    },
+                    indicator);
             cacheService.putUserData(CacheService.ALL_COMPILATION_UNITS, allUnits);
         }
         return allUnits;
     }
 
-    public DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator) {
-        DependenciesBuilder dependencies = cacheService.getUserData(CacheService.DEPENDENCIES);
+    @Override
+    public DependenciesBuilder getOrBuildDependencies(ProgressIndicator indicator, @Nullable Module module) {
+        DependenciesBuilder dependencies = cacheService.getDependencies(module);
         if (dependencies == null) {
             long startTime = System.nanoTime();
             dependencies = runTaskSynchronously(
                     "Building Dependencies Model",
                     (progressIndicator) -> {
                         // Create AnalysisScope within the task to ensure proper initialization
-                        AnalysisScope analysisScope = new AnalysisScope(project);
-                        analysisScope.setIncludeTestSource(false);
-                        return new DependenciesCalculator(analysisScope, new DependenciesBuilder()).calculateDependencies();
+                        AnalysisScope analysisScope = module != null ? new AnalysisScope(module)
+                                : new AnalysisScope(project);
+                        if (module != null) {
+                            analysisScope.setIncludeTestSource(true);
+                        } else {
+                            analysisScope.setIncludeTestSource(false);
+                        }
+                        return new DependenciesCalculator(analysisScope, new DependenciesBuilder())
+                                .calculateDependencies();
                     },
-                    indicator
-            );
+                    indicator);
             long endTime = System.nanoTime();
             long duration = endTime - startTime;
             String message = String.format("Dependencies building completed in %.3f seconds", duration / 1_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
-            cacheService.putUserData(CacheService.DEPENDENCIES, dependencies);
+            cacheService.putDependencies(module, dependencies);
         }
         return dependencies;
     }
 
-    public ProjectElement getOrBuildClassAndMethodModel(ProgressIndicator indicator) {
-        ProjectElement projectElement = cacheService.getUserData(CacheService.CLASS_AND_METHODS_METRICS);
+    @Override
+    public ProjectElement getOrBuildClassAndMethodModel(ProgressIndicator indicator, @Nullable Module module) {
+        ProjectElement projectElement = cacheService.getClassAndMethodMetrics(module);
         if (projectElement == null) {
             // Ensure dependencies are built first
-            DependenciesBuilder dependencies = getOrBuildDependencies(indicator);
+            getOrBuildDependencies(indicator, module);
 
             long startTime = System.nanoTime();
             projectElement = runTaskSynchronously(
@@ -181,95 +191,116 @@ public class CalculationServiceImpl implements CalculationService {
                         // Stage 1: Always run PSI
                         long psiStartTime = System.nanoTime();
                         PsiCalculationStrategy psiStrategy = new PsiCalculationStrategy();
-                        ProjectElement newprojectElement = psiStrategy.calculate(project, progressIndicator);
+                        ProjectElement newprojectElement = psiStrategy.calculate(project, progressIndicator, module);
                         long psiEndTime = System.nanoTime();
                         long psiDuration = psiEndTime - psiStartTime;
-                        String psiMessage = String.format("PSI calculation completed in %.3f seconds", psiDuration / 1_000_000.0);
+                        String psiMessage = String.format("PSI calculation completed in %.3f seconds",
+                                psiDuration / 1_000_000.0);
                         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(psiMessage);
 
                         // Stage 2: Conditionally augment with JavaParser
                         if (settingsService.getCalculationEngine() == CalculationEngine.JAVAPARSER) {
-                            List<CompilationUnit> allUnits = getOrBuildAllCompilationUnits(progressIndicator); // Call the new method
+                            List<CompilationUnit> allUnits = getOrBuildAllCompilationUnits(progressIndicator); // Call
+                                                                                                               // the
+                                                                                                               // new
+                                                                                                               // method
                             long javaParserStartTime = System.nanoTime();
                             JavaParserCalculationStrategy javaParserStrategy = new JavaParserCalculationStrategy();
-                            javaParserStrategy.augment(newprojectElement, project, allUnits, progressIndicator); // Pass the list
+                            javaParserStrategy.augment(newprojectElement, project, allUnits, progressIndicator); // Pass
+                                                                                                                 // the
+                                                                                                                 // list
                             long javaParserEndTime = System.nanoTime();
                             long javaParserDuration = javaParserEndTime - javaParserStartTime;
-                            String javaParserMessage = String.format("JavaParser augmentation completed in %.3f seconds", javaParserDuration / 1_000_000_000.0);
-                            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(javaParserMessage);
-//                            logMetricDifferences(newprojectElement);
+                            String javaParserMessage = String.format(
+                                    "JavaParser augmentation completed in %.3f seconds",
+                                    javaParserDuration / 1_000_000_000.0);
+                            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                                    .printInfo(javaParserMessage);
+                            // logMetricDifferences(newprojectElement);
                         }
                         return newprojectElement;
                     },
-                    indicator
-            );
+                    indicator);
             long endTime = System.nanoTime();
             long duration = endTime - startTime;
-            String message = String.format("Class and Method Model building completed in %.3f seconds", duration / 1_000_000.0);
+            String message = String.format("Class and Method Model building completed in %.3f seconds",
+                    duration / 1_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
-            cacheService.putUserData(CacheService.CLASS_AND_METHODS_METRICS, projectElement);
+            cacheService.putClassAndMethodMetrics(module, projectElement);
         }
         return projectElement;
     }
 
-    public ProjectElement getOrBuildPackageMetricsModel(ProgressIndicator indicator) {
-        ProjectElement projectElement = cacheService.getUserData(CacheService.PACKAGE_METRICS);
+    @Override
+    public ProjectElement getOrBuildPackageMetricsModel(ProgressIndicator indicator, @Nullable Module module) {
+        ProjectElement projectElement = cacheService.getPackageMetrics(module);
         if (projectElement == null) {
             // Ensure class and method model is built first
-            ProjectElement classAndMethodModel = getOrBuildClassAndMethodModel(indicator);
+            ProjectElement classAndMethodModel = getOrBuildClassAndMethodModel(indicator, module);
 
             long startTime = System.nanoTime();
             projectElement = runTaskSynchronously(
                     "Building Package Metrics Model",
                     (progressIndicator) -> {
                         // Create AnalysisScope within the task to ensure proper initialization
-                        AnalysisScope analysisScope = new AnalysisScope(project);
-                        analysisScope.setIncludeTestSource(false);
-                        DependenciesBuilder dependencies = getOrBuildDependencies(progressIndicator);
+                        AnalysisScope analysisScope = module != null ? new AnalysisScope(module)
+                                : new AnalysisScope(project);
+                        if (module != null) {
+                            analysisScope.setIncludeTestSource(true);
+                        } else {
+                            analysisScope.setIncludeTestSource(false);
+                        }
+                        DependenciesBuilder dependencies = getOrBuildDependencies(progressIndicator, module);
                         new PackageMetricsSetCalculator(analysisScope, dependencies, classAndMethodModel).calculate();
                         return classAndMethodModel;
                     },
-                    indicator
-            );
+                    indicator);
             long endTime = System.nanoTime();
             long duration = endTime - startTime;
-            String message = String.format("Package Metrics Model building completed in %.3f seconds", duration / 1_000_000_000.0);
+            String message = String.format("Package Metrics Model building completed in %.3f seconds",
+                    duration / 1_000_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
-            cacheService.putUserData(CacheService.PACKAGE_METRICS, projectElement);
+            cacheService.putPackageMetrics(module, projectElement);
         }
         return projectElement;
     }
 
-    public ProjectElement getOrBuildProjectMetricsModel(ProgressIndicator indicator) {
-        ProjectElement projectElement = cacheService.getUserData(CacheService.PROJECT_METRICS);
+    @Override
+    public ProjectElement getOrBuildProjectMetricsModel(ProgressIndicator indicator, @Nullable Module module) {
+        ProjectElement projectElement = cacheService.getProjectMetrics(module);
         if (projectElement == null) {
             // Ensure package metrics model is built first
-            ProjectElement packageMetricsModel = getOrBuildPackageMetricsModel(indicator);
+            ProjectElement packageMetricsModel = getOrBuildPackageMetricsModel(indicator, module);
 
             long startTime = System.nanoTime();
             projectElement = runTaskSynchronously(
                     "Building Project Metrics Model",
                     (progressIndicator) -> {
                         // Create AnalysisScope within the task to ensure proper initialization
-                        AnalysisScope analysisScope = new AnalysisScope(project);
-                        analysisScope.setIncludeTestSource(false);
-                        DependenciesBuilder dependencies = getOrBuildDependencies(progressIndicator);
+                        AnalysisScope analysisScope = module != null ? new AnalysisScope(module)
+                                : new AnalysisScope(project);
+                        if (module != null) {
+                            analysisScope.setIncludeTestSource(true);
+                        } else {
+                            analysisScope.setIncludeTestSource(false);
+                        }
+                        DependenciesBuilder dependencies = getOrBuildDependencies(progressIndicator, module);
                         new ProjectMetricsSetCalculator(analysisScope, dependencies, packageMetricsModel).calculate();
                         return packageMetricsModel;
                     },
-                    indicator
-            );
+                    indicator);
             long endTime = System.nanoTime();
             long duration = endTime - startTime;
-            String message = String.format("Project Metrics Model building completed in %.3f seconds", duration / 1_000_000.0);
+            String message = String.format("Project Metrics Model building completed in %.3f seconds",
+                    duration / 1_000_000.0);
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
-            cacheService.putUserData(CacheService.PROJECT_METRICS, projectElement);
+            cacheService.putProjectMetrics(module, projectElement);
         }
         return projectElement;
     }
 
     @Override
-    public void calculateProjectTree() {
+    public void calculateProjectTree(@Nullable Module module) {
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
 
         DefaultTreeModel treeModel = cacheService.getUserData(CacheService.PROJECT_TREE);
@@ -279,19 +310,21 @@ public class CalculationServiceImpl implements CalculationService {
         } else {
             Function<ProgressIndicator, DefaultTreeModel> taskLogic = (indicator) -> {
                 long startTime = System.nanoTime();
-                DefaultTreeModel model = new ProjectTreeModelCalculator(project).calculate();
+                DefaultTreeModel model = new ProjectTreeModelCalculator(project).calculate(module);
                 long endTime = System.nanoTime();
                 long duration = endTime - startTime;
-                String message = String.format("Project Tree Model calculation completed in %.3f seconds", duration / 1_000_000_000.0);
+                String message = String.format("Project Tree Model calculation completed in %.3f seconds",
+                        duration / 1_000_000_000.0);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(message);
                 return model;
             };
             Consumer<DefaultTreeModel> onSuccessCallback = (model) -> {
                 cacheService.putUserData(CacheService.PROJECT_TREE, model);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
-                       .projectMetricsTreeIsReady(model);
+                        .projectMetricsTreeIsReady(model);
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building tree model canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building tree model canceled");
 
             MetricsBackgroundableTask<DefaultTreeModel> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -308,32 +341,39 @@ public class CalculationServiceImpl implements CalculationService {
 
     @Override
     public void calculatePieChart() {
-        List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService.getUserData(CacheService.PIE_CHART_LIST);
-        Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
-        
+        List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService
+                .getUserData(CacheService.PIE_CHART_LIST);
+        Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = cacheService
+                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+
         if (pieChartList != null && classesByMetricTypes != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
         } else {
             Function<ProgressIndicator, List<MetricPieChartBuilder.PieChartStructure>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values pie chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building classes distribution by metric values pie chart started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Generate classes by metric types data
-                Map<MetricType, Map<ClassElement, Metric>> newClassesByMetricTypes = generateClassesByMetricTypes(projectElement);
+                Map<MetricType, Map<ClassElement, Metric>> newClassesByMetricTypes = generateClassesByMetricTypes(
+                        projectElement);
                 cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES, newClassesByMetricTypes);
-                
+
                 // Generate pie chart data
                 PieChartDataCalculator calculator = new PieChartDataCalculator();
-                List<MetricPieChartBuilder.PieChartStructure> newPieChartList = calculator.calculate(projectElement, project);
+                List<MetricPieChartBuilder.PieChartStructure> newPieChartList = calculator.calculate(projectElement,
+                        project);
                 cacheService.putUserData(CacheService.PIE_CHART_LIST, newPieChartList);
-                
+
                 return newPieChartList;
             };
             Consumer<List<MetricPieChartBuilder.PieChartStructure>> onSuccessCallback = (newPieChartList) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values pie chart finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building classes distribution by metric values pie chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values pie chart canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building classes distribution by metric values pie chart canceled");
 
             MetricsBackgroundableTask<List<MetricPieChartBuilder.PieChartStructure>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -347,37 +387,41 @@ public class CalculationServiceImpl implements CalculationService {
             taskQueueService.queue(genericTask);
         }
     }
-    
+
     private Map<MetricType, Map<ClassElement, Metric>> generateClassesByMetricTypes(ProjectElement projectElement) {
         Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = new HashMap<>();
-        
+
         projectElement.allClasses().forEach(javaClass -> {
             javaClass.metrics().forEach(metric -> {
                 classesByMetricTypes.computeIfAbsent(metric.getType(), k -> new HashMap<>())
-                                   .put(javaClass, metric);
+                        .put(javaClass, metric);
             });
         });
-        
+
         return classesByMetricTypes;
     }
 
     @Override
     public void calculateCategoryChart() {
         CategoryChart categoryChart = cacheService.getUserData(CacheService.CATEGORY_CHART);
-        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
-        
+        Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = cacheService
+                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+
         if (categoryChart != null && classesByMetricTypes != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
         } else {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values category chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building classes distribution by metric values category chart started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Generate the distribution data first
                 ClassesByMetricsValuesCounter distributor = new ClassesByMetricsValuesCounter(project);
-                Map<MetricType, Map<RangeType, Double>> newClassesByMetricTypes = distributor.classesByMetricsValuesDistribution(projectElement);
-                cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART, newClassesByMetricTypes);
-                
+                Map<MetricType, Map<RangeType, Double>> newClassesByMetricTypes = distributor
+                        .classesByMetricsValuesDistribution(projectElement);
+                cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART,
+                        newClassesByMetricTypes);
+
                 // Then generate the chart
                 CategoryChartDataCalculator calculator = new CategoryChartDataCalculator();
                 CategoryChart newCategoryChart = calculator.calculate(projectElement, project);
@@ -385,10 +429,12 @@ public class CalculationServiceImpl implements CalculationService {
                 return newCategoryChart;
             };
             Consumer<CategoryChart> onSuccessCallback = (calculatedCategoryChart) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values category chart finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building classes distribution by metric values category chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building classes distribution by metric values category chart canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building classes distribution by metric values category chart canceled");
 
             MetricsBackgroundableTask<CategoryChart> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -410,18 +456,21 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady();
         } else {
             Function<ProgressIndicator, MetricTreeMap<CodeElement>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building treemap with metric types distribution started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building treemap with metric types distribution started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                 MetricTreeMapModelCalculator calculator = new MetricTreeMapModelCalculator();
                 MetricTreeMap<CodeElement> newMetricTreeMap = calculator.calculate(projectElement);
                 cacheService.putUserData(CacheService.METRIC_TREE_MAP, newMetricTreeMap);
                 return newMetricTreeMap;
             };
             Consumer<MetricTreeMap<CodeElement>> onSuccessCallback = (newMetricTreeMap) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building treemap with metric types distribution finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building treemap with metric types distribution finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building treemap with metric types distribution canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building treemap with metric types distribution canceled");
 
             MetricsBackgroundableTask<MetricTreeMap<CodeElement>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -441,28 +490,31 @@ public class CalculationServiceImpl implements CalculationService {
         XYChart xyChart = cacheService.getUserData(CacheService.XY_CHART);
         Map<String, Double> instability = cacheService.getUserData(CacheService.INSTABILITY);
         Map<String, Double> abstractness = cacheService.getUserData(CacheService.ABSTRACTNESS);
-        
+
         if (xyChart != null && instability != null && abstractness != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady();
         } else {
             Function<ProgressIndicator, XYChart> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building XY chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building XY chart started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                 XyChartDataCalculator calculator = new XyChartDataCalculator();
                 XyChartDataCalculator.XyChartResult result = calculator.calculate(projectElement, project);
-                
+
                 // Store all data in cache
                 cacheService.putUserData(CacheService.XY_CHART, result.getChart());
                 cacheService.putUserData(CacheService.INSTABILITY, result.getInstability());
                 cacheService.putUserData(CacheService.ABSTRACTNESS, result.getAbstractness());
-                
+
                 return result.getChart();
             };
             Consumer<XYChart> onSuccessCallback = (newXyChart) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building XY chart finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building XY chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building XY chart canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building XY chart canceled");
 
             MetricsBackgroundableTask<XYChart> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -484,32 +536,35 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
         } else {
             Function<ProgressIndicator, List<ProfileBoxChartBuilder.BoxChartStructure>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile box charts started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile box charts started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Ensure class fitness functions are calculated first
                 Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
                             "Building class level fitness functions for profile box charts",
-                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, projectElement),
-                            indicator
-                    );
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
+                                    projectElement),
+                            indicator);
                     cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
                     cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
-                
+
                 ProfileBoxChartDataCalculator calculator = new ProfileBoxChartDataCalculator();
                 List<ProfileBoxChartBuilder.BoxChartStructure> newBoxCharts = calculator.calculate(classesByProfile);
                 cacheService.putUserData(CacheService.BOX_CHARTS, newBoxCharts);
                 return newBoxCharts;
             };
             Consumer<List<ProfileBoxChartBuilder.BoxChartStructure>> onSuccessCallback = (newBoxCharts) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile box charts finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile box charts finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile box charts canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building profile box charts canceled");
 
             MetricsBackgroundableTask<List<ProfileBoxChartBuilder.BoxChartStructure>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -531,32 +586,35 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
         } else {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile category chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile category chart started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Ensure class fitness functions are calculated first
                 Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
                             "Building class level fitness functions for profile chart",
-                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, projectElement),
-                            indicator
-                    );
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
+                                    projectElement),
+                            indicator);
                     cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
                     cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
-                
+
                 ProfileCategoryChartDataCalculator calculator = new ProfileCategoryChartDataCalculator();
                 CategoryChart newCategoryChart = calculator.calculate(classesByProfile);
                 cacheService.putUserData(CacheService.PROFILE_CATEGORY_CHART, newCategoryChart);
                 return newCategoryChart;
             };
             Consumer<CategoryChart> onSuccessCallback = (newCategoryChart) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile category chart finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile category chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile category chart canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building profile category chart canceled");
 
             MetricsBackgroundableTask<CategoryChart> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -578,32 +636,35 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
         } else {
             Function<ProgressIndicator, HeatMapChart> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile heat map chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile heat map chart started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Ensure class fitness functions are calculated first
                 Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
                             "Building class level fitness functions for profile heat map chart",
-                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, projectElement),
-                            indicator
-                    );
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
+                                    projectElement),
+                            indicator);
                     cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
                     cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
-                
+
                 ProfileHeatMapDataCalculator calculator = new ProfileHeatMapDataCalculator();
                 HeatMapChart newHeatMapChart = calculator.calculate(classesByProfile);
                 cacheService.putUserData(CacheService.HEAT_MAP_CHART, newHeatMapChart);
                 return newHeatMapChart;
             };
             Consumer<HeatMapChart> onSuccessCallback = (newHeatMapChart) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile heat map chart finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile heat map chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile heat map chart canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building profile heat map chart canceled");
 
             MetricsBackgroundableTask<HeatMapChart> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -620,37 +681,42 @@ public class CalculationServiceImpl implements CalculationService {
 
     @Override
     public void calculateProfileRadarCharts() {
-        List<ProfileRadarChartBuilder.RadarChartStructure> radarChart = cacheService.getUserData(CacheService.RADAR_CHART);
+        List<ProfileRadarChartBuilder.RadarChartStructure> radarChart = cacheService
+                .getUserData(CacheService.RADAR_CHART);
         if (radarChart != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
         } else {
             Function<ProgressIndicator, List<ProfileRadarChartBuilder.RadarChartStructure>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile radar charts started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile radar charts started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Ensure class fitness functions are calculated first
                 Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
                             "Building class level fitness functions for profile radar charts",
-                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, projectElement),
-                            indicator
-                    );
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
+                                    projectElement),
+                            indicator);
                     cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
                     cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
-                
+
                 ProfileRadarDataCalculator calculator = new ProfileRadarDataCalculator();
-                List<ProfileRadarChartBuilder.RadarChartStructure> newRadarCharts = calculator.calculate(classesByProfile, project);
+                List<ProfileRadarChartBuilder.RadarChartStructure> newRadarCharts = calculator
+                        .calculate(classesByProfile, project);
                 cacheService.putUserData(CacheService.RADAR_CHART, newRadarCharts);
                 return newRadarCharts;
             };
             Consumer<List<ProfileRadarChartBuilder.RadarChartStructure>> onSuccessCallback = (newRadarCharts) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile radar charts finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile radar charts finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile radar charts canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building profile radar charts canceled");
 
             MetricsBackgroundableTask<List<ProfileRadarChartBuilder.RadarChartStructure>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -673,32 +739,35 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
         } else {
             Function<ProgressIndicator, MetricTreeMap<CodeElement>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile tree map started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile tree map started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+
                 // Ensure class fitness functions are calculated first
                 Map<FitnessFunction, Set<ClassElement>> newClassesByProfile = cacheService.getClassesByProfile();
                 if (newClassesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     newClassesByProfile = runTaskSynchronously(
                             "Building class level fitness functions for profile tree map",
-                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project, projectElement),
-                            indicator
-                    );
+                            (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
+                                    projectElement),
+                            indicator);
                     cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, newClassesByProfile);
                     cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, newClassesByProfile);
                 }
-                
+
                 ProfileTreeMapModelCalculator calculator = new ProfileTreeMapModelCalculator();
                 MetricTreeMap<CodeElement> newProfileTreeMap = calculator.calculate(projectElement);
                 cacheService.putUserData(CacheService.PROFILE_TREE_MAP, newProfileTreeMap);
                 return newProfileTreeMap;
             };
             Consumer<MetricTreeMap<CodeElement>> onSuccessCallback = (newProfileTreeMap) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile tree map finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building profile tree map finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building profile tree map canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building profile tree map canceled");
 
             MetricsBackgroundableTask<MetricTreeMap<CodeElement>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -720,18 +789,21 @@ public class CalculationServiceImpl implements CalculationService {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsHistoryXyChartIsReady();
         } else {
             Function<ProgressIndicator, XYChart> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building project metrics history chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building project metrics history chart started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                 ProjectHistoryChartDataCalculator calculator = new ProjectHistoryChartDataCalculator();
                 XYChart newProjectMetricsHistoryChart = calculator.calculate(project);
                 cacheService.putUserData(CacheService.PROJECT_METRICS_HISTORY_XY_CHART, newProjectMetricsHistoryChart);
                 return newProjectMetricsHistoryChart;
             };
             Consumer<XYChart> onSuccessCallback = (newProjectMetricsHistoryChart) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building project metrics history chart finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building project metrics history chart finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsHistoryXyChartIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building project metrics history chart canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building project metrics history chart canceled");
 
             MetricsBackgroundableTask<XYChart> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -753,8 +825,9 @@ public class CalculationServiceImpl implements CalculationService {
                 "Export Project, Package, Class And Method Levels Metrics To XML",
                 true, // canBeCancelled
                 (indicator) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export project, package, class and method levels metrics to .xml started");
-                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export project, package, class and method levels metrics to .xml started");
+                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                     if (fileName != null) {
                         XmlExporter exporter = new XmlExporter(project);
                         exporter.export(fileName, projectElement);
@@ -762,11 +835,12 @@ public class CalculationServiceImpl implements CalculationService {
                     return null;
                 },
                 (v) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export project, package, class and method levels metrics to .xml finished");
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export project, package, class and method levels metrics to .xml finished");
                 },
-                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export project, package, class and method levels metrics to .xml canceled"),
-                null
-        );
+                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Export project, package, class and method levels metrics to .xml canceled"),
+                null);
         taskQueueService.queue(genericTask);
     }
 
@@ -777,8 +851,9 @@ public class CalculationServiceImpl implements CalculationService {
                 "Export Class Level Metrics To CSV",
                 true, // canBeCancelled
                 (indicator) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export class level metrics to .csv started");
-                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export class level metrics to .csv started");
+                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                     if (fileName != null) {
                         CsvClassMetricsExporter exporter = new CsvClassMetricsExporter(project);
                         exporter.export(fileName, projectElement);
@@ -786,11 +861,12 @@ public class CalculationServiceImpl implements CalculationService {
                     return null;
                 },
                 (v) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export class level metrics to .csv finished");
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export class level metrics to .csv finished");
                 },
-                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export class level metrics to .csv canceled"),
-                null
-        );
+                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Export class level metrics to .csv canceled"),
+                null);
         taskQueueService.queue(genericTask);
     }
 
@@ -801,8 +877,9 @@ public class CalculationServiceImpl implements CalculationService {
                 "Export Method Level Metrics To CSV",
                 true, // canBeCancelled
                 (indicator) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export method level metrics to .csv started");
-                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export method level metrics to .csv started");
+                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                     if (fileName != null) {
                         CsvMethodMetricsExporter exporter = new CsvMethodMetricsExporter(project);
                         exporter.export(fileName, projectElement);
@@ -810,11 +887,12 @@ public class CalculationServiceImpl implements CalculationService {
                     return null;
                 },
                 (v) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export method level metrics to .csv finished");
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export method level metrics to .csv finished");
                 },
-                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export method level metrics to .csv canceled"),
-                null
-        );
+                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Export method level metrics to .csv canceled"),
+                null);
         taskQueueService.queue(genericTask);
     }
 
@@ -825,8 +903,9 @@ public class CalculationServiceImpl implements CalculationService {
                 "Export Package Level Metrics To CSV",
                 true, // canBeCancelled
                 (indicator) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export package level metrics to .csv started");
-                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export package level metrics to .csv started");
+                    ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
                     if (fileName != null) {
                         CsvPackageMetricsExporter exporter = new CsvPackageMetricsExporter(project);
                         exporter.export(fileName, projectElement);
@@ -834,33 +913,39 @@ public class CalculationServiceImpl implements CalculationService {
                     return null;
                 },
                 (v) -> {
-                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export package level metrics to .csv finished");
+                    project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                            .printInfo("Export package level metrics to .csv finished");
                 },
-                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Export package level metrics to .csv canceled"),
-                null
-        );
+                () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Export package level metrics to .csv canceled"),
+                null);
         taskQueueService.queue(genericTask);
     }
 
     @Override
     public void calculateClassFitnessFunctions() {
-        Map<FitnessFunction, Set<ClassElement>> classFitnessFunctions = cacheService.getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+        Map<FitnessFunction, Set<ClassElement>> classFitnessFunctions = cacheService
+                .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
         if (classFitnessFunctions != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady();
         } else {
             Function<ProgressIndicator, Map<FitnessFunction, Set<ClassElement>>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building class level fitness functions started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                Map<FitnessFunction, Set<ClassElement>> newClassFitnessFunctions = new ClassFitnessFunctionCalculator().calculate(project, projectElement);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building class level fitness functions started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                Map<FitnessFunction, Set<ClassElement>> newClassFitnessFunctions = new ClassFitnessFunctionCalculator()
+                        .calculate(project, projectElement);
                 cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, newClassFitnessFunctions);
                 cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, newClassFitnessFunctions);
                 return newClassFitnessFunctions;
             };
             Consumer<Map<FitnessFunction, Set<ClassElement>>> onSuccessCallback = (newClassFitnessFunctions) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building class level fitness functions finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building class level fitness functions finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building class level fitness functions canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building class level fitness functions canceled");
 
             MetricsBackgroundableTask<Map<FitnessFunction, Set<ClassElement>>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -876,23 +961,28 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculatePackageFitnessFunctions() {
-        Map<FitnessFunction, Set<PackageElement>> packageFitnessFunctions = cacheService.getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
+    public void calculatePackageFitnessFunctions(@Nullable Module module) {
+        Map<FitnessFunction, Set<PackageElement>> packageFitnessFunctions = cacheService
+                .getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
         if (packageFitnessFunctions != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionIsReady();
         } else {
             Function<ProgressIndicator, Map<FitnessFunction, Set<PackageElement>>> taskLogic = (indicator) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building package level fitness functions started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator);
-                Map<FitnessFunction, Set<PackageElement>> newPackageFitnessFunctions = new PackageFitnessFunctionCalculator().calculate(project, projectElement);
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building package level fitness functions started");
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
+                Map<FitnessFunction, Set<PackageElement>> newPackageFitnessFunctions = new PackageFitnessFunctionCalculator()
+                        .calculate(project, projectElement);
                 cacheService.putUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION, newPackageFitnessFunctions);
                 return newPackageFitnessFunctions;
             };
             Consumer<Map<FitnessFunction, Set<PackageElement>>> onSuccessCallback = (newPackageFitnessFunctions) -> {
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building package level fitness functions finished");
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                        .printInfo("Building package level fitness functions finished");
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).packageLevelFitnessFunctionIsReady();
             };
-            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo("Building package level fitness functions canceled");
+            Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
+                    .printInfo("Building package level fitness functions canceled");
 
             MetricsBackgroundableTask<Map<FitnessFunction, Set<PackageElement>>> genericTask = new MetricsBackgroundableTask<>(
                     project,
@@ -916,7 +1006,8 @@ public class CalculationServiceImpl implements CalculationService {
         }
         projectElement.allClasses().forEach(classElement -> {
             classElement.metrics().forEach(metric -> {
-                if (metric.getType() == classMetricType && metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                if (metric.getType() == classMetricType && metric.getJavaParserValue() != null
+                        && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
                     String message = "Class:" + classElement.getName() + " " +
                             "Metric:" + metric.getType().name() + " " +
                             "PSI:" + metric.getPsiValue() + " " +
@@ -926,8 +1017,10 @@ public class CalculationServiceImpl implements CalculationService {
             });
             classElement.methods().forEach(methodElement -> {
                 methodElement.metrics().forEach(metric -> {
-                    if (metric.getType() == methodMetricType && metric.getJavaParserValue() != null && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
-                        String message = "Class.Method name:" + classElement.getName() + "." + methodElement.getName() + " " +
+                    if (metric.getType() == methodMetricType && metric.getJavaParserValue() != null
+                            && !metric.getJavaParserValue().equals(metric.getPsiValue())) {
+                        String message = "Class.Method name:" + classElement.getName() + "." + methodElement.getName()
+                                + " " +
                                 "Metric:" + metric.getType().name() + " " +
                                 "PSI:" + metric.getPsiValue() + " " +
                                 "JavaParser:" + metric.getJavaParserValue();

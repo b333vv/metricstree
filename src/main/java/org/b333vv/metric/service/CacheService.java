@@ -17,37 +17,37 @@
 package org.b333vv.metric.service;
 
 import com.intellij.openapi.Disposable;
- import com.intellij.openapi.components.Service;
- import com.intellij.openapi.project.Project;
- import com.intellij.openapi.util.Key;
- import com.intellij.openapi.util.UserDataHolder;
- import com.intellij.openapi.util.UserDataHolderBase;
- import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.components.Service;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.openapi.util.UserDataHolderBase;
+import com.intellij.openapi.vfs.*;
 import com.github.javaparser.ast.CompilationUnit;
- import org.b333vv.metric.builder.DependenciesBuilder;
+import org.b333vv.metric.builder.DependenciesBuilder;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.metric.MetricType;
- import org.b333vv.metric.model.metric.value.RangeType;
- import org.b333vv.metric.task.InvalidateCachesTask;
- import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
- import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.value.RangeType;
+import org.b333vv.metric.task.InvalidateCachesTask;
+import org.b333vv.metric.ui.fitnessfunction.FitnessFunction;
+import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
- import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
- import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
- import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
- import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
- import org.jetbrains.annotations.NotNull;
- import org.jetbrains.annotations.Nullable;
- import org.knowm.xchart.CategoryChart;
- import org.knowm.xchart.HeatMapChart;
- import org.knowm.xchart.XYChart;
+import org.b333vv.metric.ui.chart.builder.ProfileBoxChartBuilder;
+import org.b333vv.metric.ui.chart.builder.ProfileRadarChartBuilder;
+import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
+import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.HeatMapChart;
+import org.knowm.xchart.XYChart;
 
- import javax.swing.tree.DefaultTreeModel;
- import java.util.List;
- import java.util.Map;
- import java.util.Set;
- import java.util.concurrent.ConcurrentHashMap;
- import java.util.stream.Stream;
+import javax.swing.tree.DefaultTreeModel;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * Service for managing in-memory caches and VFS-based cache invalidation.
@@ -64,17 +64,22 @@ public final class CacheService implements UserDataHolder, Disposable {
     public static final Key<DefaultTreeModel> PROJECT_TREE = Key.create("PROJECT_TREE");
     public static final Key<ProjectMetricTreeBuilder> TREE_BUILDER = Key.create("TREE_BUILDER");
     public static final Key<DefaultTreeModel> CLASSES_BY_METRIC_TREE = Key.create("CLASSES_BY_METRIC_TREE");
-    public static final Key<Map<MetricType, Map<ClassElement, Metric>>> CLASSES_BY_METRIC_TYPES = Key.create("CLASSES_BY_METRIC_TYPES");
-    public static final Key<List<MetricPieChartBuilder.PieChartStructure>> PIE_CHART_LIST = Key.create("PIE_CHART_LIST");
-    public static final Key<Map<MetricType, Map<RangeType, Double>>> CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART = Key.create("CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART");
+    public static final Key<Map<MetricType, Map<ClassElement, Metric>>> CLASSES_BY_METRIC_TYPES = Key
+            .create("CLASSES_BY_METRIC_TYPES");
+    public static final Key<List<MetricPieChartBuilder.PieChartStructure>> PIE_CHART_LIST = Key
+            .create("PIE_CHART_LIST");
+    public static final Key<Map<MetricType, Map<RangeType, Double>>> CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART = Key
+            .create("CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART");
     public static final Key<CategoryChart> CATEGORY_CHART = Key.create("CATEGORY_CHART");
     public static final Key<Map<String, Double>> INSTABILITY = Key.create("INSTABILITY");
     public static final Key<Map<String, Double>> ABSTRACTNESS = Key.create("ABSTRACTNESS");
     public static final Key<XYChart> XY_CHART = Key.create("XY_CHART");
-    public static final Key<Map<FitnessFunction, Set<PackageElement>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key.create("PACKAGE_LEVEL_FITNESS_FUNCTION");
-    public static final Key<Map<FitnessFunction, Set<ClassElement>>> CLASS_LEVEL_FITNESS_FUNCTION =
-            Key.create("CLASS_LEVEL_FITNESS_FUNCTION");
-    public static final Key<Map<FitnessFunction, Set<ClassElement>>> CLASSES_BY_PROFILE = Key.create("CLASSES_BY_PROFILE");
+    public static final Key<Map<FitnessFunction, Set<PackageElement>>> PACKAGE_LEVEL_FITNESS_FUNCTION = Key
+            .create("PACKAGE_LEVEL_FITNESS_FUNCTION");
+    public static final Key<Map<FitnessFunction, Set<ClassElement>>> CLASS_LEVEL_FITNESS_FUNCTION = Key
+            .create("CLASS_LEVEL_FITNESS_FUNCTION");
+    public static final Key<Map<FitnessFunction, Set<ClassElement>>> CLASSES_BY_PROFILE = Key
+            .create("CLASSES_BY_PROFILE");
     public static final Key<List<ProfileBoxChartBuilder.BoxChartStructure>> BOX_CHARTS = Key.create("BOX_CHARTS");
     public static final Key<CategoryChart> PROFILE_CATEGORY_CHART = Key.create("PROFILE_CATEGORY_CHART");
     public static final Key<HeatMapChart> HEAT_MAP_CHART = Key.create("HEAT_MAP_CHART");
@@ -86,6 +91,10 @@ public final class CacheService implements UserDataHolder, Disposable {
 
     private UserDataHolderBase userData = new UserDataHolderBase();
     private final ConcurrentHashMap<String, FileElement> javaFiles = new ConcurrentHashMap<>();
+    private final Map<String, ProjectElement> projectMetricsCache = new ConcurrentHashMap<>();
+    private final Map<String, ProjectElement> packageMetricsCache = new ConcurrentHashMap<>();
+    private final Map<String, ProjectElement> classAndMethodMetricsCache = new ConcurrentHashMap<>();
+    private final Map<String, DependenciesBuilder> dependenciesCache = new ConcurrentHashMap<>();
     private final Project project;
     private final VirtualFileListener vfsListener;
 
@@ -113,6 +122,43 @@ public final class CacheService implements UserDataHolder, Disposable {
         return getUserData(CLASSES_BY_PROFILE);
     }
 
+    public ProjectElement getProjectMetrics(@Nullable com.intellij.openapi.module.Module module) {
+        return projectMetricsCache.get(getKey(module));
+    }
+
+    public void putProjectMetrics(@Nullable com.intellij.openapi.module.Module module, ProjectElement projectElement) {
+        projectMetricsCache.put(getKey(module), projectElement);
+    }
+
+    public ProjectElement getPackageMetrics(@Nullable com.intellij.openapi.module.Module module) {
+        return packageMetricsCache.get(getKey(module));
+    }
+
+    public void putPackageMetrics(@Nullable com.intellij.openapi.module.Module module, ProjectElement projectElement) {
+        packageMetricsCache.put(getKey(module), projectElement);
+    }
+
+    public ProjectElement getClassAndMethodMetrics(@Nullable com.intellij.openapi.module.Module module) {
+        return classAndMethodMetricsCache.get(getKey(module));
+    }
+
+    public void putClassAndMethodMetrics(@Nullable com.intellij.openapi.module.Module module,
+            ProjectElement projectElement) {
+        classAndMethodMetricsCache.put(getKey(module), projectElement);
+    }
+
+    public DependenciesBuilder getDependencies(@Nullable com.intellij.openapi.module.Module module) {
+        return dependenciesCache.get(getKey(module));
+    }
+
+    public void putDependencies(@Nullable com.intellij.openapi.module.Module module, DependenciesBuilder dependencies) {
+        dependenciesCache.put(getKey(module), dependencies);
+    }
+
+    private String getKey(@Nullable com.intellij.openapi.module.Module module) {
+        return module == null ? "PROJECT_ROOT" : module.getName();
+    }
+
     /**
      * Invalidates all cached user data.
      */
@@ -120,6 +166,8 @@ public final class CacheService implements UserDataHolder, Disposable {
         // Clear all user data by replacing the userData holder entirely
         // This ensures all keys are cleared, including any custom ones used in tests
         userData = new UserDataHolderBase();
+        projectMetricsCache.clear();
+        packageMetricsCache.clear();
     }
 
     /**
@@ -165,7 +213,8 @@ public final class CacheService implements UserDataHolder, Disposable {
     }
 
     /**
-     * VirtualFileListener implementation that invalidates caches when Java files are modified.
+     * VirtualFileListener implementation that invalidates caches when Java files
+     * are modified.
      */
     private class MyVfsListener implements VirtualFileListener {
         @Override

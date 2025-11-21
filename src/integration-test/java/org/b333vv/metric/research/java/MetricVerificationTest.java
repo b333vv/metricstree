@@ -34,14 +34,14 @@ public abstract class MetricVerificationTest extends BasePlatformTestCase {
             System.out.println("Successfully configured file: " + sourcePath);
 
             EmptyProgressIndicator indicator = new EmptyProgressIndicator();
-            
+
             // Debug: Log the configured file
             System.out.println("Configured test file: " + psiJavaFile.getName());
             System.out.println("File classes: ");
-            for (var psiClass : psiJavaFile.getClasses()) {
-                System.out.println("  - " + psiClass.getName());
+            for (com.intellij.psi.PsiClass cls : psiJavaFile.getClasses()) {
+                System.out.println("  - " + cls.getQualifiedName());
             }
-            
+
             // Step 1: Build dependencies first (required by CBO and other coupling metrics)
             System.out.println("Building dependencies...");
             AnalysisScope scope = new AnalysisScope(getProject());
@@ -49,23 +49,23 @@ public abstract class MetricVerificationTest extends BasePlatformTestCase {
             DependenciesBuilder dependenciesBuilder = new DependenciesBuilder();
             DependenciesCalculator dependenciesCalculator = new DependenciesCalculator(scope, dependenciesBuilder);
             DependenciesBuilder builtDependencies = dependenciesCalculator.calculateDependencies(indicator);
-            
+
             // Cache the dependencies for the visitors to use
             CacheService cacheService = getProject().getService(CacheService.class);
             cacheService.putUserData(CacheService.DEPENDENCIES, builtDependencies);
-            
+
             System.out.println("Dependencies built and cached");
 
             // Step 2: Calculate PSI-based metrics
             System.out.println("Starting PSI calculation...");
             PsiCalculationStrategy psiCalculationStrategy = new PsiCalculationStrategy();
-            javaProject = psiCalculationStrategy.calculate(getProject(), indicator);
-            
+            javaProject = psiCalculationStrategy.calculate(getProject(), indicator, null);
+
             if (javaProject == null) {
                 System.out.println("ERROR: PSI calculation returned null javaProject!");
                 throw new RuntimeException("PSI calculation failed - javaProject is null");
             }
-            
+
             System.out.println("PSI calculation completed. Classes found: " + javaProject.allClasses().count());
             javaProject.allClasses().forEach(javaClass -> {
                 System.out.println("  - Class: " + javaClass.getName() + ", Metrics: " + javaClass.metrics().count());
@@ -74,13 +74,14 @@ public abstract class MetricVerificationTest extends BasePlatformTestCase {
             // Step 3: Augment with JavaParser-based metrics
             System.out.println("Starting JavaParser augmentation...");
             JavaParserCalculationStrategy javaParserCalculationStrategy = new JavaParserCalculationStrategy();
-            
-            // Parse all compilation units from the test project for enhanced type resolution
+
+            // Parse all compilation units from the test project for enhanced type
+            // resolution
             List<CompilationUnit> testUnits = parseTestCompilationUnits();
             System.out.println("Parsed " + testUnits.size() + " compilation units for test.");
-            
+
             javaParserCalculationStrategy.augment(javaProject, getProject(), testUnits, indicator);
-            
+
             System.out.println("JavaParser augmentation completed");
             System.out.println("=== SETUP TEST COMPLETED SUCCESSFULLY ===");
 
@@ -123,28 +124,29 @@ public abstract class MetricVerificationTest extends BasePlatformTestCase {
     }
 
     /**
-     * Parse all compilation units from the test project to enable enhanced type resolution.
+     * Parse all compilation units from the test project to enable enhanced type
+     * resolution.
      */
     private List<CompilationUnit> parseTestCompilationUnits() {
         List<CompilationUnit> units = new ArrayList<>();
         JavaParser javaParser = new JavaParser();
-        
+
         try {
             // Parse the files that were added to the test project directly
             // For CBOAlignmentVerificationTest, this includes ClassA and ClassB
             // For RealClassCBOTest, this includes JavaClass
             List<String> testFiles = List.of(
-                "ClassA.java", "ClassB.java",  // For simple alignment test
-                "JavaClass.java"  // For real class test
+                    "ClassA.java", "ClassB.java", // For simple alignment test
+                    "JavaClass.java" // For real class test
             );
-            
+
             for (String fileName : testFiles) {
                 // Try different possible locations
                 List<String> possiblePaths = List.of(
-                    "com/test/" + fileName,  // For simple test files
-                    "org/b333vv/metric/model/code/" + fileName  // For real class files
+                        "com/test/" + fileName, // For simple test files
+                        "org/b333vv/metric/model/code/" + fileName // For real class files
                 );
-                
+
                 boolean found = false;
                 for (String path : possiblePaths) {
                     try {
@@ -174,7 +176,7 @@ public abstract class MetricVerificationTest extends BasePlatformTestCase {
         } catch (Exception e) {
             System.err.println("Error in parseTestCompilationUnits: " + e.getMessage());
         }
-        
+
         return units;
     }
 }
