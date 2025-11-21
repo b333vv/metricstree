@@ -83,9 +83,8 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         DefaultActionGroup newGroup = new DefaultActionGroup();
 
         newGroup.add(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
-            actionManager.tryToExecute(
-                    actionManager.getAction("Metrics.BuildPackageLevelFitnessFunction"),
-                    null, null, com.intellij.openapi.actionSystem.ActionPlaces.UNKNOWN, true);
+            // Module selection is already handled by ModuleSelector itself
+            // User will manually trigger recalculation via toolbar button
         }));
         newGroup.addSeparator();
         newGroup.addAll(originalGroup);
