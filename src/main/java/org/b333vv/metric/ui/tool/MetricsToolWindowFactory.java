@@ -83,8 +83,13 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         addClassMetricsTreeTab(project, toolWindow);
         addProjectMetricsTreeTab(project, toolWindow);
         addFitnessFunctionTab(project, toolWindow);
-//        addMetricsTimelineTab(project, toolWindow);
+        // addMetricsTimelineTab(project, toolWindow);
         addLogTab(project, toolWindow);
         toolWindow.setType(ToolWindowType.DOCKED, null);
+
+        toolWindow.setTitleActions(java.util.List.of(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
+            // Module selection is already handled by ModuleSelector itself
+            // User will manually trigger recalculation via toolbar button
+        })));
     }
 }

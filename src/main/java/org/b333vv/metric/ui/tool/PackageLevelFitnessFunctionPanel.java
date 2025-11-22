@@ -81,12 +81,6 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         DefaultActionGroup originalGroup = (DefaultActionGroup) actionManager
                 .getAction("Metrics.PackageLevelFitnessFunctionToolbar");
         DefaultActionGroup newGroup = new DefaultActionGroup();
-
-        newGroup.add(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
-            // Module selection is already handled by ModuleSelector itself
-            // User will manually trigger recalculation via toolbar button
-        }));
-        newGroup.addSeparator();
         newGroup.addAll(originalGroup);
 
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar", newGroup, false);

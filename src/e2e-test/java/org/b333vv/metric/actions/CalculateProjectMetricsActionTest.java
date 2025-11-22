@@ -44,6 +44,10 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
         when(mockProject.getService(TaskQueueService.class)).thenReturn(mockTaskQueueService);
         when(mockTaskQueueService.isQueueEmpty()).thenReturn(true);
 
+        org.b333vv.metric.service.UIStateService mockUIStateService = Mockito
+                .mock(org.b333vv.metric.service.UIStateService.class);
+        when(mockProject.getService(org.b333vv.metric.service.UIStateService.class)).thenReturn(mockUIStateService);
+
         DataContext dataContext = new DataContext() {
             @Override
             public Object getData(String dataId) {

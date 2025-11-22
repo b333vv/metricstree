@@ -77,12 +77,6 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         com.intellij.openapi.actionSystem.DefaultActionGroup originalGroup = (com.intellij.openapi.actionSystem.DefaultActionGroup) actionManager
                 .getAction("Metrics.ProjectMetricsToolbar");
         com.intellij.openapi.actionSystem.DefaultActionGroup newGroup = new com.intellij.openapi.actionSystem.DefaultActionGroup();
-
-        newGroup.add(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
-            // Module selection is already handled by ModuleSelector itself
-            // User will manually trigger recalculation via toolbar button
-        }));
-        newGroup.addSeparator();
         newGroup.addAll(originalGroup);
 
         com.intellij.openapi.actionSystem.ActionToolbar actionToolbar = actionManager
