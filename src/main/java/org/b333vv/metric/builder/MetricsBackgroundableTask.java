@@ -35,12 +35,12 @@ public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
     private Runnable onFinished;
 
     public MetricsBackgroundableTask(@Nullable Project project,
-                                     @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
-                                     boolean canBeCancelled,
-                                     @NotNull Function<ProgressIndicator, T> task,
-                                     @NotNull Consumer<T> onSuccess,
-                                     @Nullable Runnable onCancel,
-                                     @Nullable Runnable onFinished) {
+            @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
+            boolean canBeCancelled,
+            @NotNull Function<ProgressIndicator, T> task,
+            @NotNull Consumer<T> onSuccess,
+            @Nullable Runnable onCancel,
+            @Nullable Runnable onFinished) {
         super(project, title, canBeCancelled);
         this.task = task;
         this.onSuccess = onSuccess;
@@ -80,5 +80,9 @@ public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
 
     public void setOnSuccess(Consumer<T> onSuccess) {
         this.onSuccess = onSuccess;
+    }
+
+    public Runnable getOnFinished() {
+        return onFinished;
     }
 }

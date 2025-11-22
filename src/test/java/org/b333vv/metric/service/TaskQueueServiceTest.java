@@ -4,7 +4,6 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,7 @@ public class TaskQueueServiceTest {
     @Mock
     private Application mockApplication;
     @Mock
-    private Task.Backgroundable mockTask;
+    private org.b333vv.metric.builder.MetricsBackgroundableTask<?> mockTask;
     @Mock
     private Project mockProject;
 

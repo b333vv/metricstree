@@ -16,39 +16,27 @@
 
 package org.b333vv.metric.task;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.progress.Task;
 import org.b333vv.metric.event.MetricsEventListener;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project;
 import org.b333vv.metric.service.ClassMetricsTreeService;
+import org.b333vv.metric.builder.MetricsBackgroundableTask;
 
-public class ClassByMetricsTreeTask extends Task.Backgroundable {
+public class ClassByMetricsTreeTask extends MetricsBackgroundableTask<Void> {
     private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values tree from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values tree started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values tree finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values tree canceled";
 
     public ClassByMetricsTreeTask(Project project) {
-        super(project, "Building Class Distribution by Metric Values");
-    }
-
-    @Override
-    public void run(@NotNull ProgressIndicator indicator) {
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        myProject.getService(ClassMetricsTreeService.class).getSortedClassesTreeModel(indicator);
-    }
-
-    @Override
-    public void onSuccess() {
-        super.onSuccess();
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classByMetricTreeIsReady(null);
-    }
-
-    @Override
-    public void onCancel() {
-        super.onCancel();
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(CANCELED_MESSAGE);
+        super(project, "Building Class Distribution by Metric Values", true, (indicator) -> {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
+            project.getService(ClassMetricsTreeService.class).getSortedClassesTreeModel(indicator);
+            return null;
+        }, (res) -> {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classByMetricTreeIsReady(null);
+        }, () -> {
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(CANCELED_MESSAGE);
+        }, null);
     }
 }

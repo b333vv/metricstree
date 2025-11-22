@@ -16,39 +16,35 @@
 
 package org.b333vv.metric.task;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.service.CacheService;
-import org.jetbrains.annotations.NotNull;
+import org.b333vv.metric.builder.MetricsBackgroundableTask;
 
-public class InvalidateCachesTask extends Task.Backgroundable {
+public class InvalidateCachesTask extends MetricsBackgroundableTask<Void> {
     private static final String STARTED_MESSAGE = "Invalidating caches started";
     private static final String FINISHED_MESSAGE = "Invalidating caches finished";
-    private final VirtualFile virtualFile;
 
     public InvalidateCachesTask(Project project, VirtualFile file) {
-        super(project, "Invalidate Caches");
-        virtualFile = file;
-    }
-
-    @Override
-    public void run(@NotNull ProgressIndicator indicator) {
-        // The project can become disposed in unit-test light projects before this background task is executed.
-        // Guard against accessing the message bus or services of a disposed project to avoid PluginException.
-        if (myProject == null || myProject.isDisposed()) {
-            return;
-        }
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-        CacheService cacheService = myProject.getService(CacheService.class);
-        if (cacheService != null) {
-            cacheService.invalidateUserData();
-            cacheService.removeJavaFile(virtualFile);
-        }
-        if (!myProject.isDisposed()) {
-            myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        }
+        super(project, "Invalidate Caches", true, (indicator) -> {
+            // The project can become disposed in unit-test light projects before this
+            // background task is executed.
+            // Guard against accessing the message bus or services of a disposed project to
+            // avoid PluginException.
+            if (project == null || project.isDisposed()) {
+                return null;
+            }
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
+            CacheService cacheService = project.getService(CacheService.class);
+            if (cacheService != null) {
+                cacheService.invalidateUserData();
+                cacheService.removeJavaFile(file);
+            }
+            if (!project.isDisposed()) {
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
+            }
+            return null;
+        }, null, null, null);
     }
 }

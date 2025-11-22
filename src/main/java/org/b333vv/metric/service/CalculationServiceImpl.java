@@ -89,6 +89,16 @@ public class CalculationServiceImpl implements CalculationService {
     // Helper method to run a task synchronously and get its result
     private <T> T runTaskSynchronously(String title, Function<ProgressIndicator, T> taskLogic,
             ProgressIndicator indicator) {
+        if (indicator != null) {
+            String oldText = indicator.getText();
+            indicator.setText(title);
+            try {
+                return taskLogic.apply(indicator);
+            } finally {
+                indicator.setText(oldText);
+            }
+        }
+
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<T> result = new AtomicReference<>();
 
