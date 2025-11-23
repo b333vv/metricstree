@@ -392,6 +392,13 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                 metricsTrimmedSummaryTable.set(javaClass);
             });
         }
+
+        @Override
+        public void clearProjectPanel() {
+            SwingUtilities.invokeLater(() -> {
+                projectPanelClear();
+            });
+        }
     }
 
     public class PressedButtonsEventListener implements ButtonsEventListener {

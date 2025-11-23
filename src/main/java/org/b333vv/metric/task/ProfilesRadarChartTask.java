@@ -44,10 +44,12 @@ public class ProfilesRadarChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = myProject.getService(CacheService.class).getUserData(CacheService.RADAR_CHART);
+        List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = myProject.getService(CacheService.class)
+                .getUserData(CacheService.RADAR_CHART);
         if (radarCharts == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class)
+                    .getClassesByProfile();
             ProfileRadarDataCalculator calculator = new ProfileRadarDataCalculator();
             radarCharts = calculator.calculate(classesByProfile, myProject);
             myProject.getService(CacheService.class).putUserData(CacheService.RADAR_CHART, radarCharts);
@@ -59,7 +61,7 @@ public class ProfilesRadarChartTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady(null);
     }
 
     @Override

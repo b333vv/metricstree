@@ -544,7 +544,7 @@ public class CalculationServiceImpl implements CalculationService {
     public void calculateProfileBoxCharts(@Nullable Module module) {
         List<ProfileBoxChartBuilder.BoxChartStructure> boxCharts = cacheService.getBoxCharts(module);
         if (boxCharts != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady(module);
         } else {
             Function<ProgressIndicator, List<ProfileBoxChartBuilder.BoxChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -573,7 +573,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<List<ProfileBoxChartBuilder.BoxChartStructure>> onSuccessCallback = (newBoxCharts) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile box charts finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building profile box charts canceled");
@@ -595,7 +595,7 @@ public class CalculationServiceImpl implements CalculationService {
     public void calculateProfileCategoryChart(@Nullable Module module) {
         CategoryChart profileCategoryChart = cacheService.getProfileCategoryChart(module);
         if (profileCategoryChart != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady(module);
         } else {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -624,7 +624,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<CategoryChart> onSuccessCallback = (newCategoryChart) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile category chart finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building profile category chart canceled");
@@ -646,7 +646,7 @@ public class CalculationServiceImpl implements CalculationService {
     public void calculateProfileHeatMapChart(@Nullable Module module) {
         HeatMapChart heatMapChart = cacheService.getHeatMapChart(module);
         if (heatMapChart != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady(module);
         } else {
             Function<ProgressIndicator, HeatMapChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -675,7 +675,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<HeatMapChart> onSuccessCallback = (newHeatMapChart) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile heat map chart finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building profile heat map chart canceled");
@@ -697,7 +697,7 @@ public class CalculationServiceImpl implements CalculationService {
     public void calculateProfileRadarCharts(@Nullable Module module) {
         List<ProfileRadarChartBuilder.RadarChartStructure> radarChart = cacheService.getRadarCharts(module);
         if (radarChart != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady(module);
         } else {
             Function<ProgressIndicator, List<ProfileRadarChartBuilder.RadarChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -727,7 +727,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<List<ProfileRadarChartBuilder.RadarChartStructure>> onSuccessCallback = (newRadarCharts) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile radar charts finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building profile radar charts canceled");

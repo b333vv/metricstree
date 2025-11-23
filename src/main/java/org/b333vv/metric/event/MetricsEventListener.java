@@ -27,127 +27,133 @@ import javax.swing.tree.DefaultTreeModel;
 
 public interface MetricsEventListener {
 
-    Topic<MetricsEventListener> TOPIC = new Topic<>("MetricsEventListener", MetricsEventListener.class);
+        Topic<MetricsEventListener> TOPIC = new Topic<>("MetricsEventListener", MetricsEventListener.class);
 
-    default void classMetricsValuesEvolutionCalculated(@NotNull DefaultTreeModel defaultTreeModel) {
-    }
+        default void classMetricsValuesEvolutionCalculated(@NotNull DefaultTreeModel defaultTreeModel) {
+        }
 
-    default void clearProjectMetricsTree() {
-    }
+        default void clearProjectMetricsTree() {
+        }
 
-    default void clearClassFitnessFunctionPanel() {
-    }
+        default void clearClassFitnessFunctionPanel() {
+        }
 
-    default void clearPackageFitnessFunctionPanel() {
-    }
+        default void clearPackageFitnessFunctionPanel() {
+        }
 
-    default void clearClassMetricsValuesEvolutionTree() {
-    }
+        default void clearClassMetricsValuesEvolutionTree() {
+        }
 
-    default void buildClassMetricsTree() {
-    }
+        default void buildClassMetricsTree() {
+        }
 
-    default void buildProjectMetricsTree() {
-    }
+        default void buildProjectMetricsTree() {
+        }
 
-    default void showClassMetricsTree(boolean showClassMetricsTree) {
-    }
+        default void showClassMetricsTree(boolean showClassMetricsTree) {
+        }
 
-    default void refreshClassMetricsTree() {
-    }
+        default void refreshClassMetricsTree() {
+        }
 
-    default void cancelMetricsValuesEvolutionCalculation() {
-    }
+        default void cancelMetricsValuesEvolutionCalculation() {
+        }
 
-    default void metricsProfileSelected(FitnessFunction profile) {
-    }
+        default void metricsProfileSelected(FitnessFunction profile) {
+        }
 
-    default void javaClassSelected(ClassElement javaClass) {
-    }
+        default void javaClassSelected(ClassElement javaClass) {
+        }
 
-    default void packageLevelJavaClassSelected(ClassElement javaClass) {
-    }
+        default void packageLevelJavaClassSelected(ClassElement javaClass) {
+        }
 
-    default void javaPackageSelected(PackageElement javaPackage) {
-    }
+        default void javaPackageSelected(PackageElement javaPackage) {
+        }
 
-    default void projectMetricsTreeIsReady(DefaultTreeModel treeModel,
-            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void projectMetricsTreeIsReady(DefaultTreeModel treeModel,
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void pieChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void pieChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void printInfo(String info) {
-    }
+        default void printInfo(String info) {
+        }
 
-    default void categoryChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void categoryChartIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void xyChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void xyChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void classByMetricTreeIsReady(
-            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void classByMetricTreeIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void classLevelFitnessFunctionIsReady(
-            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void classLevelFitnessFunctionIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void packageLevelFitnessFunctionIsReady(
-            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void packageLevelFitnessFunctionIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void packageLevelFitnessFunctionSelected(FitnessFunction fitnessFunction) {
-    }
+        default void packageLevelFitnessFunctionSelected(FitnessFunction fitnessFunction) {
+        }
 
-    default void profilesBoxChartIsReady() {
-    }
+        default void profilesBoxChartIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void currentMetricType(MetricType metricType) {
-    }
+        default void currentMetricType(MetricType metricType) {
+        }
 
-    default void profilesHeatMapChartIsReady() {
-    }
+        default void profilesHeatMapChartIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void profilesRadarChartIsReady() {
-    }
+        default void profilesRadarChartIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void profilesCategoryChartIsReady() {
-    }
+        default void profilesCategoryChartIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void currentMetricProfile(FitnessFunction fitnessFunction) {
-    }
+        default void currentMetricProfile(FitnessFunction fitnessFunction) {
+        }
 
-    default void metricTreeMapIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-    }
+        default void metricTreeMapIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+        }
 
-    default void setProjectPanelBottomText(String text) {
-    }
+        default void setProjectPanelBottomText(String text) {
+        }
 
-    default void setProfilePanelBottomText(String text) {
-    }
+        default void setProfilePanelBottomText(String text) {
+        }
 
-    default void projectTreeMapCellClicked(ClassElement javaClass) {
-    }
+        default void projectTreeMapCellClicked(ClassElement javaClass) {
+        }
 
-    default void profileTreeMapCellClicked(ClassElement javaClass) {
-    }
+        default void profileTreeMapCellClicked(ClassElement javaClass) {
+        }
 
-    default void profileTreeMapIsReady() {
+        default void profileTreeMapIsReady() {
 
-    }
+        }
 
-    default void clearProjectPanel() {
-    }
+        default void clearProjectPanel() {
+        }
 
-    default void projectMetricsHistoryXyChartIsReady() {
-    }
+        default void projectMetricsHistoryXyChartIsReady() {
+        }
 
-    default void plusButtonPressed() {
-    }
+        default void plusButtonPressed() {
+        }
 
-    default void minusButtonPressed() {
-    }
+        default void minusButtonPressed() {
+        }
 }

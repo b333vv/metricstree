@@ -44,10 +44,12 @@ public class ProfilesBoxChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(CacheService.class).getUserData(CacheService.BOX_CHARTS);
+        List<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructures = myProject.getService(CacheService.class)
+                .getUserData(CacheService.BOX_CHARTS);
         if (boxChartStructures == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class)
+                    .getClassesByProfile();
             ProfileBoxChartDataCalculator calculator = new ProfileBoxChartDataCalculator();
             boxChartStructures = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.BOX_CHARTS, boxChartStructures);
@@ -59,7 +61,7 @@ public class ProfilesBoxChartTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady(null);
     }
 
     @Override

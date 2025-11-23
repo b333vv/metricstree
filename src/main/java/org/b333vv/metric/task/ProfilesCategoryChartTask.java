@@ -43,10 +43,12 @@ public class ProfilesCategoryChartTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-        CategoryChart categoryChart = myProject.getService(CacheService.class).getUserData(CacheService.PROFILE_CATEGORY_CHART);
+        CategoryChart categoryChart = myProject.getService(CacheService.class)
+                .getUserData(CacheService.PROFILE_CATEGORY_CHART);
         if (categoryChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class)
+                    .getClassesByProfile();
             ProfileCategoryChartDataCalculator calculator = new ProfileCategoryChartDataCalculator();
             categoryChart = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.PROFILE_CATEGORY_CHART, categoryChart);
@@ -58,7 +60,7 @@ public class ProfilesCategoryChartTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady(null);
     }
 
     @Override

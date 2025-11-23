@@ -371,30 +371,42 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void profilesBoxChartIsReady() {
+        public void profilesBoxChartIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             List<ProfileBoxChartBuilder.BoxChartStructure> boxChartList = project.getService(CacheService.class)
-                    .getUserData(CacheService.BOX_CHARTS);
-            showBoxCharts(Objects.requireNonNull(boxChartList));
+                    .getBoxCharts(module);
+            if (boxChartList != null) {
+                showBoxCharts(boxChartList);
+            }
         }
 
         @Override
-        public void profilesHeatMapChartIsReady() {
-            HeatMapChart heatMapChart = project.getService(CacheService.class).getUserData(CacheService.HEAT_MAP_CHART);
-            showResults(Objects.requireNonNull(heatMapChart));
+        public void profilesHeatMapChartIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+            HeatMapChart heatMapChart = project.getService(CacheService.class).getHeatMapChart(module);
+            if (heatMapChart != null) {
+                showResults(heatMapChart);
+            }
         }
 
         @Override
-        public void profilesRadarChartIsReady() {
+        public void profilesRadarChartIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts = project.getService(CacheService.class)
-                    .getUserData(CacheService.RADAR_CHART);
-            showRadarCharts(Objects.requireNonNull(radarCharts));
+                    .getRadarCharts(module);
+            if (radarCharts != null) {
+                showRadarCharts(radarCharts);
+            }
         }
 
         @Override
-        public void profilesCategoryChartIsReady() {
+        public void profilesCategoryChartIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             CategoryChart categoryChart = project.getService(CacheService.class)
-                    .getUserData(CacheService.PROFILE_CATEGORY_CHART);
-            showResults(Objects.requireNonNull(categoryChart));
+                    .getProfileCategoryChart(module);
+            if (categoryChart != null) {
+                showResults(categoryChart);
+            }
         }
 
         @Override

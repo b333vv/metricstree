@@ -46,7 +46,8 @@ public class ProfilesHeatMapChartTask extends Task.Backgroundable {
         HeatMapChart heatMapChart = myProject.getService(CacheService.class).getUserData(CacheService.HEAT_MAP_CHART);
         if (heatMapChart == null) {
             myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(STARTED_MESSAGE);
-            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class).getClassesByProfile();
+            Map<FitnessFunction, Set<ClassElement>> classesByProfile = myProject.getService(CacheService.class)
+                    .getClassesByProfile();
             ProfileHeatMapDataCalculator calculator = new ProfileHeatMapDataCalculator();
             heatMapChart = calculator.calculate(classesByProfile);
             myProject.getService(CacheService.class).putUserData(CacheService.HEAT_MAP_CHART, heatMapChart);
@@ -58,7 +59,7 @@ public class ProfilesHeatMapChartTask extends Task.Backgroundable {
     public void onSuccess() {
         super.onSuccess();
         myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
+        myProject.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady(null);
     }
 
     @Override

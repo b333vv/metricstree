@@ -90,9 +90,8 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         toolWindow.setTitleActions(java.util.List.of(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
             project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
                     .clearProjectPanel();
-            com.intellij.openapi.module.Module module = project
-                    .getService(org.b333vv.metric.service.UIStateService.class).getSelectedModule();
-            project.getService(org.b333vv.metric.service.CalculationService.class).calculateProjectTree(module);
+            project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                    .clearPackageFitnessFunctionPanel();
         })));
     }
 }
