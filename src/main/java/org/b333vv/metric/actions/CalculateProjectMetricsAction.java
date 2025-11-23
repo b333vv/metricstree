@@ -40,6 +40,6 @@ public class CalculateProjectMetricsAction extends AbstractAction {
     @Override
     public void update(AnActionEvent e) {
         Project project = e.getProject();
-        e.getPresentation().setEnabled(project != null && project.getService(TaskQueueService.class).isQueueEmpty());
+//        e.getPresentation().setEnabled(project != null && project.getService(TaskQueueService.class).isQueueEmpty());
     }
 }
