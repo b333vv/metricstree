@@ -52,6 +52,7 @@ public class ClassMetricsPanel extends MetricsTreePanel {
 
         EditorChangeListener editorChangeListener = new EditorChangeListener();
         project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorChangeListener);
+        super.createUIComponents(SPLIT_PROPORTION_PROPERTY);
     }
 
     public static ClassMetricsPanel newInstance(Project project) {

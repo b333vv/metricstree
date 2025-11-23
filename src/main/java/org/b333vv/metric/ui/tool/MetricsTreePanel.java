@@ -71,7 +71,7 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
         super(false, true);
         this.project = project;
         this.splitProportionProperty = splitProportionProperty;
-        createUIComponents(splitProportionProperty);
+//        createUIComponents(splitProportionProperty);
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Metrics Toolbar",
                 (DefaultActionGroup) actionManager.getAction(actionId), false);

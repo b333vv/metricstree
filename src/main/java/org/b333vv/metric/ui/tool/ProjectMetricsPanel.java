@@ -36,12 +36,14 @@ import org.b333vv.metric.service.CacheService;
 import org.b333vv.metric.ui.chart.builder.MetricPieChartBuilder;
 import org.b333vv.metric.ui.info.*;
 import org.b333vv.metric.ui.settings.MetricsConfigurable;
+import org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder;
 import org.b333vv.metric.ui.treemap.builder.MetricTypeColorProvider;
 import org.b333vv.metric.ui.treemap.presentation.MetricTreeMap;
 import org.b333vv.metric.service.UIStateService;
 import org.b333vv.metric.util.SettingsService;
 import org.b333vv.metric.util.EditorUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
@@ -112,6 +114,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     private void showResults(Set<MetricType> metricTypes, CategoryChart categoryChart) {
+        createUIComponents(SPLIT_PROPORTION_2PANELS);
         mainPanel = new JBPanel<>(new BorderLayout());
         rightPanel = new JBPanel<>(new BorderLayout());
         super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_CATEGORY_CHART"));
@@ -130,6 +133,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
     private void showResults(Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes,
             List<MetricPieChartBuilder.PieChartStructure> chartList) {
+        createUIComponents(SPLIT_PROPORTION_2PANELS);
         mainPanel = new JBPanel<>(new BorderLayout());
         rightPanel = new JBPanel<>(new BorderLayout());
         super.setContent(createSplitter(mainPanel, rightPanel, "PROJECT_PIE_CHART"));
@@ -155,6 +159,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
     }
 
     private void showResults(XYChart xyChart) {
+        createUIComponents(SPLIT_PROPORTION_2PANELS);
         mainPanel = new JBPanel<>(new BorderLayout());
         rightPanel = new JBPanel<>(new BorderLayout());
 
@@ -235,12 +240,17 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         if (leftPanel != null) {
             leftPanel.removeAll();
         }
-        rightPanel.removeAll();
-        mainPanel.removeAll();
+        if (rightPanel != null) {
+            rightPanel.removeAll();
+        }
+        if (mainPanel != null) {
+            mainPanel.removeAll();
+        }
         updateUI();
     }
 
     private void showResults(@NotNull MetricTreeMap<CodeElement> treeMap, ProjectElement projectElement) {
+
         createTreeMapUIComponents();
 
         // Set up TreeMap actions to communicate with the UI
@@ -311,8 +321,9 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                 }
 
                 if (projectElement != null) {
-                    metricTreeBuilder = new org.b333vv.metric.ui.tree.builder.ProjectMetricTreeBuilder(projectElement,
+                    metricTreeBuilder = new ProjectMetricTreeBuilder(projectElement,
                             project);
+//                    createUIComponents(SPLIT_PROPORTION_2PANELS);
                     showResults(treeModel);
                     buildProjectMetricsTree();
                     project.getService(UIStateService.class).setProjectTreeActive(true);
@@ -326,7 +337,8 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
 
         @Override
         public void classByMetricTreeIsReady(
-                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+                @Nullable com.intellij.openapi.module.Module module) {
+//            createUIComponents(SPLIT_PROPORTION_2PANELS);
             SwingUtilities.invokeLater(() -> {
                 showResults(project.getService(CacheService.class).getClassesByMetricTree(module));
             });
