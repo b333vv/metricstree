@@ -236,7 +236,7 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
                 @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             createProfileUIComponents();
             fitnessFunctionResult = project.getService(CacheService.class)
-                    .getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
+                    .getPackageLevelFitnessFunctions(module);
             if (fitnessFunctionResult != null) {
                 showResult();
             }
@@ -244,11 +244,11 @@ public class PackageLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
 
         @Override
         public void xyChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
-            XYChart xyChart = project.getService(CacheService.class).getUserData(CacheService.XY_CHART);
+            XYChart xyChart = project.getService(CacheService.class).getXyChart(module);
             Map<String, Double> instability = project.getService(CacheService.class)
-                    .getUserData(CacheService.INSTABILITY);
+                    .getInstability(module);
             Map<String, Double> abstractness = project.getService(CacheService.class)
-                    .getUserData(CacheService.ABSTRACTNESS);
+                    .getAbstractness(module);
             showResults(xyChart, instability, abstractness);
         }
 

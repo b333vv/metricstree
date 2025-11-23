@@ -23,17 +23,17 @@ public interface CalculationService {
 
     void calculateXyChart(@Nullable Module module);
 
-    void calculateProfileBoxCharts();
+    void calculateProfileBoxCharts(@Nullable Module module);
 
-    void calculateProfileCategoryChart();
+    void calculateProfileCategoryChart(@Nullable Module module);
 
-    void calculateProfileHeatMapChart();
+    void calculateProfileHeatMapChart(@Nullable Module module);
 
-    void calculateProfileRadarCharts();
+    void calculateProfileRadarCharts(@Nullable Module module);
 
     void calculateMetricTreeMap(@Nullable Module module);
 
-    void calculateProfileTreeMap();
+    void calculateProfileTreeMap(@Nullable Module module);
 
     void calculateProjectMetricsHistoryChart();
 

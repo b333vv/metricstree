@@ -95,6 +95,24 @@ public final class CacheService implements UserDataHolder, Disposable {
     private final Map<String, ProjectElement> packageMetricsCache = new ConcurrentHashMap<>();
     private final Map<String, ProjectElement> classAndMethodMetricsCache = new ConcurrentHashMap<>();
     private final Map<String, DependenciesBuilder> dependenciesCache = new ConcurrentHashMap<>();
+    private final Map<String, DefaultTreeModel> projectTreeCache = new ConcurrentHashMap<>();
+    private final Map<String, List<MetricPieChartBuilder.PieChartStructure>> pieChartCache = new ConcurrentHashMap<>();
+    private final Map<String, CategoryChart> categoryChartCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<MetricType, Map<RangeType, Double>>> classesByMetricTypesForCategoryChartCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<MetricType, Map<ClassElement, Metric>>> classesByMetricTypesCache = new ConcurrentHashMap<>();
+    private final Map<String, XYChart> xyChartCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Double>> instabilityCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Double>> abstractnessCache = new ConcurrentHashMap<>();
+    private final Map<String, MetricTreeMap<CodeElement>> metricTreeMapCache = new ConcurrentHashMap<>();
+    private final Map<String, DefaultTreeModel> classesByMetricTreeCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<FitnessFunction, Set<ClassElement>>> classLevelFitnessFunctionCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<FitnessFunction, Set<PackageElement>>> packageLevelFitnessFunctionCache = new ConcurrentHashMap<>();
+    private final Map<String, MetricTreeMap<CodeElement>> profileTreeMapCache = new ConcurrentHashMap<>();
+    private final Map<String, List<ProfileBoxChartBuilder.BoxChartStructure>> boxChartsCache = new ConcurrentHashMap<>();
+    private final Map<String, HeatMapChart> heatMapChartCache = new ConcurrentHashMap<>();
+    private final Map<String, List<ProfileRadarChartBuilder.RadarChartStructure>> radarChartCache = new ConcurrentHashMap<>();
+    private final Map<String, CategoryChart> profileCategoryChartCache = new ConcurrentHashMap<>();
+
     private final Project project;
     private final VirtualFileListener vfsListener;
 
@@ -155,6 +173,160 @@ public final class CacheService implements UserDataHolder, Disposable {
         dependenciesCache.put(getKey(module), dependencies);
     }
 
+    public DefaultTreeModel getProjectTree(@Nullable com.intellij.openapi.module.Module module) {
+        return projectTreeCache.get(getKey(module));
+    }
+
+    public void putProjectTree(@Nullable com.intellij.openapi.module.Module module, DefaultTreeModel treeModel) {
+        projectTreeCache.put(getKey(module), treeModel);
+    }
+
+    public List<MetricPieChartBuilder.PieChartStructure> getPieChartList(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return pieChartCache.get(getKey(module));
+    }
+
+    public void putPieChartList(@Nullable com.intellij.openapi.module.Module module,
+            List<MetricPieChartBuilder.PieChartStructure> pieChartList) {
+        pieChartCache.put(getKey(module), pieChartList);
+    }
+
+    public CategoryChart getCategoryChart(@Nullable com.intellij.openapi.module.Module module) {
+        return categoryChartCache.get(getKey(module));
+    }
+
+    public void putCategoryChart(@Nullable com.intellij.openapi.module.Module module, CategoryChart categoryChart) {
+        categoryChartCache.put(getKey(module), categoryChart);
+    }
+
+    public Map<MetricType, Map<RangeType, Double>> getClassesByMetricTypesForCategoryChart(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return classesByMetricTypesForCategoryChartCache.get(getKey(module));
+    }
+
+    public void putClassesByMetricTypesForCategoryChart(@Nullable com.intellij.openapi.module.Module module,
+            Map<MetricType, Map<RangeType, Double>> classesByMetricTypes) {
+        classesByMetricTypesForCategoryChartCache.put(getKey(module), classesByMetricTypes);
+    }
+
+    public Map<MetricType, Map<ClassElement, Metric>> getClassesByMetricTypes(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return classesByMetricTypesCache.get(getKey(module));
+    }
+
+    public void putClassesByMetricTypes(@Nullable com.intellij.openapi.module.Module module,
+            Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes) {
+        classesByMetricTypesCache.put(getKey(module), classesByMetricTypes);
+    }
+
+    public XYChart getXyChart(@Nullable com.intellij.openapi.module.Module module) {
+        return xyChartCache.get(getKey(module));
+    }
+
+    public void putXyChart(@Nullable com.intellij.openapi.module.Module module, XYChart xyChart) {
+        xyChartCache.put(getKey(module), xyChart);
+    }
+
+    public Map<String, Double> getInstability(@Nullable com.intellij.openapi.module.Module module) {
+        return instabilityCache.get(getKey(module));
+    }
+
+    public void putInstability(@Nullable com.intellij.openapi.module.Module module, Map<String, Double> instability) {
+        instabilityCache.put(getKey(module), instability);
+    }
+
+    public Map<String, Double> getAbstractness(@Nullable com.intellij.openapi.module.Module module) {
+        return abstractnessCache.get(getKey(module));
+    }
+
+    public void putAbstractness(@Nullable com.intellij.openapi.module.Module module, Map<String, Double> abstractness) {
+        abstractnessCache.put(getKey(module), abstractness);
+    }
+
+    public MetricTreeMap<CodeElement> getMetricTreeMap(@Nullable com.intellij.openapi.module.Module module) {
+        return metricTreeMapCache.get(getKey(module));
+    }
+
+    public void putMetricTreeMap(@Nullable com.intellij.openapi.module.Module module,
+            MetricTreeMap<CodeElement> metricTreeMap) {
+        metricTreeMapCache.put(getKey(module), metricTreeMap);
+    }
+
+    public DefaultTreeModel getClassesByMetricTree(@Nullable com.intellij.openapi.module.Module module) {
+        return classesByMetricTreeCache.get(getKey(module));
+    }
+
+    public void putClassesByMetricTree(@Nullable com.intellij.openapi.module.Module module,
+            DefaultTreeModel treeModel) {
+        classesByMetricTreeCache.put(getKey(module), treeModel);
+    }
+
+    public Map<FitnessFunction, Set<ClassElement>> getClassLevelFitnessFunctions(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return classLevelFitnessFunctionCache.get(getKey(module));
+    }
+
+    public void putClassLevelFitnessFunctions(@Nullable com.intellij.openapi.module.Module module,
+            Map<FitnessFunction, Set<ClassElement>> classLevelFitnessFunctions) {
+        classLevelFitnessFunctionCache.put(getKey(module), classLevelFitnessFunctions);
+    }
+
+    public Map<FitnessFunction, Set<PackageElement>> getPackageLevelFitnessFunctions(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return packageLevelFitnessFunctionCache.get(getKey(module));
+    }
+
+    public void putPackageLevelFitnessFunctions(@Nullable com.intellij.openapi.module.Module module,
+            Map<FitnessFunction, Set<PackageElement>> packageLevelFitnessFunctions) {
+        packageLevelFitnessFunctionCache.put(getKey(module), packageLevelFitnessFunctions);
+    }
+
+    public MetricTreeMap<CodeElement> getProfileTreeMap(@Nullable com.intellij.openapi.module.Module module) {
+        return profileTreeMapCache.get(getKey(module));
+    }
+
+    public void putProfileTreeMap(@Nullable com.intellij.openapi.module.Module module,
+            MetricTreeMap<CodeElement> profileTreeMap) {
+        profileTreeMapCache.put(getKey(module), profileTreeMap);
+    }
+
+    public List<ProfileBoxChartBuilder.BoxChartStructure> getBoxCharts(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return boxChartsCache.get(getKey(module));
+    }
+
+    public void putBoxCharts(@Nullable com.intellij.openapi.module.Module module,
+            List<ProfileBoxChartBuilder.BoxChartStructure> boxCharts) {
+        boxChartsCache.put(getKey(module), boxCharts);
+    }
+
+    public HeatMapChart getHeatMapChart(@Nullable com.intellij.openapi.module.Module module) {
+        return heatMapChartCache.get(getKey(module));
+    }
+
+    public void putHeatMapChart(@Nullable com.intellij.openapi.module.Module module, HeatMapChart heatMapChart) {
+        heatMapChartCache.put(getKey(module), heatMapChart);
+    }
+
+    public List<ProfileRadarChartBuilder.RadarChartStructure> getRadarCharts(
+            @Nullable com.intellij.openapi.module.Module module) {
+        return radarChartCache.get(getKey(module));
+    }
+
+    public void putRadarCharts(@Nullable com.intellij.openapi.module.Module module,
+            List<ProfileRadarChartBuilder.RadarChartStructure> radarCharts) {
+        radarChartCache.put(getKey(module), radarCharts);
+    }
+
+    public CategoryChart getProfileCategoryChart(@Nullable com.intellij.openapi.module.Module module) {
+        return profileCategoryChartCache.get(getKey(module));
+    }
+
+    public void putProfileCategoryChart(@Nullable com.intellij.openapi.module.Module module,
+            CategoryChart profileCategoryChart) {
+        profileCategoryChartCache.put(getKey(module), profileCategoryChart);
+    }
+
     private String getKey(@Nullable com.intellij.openapi.module.Module module) {
         return module == null ? "PROJECT_ROOT" : module.getName();
     }
@@ -168,6 +340,25 @@ public final class CacheService implements UserDataHolder, Disposable {
         userData = new UserDataHolderBase();
         projectMetricsCache.clear();
         packageMetricsCache.clear();
+        classAndMethodMetricsCache.clear();
+        dependenciesCache.clear();
+        projectTreeCache.clear();
+        pieChartCache.clear();
+        categoryChartCache.clear();
+        classesByMetricTypesForCategoryChartCache.clear();
+        classesByMetricTypesCache.clear();
+        xyChartCache.clear();
+        instabilityCache.clear();
+        abstractnessCache.clear();
+        metricTreeMapCache.clear();
+        classesByMetricTreeCache.clear();
+        classLevelFitnessFunctionCache.clear();
+        packageLevelFitnessFunctionCache.clear();
+        profileTreeMapCache.clear();
+        boxChartsCache.clear();
+        heatMapChartCache.clear();
+        radarChartCache.clear();
+        profileCategoryChartCache.clear();
     }
 
     /**

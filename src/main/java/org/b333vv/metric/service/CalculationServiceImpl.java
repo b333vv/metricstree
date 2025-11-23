@@ -316,7 +316,7 @@ public class CalculationServiceImpl implements CalculationService {
     public void calculateProjectTree(@Nullable Module module) {
         project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
 
-        DefaultTreeModel treeModel = cacheService.getUserData(CacheService.PROJECT_TREE);
+        DefaultTreeModel treeModel = cacheService.getProjectTree(module);
 
         if (treeModel != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).projectMetricsTreeIsReady(treeModel,
@@ -333,7 +333,7 @@ public class CalculationServiceImpl implements CalculationService {
                 return model;
             };
             Consumer<DefaultTreeModel> onSuccessCallback = (model) -> {
-                cacheService.putUserData(CacheService.PROJECT_TREE, model);
+                cacheService.putProjectTree(module, model);
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .projectMetricsTreeIsReady(model, module);
             };
@@ -355,10 +355,8 @@ public class CalculationServiceImpl implements CalculationService {
 
     @Override
     public void calculatePieChart(@Nullable Module module) {
-        List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService
-                .getUserData(CacheService.PIE_CHART_LIST);
-        Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = cacheService
-                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+        List<MetricPieChartBuilder.PieChartStructure> pieChartList = cacheService.getPieChartList(module);
+        Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = cacheService.getClassesByMetricTypes(module);
 
         if (pieChartList != null && classesByMetricTypes != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).pieChartIsReady(module);
@@ -371,13 +369,13 @@ public class CalculationServiceImpl implements CalculationService {
                 // Generate classes by metric types data
                 Map<MetricType, Map<ClassElement, Metric>> newClassesByMetricTypes = generateClassesByMetricTypes(
                         projectElement);
-                cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES, newClassesByMetricTypes);
+                cacheService.putClassesByMetricTypes(module, newClassesByMetricTypes);
 
                 // Generate pie chart data
                 PieChartDataCalculator calculator = new PieChartDataCalculator();
                 List<MetricPieChartBuilder.PieChartStructure> newPieChartList = calculator.calculate(projectElement,
                         project);
-                cacheService.putUserData(CacheService.PIE_CHART_LIST, newPieChartList);
+                cacheService.putPieChartList(module, newPieChartList);
 
                 return newPieChartList;
             };
@@ -417,9 +415,9 @@ public class CalculationServiceImpl implements CalculationService {
 
     @Override
     public void calculateCategoryChart(@Nullable Module module) {
-        CategoryChart categoryChart = cacheService.getUserData(CacheService.CATEGORY_CHART);
+        CategoryChart categoryChart = cacheService.getCategoryChart(module);
         Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = cacheService
-                .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+                .getClassesByMetricTypesForCategoryChart(module);
 
         if (categoryChart != null && classesByMetricTypes != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).categoryChartIsReady(module);
@@ -433,13 +431,12 @@ public class CalculationServiceImpl implements CalculationService {
                 ClassesByMetricsValuesCounter distributor = new ClassesByMetricsValuesCounter(project);
                 Map<MetricType, Map<RangeType, Double>> newClassesByMetricTypes = distributor
                         .classesByMetricsValuesDistribution(projectElement);
-                cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART,
-                        newClassesByMetricTypes);
+                cacheService.putClassesByMetricTypesForCategoryChart(module, newClassesByMetricTypes);
 
                 // Then generate the chart
                 CategoryChartDataCalculator calculator = new CategoryChartDataCalculator();
                 CategoryChart newCategoryChart = calculator.calculate(projectElement, project);
-                cacheService.putUserData(CacheService.CATEGORY_CHART, newCategoryChart);
+                cacheService.putCategoryChart(module, newCategoryChart);
                 return newCategoryChart;
             };
             Consumer<CategoryChart> onSuccessCallback = (calculatedCategoryChart) -> {
@@ -465,17 +462,17 @@ public class CalculationServiceImpl implements CalculationService {
 
     @Override
     public void calculateMetricTreeMap(@Nullable Module module) {
-        MetricTreeMap<CodeElement> metricTreeMap = cacheService.getUserData(CacheService.METRIC_TREE_MAP);
+        MetricTreeMap<CodeElement> metricTreeMap = cacheService.getMetricTreeMap(module);
         if (metricTreeMap != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).metricTreeMapIsReady(module);
         } else {
             Function<ProgressIndicator, MetricTreeMap<CodeElement>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building treemap with metric types distribution started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
                 MetricTreeMapModelCalculator calculator = new MetricTreeMapModelCalculator();
                 MetricTreeMap<CodeElement> newMetricTreeMap = calculator.calculate(projectElement);
-                cacheService.putUserData(CacheService.METRIC_TREE_MAP, newMetricTreeMap);
+                cacheService.putMetricTreeMap(module, newMetricTreeMap);
                 return newMetricTreeMap;
             };
             Consumer<MetricTreeMap<CodeElement>> onSuccessCallback = (newMetricTreeMap) -> {
@@ -501,9 +498,9 @@ public class CalculationServiceImpl implements CalculationService {
 
     @Override
     public void calculateXyChart(@Nullable Module module) {
-        XYChart xyChart = cacheService.getUserData(CacheService.XY_CHART);
-        Map<String, Double> instability = cacheService.getUserData(CacheService.INSTABILITY);
-        Map<String, Double> abstractness = cacheService.getUserData(CacheService.ABSTRACTNESS);
+        XYChart xyChart = cacheService.getXyChart(module);
+        Map<String, Double> instability = cacheService.getInstability(module);
+        Map<String, Double> abstractness = cacheService.getAbstractness(module);
 
         if (xyChart != null && instability != null && abstractness != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).xyChartIsReady(module);
@@ -511,14 +508,14 @@ public class CalculationServiceImpl implements CalculationService {
             Function<ProgressIndicator, XYChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building XY chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
                 XyChartDataCalculator calculator = new XyChartDataCalculator();
                 XyChartDataCalculator.XyChartResult result = calculator.calculate(projectElement, project);
 
                 // Store all data in cache
-                cacheService.putUserData(CacheService.XY_CHART, result.getChart());
-                cacheService.putUserData(CacheService.INSTABILITY, result.getInstability());
-                cacheService.putUserData(CacheService.ABSTRACTNESS, result.getAbstractness());
+                cacheService.putXyChart(module, result.getChart());
+                cacheService.putInstability(module, result.getInstability());
+                cacheService.putAbstractness(module, result.getAbstractness());
 
                 return result.getChart();
             };
@@ -544,18 +541,19 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateProfileBoxCharts() {
-        List<ProfileBoxChartBuilder.BoxChartStructure> boxCharts = cacheService.getUserData(CacheService.BOX_CHARTS);
+    public void calculateProfileBoxCharts(@Nullable Module module) {
+        List<ProfileBoxChartBuilder.BoxChartStructure> boxCharts = cacheService.getBoxCharts(module);
         if (boxCharts != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesBoxChartIsReady();
         } else {
             Function<ProgressIndicator, List<ProfileBoxChartBuilder.BoxChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile box charts started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Ensure class fitness functions are calculated first
-                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
+                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService
+                        .getClassLevelFitnessFunctions(module);
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
@@ -563,13 +561,13 @@ public class CalculationServiceImpl implements CalculationService {
                             (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
                                     projectElement),
                             indicator);
-                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
-                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                    cacheService.putClassLevelFitnessFunctions(module, classesByProfile);
+                    // cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
 
                 ProfileBoxChartDataCalculator calculator = new ProfileBoxChartDataCalculator();
                 List<ProfileBoxChartBuilder.BoxChartStructure> newBoxCharts = calculator.calculate(classesByProfile);
-                cacheService.putUserData(CacheService.BOX_CHARTS, newBoxCharts);
+                cacheService.putBoxCharts(module, newBoxCharts);
                 return newBoxCharts;
             };
             Consumer<List<ProfileBoxChartBuilder.BoxChartStructure>> onSuccessCallback = (newBoxCharts) -> {
@@ -594,18 +592,19 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateProfileCategoryChart() {
-        CategoryChart profileCategoryChart = cacheService.getUserData(CacheService.PROFILE_CATEGORY_CHART);
+    public void calculateProfileCategoryChart(@Nullable Module module) {
+        CategoryChart profileCategoryChart = cacheService.getProfileCategoryChart(module);
         if (profileCategoryChart != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesCategoryChartIsReady();
         } else {
             Function<ProgressIndicator, CategoryChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile category chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Ensure class fitness functions are calculated first
-                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
+                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService
+                        .getClassLevelFitnessFunctions(module);
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
@@ -613,13 +612,13 @@ public class CalculationServiceImpl implements CalculationService {
                             (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
                                     projectElement),
                             indicator);
-                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
-                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                    cacheService.putClassLevelFitnessFunctions(module, classesByProfile);
+                    // cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
 
                 ProfileCategoryChartDataCalculator calculator = new ProfileCategoryChartDataCalculator();
                 CategoryChart newCategoryChart = calculator.calculate(classesByProfile);
-                cacheService.putUserData(CacheService.PROFILE_CATEGORY_CHART, newCategoryChart);
+                cacheService.putProfileCategoryChart(module, newCategoryChart);
                 return newCategoryChart;
             };
             Consumer<CategoryChart> onSuccessCallback = (newCategoryChart) -> {
@@ -644,18 +643,19 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateProfileHeatMapChart() {
-        HeatMapChart heatMapChart = cacheService.getUserData(CacheService.HEAT_MAP_CHART);
+    public void calculateProfileHeatMapChart(@Nullable Module module) {
+        HeatMapChart heatMapChart = cacheService.getHeatMapChart(module);
         if (heatMapChart != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesHeatMapChartIsReady();
         } else {
             Function<ProgressIndicator, HeatMapChart> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile heat map chart started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Ensure class fitness functions are calculated first
-                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
+                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService
+                        .getClassLevelFitnessFunctions(module);
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
@@ -663,13 +663,13 @@ public class CalculationServiceImpl implements CalculationService {
                             (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
                                     projectElement),
                             indicator);
-                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
-                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                    cacheService.putClassLevelFitnessFunctions(module, classesByProfile);
+                    // cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
 
                 ProfileHeatMapDataCalculator calculator = new ProfileHeatMapDataCalculator();
                 HeatMapChart newHeatMapChart = calculator.calculate(classesByProfile);
-                cacheService.putUserData(CacheService.HEAT_MAP_CHART, newHeatMapChart);
+                cacheService.putHeatMapChart(module, newHeatMapChart);
                 return newHeatMapChart;
             };
             Consumer<HeatMapChart> onSuccessCallback = (newHeatMapChart) -> {
@@ -694,19 +694,19 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateProfileRadarCharts() {
-        List<ProfileRadarChartBuilder.RadarChartStructure> radarChart = cacheService
-                .getUserData(CacheService.RADAR_CHART);
+    public void calculateProfileRadarCharts(@Nullable Module module) {
+        List<ProfileRadarChartBuilder.RadarChartStructure> radarChart = cacheService.getRadarCharts(module);
         if (radarChart != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profilesRadarChartIsReady();
         } else {
             Function<ProgressIndicator, List<ProfileRadarChartBuilder.RadarChartStructure>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile radar charts started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Ensure class fitness functions are calculated first
-                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
+                Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService
+                        .getClassLevelFitnessFunctions(module);
                 if (classesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     classesByProfile = runTaskSynchronously(
@@ -714,14 +714,14 @@ public class CalculationServiceImpl implements CalculationService {
                             (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
                                     projectElement),
                             indicator);
-                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, classesByProfile);
-                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
+                    cacheService.putClassLevelFitnessFunctions(module, classesByProfile);
+                    // cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, classesByProfile);
                 }
 
                 ProfileRadarDataCalculator calculator = new ProfileRadarDataCalculator();
                 List<ProfileRadarChartBuilder.RadarChartStructure> newRadarCharts = calculator
                         .calculate(classesByProfile, project);
-                cacheService.putUserData(CacheService.RADAR_CHART, newRadarCharts);
+                cacheService.putRadarCharts(module, newRadarCharts);
                 return newRadarCharts;
             };
             Consumer<List<ProfileRadarChartBuilder.RadarChartStructure>> onSuccessCallback = (newRadarCharts) -> {
@@ -746,19 +746,20 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public void calculateProfileTreeMap() {
-        MetricTreeMap<CodeElement> profileTreeMap = cacheService.getUserData(CacheService.PROFILE_TREE_MAP);
-        Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassesByProfile();
+    public void calculateProfileTreeMap(@Nullable Module module) {
+        MetricTreeMap<CodeElement> profileTreeMap = cacheService.getProfileTreeMap(module);
+        Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassLevelFitnessFunctions(module);
         if (profileTreeMap != null && classesByProfile != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
         } else {
             Function<ProgressIndicator, MetricTreeMap<CodeElement>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile tree map started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
 
                 // Ensure class fitness functions are calculated first
-                Map<FitnessFunction, Set<ClassElement>> newClassesByProfile = cacheService.getClassesByProfile();
+                Map<FitnessFunction, Set<ClassElement>> newClassesByProfile = cacheService
+                        .getClassLevelFitnessFunctions(module);
                 if (newClassesByProfile == null) {
                     // Calculate class fitness functions synchronously
                     newClassesByProfile = runTaskSynchronously(
@@ -766,13 +767,14 @@ public class CalculationServiceImpl implements CalculationService {
                             (progressIndicator) -> new ClassFitnessFunctionCalculator().calculate(project,
                                     projectElement),
                             indicator);
-                    cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, newClassesByProfile);
-                    cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, newClassesByProfile);
+                    cacheService.putClassLevelFitnessFunctions(module, newClassesByProfile);
+                    // cacheService.putUserData(CacheService.CLASSES_BY_PROFILE,
+                    // newClassesByProfile);
                 }
 
                 ProfileTreeMapModelCalculator calculator = new ProfileTreeMapModelCalculator();
                 MetricTreeMap<CodeElement> newProfileTreeMap = calculator.calculate(projectElement);
-                cacheService.putUserData(CacheService.PROFILE_TREE_MAP, newProfileTreeMap);
+                cacheService.putProfileTreeMap(module, newProfileTreeMap);
                 return newProfileTreeMap;
             };
             Consumer<MetricTreeMap<CodeElement>> onSuccessCallback = (newProfileTreeMap) -> {
@@ -939,18 +941,26 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculateClassFitnessFunctions(@Nullable Module module) {
         Map<FitnessFunction, Set<ClassElement>> classFitnessFunctions = cacheService
-                .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+                .getClassLevelFitnessFunctions(module);
         if (classFitnessFunctions != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classLevelFitnessFunctionIsReady(module);
         } else {
             Function<ProgressIndicator, Map<FitnessFunction, Set<ClassElement>>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building class level fitness functions started");
-                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, null);
+                ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
                 Map<FitnessFunction, Set<ClassElement>> newClassFitnessFunctions = new ClassFitnessFunctionCalculator()
                         .calculate(project, projectElement);
-                cacheService.putUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION, newClassFitnessFunctions);
-                cacheService.putUserData(CacheService.CLASSES_BY_PROFILE, newClassFitnessFunctions);
+                cacheService.putClassLevelFitnessFunctions(module, newClassFitnessFunctions);
+                // Also update the global/module-aware CLASSES_BY_PROFILE if needed, but it
+                // seems CLASSES_BY_PROFILE
+                // was just an alias for CLASS_LEVEL_FITNESS_FUNCTION in the old code.
+                // cacheService.putUserData(CacheService.CLASSES_BY_PROFILE,
+                // newClassFitnessFunctions);
+                // We might need to check if CLASSES_BY_PROFILE is used elsewhere.
+                // Assuming it's the same data, we should probably deprecate CLASSES_BY_PROFILE
+                // or make it module-aware too.
+                // For now, let's stick to the new specific cache.
                 return newClassFitnessFunctions;
             };
             Consumer<Map<FitnessFunction, Set<ClassElement>>> onSuccessCallback = (newClassFitnessFunctions) -> {
@@ -978,7 +988,7 @@ public class CalculationServiceImpl implements CalculationService {
     @Override
     public void calculatePackageFitnessFunctions(@Nullable Module module) {
         Map<FitnessFunction, Set<PackageElement>> packageFitnessFunctions = cacheService
-                .getUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION);
+                .getPackageLevelFitnessFunctions(module);
         if (packageFitnessFunctions != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .packageLevelFitnessFunctionIsReady(module);
@@ -989,7 +999,7 @@ public class CalculationServiceImpl implements CalculationService {
                 ProjectElement projectElement = getOrBuildProjectMetricsModel(indicator, module);
                 Map<FitnessFunction, Set<PackageElement>> newPackageFitnessFunctions = new PackageFitnessFunctionCalculator()
                         .calculate(project, projectElement);
-                cacheService.putUserData(CacheService.PACKAGE_LEVEL_FITNESS_FUNCTION, newPackageFitnessFunctions);
+                cacheService.putPackageLevelFitnessFunctions(module, newPackageFitnessFunctions);
                 return newPackageFitnessFunctions;
             };
             Consumer<Map<FitnessFunction, Set<PackageElement>>> onSuccessCallback = (newPackageFitnessFunctions) -> {

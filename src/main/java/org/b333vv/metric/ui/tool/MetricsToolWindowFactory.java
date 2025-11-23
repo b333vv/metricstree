@@ -88,8 +88,11 @@ public class MetricsToolWindowFactory implements ToolWindowFactory {
         toolWindow.setType(ToolWindowType.DOCKED, null);
 
         toolWindow.setTitleActions(java.util.List.of(new org.b333vv.metric.ui.component.ModuleSelector(project, () -> {
-            // Module selection is already handled by ModuleSelector itself
-            // User will manually trigger recalculation via toolbar button
+            project.getMessageBus().syncPublisher(org.b333vv.metric.event.MetricsEventListener.TOPIC)
+                    .clearProjectPanel();
+            com.intellij.openapi.module.Module module = project
+                    .getService(org.b333vv.metric.service.UIStateService.class).getSelectedModule();
+            project.getService(org.b333vv.metric.service.CalculationService.class).calculateProjectTree(module);
         })));
     }
 }

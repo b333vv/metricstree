@@ -73,8 +73,13 @@ public class CalculateProjectMetricsActionTest extends BasePlatformTestCase {
         action.update(event);
         assertTrue(event.getPresentation().isEnabled());
 
+        com.intellij.openapi.module.Module mockModule = Mockito.mock(com.intellij.openapi.module.Module.class);
+        org.b333vv.metric.service.UIStateService uiStateService = mockProject
+                .getService(org.b333vv.metric.service.UIStateService.class);
+        when(uiStateService.getSelectedModule()).thenReturn(mockModule);
+
         action.actionPerformed(event);
 
-        verify(mockCalculationService, times(1)).calculateProjectTree(null);
+        verify(mockCalculationService, times(1)).calculateProjectTree(mockModule);
     }
 }

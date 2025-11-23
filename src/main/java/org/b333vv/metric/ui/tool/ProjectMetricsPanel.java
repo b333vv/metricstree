@@ -328,7 +328,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         public void classByMetricTreeIsReady(
                 @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
-                showResults(project.getService(CacheService.class).getUserData(CacheService.CLASSES_BY_METRIC_TREE));
+                showResults(project.getService(CacheService.class).getClassesByMetricTree(module));
             });
         }
 
@@ -336,9 +336,9 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         public void pieChartIsReady(@org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
                 Map<MetricType, Map<ClassElement, Metric>> classesByMetricTypes = project.getService(CacheService.class)
-                        .getUserData(CacheService.CLASSES_BY_METRIC_TYPES);
+                        .getClassesByMetricTypes(module);
                 List<MetricPieChartBuilder.PieChartStructure> pieChartList = project.getService(CacheService.class)
-                        .getUserData(CacheService.PIE_CHART_LIST);
+                        .getPieChartList(module);
                 showResults(classesByMetricTypes, Objects.requireNonNull(pieChartList));
             });
         }
@@ -348,9 +348,9 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                 @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             SwingUtilities.invokeLater(() -> {
                 Map<MetricType, Map<RangeType, Double>> classesByMetricTypes = project.getService(CacheService.class)
-                        .getUserData(CacheService.CLASSES_BY_METRIC_TYPES_FOR_CATEGORY_CHART);
+                        .getClassesByMetricTypesForCategoryChart(module);
                 CategoryChart categoryChart = project.getService(CacheService.class)
-                        .getUserData(CacheService.CATEGORY_CHART);
+                        .getCategoryChart(module);
                 showResults(Objects.requireNonNull(classesByMetricTypes).keySet(), categoryChart);
             });
         }
@@ -371,7 +371,7 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
                 ProjectElement projectElement = project.getService(CacheService.class)
                         .getClassAndMethodMetrics(module);
                 MetricTreeMap<CodeElement> treeMap = project.getService(CacheService.class)
-                        .getUserData(CacheService.METRIC_TREE_MAP);
+                        .getMetricTreeMap(module);
                 if (treeMap != null && projectElement != null) {
                     showResults(treeMap, projectElement);
                 }

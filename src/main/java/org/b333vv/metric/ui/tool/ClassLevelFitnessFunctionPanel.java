@@ -345,7 +345,7 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
                 @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
             createProfileUIComponents();
             distribution = project.getService(CacheService.class)
-                    .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+                    .getClassLevelFitnessFunctions(module);
             if (distribution != null) {
                 showProfiles();
             }

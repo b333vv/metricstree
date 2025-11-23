@@ -23,6 +23,9 @@ import org.b333vv.metric.service.CalculationService;
 import org.b333vv.metric.service.TaskQueueService;
 import org.jetbrains.annotations.NotNull;
 
+import com.intellij.openapi.module.Module;
+import org.b333vv.metric.service.UIStateService;
+
 public class BuildProfileBoxChartAction extends AbstractAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -30,7 +33,8 @@ public class BuildProfileBoxChartAction extends AbstractAction {
         Project project = e.getProject();
         if (project != null) {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearClassFitnessFunctionPanel();
-            project.getService(CalculationService.class).calculateProfileBoxCharts();
+            Module module = project.getService(UIStateService.class).getSelectedModule();
+            project.getService(CalculationService.class).calculateProfileBoxCharts(module);
         }
     }
 
