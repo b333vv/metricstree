@@ -254,9 +254,12 @@ public abstract class MetricsTreePanel extends SimpleToolWindowPanel {
             if (project.isDisposed()) {
                 return;
             }
-            
-            rightPanel.removeAll();
-            mainPanel.removeAll();
+            if (rightPanel != null) {
+                rightPanel.removeAll();
+            }
+            if (rightPanel != null) {
+                rightPanel.removeAll();
+            }
             updateUI();
             createUIComponents(splitProportionProperty);
         });

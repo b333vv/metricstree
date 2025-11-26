@@ -149,10 +149,12 @@ public class ProjectMetricsPanel extends MetricsTreePanel {
         }
 
         tabs.addChangeListener(e -> {
-            rightPanel.removeAll();
-            rightPanel.add(rightPanelMap.get(tabs.getSelectedIndex()));
-            rightPanel.revalidate();
-            rightPanel.repaint();
+            if (rightPanel != null) {
+                rightPanel.removeAll();
+                rightPanel.add(rightPanelMap.get(tabs.getSelectedIndex()));
+                rightPanel.revalidate();
+                rightPanel.repaint();
+            }
         });
         mainPanel.add(ScrollPaneFactory.createScrollPane(tabs), BorderLayout.CENTER);
         rightPanel.add(rightPanelMap.get(0));

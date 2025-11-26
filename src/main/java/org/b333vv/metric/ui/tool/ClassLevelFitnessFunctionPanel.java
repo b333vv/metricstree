@@ -191,8 +191,10 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     }
 
     private void updateMetricTypeForBoxCharts(@NotNull MetricType metricType) {
-        rightPanel.removeAll();
-        updateUI();
+        if (rightPanel != null) {
+            rightPanel.removeAll();
+            updateUI();
+        }
         Optional<ProfileBoxChartBuilder.BoxChartStructure> boxChartStructure = boxChartList.stream()
                 .filter(b -> b.getMetricType() == metricType)
                 .findFirst();
@@ -233,9 +235,13 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
     }
 
     private void updateMetricProfileForRadarCharts(@NotNull FitnessFunction fitnessFunction) {
-        mainPanel.removeAll();
-        rightPanel.removeAll();
-        updateUI();
+        if (mainPanel != null) {
+            mainPanel.removeAll();
+        }
+        if (rightPanel != null) {
+            rightPanel.removeAll();
+            updateUI();
+        }
 
         Optional<ProfileRadarChartBuilder.RadarChartStructure> radarChartStructure = radarCharts.stream()
                 .filter(b -> b.getMetricProfile() == fitnessFunction)
