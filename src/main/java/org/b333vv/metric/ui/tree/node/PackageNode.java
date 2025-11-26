@@ -23,9 +23,15 @@ import org.b333vv.metric.ui.tree.TreeCellRenderer;
 public class PackageNode extends AbstractNode {
 
     private final PackageElement javaPackage;
+    private final String displayName;
 
     public PackageNode(PackageElement javaPackage) {
+        this(javaPackage, javaPackage.getName());
+    }
+
+    public PackageNode(PackageElement javaPackage, String displayName) {
         this.javaPackage = javaPackage;
+        this.displayName = displayName;
     }
 
     public PackageElement getJavaPackage() {
@@ -35,6 +41,6 @@ public class PackageNode extends AbstractNode {
     @Override
     public void render(TreeCellRenderer renderer) {
         renderer.setIcon(AllIcons.Nodes.Package);
-        renderer.append(javaPackage.getName());
+        renderer.append(displayName);
     }
 }

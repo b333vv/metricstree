@@ -43,71 +43,88 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
         super(codeElement, project);
     }
 
-//    public ProjectMetricTreeBuilder(projectElement projectElement) {
-//        super(projectElement);
-//    }
+    // public ProjectMetricTreeBuilder(projectElement projectElement) {
+    // super(projectElement);
+    // }
 
     @Nullable
     public DefaultTreeModel createMetricTreeModel() {
-            ProjectElement projectElement = (ProjectElement) codeElement;
-            ProjectNode projectNode = new ProjectNode(projectElement, "Project Metrics", AllIcons.Nodes.Project);
-            model = new DefaultTreeModel(projectNode);
-            model.setRoot(projectNode);
-            if (getMetricsTreeFilter().isProjectMetricsVisible()) {
-                if (getMetricsTreeFilter().isMetricsGroupedByMetricSets()) {
-                    for (MetricSet metricSet : MetricSet.values()) {
-                        if (!getMetricsTreeFilter().isMoodMetricsSetVisible() && metricSet == MetricSet.MOOD) {
-                            continue;
-                        }
-                        if (metricSet.level() == MetricLevel.PROJECT || metricSet.level() == MetricLevel.PROJECT_PACKAGE) {
-                            MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, PROJECT_METRIC);
-                            projectNode.add(metricsSetNode);
-                            addMetrics(projectElement.metrics()
-                                            .filter(m -> m.getType().set() == metricSet),
-                                    metricsSetNode,
-                                    PROJECT_METRIC);
-                        }
+        ProjectElement projectElement = (ProjectElement) codeElement;
+        ProjectNode projectNode = new ProjectNode(projectElement, "Project Metrics", AllIcons.Nodes.Project);
+        model = new DefaultTreeModel(projectNode);
+        model.setRoot(projectNode);
+        if (getMetricsTreeFilter().isProjectMetricsVisible()) {
+            if (getMetricsTreeFilter().isMetricsGroupedByMetricSets()) {
+                for (MetricSet metricSet : MetricSet.values()) {
+                    if (!getMetricsTreeFilter().isMoodMetricsSetVisible() && metricSet == MetricSet.MOOD) {
+                        continue;
                     }
-                } else {
-                    if (getMetricsTreeFilter().isMoodMetricsSetVisible()) {
-                        addMetrics(projectElement.metrics(), projectNode, PROJECT_METRIC);
-                    }
-                    else {
+                    if (metricSet.level() == MetricLevel.PROJECT || metricSet.level() == MetricLevel.PROJECT_PACKAGE) {
+                        MetricsSetNode metricsSetNode = new MetricsSetNode(metricSet, PROJECT_METRIC);
+                        projectNode.add(metricsSetNode);
                         addMetrics(projectElement.metrics()
-                                .filter(m -> m.getType().set() == MetricSet.STATISTIC), projectNode, PROJECT_METRIC);
+                                .filter(m -> m.getType().set() == metricSet),
+                                metricsSetNode,
+                                PROJECT_METRIC);
                     }
                 }
+            } else {
+                if (getMetricsTreeFilter().isMoodMetricsSetVisible()) {
+                    addMetrics(projectElement.metrics(), projectNode, PROJECT_METRIC);
+                } else {
+                    addMetrics(projectElement.metrics()
+                            .filter(m -> m.getType().set() == MetricSet.STATISTIC), projectNode, PROJECT_METRIC);
+                }
             }
- 
-            if (getMetricsTreeFilter().isPackageMetricsVisible()
-                    || getMetricsTreeFilter().isClassMetricsVisible()
-                    || getMetricsTreeFilter().isMethodMetricsVisible()) {
-                projectElement.packages()
-                        .map(PackageNode::new)
-                        .forEach(packageNode -> {
-                            projectNode.add(packageNode);
-                            addPackages(packageNode);
-                        });
-            }
-            return model;
+        }
+
+        if (getMetricsTreeFilter().isPackageMetricsVisible()
+                || getMetricsTreeFilter().isClassMetricsVisible()
+                || getMetricsTreeFilter().isMethodMetricsVisible()) {
+            projectElement.packages()
+                    .forEach(javaPackage -> {
+                        processPackage(javaPackage, projectNode);
+                    });
+        }
+        return model;
     }
 
     private void addMetrics(Stream<Metric> metrics, AbstractNode node, Icon icon) {
-                metrics
-                    .filter(this::mustBeShown)
-                    .map(m -> new MetricNode(m, icon, project))
-                    .forEach(node::add);
+        metrics
+                .filter(this::mustBeShown)
+                .map(m -> new MetricNode(m, icon, project))
+                .forEach(node::add);
     }
 
     private void addPackages(PackageNode parentNode) {
         List<PackageElement> sortedPackages = parentNode.getJavaPackage().subPackages().collect(Collectors.toList());
         for (PackageElement javaPackage : sortedPackages) {
-            PackageNode packageNode = new PackageNode(javaPackage);
-            parentNode.add(packageNode);
-            addPackages(packageNode);
+            processPackage(javaPackage, parentNode);
         }
         addJavaFiles(parentNode);
         addPackageMetrics(parentNode);
+    }
+
+    private void processPackage(PackageElement javaPackage, AbstractNode parentNode) {
+        PackageElement currentPackage = javaPackage;
+        StringBuilder displayName = new StringBuilder(currentPackage.getName());
+
+        while (true) {
+            List<PackageElement> subPackages = currentPackage.subPackages().collect(Collectors.toList());
+            boolean hasFiles = currentPackage.files().findAny().isPresent();
+
+            if (subPackages.size() == 1 && !hasFiles) {
+                PackageElement subPackage = subPackages.get(0);
+                displayName.append(".").append(subPackage.getName());
+                currentPackage = subPackage;
+            } else {
+                break;
+            }
+        }
+
+        PackageNode packageNode = new PackageNode(currentPackage, displayName.toString());
+        parentNode.add(packageNode);
+        addPackages(packageNode);
     }
 
     private void addPackageMetrics(PackageNode packageNode) {
@@ -128,12 +145,10 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                                 .forEach(metricsSetNode::add);
                     }
                 }
-            }
-            else {
+            } else {
                 if (getMetricsTreeFilter().isRobertMartinMetricsSetVisible()) {
                     addMetrics(packageNode.getJavaPackage().metrics(), packageNode, PROJECT_METRIC);
-                }
-                else {
+                } else {
                     addMetrics(packageNode.getJavaPackage().metrics()
                             .filter(m -> m.getType().set() == MetricSet.STATISTIC), packageNode, PROJECT_METRIC);
                 }
@@ -169,7 +184,6 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
         }
     }
 
-
     private void addMethodNodes(ClassNode classNode) {
         if (getMetricsTreeFilter().isMethodMetricsVisible()) {
             classNode.getJavaClass().methods()
@@ -178,7 +192,8 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                         classNode.add(m);
                         if (getMetricsTreeFilter().isMethodMetricsVisible()) {
                             addMethodMetricsNodes(m);
-                        }});
+                        }
+                    });
         }
 
     }
@@ -200,8 +215,7 @@ public class ProjectMetricTreeBuilder extends MetricTreeBuilder {
                                 });
                     }
                 }
-            }
-            else {
+            } else {
                 classNode.getJavaClass().metrics()
                         .filter(m -> mustBeShown(m) && checkClassMetricsSets(m.getType()))
                         .map(m -> new ClassMetricNode(m, project))
