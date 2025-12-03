@@ -750,7 +750,7 @@ public class CalculationServiceImpl implements CalculationService {
         MetricTreeMap<CodeElement> profileTreeMap = cacheService.getProfileTreeMap(module);
         Map<FitnessFunction, Set<ClassElement>> classesByProfile = cacheService.getClassLevelFitnessFunctions(module);
         if (profileTreeMap != null && classesByProfile != null) {
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady(module);
         } else {
             Function<ProgressIndicator, MetricTreeMap<CodeElement>> taskLogic = (indicator) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
@@ -780,7 +780,7 @@ public class CalculationServiceImpl implements CalculationService {
             Consumer<MetricTreeMap<CodeElement>> onSuccessCallback = (newProfileTreeMap) -> {
                 project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                         .printInfo("Building profile tree map finished");
-                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady();
+                project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).profileTreeMapIsReady(module);
             };
             Runnable onCancelCallback = () -> project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC)
                     .printInfo("Building profile tree map canceled");

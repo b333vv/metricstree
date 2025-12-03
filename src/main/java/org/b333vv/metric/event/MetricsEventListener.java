@@ -141,7 +141,8 @@ public interface MetricsEventListener {
         default void profileTreeMapCellClicked(ClassElement javaClass) {
         }
 
-        default void profileTreeMapIsReady() {
+        default void profileTreeMapIsReady(
+                        @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
 
         }
 

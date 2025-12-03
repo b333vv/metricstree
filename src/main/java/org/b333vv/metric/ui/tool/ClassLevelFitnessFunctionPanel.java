@@ -426,10 +426,11 @@ public class ClassLevelFitnessFunctionPanel extends SimpleToolWindowPanel {
         }
 
         @Override
-        public void profileTreeMapIsReady() {
-            treeMap = project.getService(CacheService.class).getUserData(CacheService.PROFILE_TREE_MAP);
+        public void profileTreeMapIsReady(
+                @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
+            treeMap = project.getService(CacheService.class).getProfileTreeMap(module);
             distribution = project.getService(CacheService.class)
-                    .getUserData(CacheService.CLASS_LEVEL_FITNESS_FUNCTION);
+                    .getClassLevelFitnessFunctions(module);
             if (treeMap != null && distribution != null) {
                 showTreeMap();
             }
