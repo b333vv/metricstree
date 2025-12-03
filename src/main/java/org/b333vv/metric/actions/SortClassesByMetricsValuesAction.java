@@ -31,8 +31,10 @@ public class SortClassesByMetricsValuesAction extends AbstractAction {
         super.actionPerformed(e);
         Project project = e.getProject();
         if (project != null) {
+            com.intellij.openapi.module.Module module = project
+                    .getService(org.b333vv.metric.service.UIStateService.class).getSelectedModule();
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).clearProjectMetricsTree();
-            project.getService(TaskQueueService.class).queue(new ClassByMetricsTreeTask(project));
+            project.getService(TaskQueueService.class).queue(new ClassByMetricsTreeTask(project, module));
         }
     }
 

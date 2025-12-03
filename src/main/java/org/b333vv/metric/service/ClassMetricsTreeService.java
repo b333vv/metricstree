@@ -18,15 +18,16 @@ public final class ClassMetricsTreeService {
         this.calculationService = project.getService(CalculationService.class);
     }
 
-    public DefaultTreeModel getSortedClassesTreeModel(ProgressIndicator indicator) {
+    public DefaultTreeModel getSortedClassesTreeModel(ProgressIndicator indicator,
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
         CacheService cacheService = project.getService(CacheService.class);
-        DefaultTreeModel treeModel = cacheService.getUserData(CacheService.CLASSES_BY_METRIC_TREE);
+        DefaultTreeModel treeModel = cacheService.getClassesByMetricTree(module);
 
         if (treeModel == null) {
-            ProjectElement projectElement = calculationService.getOrBuildClassAndMethodModel(indicator, null);
+            ProjectElement projectElement = calculationService.getOrBuildClassAndMethodModel(indicator, module);
             SortedClassesTreeModelCalculator calculator = new SortedClassesTreeModelCalculator();
             treeModel = calculator.calculate(projectElement, project);
-            cacheService.putUserData(CacheService.CLASSES_BY_METRIC_TREE, treeModel);
+            cacheService.putClassesByMetricTree(module, treeModel);
         }
         return treeModel;
     }

@@ -22,19 +22,20 @@ import org.b333vv.metric.service.ClassMetricsTreeService;
 import org.b333vv.metric.builder.MetricsBackgroundableTask;
 
 public class ClassByMetricsTreeTask extends MetricsBackgroundableTask<Void> {
-    private static final String GET_FROM_CACHE_MESSAGE = "Try to getProfiles classes distribution by metric values tree from cache";
+    private static final String GET_FROM_CACHE_MESSAGE = "Try to get classes distribution by metric values tree from cache";
     private static final String STARTED_MESSAGE = "Building classes distribution by metric values tree started";
     private static final String FINISHED_MESSAGE = "Building classes distribution by metric values tree finished";
     private static final String CANCELED_MESSAGE = "Building classes distribution by metric values tree canceled";
 
-    public ClassByMetricsTreeTask(Project project) {
+    public ClassByMetricsTreeTask(Project project,
+            @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
         super(project, "Building Class Distribution by Metric Values", true, (indicator) -> {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(GET_FROM_CACHE_MESSAGE);
-            project.getService(ClassMetricsTreeService.class).getSortedClassesTreeModel(indicator);
+            project.getService(ClassMetricsTreeService.class).getSortedClassesTreeModel(indicator, module);
             return null;
         }, (res) -> {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(FINISHED_MESSAGE);
-            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classByMetricTreeIsReady(null);
+            project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).classByMetricTreeIsReady(module);
         }, () -> {
             project.getMessageBus().syncPublisher(MetricsEventListener.TOPIC).printInfo(CANCELED_MESSAGE);
         }, null);
