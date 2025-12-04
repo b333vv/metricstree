@@ -87,15 +87,17 @@ public final class EditorUtils {
         if (psiElement == null) {
             return null;
         }
-        final PsiFile containingFile = psiElement.getContainingFile();
-        if (containingFile == null) {
-            return null;
-        }
-        return containingFile.getVirtualFile();
+        return com.intellij.openapi.application.ReadAction.compute(() -> {
+            final PsiFile containingFile = psiElement.getContainingFile();
+            if (containingFile == null) {
+                return null;
+            }
+            return containingFile.getVirtualFile();
+        });
     }
 
     public static boolean isElementInSelectedFile(Project project,
-                                                  PsiElement psiElement) {
+            PsiElement psiElement) {
         final VirtualFile elementFile = getVirtualFile(psiElement);
         if (elementFile == null) {
             return false;

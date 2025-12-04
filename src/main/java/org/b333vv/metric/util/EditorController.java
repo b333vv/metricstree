@@ -51,7 +51,8 @@ public class EditorController {
                 return;
             }
 
-            final int textOffset = element.getTextOffset();
+            // Access PSI element's text offset in a read action
+            final int textOffset = com.intellij.openapi.application.ReadAction.compute(() -> element.getTextOffset());
             if (textOffset < editor.getDocument().getTextLength()) {
                 editor.getCaretModel().moveToOffset(textOffset);
                 editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
@@ -72,33 +73,57 @@ public class EditorController {
 
     @Nullable
     public Editor openInEditor(PsiElement element) {
+        // Compute PSI-dependent values in a read action
         final PsiFile psiFile;
-        final int i;
-        if (element instanceof PsiFile) {
-            psiFile = (PsiFile) element;
-            i = -1;
-        } else {
-            psiFile = element.getContainingFile();
-            i = element.getTextOffset();
-        }
-        if (psiFile == null) {
+        final int textOffset;
+        final com.intellij.openapi.vfs.VirtualFile virtualFile;
+
+        try {
+            // Wrap PSI access in read action
+            psiFile = com.intellij.openapi.application.ReadAction.compute(() -> {
+                if (element instanceof PsiFile) {
+                    return (PsiFile) element;
+                } else {
+                    return element.getContainingFile();
+                }
+            });
+
+            if (psiFile == null) {
+                return null;
+            }
+
+            virtualFile = com.intellij.openapi.application.ReadAction.compute(() -> psiFile.getVirtualFile());
+
+            if (virtualFile == null) {
+                return null;
+            }
+
+            textOffset = com.intellij.openapi.application.ReadAction.compute(() -> {
+                if (element instanceof PsiFile) {
+                    return -1;
+                } else {
+                    return element.getTextOffset();
+                }
+            });
+        } catch (Exception e) {
+            // Handle any exceptions during read action
             return null;
         }
-        
-        final OpenFileDescriptor fileDesc = new OpenFileDescriptor(project, psiFile.getVirtualFile(), i);
+
+        final OpenFileDescriptor fileDesc = new OpenFileDescriptor(project, virtualFile, textOffset);
         disableMovementOneTime();
-        
+
         // Use invokeLater with proper modality state to ensure write-safe context
         ApplicationManager.getApplication().invokeLater(() -> {
             final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
             Editor editor = fileEditorManager.openTextEditor(fileDesc, false);
-            
+
             // Move caret after opening the file
-            if (editor != null && i >= 0) {
+            if (editor != null && textOffset >= 0) {
                 moveEditorCaret(element);
             }
         }, ModalityState.NON_MODAL);
-        
+
         return null; // Cannot return editor when invoked asynchronously
     }
 }
