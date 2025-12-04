@@ -46,7 +46,7 @@ public class ProjectModelBuilderIntegrationTest extends BasePlatformTestCase {
         // MetricsUtils.setCurrentProject directly
         // but the underlying ClassModelBuilder might, which is usually called by
         // ProjectModelBuilder.
-        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject);
+        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(javaProject, true);
 
         // Note: configureByText creates files in a light PSI file system.
         // The path provided to configureByText helps IntelliJ understand package

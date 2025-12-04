@@ -12,6 +12,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.b333vv.metric.model.code.ProjectElement;
+import org.b333vv.metric.util.SettingsService;
 
 public class PsiCalculationStrategy implements MetricCalculationStrategy {
 
@@ -24,15 +25,18 @@ public class PsiCalculationStrategy implements MetricCalculationStrategy {
             @org.jetbrains.annotations.Nullable com.intellij.openapi.module.Module module) {
         this.indicator = indicator;
         AnalysisScope scope;
+        boolean includeTestFiles;
         if (module != null) {
             scope = new AnalysisScope(module);
             scope.setIncludeTestSource(true);
+            includeTestFiles = true;
         } else {
             scope = new AnalysisScope(project);
-            scope.setIncludeTestSource(false);
+            includeTestFiles = project.getService(SettingsService.class).getOtherSettings().isIncludeTestFiles();
+            scope.setIncludeTestSource(includeTestFiles);
         }
         ProjectElement projectElement = new ProjectElement(project.getName());
-        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(projectElement);
+        ProjectModelBuilder projectModelBuilder = new ProjectModelBuilder(projectElement, includeTestFiles);
 
         indicator.setText("Initializing");
         filesCount = scope.getFileCount();

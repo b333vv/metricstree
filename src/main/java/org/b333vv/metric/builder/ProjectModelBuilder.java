@@ -46,10 +46,12 @@ import java.util.stream.Stream;
 public class ProjectModelBuilder extends ModelBuilder {
 
     private final ProjectElement projectElement;
+    private final boolean includeTestFiles;
 
-    public ProjectModelBuilder(ProjectElement projectElement) {
+    public ProjectModelBuilder(ProjectElement projectElement, boolean includeTestFiles) {
         super();
         this.projectElement = projectElement;
+        this.includeTestFiles = includeTestFiles;
     }
 
     private PackageElement findOrCreatePackageByFqn(@NotNull Project project, @NotNull String fqn) {
@@ -103,7 +105,6 @@ public class ProjectModelBuilder extends ModelBuilder {
 
     public void addJavaFileToProjectElement(@NotNull PsiJavaFile psiJavaFile) {
         Project project = psiJavaFile.getProject();
-        boolean includeTestFiles = project.getService(SettingsService.class).getOtherSettings().isIncludeTestFiles();
         if (!includeTestFiles && com.intellij.openapi.roots.ProjectFileIndex.getInstance(project)
                 .isInTestSourceContent(psiJavaFile.getVirtualFile())) {
             return;
