@@ -38,7 +38,7 @@ public class MetricsBackgroundableTask<T> extends Task.Backgroundable {
             @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
             boolean canBeCancelled,
             @NotNull Function<ProgressIndicator, T> task,
-            @NotNull Consumer<T> onSuccess,
+            @Nullable Consumer<T> onSuccess,
             @Nullable Runnable onCancel,
             @Nullable Runnable onFinished) {
         super(project, title, canBeCancelled);

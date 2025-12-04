@@ -36,10 +36,23 @@ public class ModuleSelector extends ComboBoxAction {
     public void update(@NotNull AnActionEvent e) {
         Module selectedModule = project.getService(UIStateService.class).getSelectedModule();
         if (selectedModule == null) {
-            Module module;
-            if (getRunningModule(project) != null) {
-                module = getRunningModule(project);
-            } else {
+            Module module = getRunningModule(project);
+
+            if (module == null) {
+                Module rootModule = getRootModule(project);
+                if (rootModule != null) {
+                    String mainModuleName = rootModule.getName() + ".main";
+                    Module candidate = Arrays.stream(ModuleManager.getInstance(project).getModules())
+                            .filter(m -> m.getName().equals(mainModuleName))
+                            .findFirst()
+                            .orElse(null);
+                    if (candidate != null && isRealModule(candidate)) {
+                        module = candidate;
+                    }
+                }
+            }
+
+            if (module == null) {
                 // Get the first real module (not a Kotlin script or source set module)
                 module = Arrays.stream(ModuleManager.getInstance(project).getModules())
                         .filter(this::isRealModule)
