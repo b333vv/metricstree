@@ -14,6 +14,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.service.UIStateService;
 
 import org.jetbrains.annotations.NotNull;
@@ -124,10 +125,10 @@ public class ModuleSelector extends ComboBoxAction {
     /**
      * Filters out IntelliJ IDEA internal modules (Kotlin scripts, source sets,
      * etc.)
-     * and returns only real Gradle/Maven modules.
+     * and returns only real Gradle/Maven modules that exist and have classes.
      *
      * @param module the module to check
-     * @return true if this is a real project module, false otherwise
+     * @return true if this is a real project module with classes, false otherwise
      */
     private boolean isRealModule(Module module) {
         String moduleName = module.getName();
@@ -138,16 +139,53 @@ public class ModuleSelector extends ComboBoxAction {
             return false;
         }
 
-        // Filter out source set modules (.main, .test, .integrationTest, etc.)
-//        if (moduleName.contains(".main") ||
-//                moduleName.contains(".test") ||
-//                moduleName.contains(".integrationTest") ||
-//                moduleName.endsWith(".main") ||
-//                moduleName.endsWith(".test") ||
-//                moduleName.endsWith(".integrationTest")) {
-//            return false;
-//        }
+        // Check if module has source roots (actual source code)
+        VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots();
+        if (sourceRoots == null || sourceRoots.length == 0) {
+            return false;
+        }
 
+        // Check if module has any classes (using cache if available)
+        if (!hasClasses(module)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if a module has any classes by looking at the cached ProjectElement.
+     *
+     * @param module the module to check
+     * @return true if the module has classes, false otherwise
+     */
+    private boolean hasClasses(Module module) {
+        org.b333vv.metric.service.CacheService cacheService = project
+                .getService(org.b333vv.metric.service.CacheService.class);
+        if (cacheService == null) {
+            return true; // If cache service is not available, assume module has classes
+        }
+
+        // Check class and method metrics cache first (most detailed)
+        ProjectElement projectElement = cacheService.getClassAndMethodMetrics(module);
+        if (projectElement != null) {
+            return projectElement.allClasses().findAny().isPresent();
+        }
+
+        // Check package metrics cache as fallback
+        projectElement = cacheService.getPackageMetrics(module);
+        if (projectElement != null) {
+            return projectElement.allClasses().findAny().isPresent();
+        }
+
+        // Check project metrics cache as last resort
+        projectElement = cacheService.getProjectMetrics(module);
+        if (projectElement != null) {
+            return projectElement.allClasses().findAny().isPresent();
+        }
+
+        // If no cache exists yet, assume module has classes (will be filtered later
+        // after calculation)
         return true;
     }
 
