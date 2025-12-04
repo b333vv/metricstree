@@ -4,7 +4,7 @@ import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.configurations.ModuleBasedConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.openapi.actionSystem.AnAction;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.b333vv.metric.service.UIStateService;
+
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -38,7 +39,11 @@ public class ModuleSelector extends ComboBoxAction {
             if (getRunningModule(project) != null) {
                 module = getRunningModule(project);
             } else {
-                module = ModuleManager.getInstance(project).getModules()[0];
+                // Get the first real module (not a Kotlin script or source set module)
+                module = Arrays.stream(ModuleManager.getInstance(project).getModules())
+                        .filter(this::isRealModule)
+                        .findFirst()
+                        .orElse(ModuleManager.getInstance(project).getModules()[0]);
             }
             e.getPresentation().setText(module.getName());
         } else {
@@ -64,21 +69,24 @@ public class ModuleSelector extends ComboBoxAction {
         }
 
         // "Whole Project" option
-//        group.add(new DumbAwareAction("Whole Project") {
-//            @Override
-//            public void actionPerformed(@NotNull AnActionEvent e) {
-//                project.getService(UIStateService.class).setSelectedModule(null);
-//                onSelectionChange.run();
-//            }
-//        });
+        // group.add(new DumbAwareAction("Whole Project") {
+        // @Override
+        // public void actionPerformed(@NotNull AnActionEvent e) {
+        // project.getService(UIStateService.class).setSelectedModule(null);
+        // onSelectionChange.run();
+        // }
+        // });
 
-//        group.addSeparator();
+        // group.addSeparator();
 
-        // List all modules
+        // List all modules, filtering out Kotlin script modules and source set modules
         Module[] modules = ModuleManager.getInstance(project).getModules();
-        Arrays.sort(modules, Comparator.comparing(Module::getName));
+        Module[] realModules = Arrays.stream(modules)
+                .filter(this::isRealModule)
+                .sorted(Comparator.comparing(Module::getName))
+                .toArray(Module[]::new);
 
-        for (Module module : modules) {
+        for (Module module : realModules) {
             if (module.equals(runningModule)) {
                 continue;
             }
@@ -90,7 +98,6 @@ public class ModuleSelector extends ComboBoxAction {
                 }
             });
         }
-
 
         return group;
     }
@@ -114,10 +121,41 @@ public class ModuleSelector extends ComboBoxAction {
         return null; // Конфигурация не выбрана или не зависит от модуля
     }
 
+    /**
+     * Filters out IntelliJ IDEA internal modules (Kotlin scripts, source sets,
+     * etc.)
+     * and returns only real Gradle/Maven modules.
+     *
+     * @param module the module to check
+     * @return true if this is a real project module, false otherwise
+     */
+    private boolean isRealModule(Module module) {
+        String moduleName = module.getName();
+
+        // Filter out Kotlin script modules (build.gradle.kts, settings.gradle.kts,
+        // etc.)
+        if (moduleName.startsWith("kotlin.scripts.")) {
+            return false;
+        }
+
+        // Filter out source set modules (.main, .test, .integrationTest, etc.)
+//        if (moduleName.contains(".main") ||
+//                moduleName.contains(".test") ||
+//                moduleName.contains(".integrationTest") ||
+//                moduleName.endsWith(".main") ||
+//                moduleName.endsWith(".test") ||
+//                moduleName.endsWith(".integrationTest")) {
+//            return false;
+//        }
+
+        return true;
+    }
+
     private Module getRootModule(Project project) {
         // 1. Получаем базовую директорию проекта
         String projectBasePath = project.getBasePath();
-        if (projectBasePath == null) return null;
+        if (projectBasePath == null)
+            return null;
 
         // 2. Перебираем все модули
         Module[] modules = ModuleManager.getInstance(project).getModules();
@@ -127,7 +165,8 @@ public class ModuleSelector extends ComboBoxAction {
             VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
 
             for (VirtualFile root : contentRoots) {
-                // 4. Если корень модуля совпадает с корнем проекта — это "Главный/Корневой" модуль
+                // 4. Если корень модуля совпадает с корнем проекта — это "Главный/Корневой"
+                // модуль
                 if (root.getPath().equals(projectBasePath)) {
                     return module;
                 }
