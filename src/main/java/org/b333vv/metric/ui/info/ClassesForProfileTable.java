@@ -180,8 +180,10 @@ public class ClassesForProfileTable {
         protected void setValue(Object value) {
             if (value instanceof Metric) {
                 setText(((Metric) value).getPsiValue().toString());
-            } else {
+            } else if (value instanceof ClassElement) {
                 setText(((ClassElement) value).getName());
+            } else {
+                setText("");
             }
         }
     }
