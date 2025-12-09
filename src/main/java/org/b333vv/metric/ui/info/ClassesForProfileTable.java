@@ -108,12 +108,28 @@ public class ClassesForProfileTable {
 
         @Override
         public Object getValueAt(int row, int column) {
-            List<ClassElement> javaClasses = new ArrayList<>(classes.keySet());
-            if (column == 0) {
-                return javaClasses.get(row);
+            // Use a list of entries to maintain consistency between keys and values
+            List<Map.Entry<ClassElement, List<Metric>>> entries = new ArrayList<>(classes.entrySet());
+
+            if (row >= entries.size()) {
+                return null;
             }
-            List<List<Metric>> metrics = new ArrayList<>(classes.values());
-            return metrics.get(row).get(column - 1);
+
+            Map.Entry<ClassElement, List<Metric>> entry = entries.get(row);
+
+            if (column == 0) {
+                return entry.getKey();
+            }
+
+            List<Metric> metrics = entry.getValue();
+            int metricIndex = column - 1;
+
+            // Bounds check to prevent IndexOutOfBoundsException
+            if (metricIndex >= 0 && metricIndex < metrics.size()) {
+                return metrics.get(metricIndex);
+            }
+
+            return null;
         }
 
         @Override
@@ -132,19 +148,23 @@ public class ClassesForProfileTable {
         private Color extremeColor = new JBColor(new Color(0xf24c00), new Color(0xf24c00));
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
+                int row, int column) {
             Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (value instanceof Metric) {
                 cell.setForeground(UIUtil.getPanelBackground());
                 Metric metric = (Metric) value;
                 setHorizontalAlignment(SwingConstants.CENTER);
-                if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.REGULAR) {
+                if (project.getService(SettingsService.class).getRangeForMetric(metric.getType())
+                        .getRangeType(metric.getPsiValue()) == RangeType.REGULAR) {
                     cell.setBackground(regularColor);
-                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.HIGH) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType())
+                        .getRangeType(metric.getPsiValue()) == RangeType.HIGH) {
                     cell.setBackground(highColor);
-                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.VERY_HIGH) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType())
+                        .getRangeType(metric.getPsiValue()) == RangeType.VERY_HIGH) {
                     cell.setBackground(veryHighColor);
-                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType()).getRangeType(metric.getPsiValue()) == RangeType.EXTREME) {
+                } else if (project.getService(SettingsService.class).getRangeForMetric(metric.getType())
+                        .getRangeType(metric.getPsiValue()) == RangeType.EXTREME) {
                     cell.setBackground(extremeColor);
                 }
             } else {

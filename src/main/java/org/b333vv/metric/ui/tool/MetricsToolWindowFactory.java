@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 public class MetricsToolWindowFactory implements ToolWindowFactory {
     public static final String TAB_CLASS_METRICS_TREE = "Class Metrics";
     public static final String TAB_PROJECT_METRICS_TREE = "Project Metrics";
-    public static final String TAB_PROFILES = "Metric Fitness Functions";
+    public static final String TAB_PROFILES = "Fitness Functions";
     public static final String TAB_LOGS = "Log";
     public static final String TAB_METRICS_EVOLUTION = "Metrics Timeline";
 
