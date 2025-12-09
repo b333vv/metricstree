@@ -60,6 +60,8 @@ public class ModuleSelector extends ComboBoxAction {
                         .orElse(ModuleManager.getInstance(project).getModules()[0]);
             }
             e.getPresentation().setText(module.getName());
+            project.getService(UIStateService.class).setSelectedModule(module);
+            onSelectionChange.run();
         } else {
             e.getPresentation().setText(selectedModule.getName());
         }
