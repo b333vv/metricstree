@@ -63,6 +63,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>2025.2.1:
+                <ul>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
             <li>2025.2.0:
                 <ul>
                     <li>Modules support added.</li>
@@ -247,7 +252,7 @@
       ]]>
     </change-notes>
 
-    <version>2025.2.0</version>
+    <version>2025.2.1</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 

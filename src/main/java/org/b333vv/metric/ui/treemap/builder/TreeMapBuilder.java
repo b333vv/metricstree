@@ -16,6 +16,8 @@
 
 package org.b333vv.metric.ui.treemap.builder;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import org.b333vv.metric.model.code.*;
 import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.code.ProjectElement;
@@ -39,40 +41,46 @@ public class TreeMapBuilder implements SelectionChangeListener<CodeElement>, Lab
         treeMap.addSelectionChangeListener(this);
         treeMap.setTreeMapLayout(new SquarifiedLayout<>(64));
 
-//        treeMap.setColorProvider(new MetricTypeColorProvider(MetricType.NCSS));
-//        treeMap.setColorProvider(colorProvider);
+        // treeMap.setColorProvider(new MetricTypeColorProvider(MetricType.NCSS));
+        // treeMap.setColorProvider(colorProvider);
 
         treeMap.setTreeModel(TreeMapModel.createTreeModel(projectElement));
     }
 
-//    public void setColorProvider(@NotNull ColorProvider<JavaCode, Color> colorProvider) {
-//        treeMap.setColorProvider(colorProvider);
-//    }
+    // public void setColorProvider(@NotNull ColorProvider<JavaCode, Color>
+    // colorProvider) {
+    // treeMap.setColorProvider(colorProvider);
+    // }
 
     public MetricTreeMap<CodeElement> getTreeMap() {
         return treeMap;
     }
 
     @Override
-    public void selectionChanged(TreeModel<Rectangle<CodeElement>> model, Rectangle<CodeElement> rectangle, String label) {
+    public void selectionChanged(TreeModel<Rectangle<CodeElement>> model, Rectangle<CodeElement> rectangle,
+            String label) {
         if (label != null) {
             final CodeElement node = rectangle.getNode();
             if (node instanceof ClassElement) {
                 ClassElement clazz = (ClassElement) node;
-                String name = null;
-                if (clazz.getPsiClass() != null) {
-                    name = clazz.getPsiClass().getQualifiedName();
-                } else if (clazz.getKtClassOrObject() != null) {
-                    // Try FQ name first, fallback to simple name
-                    if (clazz.getKtClassOrObject().getFqName() != null) {
-                        name = clazz.getKtClassOrObject().getFqName().asString();
-                    } else {
-                        name = clazz.getKtClassOrObject().getName();
+                // Wrap PSI access in read action to prevent threading violations
+                String name = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+                    String result = null;
+                    if (clazz.getPsiClass() != null) {
+                        result = clazz.getPsiClass().getQualifiedName();
+                    } else if (clazz.getKtClassOrObject() != null) {
+                        // Try FQ name first, fallback to simple name
+                        if (clazz.getKtClassOrObject().getFqName() != null) {
+                            result = clazz.getKtClassOrObject().getFqName().asString();
+                        } else {
+                            result = clazz.getKtClassOrObject().getName();
+                        }
                     }
-                }
-                if (name == null || name.isEmpty()) {
-                    name = clazz.getName();
-                }
+                    if (result == null || result.isEmpty()) {
+                        result = clazz.getName();
+                    }
+                    return result;
+                });
                 Consumer<String> selectionAction = treeMap.getSelectionChangedAction();
                 if (selectionAction != null) {
                     selectionAction.accept("Class: " + name);
