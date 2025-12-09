@@ -31,10 +31,12 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class ProjectMetricXYChartDataBuilder {
 
-    // XChart requires non-null, non-empty series names. Use a safe default when needed.
+    // XChart requires non-null, non-empty series names. Use a safe default when
+    // needed.
     private static final String DEFAULT_PACKAGE_SERIES_NAME = "(default)";
 
-    public static void build(ProjectElement projectElement, Map<String, Double> instability, Map<String, Double> abstractness) {
+    public static void build(ProjectElement projectElement, Map<String, Double> instability,
+            Map<String, Double> abstractness) {
         Map<String, Double> myInstability = projectElement.allPackages()
                 .flatMap(
                         inner -> inner.metrics()
@@ -61,17 +63,24 @@ public class ProjectMetricXYChartDataBuilder {
 
     private static Map.Entry<String, Double> convert(Map.Entry<PackageElement, List<Metric>> e) {
         String packageName = safeSeriesName(e.getKey());
-        // Given the upstream grouping, there should be at least one metric; still guard defensively
+        // Given the upstream grouping, there should be at least one metric; still guard
+        // defensively
         Double value = e.getValue().isEmpty()
-                ? Double.NaN
+                ? 0.0
                 : e.getValue().get(0).getPsiValue().doubleValue();
+
+        // Filter out infinite and NaN values to prevent chart rendering errors
+        if (Double.isInfinite(value) || Double.isNaN(value)) {
+            value = 0.0;
+        }
 
         // Immutable entry is fine here
         return Map.entry(packageName, value);
     }
 
     private static String safeSeriesName(PackageElement pkg) {
-        // Prefer the qualified name from PsiPackage when available and non-empty; otherwise fallback
+        // Prefer the qualified name from PsiPackage when available and non-empty;
+        // otherwise fallback
         PsiPackage psiPackage = pkg.getPsiPackage();
         String qName = psiPackage != null ? psiPackage.getQualifiedName() : null;
 

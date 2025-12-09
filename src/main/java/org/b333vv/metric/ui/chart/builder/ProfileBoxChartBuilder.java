@@ -36,9 +36,12 @@ public class ProfileBoxChartBuilder {
 
     public List<BoxChartStructure> createChart(Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile) {
         List<BoxChartStructure> boxCharts = new ArrayList<>();
-//        Map<FitnessFunction, Set<JavaClass>> classesByMetricProfileWithoutEmptyMetrics = classesByMetricProfile.entrySet().stream()
-//                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty() && !entry.getKey().profile().isEmpty())
-//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        // Map<FitnessFunction, Set<JavaClass>>
+        // classesByMetricProfileWithoutEmptyMetrics =
+        // classesByMetricProfile.entrySet().stream()
+        // .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty() &&
+        // !entry.getKey().profile().isEmpty())
+        // .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         for (MetricType mt : MetricType.values()) {
             if (mt.level() == MetricLevel.CLASS) {
@@ -48,6 +51,7 @@ public class ProfileBoxChartBuilder {
                             .flatMap(CodeElement::metrics)
                             .filter(metric -> metric.getType() == mt)
                             .map(metric -> metric.getPsiValue() == null ? 0.0 : metric.getPsiValue().doubleValue())
+                            .filter(value -> !Double.isInfinite(value) && !Double.isNaN(value))
                             .toList();
                     if (!values.isEmpty()) {
                         series.put(profileEntry.getKey().name(), values);
@@ -59,13 +63,13 @@ public class ProfileBoxChartBuilder {
                 }
 
                 BoxChart chart = new BoxChartBuilder()
-                        .title("Distribution Of " + '"' + mt.name() + '"' + " Metric Values By Metric Fitness Functions")
+                        .title("Distribution Of " + '"' + mt.name() + '"'
+                                + " Metric Values By Metric Fitness Functions")
                         .width(series.size())
                         .height(50)
                         .build();
 
                 series.forEach(chart::addSeries);
-
 
                 chart.getStyler().setPlotContentSize(0.97);
                 if (series.size() > 10) {

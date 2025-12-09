@@ -42,20 +42,23 @@ public class ProfileRadarChartBuilder {
     private final Project project;
     private Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile;
 
-
     public ProfileRadarChartBuilder(Project project) {
         this.project = project;
     }
-    public List<RadarChartStructure> createChart(Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile, Project project) {
+
+    public List<RadarChartStructure> createChart(Map<FitnessFunction, Set<ClassElement>> classesByMetricProfile,
+            Project project) {
 
         this.classesByMetricProfile = classesByMetricProfile;
 
         BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = project
                 .getService(SettingsService.class).getBasicMetricsSettings();
-//        BasicMetricsValidRangesSettings basicMetricsValidRangesSettings = MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
-//                BasicMetricsValidRangesSettings.class);
-//        DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
-//                DerivativeMetricsValidRangesSettings.class);
+        // BasicMetricsValidRangesSettings basicMetricsValidRangesSettings =
+        // MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
+        // BasicMetricsValidRangesSettings.class);
+        // DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings =
+        // MetricsUtils.getProfiles(MetricsUtils.getCurrentProject(),
+        // DerivativeMetricsValidRangesSettings.class);
         DerivativeMetricsValidRangesSettings derivativeMetricsValidRangesSettings = project
                 .getService(SettingsService.class).getDerivativeMetricsSettings();
         List<MetricType> metrics = new ArrayList<>();
@@ -63,7 +66,7 @@ public class ProfileRadarChartBuilder {
             if (mt.level() == MetricLevel.CLASS && (basicMetricsValidRangesSettings.getControlledMetricsList().stream()
                     .anyMatch(stub -> stub.getName().equals(mt.name()))
                     || derivativeMetricsValidRangesSettings.getControlledMetricsList().stream()
-                    .anyMatch(stub -> stub.getName().equals(mt.name())))) {
+                            .anyMatch(stub -> stub.getName().equals(mt.name())))) {
                 metrics.add(mt);
             }
         }
@@ -135,6 +138,12 @@ public class ProfileRadarChartBuilder {
                 .flatMap(ClassElement::metrics)
                 .filter(m -> m.getType() == metricType)
                 .count();
+
+        // Prevent division by zero which would produce infinity
+        if (classesNumber == 0) {
+            return 0.0;
+        }
+
         long invalidMetricValueClassesNumber = classesByMetricProfile.entrySet().stream()
                 .filter(e -> e.getKey().equals(profile))
                 .findFirst()
@@ -153,7 +162,8 @@ public class ProfileRadarChartBuilder {
         private final RadarChart radarChart;
         private final Map<ClassElement, List<Metric>> classes;
 
-        public RadarChartStructure(FitnessFunction fitnessFunction, RadarChart radarChart, Map<ClassElement, List<Metric>> classes) {
+        public RadarChartStructure(FitnessFunction fitnessFunction, RadarChart radarChart,
+                Map<ClassElement, List<Metric>> classes) {
             this.fitnessFunction = fitnessFunction;
             this.radarChart = radarChart;
             this.classes = classes;
