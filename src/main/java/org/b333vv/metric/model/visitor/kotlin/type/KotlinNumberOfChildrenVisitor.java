@@ -4,10 +4,13 @@
 package org.b333vv.metric.model.visitor.kotlin.type;
 
 import org.b333vv.metric.model.metric.Metric;
-import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.kotlin.KotlinMetricUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.KtClass;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.searches.ClassInheritorsSearch;
+import org.jetbrains.uast.UClass;
+import org.jetbrains.uast.UastContextKt;
 
 import static org.b333vv.metric.model.metric.MetricType.NOC;
 
@@ -31,7 +34,12 @@ public class KotlinNumberOfChildrenVisitor extends KotlinClassVisitor {
 
         // For open/abstract/sealed classes, proper implementation requires inheritor
         // search
-        // For now, return 0 as placeholder (Phase 3 can implement proper search)
-        metric = Metric.of(NOC, 0);
+        UClass uClass = UastContextKt.toUElement(klass, UClass.class);
+        if (uClass != null) {
+            PsiClass psiClass = uClass.getJavaPsi();
+            metric = Metric.of(NOC, ClassInheritorsSearch.search(psiClass, false).findAll().size());
+        } else {
+            metric = Metric.of(NOC, 0);
+        }
     }
 }

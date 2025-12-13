@@ -140,4 +140,15 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         // Final class => 0
         assertEquals("NOC should be 0 for final class", 0.0, noc.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testOpenClassInheritors() {
+        KtClass cls = findClass("OpenClass");
+        assertNotNull(cls);
+
+        KotlinNumberOfChildrenVisitor noc = new KotlinNumberOfChildrenVisitor();
+        noc.visitClass(cls);
+
+        // OpenClass has 1 child: FinalClass
+        assertEquals("NOC should be 1 for OpenClass", 1.0, noc.getMetric().getValue().doubleValue(), 0.1);
+    }
 }
