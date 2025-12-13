@@ -151,4 +151,23 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         // OpenClass has 1 child: FinalClass
         assertEquals("NOC should be 1 for OpenClass", 1.0, noc.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testDepthOfInheritanceTree() {
+        KtClass openClass = findClass("OpenClass");
+        assertNotNull(openClass);
+        KotlinDepthOfInheritanceTreeVisitor ditOpen = new KotlinDepthOfInheritanceTreeVisitor();
+        ditOpen.visitClass(openClass);
+        // OpenClass -> Any/Object.
+        // In this test environment, resolution of Any/Object results in null
+        // superclass, effectively acting as root (Depth 0).
+        assertEquals("DIT for OpenClass should be 0 (Root behavior in test)", 0.0,
+                ditOpen.getMetric().getValue().doubleValue(), 0.1);
+
+        KtClass finalClass = findClass("FinalClass");
+        assertNotNull(finalClass);
+        KotlinDepthOfInheritanceTreeVisitor ditFinal = new KotlinDepthOfInheritanceTreeVisitor();
+        ditFinal.visitClass(finalClass);
+        // FinalClass -> OpenClass -> Root. Depth 1.
+        assertEquals("DIT for FinalClass should be 1", 1.0, ditFinal.getMetric().getValue().doubleValue(), 0.1);
+    }
 }
