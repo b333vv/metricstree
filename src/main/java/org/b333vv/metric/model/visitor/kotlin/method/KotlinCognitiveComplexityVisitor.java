@@ -15,7 +15,8 @@ import static org.b333vv.metric.model.metric.MetricType.CCM;
  * - +1 for boolean operator transitions (&&, ||) chains.
  * - +1 for recursion (call to function with same name and arity).
  *
- * This is a pragmatic approximation consistent with the existing Java implementation style.
+ * This is a pragmatic approximation consistent with the existing Java
+ * implementation style.
  */
 public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
 
@@ -46,7 +47,10 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
 
     private class BodyVisitor extends KtTreeVisitorVoid {
         private final KtNamedFunction owner;
-        BodyVisitor(KtNamedFunction owner) { this.owner = owner; }
+
+        BodyVisitor(KtNamedFunction owner) {
+            this.owner = owner;
+        }
 
         @Override
         public void visitIfExpression(@NotNull KtIfExpression expression) {
@@ -89,7 +93,8 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
             for (KtCatchClause ignored : expression.getCatchClauses()) {
                 enterDecision();
                 // visit inside catch
-                if (ignored.getCatchBody() != null) ignored.getCatchBody().accept(this);
+                if (ignored.getCatchBody() != null)
+                    ignored.getCatchBody().accept(this);
                 exitDecision();
             }
             super.visitTryExpression(expression);
@@ -101,7 +106,19 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
             if (expression.getOperationToken() == KtTokens.ANDAND || expression.getOperationToken() == KtTokens.OROR) {
                 complexity += 1;
             }
+            // Elvis operator ?: adds cognitive complexity (conditional branch)
+            if (expression.getOperationToken() == KtTokens.ELVIS) {
+                complexity += 1;
+            }
             super.visitBinaryExpression(expression);
+        }
+
+        @Override
+        public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expression) {
+            // Safe call operator ?. adds +0 complexity
+            // It's designed for safety and readability, doesn't add cognitive load
+            // No complexity increment here
+            super.visitSafeQualifiedExpression(expression);
         }
 
         @Override
@@ -120,7 +137,13 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
             super.visitCallExpression(expression);
         }
 
-        private void enterDecision() { complexity += 1 + nesting; nesting++; }
-        private void exitDecision() { nesting = Math.max(0, nesting - 1); }
+        private void enterDecision() {
+            complexity += 1 + nesting;
+            nesting++;
+        }
+
+        private void exitDecision() {
+            nesting = Math.max(0, nesting - 1);
+        }
     }
 }

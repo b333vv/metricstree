@@ -5,6 +5,7 @@ package org.b333vv.metric.model.visitor.kotlin.type;
 
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.value.Value;
+import org.b333vv.metric.model.visitor.kotlin.KotlinMetricUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 
@@ -15,8 +16,10 @@ import static org.b333vv.metric.model.metric.MetricType.NOM;
  * plus primary constructor (if present) and all secondary constructors.
  *
  * Notes:
- * - Companion/nested object functions are not counted towards the enclosing class NOM in this initial version,
- *   mirroring that Java static members belong to the class body itself, not nested types.
+ * - Companion/nested object functions are not counted towards the enclosing
+ * class NOM in this initial version,
+ * mirroring that Java static members belong to the class body itself, not
+ * nested types.
  */
 public class KotlinNumberOfMethodsVisitor extends KotlinClassVisitor {
 
@@ -40,6 +43,12 @@ public class KotlinNumberOfMethodsVisitor extends KotlinClassVisitor {
                 }
             }
         }
+
+        // Property accessors (implicit getters/setters)
+        count += KotlinMetricUtils.countPropertyAccessors(klass);
+
+        // Data class implicit methods (equals, hashCode, toString, copy, componentN)
+        count += KotlinMetricUtils.countDataClassMethods(klass);
 
         metric = Metric.of(NOM, count);
     }

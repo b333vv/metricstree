@@ -13,13 +13,14 @@ import static org.b333vv.metric.model.metric.MetricType.CC;
 /**
  * Computes cyclomatic complexity for Kotlin functions and constructors.
  * Rules (initial mapping):
- *  - if
- *  - when (each entry counts as 1; else entry also counts)
- *  - for, while, do-while
- *  - catch
- *  - boolean operators && and || (each occurrence)
- *  - elvis operator ?: when the right side is a return or throw
- *  - safe calls ?. when used in a conditional context (heuristic: inside if/when condition)
+ * - if
+ * - when (each entry counts as 1; else entry also counts)
+ * - for, while, do-while
+ * - catch
+ * - boolean operators && and || (each occurrence)
+ * - elvis operator ?: when the right side is a return or throw
+ * - safe calls ?. when used in a conditional context (heuristic: inside if/when
+ * condition)
  */
 public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor {
 
@@ -45,8 +46,9 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
     }
 
     private int computeForBody(KtExpression body) {
-        if (body == null) return 0;
-        final int[] c = {0};
+        if (body == null)
+            return 0;
+        final int[] c = { 0 };
         body.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitIfExpression(@NotNull KtIfExpression expression) {
@@ -88,15 +90,13 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
 
             @Override
             public void visitBinaryExpression(@NotNull KtBinaryExpression expression) {
-                if (expression.getOperationToken() == KtTokens.ANDAND || expression.getOperationToken() == KtTokens.OROR) {
+                if (expression.getOperationToken() == KtTokens.ANDAND
+                        || expression.getOperationToken() == KtTokens.OROR) {
                     c[0] += 1;
                 }
+                // Elvis operator ?: always represents a conditional branch (null check)
                 if (expression.getOperationToken() == KtTokens.ELVIS) {
-                    // Heuristic: count when right side is a return or throw expression
-                    KtExpression right = expression.getRight();
-                    if (right instanceof KtReturnExpression || right instanceof KtThrowExpression) {
-                        c[0] += 1;
-                    }
+                    c[0] += 1;
                 }
                 super.visitBinaryExpression(expression);
             }

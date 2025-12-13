@@ -4,6 +4,7 @@
 package org.b333vv.metric.model.visitor.kotlin.type;
 
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.visitor.kotlin.KotlinMetricUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 
@@ -12,13 +13,16 @@ import java.util.*;
 import static org.b333vv.metric.model.metric.MetricType.LCOM;
 
 /**
- * Computes LCOM as the number of connected components among methods where edges exist when
+ * Computes LCOM as the number of connected components among methods where edges
+ * exist when
  * two functions access at least one common instance property.
  *
  * Simplifications:
- * - Instance properties are those declared as val/var in primary constructor or as KtProperty in class body
- *   outside companion/nested objects.
- * - Access detection is name-based: unqualified references matching property names or references via 'this'.
+ * - Instance properties are those declared as val/var in primary constructor or
+ * as KtProperty in class body
+ * outside companion/nested objects.
+ * - Access detection is name-based: unqualified references matching property
+ * names or references via 'this'.
  * - Companion object members are ignored for cohesion.
  */
 public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
@@ -38,8 +42,50 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
                     KtNamedFunction f = (KtNamedFunction) decl;
                     methods.add(f);
                     accesses.add(collectAccessedProps(f, instanceProps));
+                } else if (decl instanceof KtProperty) {
+                    // Add implicit accessors as methods
+                    KtProperty prop = (KtProperty) decl;
+                    if (!KotlinMetricUtils.isInCompanionObject(prop)) {
+                        String propName = prop.getName();
+                        if (propName != null && instanceProps.contains(propName)) {
+                            // Getter accesses its backing field
+                            Set<String> getterAccess = new HashSet<>();
+                            getterAccess.add(propName);
+                            accesses.add(getterAccess);
+
+                            // Setter also accesses its backing field (for var)
+                            if (prop.isVar()) {
+                                Set<String> setterAccess = new HashSet<>();
+                                setterAccess.add(propName);
+                                accesses.add(setterAccess);
+                            }
+                        }
+                    }
                 }
                 // skip nested objects/companions for this cohesion definition
+            }
+        }
+
+        // Add implicit accessors for primary constructor properties
+        KtPrimaryConstructor primary = klass.getPrimaryConstructor();
+        if (primary != null) {
+            for (KtParameter param : primary.getValueParameters()) {
+                if (param.hasValOrVar()) {
+                    String paramName = param.getName();
+                    if (paramName != null && instanceProps.contains(paramName)) {
+                        // Getter accesses its backing field
+                        Set<String> getterAccess = new HashSet<>();
+                        getterAccess.add(paramName);
+                        accesses.add(getterAccess);
+
+                        // Setter also accesses its backing field (for var)
+                        if (param.isMutable()) {
+                            Set<String> setterAccess = new HashSet<>();
+                            setterAccess.add(paramName);
+                            accesses.add(setterAccess);
+                        }
+                    }
+                }
             }
         }
 
@@ -54,7 +100,8 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
             for (KtParameter p : primary.getValueParameters()) {
                 if (p.hasValOrVar()) {
                     String n = p.getName();
-                    if (n != null) names.add(n);
+                    if (n != null)
+                        names.add(n);
                 }
             }
         }
@@ -63,7 +110,8 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
             for (KtDeclaration decl : body.getDeclarations()) {
                 if (decl instanceof KtProperty) {
                     String n = ((KtProperty) decl).getName();
-                    if (n != null) names.add(n);
+                    if (n != null)
+                        names.add(n);
                 }
             }
         }
@@ -73,7 +121,8 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
     private Set<String> collectAccessedProps(KtNamedFunction f, Set<String> instanceProps) {
         Set<String> used = new HashSet<>();
         KtExpression body = f.getBodyExpression();
-        if (body == null) return used;
+        if (body == null)
+            return used;
         body.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression) {
@@ -105,7 +154,8 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
 
     private int connectedComponentsBySharedProps(List<Set<String>> accesses) {
         int n = accesses.size();
-        if (n == 0) return 0;
+        if (n == 0)
+            return 0;
         boolean[] visited = new boolean[n];
         int comps = 0;
         for (int i = 0; i < n; i++) {
@@ -129,8 +179,11 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
     }
 
     private boolean shares(Set<String> a, Set<String> b) {
-        if (a.isEmpty() || b.isEmpty()) return false;
-        for (String x : a) if (b.contains(x)) return true;
+        if (a.isEmpty() || b.isEmpty())
+            return false;
+        for (String x : a)
+            if (b.contains(x))
+                return true;
         return false;
     }
 }
