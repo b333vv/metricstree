@@ -255,4 +255,21 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         assertEquals("DAC should count distinctive user types in properties", 3.0,
                 dac.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testNumberOfAddedMethods() {
+        KtClass cls = findClass("NoamCheck");
+        assertNotNull(cls);
+
+        KotlinNumberOfAddedMethodsVisitor noam = new KotlinNumberOfAddedMethodsVisitor();
+        noam.visitClass(cls);
+
+        // newMethod() -> 1
+        // newProp (getter) -> 1
+        // privateMethod() -> 1
+        // baseMethod() (override) -> 0
+        // baseProp (override) -> 0
+        // Total: 3
+        assertEquals("NOAM should count non-overridden methods and property accessors", 3.0,
+                noam.getMetric().getValue().doubleValue(), 0.1);
+    }
 }

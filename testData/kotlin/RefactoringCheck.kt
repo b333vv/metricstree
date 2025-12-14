@@ -115,3 +115,18 @@ class DacCheck(val p1: DacTarget1) {
     val p5: String = ""
     val p6: test.pkg.List = test.pkg.List() // Custom List, should be counted
 }
+
+open class NoamBase {
+    open fun baseMethod() {}
+    open val baseProp: Int = 0
+}
+
+class NoamCheck : NoamBase() {
+    override fun baseMethod() {} // Override, not added
+    fun newMethod() {} // Added
+
+    override val baseProp: Int = 1 // Override, not added (accessors)
+    val newProp: Int = 2 // Added (getter)
+
+    private fun privateMethod() {} // Added
+}
