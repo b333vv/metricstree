@@ -185,4 +185,20 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         assertEquals("CBO should resolve types and exclude standard libraries", 1.0,
                 cbo.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testShadowCheckLCOM() {
+        KtClass cls = findClass("ShadowCheck");
+        assertNotNull(cls);
+
+        KotlinLackOfCohesionOfMethodsVisitor lcom = new KotlinLackOfCohesionOfMethodsVisitor();
+        lcom.visitClass(cls);
+
+        // method1 uses local x, not instance x -> isolated.
+        // method2 uses instance x.
+        // getX (implicit) uses instance x.
+        // Component 1: method2, getX (share x)
+        // Component 2: method1 (no shared fields)
+        // Expected LCOM: 2
+        assertEquals("LCOM should account for shadowing", 2.0, lcom.getMetric().getValue().doubleValue(), 0.1);
+    }
 }

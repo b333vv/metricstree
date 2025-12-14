@@ -48,3 +48,16 @@ class CboCheck {
     val s: java.lang.String = ""
     val t: CboTarget1? = null
 }
+
+class ShadowCheck {
+    val x = 1
+    
+    fun method1() {
+        val x = 2 // Local x shadows instance x
+        print(x) // accesses local x, NOT instance x
+    }
+    
+    fun method2() {
+        print(x) // accesses instance x
+    }
+}
