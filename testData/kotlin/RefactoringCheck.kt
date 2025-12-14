@@ -66,11 +66,39 @@ class MpcTarget {
     fun foo() {}
 }
 
+
 class MpcCheck {
     fun m() {
         val t = MpcTarget() // Call to constructor -> 1
         t.foo() // Call to external method -> 1
         this.m() // Call to self -> 0
         print("s") // Call to stdlib -> 0
+    }
+}
+
+
+class AtfdForeign {
+    var property = 0
+    fun getAccessor(): Int = property
+    fun setAccessor(v: Int) { property = v }
+    fun behavior() {}
+}
+
+class BehaviorForeign {
+    fun doAction() {}
+}
+
+class AtfdCheck {
+    private val foreign = AtfdForeign()
+    private val behaviorOnly = BehaviorForeign()
+    
+    fun test() {
+        val p = foreign.property // Access property -> count AtfdForeign
+        foreign.property = 2     // Set property -> count AtfdForeign
+        val a = foreign.getAccessor() // Getter -> count AtfdForeign
+        foreign.setAccessor(3)   // Setter -> count AtfdForeign
+        foreign.behavior()       // Not data -> don't count
+        
+        behaviorOnly.doAction() // Not data -> don't count
     }
 }

@@ -215,7 +215,26 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         // this.m() -> 0 (self)
         // print("s") -> 0 (standard lib)
         // Total: 2.0
+
         assertEquals("MPC should resolve calls and exclude self/standard", 2.0,
                 mpc.getMetric().getValue().doubleValue(), 0.1);
+    }
+
+    public void testAccessToForeignData() {
+        KtClass cls = findClass("AtfdCheck");
+        assertNotNull(cls);
+
+        KotlinAccessToForeignDataVisitor atfd = new KotlinAccessToForeignDataVisitor();
+        atfd.visitClass(cls);
+
+        // foreign.property -> Counted (AtfdForeign)
+        // foreign.property= -> Counted (AtfdForeign, same class)
+        // foreign.getAccessor() -> Counted (AtfdForeign, same class)
+        // foreign.setAccessor(3) -> Counted (AtfdForeign, same class)
+        // foreign.behavior() -> Not counted (behavior)
+        // behaviorOnly.doAction() -> Not counted
+        // Distinct classes: 1 (AtfdForeign)
+        assertEquals("ATFD should count accesses to foreign attributes/accessors", 1.0,
+                atfd.getMetric().getValue().doubleValue(), 0.1);
     }
 }

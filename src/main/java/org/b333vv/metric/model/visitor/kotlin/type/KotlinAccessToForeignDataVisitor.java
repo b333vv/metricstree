@@ -12,12 +12,15 @@ import java.util.Set;
 import static org.b333vv.metric.model.metric.MetricType.ATFD;
 
 /**
- * Kotlin Access To Foreign Data (ATFD) - counts distinct external classes whose data
- * (properties/fields via direct access or via accessor calls) is accessed within the class body.
+ * Kotlin Access To Foreign Data (ATFD) - counts distinct external classes whose
+ * data
+ * (properties/fields via direct access or via accessor calls) is accessed
+ * within the class body.
  *
  * Heuristics and limitations:
- * - We attempt to resolve property references to discover the declaring class; if unavailable,
- *   we fallback to textual receiver keys and will de-duplicate by receiver text.
+ * - We attempt to resolve property references to discover the declaring class;
+ * if unavailable,
+ * we fallback to textual receiver keys and will de-duplicate by receiver text.
  * - Implicit/explicit this/super are excluded.
  * - Counts unique providers across all functions and initializers of the class.
  */
@@ -27,7 +30,6 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
     public void visitClass(@NotNull KtClass klass) {
         final Set<String> providers = new HashSet<>();
 
-        // Walk through the entire class body collecting provider identifiers
         KtClassBody body = klass.getBody();
         if (body != null) {
             body.accept(new KtTreeVisitorVoid() {
@@ -43,48 +45,99 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
                     super.visitSafeQualifiedExpression(expression);
                 }
 
-                @Override
-                public void visitCallExpression(@NotNull KtCallExpression expression) {
-                    // Java-style accessors: getX()/setX()/isX()
-                    KtExpression callee = expression.getCalleeExpression();
-                    if (callee instanceof KtSimpleNameExpression) {
-                        String name = ((KtSimpleNameExpression) callee).getReferencedName();
-                        if (isAccessorName(name)) {
-                            // If there is a qualified receiver like a.getX(), it will be handled by qualified visitor
-                            // For unqualified, assume local -> ignore
+                private void collectFromQualified(KtExpression selector, KtExpression receiver) {
+                    if (selector == null)
+                        return;
+
+                    PsiElement resolved = null;
+                    String referenceName = null;
+
+                    // 1. Identify selector type and try to resolve
+                    if (selector instanceof KtSimpleNameExpression) {
+                        // likely a property access
+                        for (com.intellij.psi.PsiReference ref : ((KtSimpleNameExpression) selector).getReferences()) {
+                            resolved = ref.resolve();
+                            if (resolved != null)
+                                break;
+                        }
+                    } else if (selector instanceof KtCallExpression) {
+                        // likely a method call
+                        KtExpression callee = ((KtCallExpression) selector).getCalleeExpression();
+                        if (callee instanceof KtSimpleNameExpression) {
+                            referenceName = ((KtSimpleNameExpression) callee).getReferencedName();
+                            for (com.intellij.psi.PsiReference ref : ((KtSimpleNameExpression) callee)
+                                    .getReferences()) {
+                                resolved = ref.resolve();
+                                if (resolved != null)
+                                    break;
+                            }
                         }
                     }
-                    super.visitCallExpression(expression);
+
+                    if (resolved != null) {
+                        // Resolved Case
+                        if (resolved instanceof PsiField) {
+                            addProvider(((PsiField) resolved).getContainingClass());
+                            return;
+                        }
+                        if (resolved instanceof KtProperty) {
+                            addProvider(findOwnerClass((KtProperty) resolved));
+                            return;
+                        }
+                        // For methods/functions, only count if it is an accessor
+                        if (resolved instanceof com.intellij.psi.PsiMethod) {
+                            if (isAccessorName(((com.intellij.psi.PsiMethod) resolved).getName())) {
+                                addProvider(((com.intellij.psi.PsiMethod) resolved).getContainingClass());
+                            }
+                            return; // Resolved to a method; if not accessor, it's behavior. Don't fallback.
+                        }
+                        if (resolved instanceof KtNamedFunction) {
+                            if (isAccessorName(((KtNamedFunction) resolved).getName())) {
+                                addProvider(findOwnerClass((KtNamedFunction) resolved));
+                            }
+                            return; // Resolved to function.
+                        }
+                    }
+
+                    // Fallback Case: Resolution failed (or we are in a context where resolution is
+                    // partial).
+                    // Only guess it is data if the shape looks like data.
+
+                    if (selector instanceof KtSimpleNameExpression) {
+                        // Unresolved property-like access: assume data
+                        addFallback(receiver);
+                    } else if (selector instanceof KtCallExpression && referenceName != null) {
+                        // Unresolved method call: only if name looks like accessor
+                        if (isAccessorName(referenceName)) {
+                            addFallback(receiver);
+                        }
+                    }
                 }
 
-                private void collectFromQualified(KtExpression selector, KtExpression receiver) {
-                    if (selector instanceof KtSimpleNameExpression) {
-                        // Try resolve to field/property to get declaring class/object FQN
-                        for (var ref : selector.getReferences()) {
-                            PsiElement resolved = ref.resolve();
-                            if (resolved instanceof PsiField) {
-                                PsiField f = (PsiField) resolved;
-                                if (f.getContainingClass() != null && f.getContainingClass().getQualifiedName() != null) {
-                                    providers.add(f.getContainingClass().getQualifiedName());
-                                    return;
-                                }
-                            }
-                            if (resolved instanceof KtProperty) {
-                                KtClassOrObject owner = findOwnerClass((KtProperty) resolved);
-                                if (owner != null && owner.getFqName() != null) {
-                                    providers.add(owner.getFqName().asString());
-                                    return;
-                                }
-                            }
-                        }
+                private void addProvider(com.intellij.psi.PsiClass psiClass) {
+                    if (psiClass != null && psiClass.getQualifiedName() != null) {
+                        providers.add(psiClass.getQualifiedName());
                     }
-                    if (receiver == null) return;
-                    if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression) return;
+                }
+
+                private void addProvider(KtClassOrObject ktClass) {
+                    if (ktClass != null && ktClass.getFqName() != null) {
+                        providers.add(ktClass.getFqName().asString());
+                    }
+                }
+
+                private void addFallback(KtExpression receiver) {
+                    if (receiver == null)
+                        return;
+                    if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression)
+                        return;
                     String text = receiver.getText();
-                    if (text == null) return;
+                    if (text == null)
+                        return;
                     text = text.trim();
-                    if (text.isEmpty() || "this".equals(text) || "super".equals(text)) return;
-                    providers.add("#RX#:" + text); // textual receiver key fallback
+                    if (text.isEmpty() || "this".equals(text) || "super".equals(text))
+                        return;
+                    providers.add("#RX#:" + text);
                 }
             });
         }
@@ -98,10 +151,9 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
     }
 
     private boolean isAccessorName(String name) {
-        if (name == null) return false;
-        if (name.startsWith("get") || name.startsWith("set")) return true;
-        if (name.startsWith("is")) return true;
-        return false;
+        if (name == null)
+            return false;
+        return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
     }
 
     private KtClassOrObject findOwnerClass(@NotNull KtElement element) {
