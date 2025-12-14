@@ -237,4 +237,22 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         assertEquals("ATFD should count accesses to foreign attributes/accessors", 1.0,
                 atfd.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testDataAbstractionCoupling() {
+        KtClass cls = findClass("DacCheck");
+        assertNotNull(cls);
+
+        KotlinDataAbstractionCouplingVisitor dac = new KotlinDataAbstractionCouplingVisitor();
+        dac.visitClass(cls);
+
+        // p1: DacTarget1 -> 1
+        // p2: Int -> 0 (builtin)
+        // p3: List<DacTarget2> -> List (builtin), DacTarget2 -> 1
+        // p4: DacCheck -> 0 (self)
+        // p5: String -> 0 (builtin)
+        // p6: test.pkg.List -> 1 (custom List)
+        // Total: 3
+        assertEquals("DAC should count distinctive user types in properties", 3.0,
+                dac.getMetric().getValue().doubleValue(), 0.1);
+    }
 }

@@ -102,3 +102,16 @@ class AtfdCheck {
         behaviorOnly.doAction() // Not data -> don't count
     }
 }
+
+class List // Custom List
+
+class DacTarget1
+class DacTarget2
+
+class DacCheck(val p1: DacTarget1) {
+    val p2: Int = 1
+    val p3: kotlin.collections.List<DacTarget2> = listOf()
+    val p4: DacCheck? = null
+    val p5: String = ""
+    val p6: test.pkg.List = test.pkg.List() // Custom List, should be counted
+}

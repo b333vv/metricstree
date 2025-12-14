@@ -16,13 +16,6 @@ import static org.b333vv.metric.model.metric.MetricType.ATFD;
  * data
  * (properties/fields via direct access or via accessor calls) is accessed
  * within the class body.
- *
- * Heuristics and limitations:
- * - We attempt to resolve property references to discover the declaring class;
- * if unavailable,
- * we fallback to textual receiver keys and will de-duplicate by receiver text.
- * - Implicit/explicit this/super are excluded.
- * - Counts unique providers across all functions and initializers of the class.
  */
 public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
 

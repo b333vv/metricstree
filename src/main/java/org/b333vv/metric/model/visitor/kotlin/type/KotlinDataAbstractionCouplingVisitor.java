@@ -1,35 +1,35 @@
 package org.b333vv.metric.model.visitor.kotlin.type;
 
 import org.b333vv.metric.model.metric.Metric;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.b333vv.metric.model.metric.MetricType.DAC;
 
 /**
- * Kotlin Data Abstraction Coupling (DAC) - counts the number of distinct classes that are used as
+ * Kotlin Data Abstraction Coupling (DAC) - counts the number of distinct
+ * classes that are used as
  * attribute/property types of a Kotlin class.
- *
- * Heuristics:
- * - Considers primary constructor parameters declared with val/var and properties in the class body.
- * - Extracts user type simple names from type references; skips Kotlin built-ins and the class itself.
  */
 public class KotlinDataAbstractionCouplingVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
         Set<String> types = new HashSet<>();
-        String selfName = klass.getName();
+        String selfName = klass.getFqName() != null ? klass.getFqName().asString() : klass.getName();
 
         // Primary constructor properties
         KtPrimaryConstructor primary = klass.getPrimaryConstructor();
         if (primary != null) {
             for (KtParameter p : primary.getValueParameters()) {
-                if (p.hasValOrVar()) addFromTypeRef(types, p.getTypeReference(), selfName);
+                if (p.hasValOrVar()) {
+                    addTypesFromTypeRef(types, p.getTypeReference(), selfName);
+                }
             }
         }
 
@@ -38,7 +38,7 @@ public class KotlinDataAbstractionCouplingVisitor extends KotlinClassVisitor {
         if (body != null) {
             for (KtDeclaration decl : body.getDeclarations()) {
                 if (decl instanceof KtProperty) {
-                    addFromTypeRef(types, ((KtProperty) decl).getTypeReference(), selfName);
+                    addTypesFromTypeRef(types, ((KtProperty) decl).getTypeReference(), selfName);
                 }
             }
         }
@@ -46,46 +46,38 @@ public class KotlinDataAbstractionCouplingVisitor extends KotlinClassVisitor {
         metric = Metric.of(DAC, types.size());
     }
 
-    private void addFromTypeRef(Set<String> sink, KtTypeReference typeRef, String selfName) {
-        if (typeRef == null) return;
+    private void addTypesFromTypeRef(Set<String> sink, KtTypeReference typeRef, String selfName) {
+        if (typeRef == null)
+            return;
         typeRef.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitUserType(@NotNull KtUserType type) {
-                String name = type.getReferencedName();
-                if (name != null && !isBuiltin(name) && (selfName == null || !name.equals(selfName))) {
-                    sink.add(name);
+                KtSimpleNameExpression refExpr = type.getReferenceExpression();
+                if (refExpr != null) {
+                    try {
+                        PsiElement target = refExpr.getReference() != null ? refExpr.getReference().resolve() : null;
+                        String qName = null;
+                        if (target instanceof PsiClass) {
+                            qName = ((PsiClass) target).getQualifiedName();
+                        } else if (target instanceof KtClassOrObject) {
+                            qName = ((KtClassOrObject) target).getFqName() != null
+                                    ? ((KtClassOrObject) target).getFqName().asString()
+                                    : null;
+                        }
+
+                        if (qName != null && !isStandardClass(qName) && (selfName == null || !qName.equals(selfName))) {
+                            sink.add(qName);
+                        }
+                    } catch (Exception e) {
+                        // Ignore resolution errors
+                    }
                 }
                 super.visitUserType(type);
             }
         });
     }
 
-    private boolean isBuiltin(String name) {
-        switch (name) {
-            case "Boolean":
-            case "Byte":
-            case "Short":
-            case "Int":
-            case "Long":
-            case "Float":
-            case "Double":
-            case "Char":
-            case "String":
-            case "Unit":
-            case "Any":
-            case "Nothing":
-            case "Array":
-            case "List":
-            case "MutableList":
-            case "Set":
-            case "MutableSet":
-            case "Map":
-            case "MutableMap":
-            case "Pair":
-            case "Triple":
-                return true;
-            default:
-                return false;
-        }
+    private boolean isStandardClass(String qName) {
+        return qName.startsWith("java.") || qName.startsWith("kotlin.") || qName.startsWith("javax.");
     }
 }

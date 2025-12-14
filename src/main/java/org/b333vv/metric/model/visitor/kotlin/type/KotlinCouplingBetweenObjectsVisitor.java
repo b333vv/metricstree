@@ -18,10 +18,6 @@ import static org.b333vv.metric.model.metric.MetricType.CBO;
  * Sources scanned: supertypes, constructor/property types, function
  * param/return/receiver types,
  * generic type arguments (via user types), and local variable type references.
- *
- * Improvements: Resolves types to their fully qualified names to correctly
- * identify classes
- * and exclude packages or standard library types.
  */
 public class KotlinCouplingBetweenObjectsVisitor extends KotlinClassVisitor {
 
