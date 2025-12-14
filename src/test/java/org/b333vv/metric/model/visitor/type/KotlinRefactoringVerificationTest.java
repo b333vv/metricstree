@@ -201,4 +201,21 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         // Expected LCOM: 2
         assertEquals("LCOM should account for shadowing", 2.0, lcom.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testMessagePassingCoupling() {
+        KtClass cls = findClass("MpcCheck");
+        assertNotNull(cls);
+
+        KotlinMessagePassingCouplingVisitor mpc = new KotlinMessagePassingCouplingVisitor();
+        mpc.visitClass(cls);
+
+        // m():
+        // MpcTarget() -> 1
+        // t.foo() -> 1
+        // this.m() -> 0 (self)
+        // print("s") -> 0 (standard lib)
+        // Total: 2.0
+        assertEquals("MPC should resolve calls and exclude self/standard", 2.0,
+                mpc.getMetric().getValue().doubleValue(), 0.1);
+    }
 }

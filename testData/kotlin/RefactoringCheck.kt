@@ -61,3 +61,16 @@ class ShadowCheck {
         print(x) // accesses instance x
     }
 }
+
+class MpcTarget {
+    fun foo() {}
+}
+
+class MpcCheck {
+    fun m() {
+        val t = MpcTarget() // Call to constructor -> 1
+        t.foo() // Call to external method -> 1
+        this.m() // Call to self -> 0
+        print("s") // Call to stdlib -> 0
+    }
+}
