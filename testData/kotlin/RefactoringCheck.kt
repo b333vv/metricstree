@@ -130,3 +130,16 @@ class NoamCheck : NoamBase() {
 
     private fun privateMethod() {} // Added
 }
+
+
+class Size2Check(val primaryProp: Int) {
+    var bodyProp: Int = 1
+
+    constructor() : this(0) {
+        // secondary constructor
+    }
+
+    fun method1() {}
+
+    private fun method2() {}
+}

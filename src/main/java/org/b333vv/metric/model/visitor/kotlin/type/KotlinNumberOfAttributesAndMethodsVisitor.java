@@ -9,7 +9,8 @@ import static org.b333vv.metric.model.metric.MetricType.SIZE2;
 
 /**
  * Kotlin Number Of Attributes And Methods (SIZE2)
- * Heuristic approximation: counts non-companion properties and declared functions in the class body.
+ * Counts non-companion properties, declared functions, constructors, and
+ * primary constructor properties.
  */
 public class KotlinNumberOfAttributesAndMethodsVisitor extends KotlinClassVisitor {
 
@@ -17,12 +18,26 @@ public class KotlinNumberOfAttributesAndMethodsVisitor extends KotlinClassVisito
     public void visitClass(@NotNull KtClass klass) {
         int attributes = 0;
         int methods = 0;
+
+        KtPrimaryConstructor primaryConstructor = klass.getPrimaryConstructor();
+        if (primaryConstructor != null) {
+            methods++;
+            for (KtParameter parameter : primaryConstructor.getValueParameters()) {
+                if (parameter.hasValOrVar()) {
+                    attributes++;
+                }
+            }
+        }
+
         KtClassBody body = klass.getBody();
         if (body != null) {
             for (KtDeclaration d : body.getDeclarations()) {
                 if (d instanceof KtProperty) {
-                    if (!isInCompanionObject((KtProperty) d)) attributes++;
+                    if (!isInCompanionObject((KtProperty) d))
+                        attributes++;
                 } else if (d instanceof KtNamedFunction) {
+                    methods++;
+                } else if (d instanceof KtSecondaryConstructor) {
                     methods++;
                 }
             }
@@ -32,7 +47,8 @@ public class KotlinNumberOfAttributesAndMethodsVisitor extends KotlinClassVisito
 
     private boolean isInCompanionObject(@NotNull KtProperty p) {
         PsiElement parent = p.getParent();
-        while (parent != null && !(parent instanceof KtClassBody)) parent = parent.getParent();
+        while (parent != null && !(parent instanceof KtClassBody))
+            parent = parent.getParent();
         if (parent instanceof KtClassBody) {
             PsiElement maybeCompanion = parent.getParent();
             if (maybeCompanion instanceof KtObjectDeclaration) {

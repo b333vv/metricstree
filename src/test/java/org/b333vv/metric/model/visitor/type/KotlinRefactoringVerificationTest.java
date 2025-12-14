@@ -272,4 +272,28 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         assertEquals("NOAM should count non-overridden methods and property accessors", 3.0,
                 noam.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testSize2() {
+        KtClass cls = findClass("Size2Check");
+        assertNotNull(cls);
+
+        KotlinNumberOfAttributesAndMethodsVisitor size2 = new KotlinNumberOfAttributesAndMethodsVisitor();
+        size2.visitClass(cls);
+
+        // Attributes:
+        // primaryProp (val in primary ctor) -> 1
+        // bodyProp (var in body) -> 1
+        // Total attributes = 2
+
+        // Methods:
+        // primary constructor -> 1
+        // secondary constructor -> 1
+        // method1 -> 1
+        // method2 -> 1
+        // Total methods = 4
+
+        // Total SIZE2 = 6
+        assertEquals("SIZE2 should count primary ctor props, constructors, and body declarations", 6.0,
+                size2.getMetric().getValue().doubleValue(), 0.1);
+    }
 }
