@@ -1,8 +1,7 @@
-/*
- * Kotlin Coupling Between Objects (CBO) - initial PSI-based implementation
- */
 package org.b333vv.metric.model.visitor.kotlin.type;
 
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
@@ -14,19 +13,22 @@ import java.util.Set;
 import static org.b333vv.metric.model.metric.MetricType.CBO;
 
 /**
- * Counts unique external types referenced by a Kotlin class using PSI-only heuristics.
- * Sources scanned: supertypes, constructor/property types, function param/return/receiver types,
+ * Counts unique external types referenced by a Kotlin class using PSI
+ * resolution.
+ * Sources scanned: supertypes, constructor/property types, function
+ * param/return/receiver types,
  * generic type arguments (via user types), and local variable type references.
  *
- * Limitations: Does not resolve type aliases or imports; treats built-in Kotlin types as non-coupling;
- * may include some false positives/negatives without resolve. Good enough for Phase 2 scaffolding.
+ * Improvements: Resolves types to their fully qualified names to correctly
+ * identify classes
+ * and exclude packages or standard library types.
  */
 public class KotlinCouplingBetweenObjectsVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
         Set<String> types = new HashSet<>();
-        String selfName = klass.getName();
+        String selfName = klass.getFqName() != null ? klass.getFqName().asString() : klass.getName();
 
         // Supertypes
         List<KtSuperTypeListEntry> superTypes = klass.getSuperTypeListEntries();
@@ -79,46 +81,37 @@ public class KotlinCouplingBetweenObjectsVisitor extends KotlinClassVisitor {
     }
 
     private void addTypesFromTypeRef(Set<String> sink, KtTypeReference typeRef, String selfName) {
-        if (typeRef == null) return;
+        if (typeRef == null)
+            return;
         typeRef.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitUserType(@NotNull KtUserType type) {
-                String name = type.getReferencedName();
-                if (name != null && !isBuiltin(name) && (selfName == null || !name.equals(selfName))) {
-                    sink.add(name);
+                KtSimpleNameExpression refExpr = type.getReferenceExpression();
+                if (refExpr != null) {
+                    try {
+                        PsiElement target = refExpr.getReference() != null ? refExpr.getReference().resolve() : null;
+                        String qName = null;
+                        if (target instanceof PsiClass) {
+                            qName = ((PsiClass) target).getQualifiedName();
+                        } else if (target instanceof KtClassOrObject) {
+                            qName = ((KtClassOrObject) target).getFqName() != null
+                                    ? ((KtClassOrObject) target).getFqName().asString()
+                                    : null;
+                        }
+
+                        if (qName != null && !isStandardClass(qName) && (selfName == null || !qName.equals(selfName))) {
+                            sink.add(qName);
+                        }
+                    } catch (Exception e) {
+                        // Ignore resolution errors
+                    }
                 }
                 super.visitUserType(type);
             }
         });
     }
 
-    private boolean isBuiltin(String name) {
-        // Basic Kotlin built-ins and common containers (approximate)
-        switch (name) {
-            case "Boolean":
-            case "Byte":
-            case "Short":
-            case "Int":
-            case "Long":
-            case "Float":
-            case "Double":
-            case "Char":
-            case "String":
-            case "Unit":
-            case "Any":
-            case "Nothing":
-            case "Array":
-            case "List":
-            case "MutableList":
-            case "Set":
-            case "MutableSet":
-            case "Map":
-            case "MutableMap":
-            case "Pair":
-            case "Triple":
-                return true;
-            default:
-                return false;
-        }
+    private boolean isStandardClass(String qName) {
+        return qName.startsWith("java.") || qName.startsWith("kotlin.") || qName.startsWith("javax.");
     }
 }

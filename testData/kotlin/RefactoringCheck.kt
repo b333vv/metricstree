@@ -1,5 +1,5 @@
 
-package kotlin
+package test.pkg
 
 data class DataClass(val x: Int, var y: String)
 
@@ -41,3 +41,10 @@ internal class InternalClass {
 
 open class OpenClass
 class FinalClass : OpenClass()
+
+class CboTarget1
+
+class CboCheck {
+    val s: java.lang.String = ""
+    val t: CboTarget1? = null
+}

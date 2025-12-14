@@ -170,4 +170,19 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         // FinalClass -> OpenClass -> Root. Depth 1.
         assertEquals("DIT for FinalClass should be 1", 1.0, ditFinal.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testCouplingBetweenObjects() {
+        KtClass cls = findClass("CboCheck");
+        assertNotNull(cls);
+
+        KotlinCouplingBetweenObjectsVisitor cbo = new KotlinCouplingBetweenObjectsVisitor();
+        cbo.visitClass(cls);
+
+        // Referenced types:
+        // java.lang.String -> Ignored (standard)
+        // CboTarget1 -> Counted (1)
+        // Expected Value: 1.0
+        assertEquals("CBO should resolve types and exclude standard libraries", 1.0,
+                cbo.getMetric().getValue().doubleValue(), 0.1);
+    }
 }
