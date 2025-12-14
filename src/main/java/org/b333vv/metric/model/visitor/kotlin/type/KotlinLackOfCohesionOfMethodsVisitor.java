@@ -17,14 +17,6 @@ import static org.b333vv.metric.model.metric.MetricType.LCOM;
  * Computes LCOM as the number of connected components among methods where edges
  * exist when
  * two functions access at least one common instance property.
- *
- * Simplifications:
- * - Instance properties are those declared as val/var in primary constructor or
- * as KtProperty in class body
- * outside companion/nested objects.
- * - Access detection is name-based: unqualified references matching property
- * names or references via 'this'.
- * - Companion object members are ignored for cohesion.
  */
 public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
 
