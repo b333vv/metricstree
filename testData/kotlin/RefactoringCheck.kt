@@ -143,3 +143,25 @@ class Size2Check(val primaryProp: Int) {
 
     private fun method2() {}
 }
+
+class NoaCheck(val constrProp: Int) {
+    val bodyProp: Int = 1
+    
+    val computedProp: Int
+        get() = constrProp + bodyProp
+
+    var computedVar: Int
+        get() = 1
+        set(value) { print(value) }
+        
+    var explicitlyBacked: Int = 0
+        get() = field
+        set(value) { field = value }
+    
+    lateinit var lateinitProp: String
+    
+    companion object {
+        const val CONST = 1
+        val companionProp = 2
+    }
+}

@@ -296,4 +296,24 @@ public class KotlinRefactoringVerificationTest extends LightJavaCodeInsightFixtu
         assertEquals("SIZE2 should count primary ctor props, constructors, and body declarations", 6.0,
                 size2.getMetric().getValue().doubleValue(), 0.1);
     }
+
+    public void testNumberOfAttributes() {
+        KtClass cls = findClass("NoaCheck");
+        assertNotNull(cls);
+
+        KotlinNumberOfAttributesVisitor noa = new KotlinNumberOfAttributesVisitor();
+        noa.visitClass(cls);
+
+        // constrProp -> 1 (primary ctor val)
+        // bodyProp -> 1 (val with initializer)
+        // computedProp -> 0 (no backing field)
+        // computedVar -> 0 (no backing field)
+        // explicitlyBacked -> 1 (explicit backing field)
+        // lateinitProp -> 1 (lateinit)
+        // companion properties (static) -> 0 (excluded by default)
+
+        // Total Expected: 4
+        assertEquals("NOA should count properties with backing fields only", 4.0,
+                noa.getMetric().getValue().doubleValue(), 0.1);
+    }
 }
