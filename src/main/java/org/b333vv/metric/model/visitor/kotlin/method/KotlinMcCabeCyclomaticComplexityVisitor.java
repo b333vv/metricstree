@@ -1,5 +1,5 @@
 /*
- * Kotlin McCabe Cyclomatic Complexity - Phase 2.3.1
+ * Kotlin McCabe Cyclomatic Complexity - Phase 2.4.0
  */
 package org.b333vv.metric.model.visitor.kotlin.method;
 
@@ -11,16 +11,86 @@ import org.jetbrains.kotlin.psi.*;
 import static org.b333vv.metric.model.metric.MetricType.CC;
 
 /**
- * Computes cyclomatic complexity for Kotlin functions and constructors.
- * Rules (initial mapping):
- * - if
- * - when (each entry counts as 1; else entry also counts)
- * - for, while, do-while
- * - catch
- * - boolean operators && and || (each occurrence)
- * - elvis operator ?: when the right side is a return or throw
- * - safe calls ?. when used in a conditional context (heuristic: inside if/when
- * condition)
+ * Computes McCabe Cyclomatic Complexity (CC) for Kotlin functions and constructors.
+ * 
+ * <p>Cyclomatic Complexity measures the number of linearly independent paths through
+ * a program's source code, indicating the complexity of the decision structure.
+ * The metric starts with a baseline value of 1 and increments for each decision point.</p>
+ * 
+ * <h2>Kotlin Language Constructs Counted:</h2>
+ * 
+ * <h3>Control Flow Statements:</h3>
+ * <ul>
+ *   <li><b>if expressions</b> - Each if adds 1 to complexity</li>
+ *   <li><b>when expressions</b> - Each entry (branch) in when adds 1, including else</li>
+ *   <li><b>for loops</b> - Each for adds 1</li>
+ *   <li><b>while loops</b> - Each while adds 1</li>
+ *   <li><b>do-while loops</b> - Each do-while adds 1</li>
+ * </ul>
+ * 
+ * <h3>Exception Handling:</h3>
+ * <ul>
+ *   <li><b>catch clauses</b> - Each catch block adds 1</li>
+ * </ul>
+ * 
+ * <h3>Boolean Operators:</h3>
+ * <ul>
+ *   <li><b>&amp;&amp; (logical AND)</b> - Each occurrence adds 1</li>
+ *   <li><b>|| (logical OR)</b> - Each occurrence adds 1</li>
+ * </ul>
+ * 
+ * <h3>Kotlin-Specific Null-Safety Operators:</h3>
+ * <ul>
+ *   <li><b>?: (Elvis operator)</b> - Each occurrence adds 1 (represents null check with fallback)</li>
+ *   <li><b>?. (Safe call operator)</b> - Each occurrence adds 1 (represents null check before member access)</li>
+ * </ul>
+ * 
+ * <h3>Jump Statements:</h3>
+ * <ul>
+ *   <li><b>break statements</b> - Each break (including labeled) adds 1</li>
+ *   <li><b>continue statements</b> - Each continue (including labeled) adds 1</li>
+ *   <li><b>return with labels</b> - Non-local returns in lambdas add 1</li>
+ * </ul>
+ * 
+ * <h3>Lambda Expressions:</h3>
+ * <ul>
+ *   <li><b>Lambda expressions</b> - Lambdas containing control flow structures contribute
+ *       to complexity through their internal decision points</li>
+ * </ul>
+ * 
+ * <h2>Examples:</h2>
+ * <pre>
+ * // CC = 1 (baseline)
+ * fun simple() { println("hello") }
+ * 
+ * // CC = 2 (baseline + 1 if)
+ * fun withIf(x: Int) { if (x &gt; 0) println("positive") }
+ * 
+ * // CC = 3 (baseline + 1 if + 1 &amp;&amp;)
+ * fun withAnd(x: Int, y: Int) { if (x &gt; 0 &amp;&amp; y &gt; 0) println("both positive") }
+ * 
+ * // CC = 4 (baseline + 3 when entries)
+ * fun withWhen(x: Int) = when(x) { 
+ *     1 -&gt; "one" 
+ *     2 -&gt; "two" 
+ *     else -&gt; "other" 
+ * }
+ * 
+ * // CC = 3 (baseline + 1 elvis + 1 safe call)
+ * fun withNullSafety(s: String?) = s?.length ?: 0
+ * </pre>
+ * 
+ * <h2>Implementation Notes:</h2>
+ * <ul>
+ *   <li>Primary constructors have a fixed complexity of 1 (baseline)</li>
+ *   <li>Secondary constructors are analyzed similarly to regular functions</li>
+ *   <li>The visitor recursively analyzes nested structures and lambda expressions</li>
+ *   <li>Each independent decision point increments the complexity counter</li>
+ * </ul>
+ * 
+ * @see <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity">Cyclomatic Complexity on Wikipedia</a>
+ * @author MetricsTree
+ * @version 2.4.0
  */
 public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor {
 
@@ -33,22 +103,30 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
 
     @Override
     public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
-        // constructors can have init blocks in class; for simplicity, treat as 1
+        // Primary constructors have minimal logic, treat as baseline
         metric = Metric.of(CC, 1);
     }
 
     @Override
     public void visitSecondaryConstructor(@NotNull KtSecondaryConstructor constructor) {
-        int complexity = 1;
+        int complexity = 1; // baseline
         KtBlockExpression body = constructor.getBodyExpression();
         complexity += computeForBody(body);
         metric = Metric.of(CC, complexity);
     }
 
+    /**
+     * Recursively computes cyclomatic complexity for a given expression body.
+     * 
+     * @param body the expression to analyze (can be null)
+     * @return the computed complexity value (excluding baseline)
+     */
     private int computeForBody(KtExpression body) {
         if (body == null)
             return 0;
+        
         final int[] c = { 0 };
+        
         body.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitIfExpression(@NotNull KtIfExpression expression) {
@@ -58,8 +136,10 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
 
             @Override
             public void visitWhenExpression(@NotNull KtWhenExpression expression) {
-                // count each entry
-                c[0] += Math.max(1, expression.getEntries().size());
+                // Count each entry (branch) in the when expression
+                // Each entry represents a distinct decision path
+                int entries = expression.getEntries().size();
+                c[0] += Math.max(1, entries);
                 super.visitWhenExpression(expression);
             }
 
@@ -83,18 +163,21 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
 
             @Override
             public void visitTryExpression(@NotNull KtTryExpression expression) {
-                // each catch increases complexity
-                c[0] += Math.max(0, expression.getCatchClauses().size());
+                // Each catch clause represents an additional exception handling path
+                c[0] += expression.getCatchClauses().size();
                 super.visitTryExpression(expression);
             }
 
             @Override
             public void visitBinaryExpression(@NotNull KtBinaryExpression expression) {
+                // Boolean operators create additional decision branches
                 if (expression.getOperationToken() == KtTokens.ANDAND
                         || expression.getOperationToken() == KtTokens.OROR) {
                     c[0] += 1;
                 }
-                // Elvis operator ?: always represents a conditional branch (null check)
+                
+                // Elvis operator ?: represents a null check with fallback value
+                // This is always a decision point regardless of context
                 if (expression.getOperationToken() == KtTokens.ELVIS) {
                     c[0] += 1;
                 }
@@ -103,24 +186,44 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
 
             @Override
             public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expression) {
-                // Heuristic: count safe call as branch when used in condition
-                if (isInCondition(expression)) {
-                    c[0] += 1;
-                }
+                // Safe call operator ?. represents a null check before member access
+                // Every safe call is a potential branch point
+                c[0] += 1;
                 super.visitSafeQualifiedExpression(expression);
             }
 
-            private boolean isInCondition(@NotNull KtExpression expr) {
-                Object parent = expr.getParent();
-                if (parent instanceof KtIfExpression) {
-                    return ((KtIfExpression) parent).getCondition() == expr;
+            @Override
+            public void visitBreakExpression(@NotNull KtBreakExpression expression) {
+                // Break statements (including labeled breaks) create alternate control flow paths
+                c[0] += 1;
+                super.visitBreakExpression(expression);
+            }
+
+            @Override
+            public void visitContinueExpression(@NotNull KtContinueExpression expression) {
+                // Continue statements (including labeled continues) create alternate control flow paths
+                c[0] += 1;
+                super.visitContinueExpression(expression);
+            }
+
+            @Override
+            public void visitReturnExpression(@NotNull KtReturnExpression expression) {
+                // Count labeled returns (non-local returns from lambdas)
+                // These represent explicit control flow changes in lambda contexts
+                if (expression.getLabeledExpression() != null) {
+                    c[0] += 1;
                 }
-                if (parent instanceof KtWhenCondition) {
-                    return true;
-                }
-                return false;
+                super.visitReturnExpression(expression);
+            }
+
+            @Override
+            public void visitLambdaExpression(@NotNull KtLambdaExpression expression) {
+                // Lambda expressions can contain their own control flow structures
+                // Analyze the lambda body to capture internal complexity
+                super.visitLambdaExpression(expression);
             }
         });
+        
         return c[0];
     }
 }
