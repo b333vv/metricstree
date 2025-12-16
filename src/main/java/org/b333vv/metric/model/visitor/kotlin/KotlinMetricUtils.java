@@ -9,17 +9,21 @@ import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
 /**
- * Utility class providing helper methods for calculating Kotlin-specific
- * metrics.
- * Centralizes logic for handling implicit methods, property accessors, and
- * Kotlin modifiers.
+ * Utility class providing helper methods for calculating Kotlin-specific metrics.
+ * <p>
+ * Centralizes logic for handling implicit methods, property accessors, delegated properties,
+ * and Kotlin modifiers. This class provides consistent calculation strategies across different
+ * metric visitors.
+ * </p>
  */
 public class KotlinMetricUtils {
 
     /**
      * Counts the number of implicit accessor methods for all properties in a class.
-     * - For each 'val' property: 1 getter
-     * - For each 'var' property: 1 getter + 1 setter = 2 accessors
+     * <ul>
+     *   <li>For each 'val' property: 1 getter</li>
+     *   <li>For each 'var' property: 1 getter + 1 setter = 2 accessors</li>
+     * </ul>
      *
      * @param klass the Kotlin class to analyze
      * @return total count of implicit accessors
@@ -58,30 +62,49 @@ public class KotlinMetricUtils {
 
     /**
      * Counts the number of implicit methods generated for a data class.
+     * <p>
      * Data classes automatically generate:
-     * - equals(Any): Boolean
-     * - hashCode(): Int
-     * - toString(): String
-     * - copy(...): ClassName
-     * - componentN() for each primary constructor parameter
+     * <ul>
+     *   <li>equals(Any): Boolean - complexity scales with property count</li>
+     *   <li>hashCode(): Int - complexity scales with property count</li>
+     *   <li>toString(): String - baseline complexity 1</li>
+     *   <li>copy(...): ClassName - baseline complexity 1</li>
+     *   <li>componentN() for each primary constructor parameter - 1 per component</li>
+     * </ul>
+     * </p>
+     * <p>
+     * <b>Improved calculation:</b> equals() and hashCode() have complexity that scales
+     * with the number of properties, as they must compare/hash each property.
+     * </p>
      *
      * @param klass the Kotlin class to analyze
-     * @return count of implicit data class methods, or 0 if not a data class
+     * @return total complexity of implicit data class methods, or 0 if not a data class
      */
     public static int countDataClassMethods(@NotNull KtClass klass) {
         if (!klass.isData()) {
             return 0;
         }
 
-        int count = 4; // equals, hashCode, toString, copy
-
-        // Add componentN for each primary constructor parameter
+        int paramCount = 0;
         KtPrimaryConstructor primary = klass.getPrimaryConstructor();
         if (primary != null) {
-            count += primary.getValueParameters().size();
+            paramCount = primary.getValueParameters().size();
         }
 
-        return count;
+        // equals and hashCode scale with property count (each property adds a comparison/hash)
+        // Minimum complexity is 1 for each method
+        int equalsComplexity = Math.max(1, paramCount);
+        int hashCodeComplexity = Math.max(1, paramCount);
+
+        // toString, copy have baseline complexity 1
+        int toStringComplexity = 1;
+        int copyComplexity = 1;
+
+        // componentN functions: one per parameter, each with complexity 1
+        int componentComplexity = paramCount;
+
+        return equalsComplexity + hashCodeComplexity + toStringComplexity +
+                copyComplexity + componentComplexity;
     }
 
     /**
@@ -101,14 +124,26 @@ public class KotlinMetricUtils {
     }
 
     /**
-     * Calculates the cyclomatic complexity of custom accessors for a property.
-     * Standard accessors (without custom body) have complexity 1.
-     * Custom accessors have their complexity calculated from the body.
+     * Calculates the cyclomatic complexity of accessors for a property.
+     * <p>
+     * Handles three types of properties:
+     * <ul>
+     *   <li><b>Delegated properties</b> - complexity based on delegate expression</li>
+     *   <li><b>Custom accessors</b> - complexity calculated from accessor body</li>
+     *   <li><b>Standard properties</b> - baseline complexity (1 for getter, 2 for var)</li>
+     * </ul>
+     * </p>
      *
      * @param property the property to analyze
      * @return total complexity of accessors (getter + setter if present)
      */
     public static int getAccessorComplexity(@NotNull KtProperty property) {
+        // Check for delegated property first
+        KtPropertyDelegate delegate = property.getDelegate();
+        if (delegate != null) {
+            return calculateDelegateComplexity(delegate);
+        }
+
         int complexity = 0;
 
         // Getter complexity
@@ -147,11 +182,46 @@ public class KotlinMetricUtils {
     }
 
     /**
+     * Calculates complexity for a delegated property.
+     * <p>
+     * Delegated properties (e.g., {@code by lazy}, custom delegates) have implicit
+     * getter/setter methods that delegate to the delegate object. The complexity
+     * includes the delegate expression itself plus baseline accessor complexity.
+     * </p>
+     * <p>
+     * For {@code val} properties: 1 (getter delegation) + delegate expression complexity<br>
+     * For {@code var} properties: 2 (getter + setter delegation) + delegate expression complexity
+     * </p>
+     *
+     * @param delegate the property delegate to analyze
+     * @return total complexity of the delegated property
+     */
+    private static int calculateDelegateComplexity(@NotNull KtPropertyDelegate delegate) {
+        KtExpression delegateExpr = delegate.getExpression();
+        int delegateExprComplexity = calculateAccessorBodyComplexity(delegateExpr);
+
+        // Delegated properties have implicit getter (and setter for var)
+        // The delegation itself adds complexity
+        KtProperty property = (KtProperty) delegate.getParent();
+        int accessorCount = property.isVar() ? 2 : 1; // getter + setter for var, just getter for val
+
+        return accessorCount + delegateExprComplexity;
+    }
+
+    /**
      * Calculates cyclomatic complexity for an accessor body.
-     * This is a simplified version that counts basic control flow structures.
+     * <p>
+     * This is a simplified version that counts basic control flow structures:
+     * <ul>
+     *   <li>if expressions</li>
+     *   <li>when expressions (each entry)</li>
+     *   <li>loops (for, while)</li>
+     *   <li>boolean operators (&&, ||, elvis ?:)</li>
+     * </ul>
+     * </p>
      *
      * @param body the accessor body expression
-     * @return cyclomatic complexity
+     * @return cyclomatic complexity (minimum 1)
      */
     private static int calculateAccessorBodyComplexity(KtExpression body) {
         if (body == null)
@@ -243,8 +313,7 @@ public class KotlinMetricUtils {
     }
 
     /**
-     * Checks if a property is effectively public (not private, protected, or
-     * internal).
+     * Checks if a property is effectively public (not private, protected, or internal).
      *
      * @param property the property to check
      * @return true if the property is public
