@@ -1,5 +1,6 @@
 package org.b333vv.metric.model.visitor.kotlin.method;
 
+import com.intellij.psi.tree.IElementType;
 import org.b333vv.metric.model.metric.Metric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.lexer.KtTokens;
@@ -103,7 +104,7 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
      */
     private class BodyVisitor extends KtTreeVisitorVoid {
         private final KtNamedFunction owner;
-        private KtTokens lastBooleanOp = null;
+        private IElementType lastBooleanOp = null;
 
         BodyVisitor(KtNamedFunction owner) {
             this.owner = owner;
