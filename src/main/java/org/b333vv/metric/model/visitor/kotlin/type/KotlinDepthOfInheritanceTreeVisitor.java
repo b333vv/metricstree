@@ -10,11 +10,61 @@ import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.uast.UClass;
 import org.jetbrains.uast.UastContextKt;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.b333vv.metric.model.metric.MetricType.DIT;
 
 /**
- * DIT for Kotlin with full type resolve.
- * Calculates the depth of the inheritance tree by traversing the super classes.
+ * Calculates the Depth of Inheritance Tree (DIT) metric for Kotlin classes.
+ * <p>
+ * The DIT metric represents the maximum length from a class to the root of the inheritance hierarchy.
+ * It measures how deep a class is in the inheritance tree, which affects complexity and reusability.
+ * </p>
+ *
+ * <h3>Metric Calculation Rules:</h3>
+ * <ul>
+ *   <li><b>Counted in depth:</b>
+ *     <ul>
+ *       <li>Direct superclasses (classes extended via inheritance)</li>
+ *       <li>All ancestor classes in the inheritance chain up to the root</li>
+ *     </ul>
+ *   </li>
+ *   <li><b>NOT counted in depth:</b>
+ *     <ul>
+ *       <li>{@code java.lang.Object} - the implicit root of all Java/Kotlin classes</li>
+ *       <li>{@code kotlin.Any} - Kotlin's root type</li>
+ *       <li>Interfaces - only class inheritance is considered for DIT</li>
+ *     </ul>
+ *   </li>
+ *   <li><b>Special cases:</b>
+ *     <ul>
+ *       <li>Classes with no explicit superclass have DIT = 0</li>
+ *       <li>Classes directly extending a root class (Object/Any) have DIT = 0</li>
+ *       <li>Circular inheritance is detected and treated as DIT = 0</li>
+ *       <li>Unresolved type references are treated as DIT = 0</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * <h3>Examples:</h3>
+ * <pre>
+ * class A                     // DIT = 0 (no explicit superclass)
+ * class B : A                 // DIT = 1 (A is 1 level deep)
+ * class C : B                 // DIT = 2 (B -> A, 2 levels deep)
+ * interface I
+ * class D : I                 // DIT = 0 (interfaces don't count)
+ * class E : A, I              // DIT = 1 (only class A counts)
+ * </pre>
+ *
+ * <h3>Implementation Details:</h3>
+ * <p>
+ * Uses UAST (Unified Abstract Syntax Tree) to resolve Kotlin types to PSI representations,
+ * enabling accurate traversal of the inheritance hierarchy across Kotlin and Java classes.
+ * Implements cycle detection to handle malformed or circular inheritance gracefully.
+ * </p>
+ *
+ * @see org.b333vv.metric.model.visitor.kotlin.type.KotlinClassVisitor
  */
 public class KotlinDepthOfInheritanceTreeVisitor extends KotlinClassVisitor {
 
@@ -24,16 +74,59 @@ public class KotlinDepthOfInheritanceTreeVisitor extends KotlinClassVisitor {
         UClass uClass = UastContextKt.toUElement(klass, UClass.class);
         if (uClass != null) {
             PsiClass psiClass = uClass.getJavaPsi();
-            depth = getInheritanceDepth(psiClass);
+            if (psiClass != null) {
+                Set<String> visitedClasses = new HashSet<>();
+                depth = calculateInheritanceDepth(psiClass, visitedClasses);
+            }
         }
         metric = Metric.of(DIT, depth);
     }
 
-    private int getInheritanceDepth(PsiClass psiClass) {
+    /**
+     * Recursively calculates the inheritance depth for a given PSI class.
+     * <p>
+     * Traverses up the inheritance hierarchy, counting each level until reaching
+     * a root class (Object/Any) or detecting a cycle. Maintains a set of visited
+     * classes to prevent infinite recursion in circular inheritance scenarios.
+     * </p>
+     *
+     * @param psiClass the class to calculate depth for
+     * @param visitedClasses set of fully qualified class names already visited in this traversal
+     * @return the inheritance depth (0 if no superclass or root reached)
+     */
+    private int calculateInheritanceDepth(PsiClass psiClass, Set<String> visitedClasses) {
+        // Null check for robustness
         if (psiClass == null) {
             return 0;
         }
+
+        // Get fully qualified name for cycle detection
+        String qualifiedName = psiClass.getQualifiedName();
+        
+        // Cycle detection: if we've seen this class before, stop recursion
+        if (qualifiedName != null && !visitedClasses.add(qualifiedName)) {
+            return 0;
+        }
+
+        // Get the superclass
         PsiClass superClass = psiClass.getSuperClass();
-        return superClass == null ? 0 : getInheritanceDepth(superClass) + 1;
+        
+        // Base case: no superclass
+        if (superClass == null) {
+            return 0;
+        }
+
+        // Get superclass qualified name
+        String superQualifiedName = superClass.getQualifiedName();
+        
+        // Exclude root classes from counting (standard DIT practice)
+        // java.lang.Object and kotlin.Any are implicit roots and don't add depth
+        if ("java.lang.Object".equals(superQualifiedName) || 
+            "kotlin.Any".equals(superQualifiedName)) {
+            return 0;
+        }
+
+        // Recursive case: count this level + depth of superclass
+        return 1 + calculateInheritanceDepth(superClass, visitedClasses);
     }
 }
