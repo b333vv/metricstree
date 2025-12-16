@@ -12,7 +12,68 @@ import java.util.Set;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 /**
- * Kotlin Halstead metrics for methods using PSI-based heuristics.
+ * Visitor for calculating Halstead complexity metrics for Kotlin methods/functions.
+ * <p>
+ * Halstead metrics are based on the count of operators and operands in source code.
+ * This visitor analyzes Kotlin PSI (Program Structure Interface) tree to extract
+ * these elements and compute the following metrics:
+ * <ul>
+ *   <li>HEF (Effort) - Mental effort required to develop/understand the code</li>
+ *   <li>HER (Errors) - Estimated number of errors in implementation</li>
+ *   <li>HVL (Volume) - Size of the implementation</li>
+ *   <li>HD (Difficulty) - Difficulty level of the program</li>
+ *   <li>HVC (Vocabulary) - Number of unique operators and operands</li>
+ *   <li>HL (Length) - Total number of operators and operands</li>
+ * </ul>
+ * 
+ * <h2>Operators counted:</h2>
+ * <ul>
+ *   <li><b>Arithmetic operators:</b> +, -, *, /, %, ++, --</li>
+ *   <li><b>Comparison operators:</b> ==, !=, &lt;, &gt;, &lt;=, &gt;=, ===, !==</li>
+ *   <li><b>Logical operators:</b> &amp;&amp;, ||, !</li>
+ *   <li><b>Assignment operators:</b> =, +=, -=, *=, /=, %=</li>
+ *   <li><b>Bitwise operators:</b> and, or, xor, inv, shl, shr, ushr</li>
+ *   <li><b>Range operators:</b> .., ..&lt;, downTo, until, step</li>
+ *   <li><b>Null-safety operators:</b> ?., ?:, !!, as?, is, !is</li>
+ *   <li><b>Member access:</b> . (property/method access)</li>
+ *   <li><b>Indexing:</b> [] (array/collection access)</li>
+ *   <li><b>Invocation:</b> () (function call)</li>
+ *   <li><b>Type operations:</b> as, is, in, !in</li>
+ *   <li><b>Lambda arrow:</b> -&gt;</li>
+ *   <li><b>Destructuring:</b> component operators in destructuring declarations</li>
+ *   <li><b>Keywords acting as operators:</b> if, when, for, while, do, try, catch, finally, throw, return, break, continue</li>
+ *   <li><b>Declaration keywords:</b> fun, val, var, object</li>
+ *   <li><b>Function/method calls:</b> Each distinct function name is counted as a unique operator</li>
+ * </ul>
+ * 
+ * <h2>Operands counted:</h2>
+ * <ul>
+ *   <li><b>Identifiers:</b> Variable names, property names, parameter names</li>
+ *   <li><b>Literals:</b> Numbers (integer, floating-point), booleans (true, false), null</li>
+ *   <li><b>String literals:</b> String constants and string templates (counted as single operand)</li>
+ *   <li><b>Class references:</b> Class names, type names</li>
+ *   <li><b>Function parameters:</b> Arguments passed to functions</li>
+ *   <li><b>Lambda parameters:</b> Parameters in lambda expressions</li>
+ *   <li><b>Labels:</b> Named labels used with break/continue/return</li>
+ * </ul>
+ * 
+ * <h2>Special handling:</h2>
+ * <ul>
+ *   <li>Lambda expressions: The lambda arrow (-&gt;) is counted as operator, parameters and body are analyzed</li>
+ *   <li>String templates: Entire string (including interpolations) counted as single operand</li>
+ *   <li>Function calls: Function name is operator, arguments are operands</li>
+ *   <li>Property access: Dot operator (.) counted separately from property name</li>
+ *   <li>Qualified expressions: Each level of qualification adds operators</li>
+ *   <li>When expressions: 'when' keyword and arrow (-&gt;) for each branch counted as operators</li>
+ *   <li>Destructuring: Each component access counted as operator</li>
+ *   <li>Operator keywords: Not double-counted as operands (e.g., 'if', 'while' counted only as operators)</li>
+ * </ul>
+ * 
+ * <h2>Alignment with class-level metrics:</h2>
+ * This implementation follows the same principles as {@link org.b333vv.metric.model.visitor.kotlin.type.KotlinHalsteadClassVisitor}
+ * to ensure consistent metric calculation at both method and class levels.
+ * 
+ * @see <a href="https://en.wikipedia.org/wiki/Halstead_complexity_measures">Halstead complexity measures</a>
  */
 public class KotlinHalsteadMethodVisitor extends KotlinMethodVisitor {
 
@@ -20,6 +81,22 @@ public class KotlinHalsteadMethodVisitor extends KotlinMethodVisitor {
     private int numberOfOperators;
     private final Set<String> operators = new HashSet<>();
     private final Set<String> operands = new HashSet<>();
+
+    // Kotlin-specific operators that should be recognized
+    private static final Set<String> KOTLIN_OPERATORS = Set.of(
+            // Null-safety operators
+            "?.", "?:", "!!", "as?",
+            // Range operators  
+            "..", "..<", "downTo", "until", "step",
+            // Type check operators
+            "is", "!is", "as",
+            // Membership operators
+            "in", "!in",
+            // Lambda arrow
+            "->",
+            // Bitwise operators (infix functions)
+            "and", "or", "xor", "inv", "shl", "shr", "ushr"
+    );
 
     private int distinctOperands() { return operands.size(); }
     private int distinctOperators() { return operators.size(); }
@@ -45,7 +122,7 @@ public class KotlinHalsteadMethodVisitor extends KotlinMethodVisitor {
 
     @Override
     public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
-        // No body block, skip
+        // Primary constructors have no body block, set metrics to 0
         metric = Metric.of(HVL, 0);
     }
 
@@ -59,57 +136,250 @@ public class KotlinHalsteadMethodVisitor extends KotlinMethodVisitor {
         numberOfOperators = 0;
         operators.clear();
         operands.clear();
+        
         if (body != null) {
             body.accept(new KtTreeVisitorVoid() {
+                
                 @Override
                 public void visitBinaryExpression(@NotNull KtBinaryExpression expression) {
-                    registerOperator(expression.getOperationReference().getText());
+                    String op = expression.getOperationReference().getText();
+                    registerOperator(op);
                     super.visitBinaryExpression(expression);
                 }
 
                 @Override
+                public void visitUnaryExpression(@NotNull KtUnaryExpression expression) {
+                    String op = expression.getOperationReference().getText();
+                    registerOperator(op);
+                    super.visitUnaryExpression(expression);
+                }
+
+                @Override
                 public void visitPrefixExpression(@NotNull KtPrefixExpression expression) {
-                    registerOperator(expression.getOperationReference().getText());
+                    String op = expression.getOperationReference().getText();
+                    registerOperator(op);
                     super.visitPrefixExpression(expression);
                 }
 
                 @Override
                 public void visitPostfixExpression(@NotNull KtPostfixExpression expression) {
-                    registerOperator(expression.getOperationReference().getText());
+                    String op = expression.getOperationReference().getText();
+                    registerOperator(op);
                     super.visitPostfixExpression(expression);
                 }
 
                 @Override
+                public void visitBinaryWithTypeRHSExpression(@NotNull KtBinaryExpressionWithTypeRHS expression) {
+                    // Handle 'as', 'as?' type cast operators
+                    String op = expression.getOperationReference().getText();
+                    registerOperator(op);
+                    super.visitBinaryWithTypeRHSExpression(expression);
+                }
+
+                @Override
+                public void visitIsExpression(@NotNull KtIsExpression expression) {
+                    // Handle 'is', '!is' type check operators
+                    registerOperator(expression.isNegated() ? "!is" : "is");
+                    super.visitIsExpression(expression);
+                }
+
+                @Override
                 public void visitCallExpression(@NotNull KtCallExpression expression) {
+                    // Function call: function name is operator, arguments are operands
                     KtExpression callee = expression.getCalleeExpression();
-                    if (callee != null) registerOperator(callee.getText());
+                    if (callee != null) {
+                        String functionName = callee.getText();
+                        registerOperator(functionName);
+                    }
+                    // Count parentheses as invocation operator
+                    registerOperator("()");
                     super.visitCallExpression(expression);
                 }
 
                 @Override
+                public void visitArrayAccessExpression(@NotNull KtArrayAccessExpression expression) {
+                    // Array/collection indexing operator
+                    registerOperator("[]");
+                    super.visitArrayAccessExpression(expression);
+                }
+
+                @Override
+                public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expression) {
+                    // Member access operator
+                    registerOperator(".");
+                    super.visitDotQualifiedExpression(expression);
+                }
+
+                @Override
+                public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expression) {
+                    // Safe call operator
+                    registerOperator("?.");
+                    super.visitSafeQualifiedExpression(expression);
+                }
+
+                @Override
+                public void visitIfExpression(@NotNull KtIfExpression expression) {
+                    registerOperator("if");
+                    if (expression.getElse() != null) {
+                        registerOperator("else");
+                    }
+                    super.visitIfExpression(expression);
+                }
+
+                @Override
+                public void visitWhenExpression(@NotNull KtWhenExpression expression) {
+                    registerOperator("when");
+                    // Each when entry has an arrow operator
+                    int entryCount = expression.getEntries().size();
+                    for (int i = 0; i < entryCount; i++) {
+                        registerOperator("->");
+                    }
+                    super.visitWhenExpression(expression);
+                }
+
+                @Override
+                public void visitForExpression(@NotNull KtForExpression expression) {
+                    registerOperator("for");
+                    registerOperator("in");
+                    super.visitForExpression(expression);
+                }
+
+                @Override
+                public void visitWhileExpression(@NotNull KtWhileExpression expression) {
+                    registerOperator("while");
+                    super.visitWhileExpression(expression);
+                }
+
+                @Override
+                public void visitDoWhileExpression(@NotNull KtDoWhileExpression expression) {
+                    registerOperator("do");
+                    registerOperator("while");
+                    super.visitDoWhileExpression(expression);
+                }
+
+                @Override
+                public void visitTryExpression(@NotNull KtTryExpression expression) {
+                    registerOperator("try");
+                    for (KtCatchClause catchClause : expression.getCatchClauses()) {
+                        registerOperator("catch");
+                    }
+                    if (expression.getFinallyBlock() != null) {
+                        registerOperator("finally");
+                    }
+                    super.visitTryExpression(expression);
+                }
+
+                @Override
+                public void visitThrowExpression(@NotNull KtThrowExpression expression) {
+                    registerOperator("throw");
+                    super.visitThrowExpression(expression);
+                }
+
+                @Override
+                public void visitReturnExpression(@NotNull KtReturnExpression expression) {
+                    registerOperator("return");
+                    super.visitReturnExpression(expression);
+                }
+
+                @Override
+                public void visitBreakExpression(@NotNull KtBreakExpression expression) {
+                    registerOperator("break");
+                    super.visitBreakExpression(expression);
+                }
+
+                @Override
+                public void visitContinueExpression(@NotNull KtContinueExpression expression) {
+                    registerOperator("continue");
+                    super.visitContinueExpression(expression);
+                }
+
+                @Override
+                public void visitLambdaExpression(@NotNull KtLambdaExpression expression) {
+                    // Lambda arrow is an operator
+                    registerOperator("->");
+                    super.visitLambdaExpression(expression);
+                }
+
+                @Override
+                public void visitNamedFunction(@NotNull KtNamedFunction function) {
+                    // Nested function declaration
+                    registerOperator("fun");
+                    super.visitNamedFunction(function);
+                }
+
+                @Override
+                public void visitProperty(@NotNull KtProperty property) {
+                    // Local property declaration
+                    registerOperator(property.isVar() ? "var" : "val");
+                    super.visitProperty(property);
+                }
+
+                @Override
+                public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+                    // Anonymous object declaration
+                    registerOperator("object");
+                    super.visitObjectDeclaration(declaration);
+                }
+
+                @Override
                 public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression) {
+                    // Identifiers are operands (variables, properties, parameters, etc.)
                     String text = expression.getText();
-                    if (text != null && !text.isEmpty()) registerOperand(text);
+                    if (text != null && !text.isEmpty() && !isOperatorKeyword(text)) {
+                        registerOperand(text);
+                    }
                     super.visitSimpleNameExpression(expression);
                 }
 
                 @Override
                 public void visitStringTemplateExpression(@NotNull KtStringTemplateExpression expression) {
-                    registerOperand(expression.getText());
+                    // String literals (including templates) counted as single operand
+                    registerOperand("\"string\"");
                     super.visitStringTemplateExpression(expression);
                 }
 
                 @Override
                 public void visitConstantExpression(@NotNull KtConstantExpression expression) {
-                    registerOperand(expression.getText());
+                    // Literals: numbers, booleans, null
+                    String text = expression.getText();
+                    if (text != null && !text.isEmpty()) {
+                        registerOperand(text);
+                    }
                     super.visitConstantExpression(expression);
+                }
+
+                @Override
+                public void visitTypeReference(@NotNull KtTypeReference typeReference) {
+                    // Type names in local declarations are operands
+                    String typeName = typeReference.getText();
+                    if (typeName != null && !typeName.isEmpty()) {
+                        registerOperand(typeName);
+                    }
+                    super.visitTypeReference(typeReference);
+                }
+
+                @Override
+                public void visitDestructuringDeclaration(@NotNull KtDestructuringDeclaration declaration) {
+                    // Each component in destructuring is an operator
+                    int componentCount = declaration.getEntries().size();
+                    for (int i = 0; i < componentCount; i++) {
+                        registerOperator("component" + (i + 1));
+                    }
+                    super.visitDestructuringDeclaration(declaration);
                 }
             });
         }
+        
         // Store primary metric (HVL) in metric field for compatibility
         metric = Metric.of(HVL, volume());
     }
 
+    /**
+     * Builds the complete list of Halstead metrics for the analyzed method/function.
+     * 
+     * @return List containing all six Halstead metrics: effort, errors, volume, 
+     *         difficulty, vocabulary, and length
+     */
     public java.util.List<Metric> buildMetrics() {
         java.util.List<Metric> list = new LinkedList<>();
         list.add(Metric.of(HEF, effort()));
@@ -122,14 +392,33 @@ public class KotlinHalsteadMethodVisitor extends KotlinMethodVisitor {
     }
 
     private void registerOperator(String operator) {
-        if (operator == null) return;
+        if (operator == null || operator.trim().isEmpty()) return;
         numberOfOperators++;
         operators.add(operator);
     }
 
     private void registerOperand(String operand) {
-        if (operand == null) return;
+        if (operand == null || operand.trim().isEmpty()) return;
         numberOfOperands++;
         operands.add(operand);
+    }
+
+    /**
+     * Checks if a text represents a Kotlin operator keyword to avoid 
+     * counting it as both operator and operand.
+     * 
+     * @param text The text to check
+     * @return true if the text is an operator keyword, false otherwise
+     */
+    private boolean isOperatorKeyword(String text) {
+        return KOTLIN_OPERATORS.contains(text) ||
+               "if".equals(text) || "else".equals(text) ||
+               "when".equals(text) || "for".equals(text) ||
+               "while".equals(text) || "do".equals(text) ||
+               "try".equals(text) || "catch".equals(text) || "finally".equals(text) ||
+               "throw".equals(text) || "return".equals(text) ||
+               "break".equals(text) || "continue".equals(text) ||
+               "fun".equals(text) || "val".equals(text) || "var".equals(text) ||
+               "object".equals(text);
     }
 }
