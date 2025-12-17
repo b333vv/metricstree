@@ -132,17 +132,65 @@ public class KotlinWeightedMethodCountVisitor extends KotlinClassVisitor {
     }
 
     /**
-     * Helper method to safely extract complexity value from a visitor.
+     * Helper method to safely extract complexity value from a visitor for named functions.
      * <p>
      * Reduces code duplication and handles null checks consistently.
      * </p>
      *
-     * @param element the PSI element to calculate complexity for
+     * @param function the function to calculate complexity for
      * @return the complexity value, or 0 if metric is unavailable
      */
-    private int getComplexityValue(KtDeclaration element) {
+    private int getComplexityValue(KtNamedFunction function) {
         KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-        cc.computeFor(element);
+        cc.computeFor(function);
+        Metric metric = cc.getMetric();
+        return metric != null ? (int) metric.getPsiValue().longValue() : 0;
+    }
+
+    /**
+     * Helper method to safely extract complexity value from a visitor for primary constructors.
+     * <p>
+     * Reduces code duplication and handles null checks consistently.
+     * </p>
+     *
+     * @param constructor the primary constructor to calculate complexity for
+     * @return the complexity value, or 0 if metric is unavailable
+     */
+    private int getComplexityValue(KtPrimaryConstructor constructor) {
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        cc.computeFor(constructor);
+        Metric metric = cc.getMetric();
+        return metric != null ? (int) metric.getPsiValue().longValue() : 0;
+    }
+
+    /**
+     * Helper method to safely extract complexity value from a visitor for secondary constructors.
+     * <p>
+     * Reduces code duplication and handles null checks consistently.
+     * </p>
+     *
+     * @param constructor the secondary constructor to calculate complexity for
+     * @return the complexity value, or 0 if metric is unavailable
+     */
+    private int getComplexityValue(KtSecondaryConstructor constructor) {
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        cc.computeFor(constructor);
+        Metric metric = cc.getMetric();
+        return metric != null ? (int) metric.getPsiValue().longValue() : 0;
+    }
+
+    /**
+     * Helper method to safely extract complexity value from a visitor for init blocks.
+     * <p>
+     * Reduces code duplication and handles null checks consistently.
+     * </p>
+     *
+     * @param initializer the anonymous initializer (init block) to calculate complexity for
+     * @return the complexity value, or 0 if metric is unavailable
+     */
+    private int getComplexityValue(KtAnonymousInitializer initializer) {
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        cc.computeFor(initializer);
         Metric metric = cc.getMetric();
         return metric != null ? (int) metric.getPsiValue().longValue() : 0;
     }
