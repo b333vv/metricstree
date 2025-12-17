@@ -84,6 +84,7 @@ import static org.b333vv.metric.model.metric.MetricType.CC;
  * <ul>
  *   <li>Primary constructors have a fixed complexity of 1 (baseline)</li>
  *   <li>Secondary constructors are analyzed similarly to regular functions</li>
+ *   <li>Init blocks are analyzed similarly to regular functions</li>
  *   <li>The visitor recursively analyzes nested structures and lambda expressions</li>
  *   <li>Each independent decision point increments the complexity counter</li>
  * </ul>
@@ -111,6 +112,14 @@ public class KotlinMcCabeCyclomaticComplexityVisitor extends KotlinMethodVisitor
     public void visitSecondaryConstructor(@NotNull KtSecondaryConstructor constructor) {
         int complexity = 1; // baseline
         KtBlockExpression body = constructor.getBodyExpression();
+        complexity += computeForBody(body);
+        metric = Metric.of(CC, complexity);
+    }
+
+    @Override
+    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+        int complexity = 1; // baseline
+        KtExpression body = initializer.getBody();
         complexity += computeForBody(body);
         metric = Metric.of(CC, complexity);
     }
