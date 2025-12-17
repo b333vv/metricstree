@@ -248,8 +248,8 @@ public class KotlinNonCommentingSourceStatementsVisitor extends KotlinClassVisit
     public void visitUnaryExpression(@NotNull KtUnaryExpression expression) {
         // Count postfix/prefix increment/decrement as statements when used standalone
         if (expression.getParent() instanceof KtBlockExpression) {
-            if (KtTokens.INCREMENT.equals(expression.getOperationToken()) ||
-                KtTokens.DECREMENT.equals(expression.getOperationToken())) {
+            if (KtTokens.PLUSPLUS.equals(expression.getOperationToken()) ||
+                KtTokens.MINUSMINUS.equals(expression.getOperationToken())) {
                 statements += 1;
             }
         }
