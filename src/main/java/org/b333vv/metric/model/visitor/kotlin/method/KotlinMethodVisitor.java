@@ -5,6 +5,7 @@ package org.b333vv.metric.model.visitor.kotlin.method;
 
 import org.b333vv.metric.model.metric.Metric;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.psi.KtAnonymousInitializer;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor;
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor;
@@ -37,6 +38,12 @@ public abstract class KotlinMethodVisitor extends KtVisitorVoid {
     public void computeFor(KtSecondaryConstructor ctor) {
         if (ctor != null) {
             ctor.accept(this);
+        }
+    }
+
+    public void computeFor(KtAnonymousInitializer initializer) {
+        if (initializer != null) {
+            initializer.accept(this);
         }
     }
 }
