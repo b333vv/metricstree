@@ -18,6 +18,7 @@ package org.b333vv.metric.model.visitor.kotlin.type;
 import org.b333vv.metric.model.metric.Metric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.lexer.KtTokens;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -185,7 +186,7 @@ public class KotlinNumberOfAttributesVisitor extends KotlinClassVisitor {
      */
     private boolean hasJvmFieldAnnotation(@NotNull KtProperty property) {
         for (KtAnnotationEntry annotation : property.getAnnotationEntries()) {
-            String shortName = annotation.getShortName();
+            Name shortName = annotation.getShortName();
             if (shortName != null && shortName.asString().equals("JvmField")) {
                 return true;
             }
