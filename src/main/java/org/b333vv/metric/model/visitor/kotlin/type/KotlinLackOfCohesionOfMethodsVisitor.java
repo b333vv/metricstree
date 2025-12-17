@@ -170,7 +170,7 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
                     KtExpression defaultValue = param.getDefaultValue();
                     if (defaultValue != null) {
                         Set<PsiElement> defaultAccessed = collectAccessedFieldsFromExpression(
-                                defaultValue, instanceProps, param);
+                                defaultValue, instanceProps, null);
                         if (!defaultAccessed.isEmpty()) {
                             accesses.add(defaultAccessed);
                         }

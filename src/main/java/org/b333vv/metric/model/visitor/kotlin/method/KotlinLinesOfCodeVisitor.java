@@ -15,8 +15,8 @@ import static org.b333vv.metric.model.metric.MetricType.LOC;
  * <p>The LOC metric measures the number of actual code lines in a function, excluding:
  * <ul>
  *   <li>Single-line comments starting with //</li>
- *   <li>Multi-line comments delimited by /* and */</li>
- *   <li>KDoc comments delimited by /** and */</li>
+ *   <li>Multi-line comments</li>
+ *   <li>KDoc comments</li>
  *   <li>Blank lines containing only whitespace</li>
  *   <li>Lines with only opening or closing braces</li>
  * </ul>
@@ -51,9 +51,6 @@ import static org.b333vv.metric.model.metric.MetricType.LOC;
  * fun process(value: String) {
  *     // This is a comment
  *     val trimmed = value.trim()  // LOC = 1
- *     
- *     /* Multi-line comment
- *        not counted */
  *     println(trimmed)             // LOC = 2
  * }
  * </pre>
