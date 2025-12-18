@@ -41,7 +41,7 @@ public class ExportMethodMetricsToCsvAction extends AbstractAction {
             );
             VirtualFileWrapper fileWrapper = FileChooserFactory.getInstance()
                     .createSaveFileDialog(descriptor, project)
-                    .save(project.getName() + "_method.csv");
+                    .save(project.getName() + "-method.csv");
             if (fileWrapper != null) {
                 String filePath = fileWrapper.getFile().getAbsolutePath();
                 project.getService(CalculationService.class).exportMethodMetricsToCsv(filePath);
