@@ -214,6 +214,11 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  * </ul>
  * <p>Result is normalized to 0-100 scale, where higher values indicate better maintainability.</p>
  *
+ * <p><b>Implementation detail:</b> to prevent a meaningless constant 0.0 in projects where some
+ * inputs are missing (e.g., no per-method CC/LOC for Kotlin sources), the implementation clamps
+ * individual formula inputs to at least 1.0 before applying logarithms. If all three inputs are
+ * zero, the metric is still reported as 0.0.</p>
+ *
  * <h2>Kotlin Support</h2>
  *
  * <p>Kotlin classes are processed by converting {@link KtClassOrObject} to light Java {@link PsiClass}
@@ -394,24 +399,96 @@ public class ProjectMetricsSetCalculator {
      *
      * <p>Formula: MI = max(0, (171 - 5.2*ln(V) - 0.23*ln(CC) - 16.2*ln(LOC)) * 100/171)</p>
      * <p>Where V = Halstead Volume, CC = Cyclomatic Complexity, LOC = Lines of Code</p>
+     *
+     * <p>All logarithm inputs are clamped to at least 1.0 to avoid 
+     * producing a constant 0.0 due to missing input metrics (log(0) is undefined).
+     * If all inputs are zero, MI is reported as 0.0.</p>
      */
     private void calculateMaintainabilityIndex() {
-        long projectCC = projectElement
-                .allClasses().flatMap(ClassElement::methods)
+        final double projectCC = sumMethodMetric(CC);
+
+        // Prefer the already-computed aggregated LOC (PLOC), but fall back to per-method sum if needed.
+        double loc = (double) linesOfCode;
+        if (loc <= 0.0) {
+            loc = sumMethodMetric(LOC);
+        }
+
+        // Prefer the computed field value (filled by calculateHalstead), but keep a robust fallback.
+        double volume = halsteadVolume;
+        if (volume <= 0.0) {
+            Metric prhvl = projectElement.metric(PRHVL);
+            if (prhvl != null) {
+                volume = prhvl.getPsiValue().doubleValue();
+            }
+        }
+        if (volume <= 0.0) {
+            volume = sumPackageMetric(PAHVL);
+        }
+
+        double maintainabilityIndex = computeMaintainabilityIndex(volume, projectCC, loc);
+        projectElement.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
+    }
+
+    /**
+     * Computes Maintainability Index (MI) in a way that is resilient to missing input metrics.
+     *
+     * <p>If all inputs are zero (no meaningful data), returns 0.0. Otherwise, clamps each input to
+     * at least 1.0 before applying logarithms, and clamps the final MI to 0..100.</p>
+     *
+     * @param halsteadVolume total Halstead volume (V)
+     * @param cyclomaticComplexity total cyclomatic complexity (CC)
+     * @param linesOfCode lines of code (LOC)
+     * @return maintainability index in 0..100 range
+     */
+    private double computeMaintainabilityIndex(double halsteadVolume, double cyclomaticComplexity, double linesOfCode) {
+        final boolean hasAnyInput = halsteadVolume > 0.0 || cyclomaticComplexity > 0.0 || linesOfCode > 0.0;
+        if (!hasAnyInput) {
+            return 0.0;
+        }
+
+        final double v = Math.max(1.0, halsteadVolume);
+        final double cc = Math.max(1.0, cyclomaticComplexity);
+        final double loc = Math.max(1.0, linesOfCode);
+
+        double mi = (171 - 5.2 * Math.log(v) - 0.23 * Math.log(cc) - 16.2 * Math.log(loc)) * 100 / 171;
+        mi = Math.max(0.0, Math.min(100.0, mi));
+        return mi;
+    }
+
+    /**
+     * Sums a method-level metric across the whole project.
+     *
+     * @param metricType a method-level metric type
+     * @return sum of metric values across all methods, or 0.0 if none exist
+     */
+    private double sumMethodMetric(@NotNull MetricType metricType) {
+        return projectElement
+                .allClasses()
+                .flatMap(ClassElement::methods)
+                .map(javaMethod -> {
+                    Metric m = javaMethod.metric(metricType);
+                    return m != null ? m.getPsiValue() : Value.ZERO;
+                })
+                .reduce(Value::plus)
+                .orElse(Value.ZERO)
+                .doubleValue();
+    }
+
+    /**
+     * Sums a package-level metric across the whole project.
+     *
+     * @param metricType a package-level metric type
+     * @return sum of metric values across all packages, or 0.0 if none exist
+     */
+    private double sumPackageMetric(@NotNull MetricType metricType) {
+        return projectElement
+                .allPackages()
                 .flatMap(CodeElement::metrics)
-                .filter(metric -> metric.getType() == CC)
+                .filter(metric -> metric.getType() == metricType)
                 .map(Metric::getValue)
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
-                .longValue();
-
-        double maintainabilityIndex = 0.0;
-        if (projectCC > 0L && linesOfCode > 0L && halsteadVolume > 0.0) {
-            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
-                    - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
-        }
-
-        projectElement.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
+                .doubleValue();
     }
 
     /**
