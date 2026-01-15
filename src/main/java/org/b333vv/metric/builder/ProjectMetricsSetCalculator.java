@@ -38,9 +38,11 @@ import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
+import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
 import org.jetbrains.kotlin.psi.KtDeclaration;
 import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.psi.KtObjectDeclaration;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -293,6 +295,13 @@ public class ProjectMetricsSetCalculator {
     private long staticClassesNumber = 0;
     private long interfacesNumber = 0;
     private long linesOfCode = 0;
+    
+    // Kotlin specific counters
+    private long kotlinObjectsNumber = 0;
+    private long companionObjectsNumber = 0;
+    private long dataClassesNumber = 0;
+    private long sealedClassesNumber = 0;
+
     double halsteadVolume = 0.0;
 
     /**
@@ -736,6 +745,11 @@ public class ProjectMetricsSetCalculator {
         projectElement.addMetric(Metric.of(PNOAC, abstractClassesNumber));
         projectElement.addMetric(Metric.of(PNOSC, staticClassesNumber));
         projectElement.addMetric(Metric.of(PNOI, interfacesNumber));
+        
+        projectElement.addMetric(Metric.of(PNOKOBJ, kotlinObjectsNumber));
+        projectElement.addMetric(Metric.of(PNOKCO, companionObjectsNumber));
+        projectElement.addMetric(Metric.of(PNOKDC, dataClassesNumber));
+        projectElement.addMetric(Metric.of(PNOKSC, sealedClassesNumber));
     }
 
     /**
@@ -1134,17 +1148,40 @@ public class ProjectMetricsSetCalculator {
          * Collects class type statistics (concrete, abstract, static, interface).
          */
         private void processStatisticMetrics(@NotNull PsiClass psiClass) {
+            PsiElement navElement = psiClass.getNavigationElement();
+            boolean isKotlinObject = navElement instanceof KtObjectDeclaration;
+
             if (ClassUtils.isConcreteClass(psiClass)) {
                 concreteClassesNumber++;
             }
             if (ClassUtils.isAbstractClass(psiClass)) {
                 abstractClassesNumber++;
             }
-            if (ClassUtils.isStaticClass(psiClass)) {
+            
+            // For Kotlin, we exclude objects from "Static Classes" count to avoid double counting,
+            // as they are covered by PNOKOBJ and PNOKCO.
+            if (ClassUtils.isStaticClass(psiClass) && !isKotlinObject) {
                 staticClassesNumber++;
             }
             if (psiClass.isInterface()) {
                 interfacesNumber++;
+            }
+            
+            if (navElement instanceof KtClass) {
+                KtClass ktClass = (KtClass) navElement;
+                if (ktClass.isData()) {
+                    dataClassesNumber++;
+                }
+                if (ktClass.isSealed()) {
+                    sealedClassesNumber++;
+                }
+            } else if (isKotlinObject) {
+                KtObjectDeclaration ktObj = (KtObjectDeclaration) navElement;
+                if (ktObj.isCompanion()) {
+                    companionObjectsNumber++;
+                } else {
+                    kotlinObjectsNumber++;
+                }
             }
         }
 
