@@ -49,12 +49,12 @@ import static org.b333vv.metric.model.metric.MetricType.*;
 
 /**
  * <h1>Project Metrics Set Calculator</h1>
- * 
+ *
  * <p>Calculates project-level software quality metrics by traversing the PSI (Program Structure Interface) tree
  * and aggregating class/package-level metrics. This calculator computes three major metric suites:</p>
  * <ul>
  *   <li><b>MOOD Metrics</b> (Metrics for Object-Oriented Design) - AHF, MHF, AIF, MIF, CF, PF</li>
- *   <li><b>QMOOD Metrics</b> (Quality Model for Object-Oriented Design) - Reusability, Flexibility, 
+ *   <li><b>QMOOD Metrics</b> (Quality Model for Object-Oriented Design) - Reusability, Flexibility,
  *       Understandability, Functionality, Extendibility, Effectiveness</li>
  *   <li><b>Halstead Metrics</b> - Volume, Difficulty, Length, Effort, Vocabulary, Errors</li>
  *   <li><b>Maintainability Index</b> - Overall project maintainability score</li>
@@ -62,10 +62,10 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  * </ul>
  *
  * <h2>Architecture and Processing Flow</h2>
- * 
+ *
  * <p>The calculator operates in two phases:</p>
  * <ol>
- *   <li><b>Collection Phase:</b> Traverses all Java and Kotlin classes in the project scope using a 
+ *   <li><b>Collection Phase:</b> Traverses all Java and Kotlin classes in the project scope using a
  *       {@link JavaRecursiveElementVisitor}. During traversal, it:
  *       <ul>
  *         <li>Collects raw counts (classes, methods, fields, LOC, etc.)</li>
@@ -74,13 +74,13 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  *         <li>Aggregates class-level metrics (WMC, DIT, LCOM, etc.) from already-calculated values</li>
  *       </ul>
  *   </li>
- *   <li><b>Calculation Phase:</b> After traversal completes, computes final project-level metrics using 
+ *   <li><b>Calculation Phase:</b> After traversal completes, computes final project-level metrics using
  *       the collected data and formulas specific to each metric suite.</li>
  * </ol>
  *
  * <h2>MOOD Metrics (Metrics for Object-Oriented Design)</h2>
- * 
- * <p>MOOD metrics measure fundamental object-oriented design properties. The calculator implements 
+ *
+ * <p>MOOD metrics measure fundamental object-oriented design properties. The calculator implements
  * six MOOD metrics as defined by Abreu and Carapuça (1994):</p>
  *
  * <h3>1. Attribute Hiding Factor (AHF)</h3>
@@ -139,8 +139,8 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  * <p>Where new_methods are methods not inherited from superclasses.</p>
  *
  * <h2>QMOOD Metrics (Quality Model for Object-Oriented Design)</h2>
- * 
- * <p>QMOOD provides a hierarchical quality model mapping low-level design properties to high-level 
+ *
+ * <p>QMOOD provides a hierarchical quality model mapping low-level design properties to high-level
  * quality attributes. The calculator implements the QMOOD model as defined by Bansiya and Davis (2002).</p>
  *
  * <h3>Design Properties (Normalized via Z-Score)</h3>
@@ -174,21 +174,21 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  *       <br>Measures how easily components can be reused in other contexts.</li>
  *   <li><b>Flexibility</b> = 0.25*Encapsulation - 0.25*Coupling + 0.5*Composition + 0.5*Polymorphism
  *       <br>Measures ease of modification and extension.</li>
- *   <li><b>Understandability</b> = -0.33*Abstraction + 0.33*Encapsulation - 0.33*Coupling 
+ *   <li><b>Understandability</b> = -0.33*Abstraction + 0.33*Encapsulation - 0.33*Coupling
  *       + 0.33*Cohesion - 0.33*Polymorphism - 0.33*Complexity - 0.33*DesignSize
  *       <br>Measures how easily the design can be comprehended.</li>
- *   <li><b>Functionality</b> = 0.12*Cohesion + 0.22*Polymorphism + 0.22*Messaging 
+ *   <li><b>Functionality</b> = 0.12*Cohesion + 0.22*Polymorphism + 0.22*Messaging
  *       + 0.22*DesignSize + 0.22*Hierarchies
  *       <br>Measures the breadth of capabilities provided.</li>
  *   <li><b>Extendibility</b> = 0.5*Abstraction - 0.5*Coupling + 0.5*Inheritance + 0.5*Polymorphism
  *       <br>Measures ease of adding new functionality.</li>
- *   <li><b>Effectiveness</b> = 0.2*Abstraction + 0.2*Encapsulation + 0.2*Composition 
+ *   <li><b>Effectiveness</b> = 0.2*Abstraction + 0.2*Encapsulation + 0.2*Composition
  *       + 0.2*Inheritance + 0.2*Polymorphism
  *       <br>Measures overall design efficiency and quality.</li>
  * </ol>
  *
  * <h2>Halstead Metrics</h2>
- * 
+ *
  * <p>Aggregates Halstead complexity metrics from package-level calculations:</p>
  * <ul>
  *   <li><b>Volume (PRHVL)</b>: total program volume = Σ(package volumes)</li>
@@ -200,10 +200,10 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  * </ul>
  *
  * <h2>Maintainability Index</h2>
- * 
+ *
  * <p>Computes the Microsoft Visual Studio Maintainability Index formula:</p>
  * <pre>
- *   MI = max(0, (171 - 5.2*ln(HalsteadVolume) - 0.23*ln(CyclomaticComplexity) 
+ *   MI = max(0, (171 - 5.2*ln(HalsteadVolume) - 0.23*ln(CyclomaticComplexity)
  *        - 16.2*ln(LinesOfCode)) * 100 / 171)
  * </pre>
  * <p>Where:</p>
@@ -215,15 +215,15 @@ import static org.b333vv.metric.model.metric.MetricType.*;
  * <p>Result is normalized to 0-100 scale, where higher values indicate better maintainability.</p>
  *
  * <h2>Kotlin Support</h2>
- * 
- * <p>Kotlin classes are processed by converting {@link KtClassOrObject} to light Java {@link PsiClass} 
- * representations using {@link LightClassUtilsKt#toLightClass}. This enables uniform processing of 
+ *
+ * <p>Kotlin classes are processed by converting {@link KtClassOrObject} to light Java {@link PsiClass}
+ * representations using {@link LightClassUtilsKt#toLightClass}. This enables uniform processing of
  * Java and Kotlin code through the same PSI visitor logic.</p>
  *
  * <h2>Thread Safety and Progress Reporting</h2>
- * 
- * <p>This calculator is designed to run on a background thread with progress indication. It uses 
- * {@link ProgressIndicator#checkCanceled()} to support user cancellation and reports progress 
+ *
+ * <p>This calculator is designed to run on a background thread with progress indication. It uses
+ * {@link ProgressIndicator#checkCanceled()} to support user cancellation and reports progress
  * during PSI traversal.</p>
  *
  * @author b333vv
@@ -305,13 +305,13 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Executes the complete project metrics calculation process.
-     * 
+     *
      * <p>This method orchestrates the two-phase calculation:</p>
      * <ol>
      *   <li>Traverses the PSI tree to collect raw data</li>
      *   <li>Computes final metrics from collected data</li>
      * </ol>
-     * 
+     *
      * <p>Progress is reported via {@link ProgressIndicator} and can be canceled by the user.</p>
      */
     public void calculate() {
@@ -332,7 +332,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Calculates QMOOD quality attributes from design properties.
-     * 
+     *
      * <p>Computes z-scores for 11 design properties, then applies weighted formulas
      * to derive 6 quality attributes: Reusability, Flexibility, Understandability,
      * Functionality, Extendibility, and Effectiveness.</p>
@@ -390,25 +390,70 @@ public class ProjectMetricsSetCalculator {
     }
 
     /**
+     * Prefer a PSI-derived metric value when it is present and positive.
+     *
+     * <p>Historically some element metrics (especially method-level ones such as CC/LOC)
+     * were stored in the "psi" value field while the computed value field could be left at 0.
+     * Using {@link Metric#getValue()} for those metrics makes project aggregates (such as PRMI)
+     * degenerate to 0. This helper provides a robust value selection policy.</p>
+     *
+     * @param metric metric instance
+     * @return psi value if it exists and is positive; otherwise computed value (or 0)
+     */
+    @NotNull
+    private static Value metricValuePreferPsi(@NotNull Metric metric) {
+        Value psi = metric.getPsiValue();
+        if (psi != null && !psi.isEqualsOrLessThan(Value.ZERO)) {
+            return psi;
+        }
+        Value value = metric.getValue();
+        return value != null ? value : Value.ZERO;
+    }
+
+    /**
      * Calculates the Maintainability Index using the Microsoft formula.
-     * 
+     *
      * <p>Formula: MI = max(0, (171 - 5.2*ln(V) - 0.23*ln(CC) - 16.2*ln(LOC)) * 100/171)</p>
      * <p>Where V = Halstead Volume, CC = Cyclomatic Complexity, LOC = Lines of Code</p>
      */
     private void calculateMaintainabilityIndex() {
-        long projectCC = projectElement
+        double projectCC = projectElement
                 .allClasses().flatMap(ClassElement::methods)
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
-                .map(Metric::getValue)
+                .map(ProjectMetricsSetCalculator::metricValuePreferPsi)
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
-                .longValue();
+                .doubleValue();
+
+        long projectLOC = linesOfCode;
+        if (projectLOC <= 0L) {
+            projectLOC = projectElement
+                    .allClasses().flatMap(ClassElement::methods)
+                    .flatMap(CodeElement::metrics)
+                    .filter(metric -> metric.getType() == LOC)
+                    .map(ProjectMetricsSetCalculator::metricValuePreferPsi)
+                    .reduce(Value::plus)
+                    .orElse(Value.ZERO)
+                    .longValue();
+        }
+
+        double halsteadVolumeForMi = halsteadVolume;
+        if (halsteadVolumeForMi <= 0.0) {
+            halsteadVolumeForMi = projectElement
+                    .allPackages().flatMap(CodeElement::metrics)
+                    .filter(metric -> metric.getType() == PAHVL)
+                    .map(ProjectMetricsSetCalculator::metricValuePreferPsi)
+                    .reduce(Value::plus)
+                    .orElse(Value.ZERO)
+                    .doubleValue();
+        }
 
         double maintainabilityIndex = 0.0;
-        if (projectCC > 0L && linesOfCode > 0L && halsteadVolume > 0.0) {
-            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
-                    - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
+        if (projectCC > 0.0 && projectLOC > 0L && halsteadVolumeForMi > 0.0) {
+            maintainabilityIndex = (171 - 5.2 * Math.log(halsteadVolumeForMi)
+                    - 0.23 * Math.log(projectCC) - 16.2 * Math.log(projectLOC)) * 100 / 171;
+            maintainabilityIndex = Math.max(0.0, maintainabilityIndex);
         }
 
         projectElement.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
@@ -416,7 +461,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Aggregates Halstead metrics from package-level metrics.
-     * 
+     *
      * <p>Sums the following Halstead metrics across all packages:</p>
      * <ul>
      *   <li>Volume (PRHVL)</li>
@@ -569,7 +614,7 @@ public class ProjectMetricsSetCalculator {
     /**
      * Calculates inheritance factor as the average ratio of overridden methods to total methods
      * across all classes.
-     * 
+     *
      * @return sum of (NOOM/NOM) ratios across classes, or 0 if no classes with methods exist
      */
     private double calculateZInheritance() {
@@ -594,12 +639,12 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Calculates z-score for a list of metric values.
-     * 
+     *
      * <p>The z-score measures how many standard deviations the maximum value is from the mean:</p>
      * <pre>
      *   z = (max - mean) / std_dev
      * </pre>
-     * 
+     *
      * <p><b>Note:</b> This implementation computes the z-score of the maximum value in the distribution,
      * which is useful for identifying extreme outliers in design properties. For per-element z-scores,
      * a different approach would be needed.</p>
@@ -663,7 +708,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and stores the Polymorphism Factor (PF) metric.
-     * 
+     *
      * <p>PF measures the ratio of actual method overrides to potential overrides.
      * If there are no potential overrides (base classes with overridable methods),
      * PF is defined as 1.0 (maximum polymorphism).</p>
@@ -676,7 +721,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and stores the Method Inheritance Factor (MIF) metric.
-     * 
+     *
      * <p>MIF = inherited_methods / available_methods</p>
      * <p>Returns 0 if no methods are available (no classes or all private methods).</p>
      */
@@ -690,14 +735,14 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and stores the Method Hiding Factor (MHF) metric.
-     * 
+     *
      * <p>MHF measures information hiding for methods. It computes total method visibility
      * by summing visibility contributions from public, package-private, and protected methods,
      * then calculates the hiding factor as:</p>
      * <pre>
      *   MHF = 1 - (total_visibility / (total_methods * (classes - 1)))
      * </pre>
-     * 
+     *
      * <p>Visibility contribution rules:</p>
      * <ul>
      *   <li>public: visible to all other classes (classes - 1)</li>
@@ -758,7 +803,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and stores the Coupling Factor (CF) metric.
-     * 
+     *
      * <p>CF measures the ratio of actual class couplings to maximum possible couplings:</p>
      * <pre>
      *   CF = actual_couplings / (classes * (classes-1) / 2)
@@ -780,7 +825,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and stores the Attribute Inheritance Factor (AIF) metric.
-     * 
+     *
      * <p>AIF = inherited_attributes / available_attributes</p>
      * <p>Returns 0 if no attributes are available (no classes or all private attributes).</p>
      */
@@ -796,14 +841,14 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and stores the Attribute Hiding Factor (AHF) metric.
-     * 
+     *
      * <p>AHF measures information hiding for attributes. It computes total attribute visibility
      * by summing visibility contributions from public, package-private, and protected fields,
      * then calculates the hiding factor as:</p>
      * <pre>
      *   AHF = 1 - (total_visibility / (total_attributes * (classes - 1)))
      * </pre>
-     * 
+     *
      * <p>Visibility contribution rules (same as MHF):</p>
      * <ul>
      *   <li>public: visible to all other classes (classes - 1)</li>
@@ -864,7 +909,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Computes and caches the number of subclasses outside the declaring class's package.
-     * 
+     *
      * <p>Used for calculating protected member visibility in AHF and MHF metrics.
      * Subclasses within the same package are not counted here since they're already
      * included in the package-private visibility calculation.</p>
@@ -901,14 +946,14 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Determines if a class is part of an external library (not project source code).
-     * 
+     *
      * <p>A class is considered a library class if:</p>
      * <ul>
      *   <li>Its containing file cannot be resolved, OR</li>
      *   <li>Its virtual file is indexed as a library by IntelliJ, OR</li>
      *   <li>Its virtual file is not in content roots or source roots</li>
      * </ul>
-     * 
+     *
      * <p>Kotlin source files are correctly identified as non-library even when converted
      * to light classes.</p>
      *
@@ -936,10 +981,10 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * Processes member visibility for a given class and accumulates visibility counts.
-     * 
-     * <p>This method is called both for Java classes (via {@link #visitClass}) and 
+     *
+     * <p>This method is called both for Java classes (via {@link #visitClass}) and
      * Kotlin classes (via {@link #visitFile} after conversion to light classes).</p>
-     * 
+     *
      * <p>Processes:</p>
      * <ul>
      *   <li>All methods: counts and categorizes by visibility (public/protected/package-private)</li>
@@ -996,7 +1041,7 @@ public class ProjectMetricsSetCalculator {
 
     /**
      * PSI visitor that traverses Java and Kotlin files to collect raw metric data.
-     * 
+     *
      * <p>For Java files, the standard {@link JavaRecursiveElementVisitor} mechanism is used.
      * For Kotlin files, we explicitly process {@link KtFile} by converting Kotlin classes
      * to light Java {@link PsiClass} representations.</p>
@@ -1073,13 +1118,13 @@ public class ProjectMetricsSetCalculator {
 
         /**
          * Processes polymorphism information for a class.
-         * 
+         *
          * <p>Counts:</p>
          * <ul>
          *   <li>New methods (not overriding any superclass method)</li>
          *   <li>Overridden methods (having at least one super method)</li>
          * </ul>
-         * 
+         *
          * <p>Override potentials = new_methods * subclass_count</p>
          */
         private void processPolymorphismFactor(@NotNull PsiClass psiClass) {
@@ -1100,7 +1145,7 @@ public class ProjectMetricsSetCalculator {
 
         /**
          * Processes method inheritance information for a class.
-         * 
+         *
          * <p>Computes the set of non-overridden methods available to the class (own + inherited).
          * Counts available methods and inherited methods for MIF calculation.</p>
          */
@@ -1151,7 +1196,7 @@ public class ProjectMetricsSetCalculator {
 
         /**
          * Processes coupling information for a class.
-         * 
+         *
          * <p>Counts the number of classes this class depends on, excluding inheritance relationships.</p>
          */
         private void processCouplingFactor(PsiClass psiClass) {
@@ -1172,7 +1217,7 @@ public class ProjectMetricsSetCalculator {
 
         /**
          * Processes attribute inheritance information for a class.
-         * 
+         *
          * <p>Counts available fields and inherited fields for AIF calculation.
          * Excludes fields from java.lang.Object and private fields in superclasses.</p>
          */
@@ -1197,7 +1242,7 @@ public class ProjectMetricsSetCalculator {
         public void visitMethod(PsiMethod psiMethod) {
             super.visitMethod(psiMethod);
             // Note: For Java classes, visibility is now handled by processMemberVisibility
-            // which is called from visitClass. However, for backwards compatibility and 
+            // which is called from visitClass. However, for backwards compatibility and
             // to handle any edge cases where visitMethod might be called independently,
             // we still include the logic here. The counts will be correct because
             // visitMethod is called during super.visitClass(), and processMemberVisibility
@@ -1211,7 +1256,7 @@ public class ProjectMetricsSetCalculator {
         }
 
         /**
-         * Computes and caches the total number of (non-interface, non-library) subclasses 
+         * Computes and caches the total number of (non-interface, non-library) subclasses
          * for a given class.
          *
          * @param psiClass the class to find subclasses for
