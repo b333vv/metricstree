@@ -132,6 +132,12 @@ public enum MetricType {
     PNCSS("Non-Commenting Source Statements", STATISTIC, PACKAGE, null),
     PLOC("Lines Of Code", STATISTIC, PACKAGE, null),
 
+    // Kotlin specific package metrics
+    PNOKOBJ("Number Of Kotlin Objects", STATISTIC, PACKAGE, null),
+    PNOKCO("Number Of Kotlin Companion Objects", STATISTIC, PACKAGE, null),
+    PNOKDC("Number Of Kotlin Data Classes", STATISTIC, PACKAGE, null),
+    PNOKSC("Number Of Kotlin Sealed Classes", STATISTIC, PACKAGE, null),
+
     //QMOOD quality attributes set
     Reusability("Reusability", QMOOD, PROJECT, null),
     Flexibility("Flexibility", QMOOD, PROJECT, null),
