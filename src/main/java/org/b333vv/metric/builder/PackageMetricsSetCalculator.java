@@ -18,10 +18,7 @@ package org.b333vv.metric.builder;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.psi.JavaRecursiveElementVisitor;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiPackage;
+import com.intellij.psi.*;
 import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.code.PackageElement;
@@ -32,6 +29,8 @@ import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.util.BucketedCount;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.psi.KtClass;
+import org.jetbrains.kotlin.psi.KtObjectDeclaration;
 
 import java.util.Collections;
 import java.util.List;
@@ -155,19 +154,47 @@ public class PackageMetricsSetCalculator {
         long abstractClassesNumber = 0;
         long staticClassesNumber = 0;
         long interfacesNumber = 0;
+        
+        long kotlinObjectsNumber = 0;
+        long companionObjectsNumber = 0;
+        long dataClassesNumber = 0;
+        long sealedClassesNumber = 0;
 
         for (PsiClass psiClass : psiClasses) {
+            PsiElement navElement = psiClass.getNavigationElement();
+            boolean isKotlinObject = navElement instanceof KtObjectDeclaration;
+
             if (ClassUtils.isConcreteClass(psiClass)) {
                 concreteClassesNumber++;
             }
             if (ClassUtils.isAbstractClass(psiClass)) {
                 abstractClassesNumber++;
             }
-            if (ClassUtils.isStaticClass(psiClass)) {
+            // For Kotlin, we exclude objects from "Static Classes" count to avoid double counting,
+            // as they are covered by PNOKOBJ and PNOKCO. 
+            // Static nested classes in Kotlin (nested classes without inner) will still be counted here.
+            if (ClassUtils.isStaticClass(psiClass) && !isKotlinObject) {
                 staticClassesNumber++;
             }
             if (psiClass.isInterface()) {
                 interfacesNumber++;
+            }
+            
+            if (navElement instanceof KtClass) {
+                KtClass ktClass = (KtClass) navElement;
+                if (ktClass.isData()) {
+                    dataClassesNumber++;
+                }
+                if (ktClass.isSealed()) {
+                    sealedClassesNumber++;
+                }
+            } else if (isKotlinObject) {
+                KtObjectDeclaration ktObj = (KtObjectDeclaration) navElement;
+                if (ktObj.isCompanion()) {
+                    companionObjectsNumber++;
+                } else {
+                    kotlinObjectsNumber++;
+                }
             }
         }
 
@@ -242,6 +269,11 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(PNOAC, abstractClassesNumber));
         p.addMetric(Metric.of(PNOSC, staticClassesNumber));
         p.addMetric(Metric.of(PNOI, interfacesNumber));
+        
+        p.addMetric(Metric.of(PNOKOBJ, kotlinObjectsNumber));
+        p.addMetric(Metric.of(PNOKCO, companionObjectsNumber));
+        p.addMetric(Metric.of(PNOKDC, dataClassesNumber));
+        p.addMetric(Metric.of(PNOKSC, sealedClassesNumber));
 
         p.addMetric(Metric.of(PAHVL, halsteadVolume));
         p.addMetric(Metric.of(PAHD, halsteadDifficulty));
