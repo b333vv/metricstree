@@ -18,33 +18,73 @@ package org.b333vv.metric.builder;
 
 import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.psi.*;
-import org.b333vv.metric.model.code.*;
+import com.intellij.psi.JavaRecursiveElementVisitor;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiPackage;
+import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.CodeElement;
+import org.b333vv.metric.model.code.PackageElement;
 import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.util.BucketedCount;
 import org.b333vv.metric.model.util.ClassUtils;
-import org.b333vv.metric.model.metric.value.Value;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
+/**
+ * Calculates package-level metrics (Martin metrics + aggregated statistics) for all packages
+ * available via {@link ProjectElement#allPackages()}.
+ *
+ * <h3>Martin metrics</h3>
+ * <ul>
+ *   <li><b>Ce</b> (efferent coupling): number of unique external packages that the package depends on.</li>
+ *   <li><b>Ca</b> (afferent coupling): number of unique external packages that depend on the package.</li>
+ *   <li><b>I</b> (instability): {@code Ce / (Ca + Ce)}. When {@code Ca + Ce == 0} treated as {@code 0.0}.</li>
+ *   <li><b>A</b> (abstractness): {@code Na / Nc}, where {@code Na} is number of abstract classes+interfaces,
+ *       {@code Nc} is total number of classes+interfaces in the package. When {@code Nc == 0} treated as {@code 0.0}.</li>
+ *   <li><b>D</b> (distance from main sequence): {@code | 1 - A - I |}.</li>
+ * </ul>
+ *
+ * <p>
+ * Important: {@code Ce} and {@code Ca} are computed using <b>unique package sets</b> (union across all classes)
+ * to avoid overcounting the same dependency multiple times when many classes reference the same package.
+ * </p>
+ *
+ * <h3>Aggregated statistics</h3>
+ * Additionally calculates package-aggregated sums/counters such as:
+ * {@link MetricType#PNCSS}, {@link MetricType#PLOC},
+ * counts of class kinds (concrete/abstract/static/interfaces),
+ * package-aggregated Halstead metrics (prefixed with {@code PA*}),
+ * and package Maintainability Index ({@link MetricType#PAMI}).
+ */
 public class PackageMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
     private final ProjectElement projectElement;
 
-    private final BucketedCount<PsiPackage> externalDependenciesPerPackageNumber = new BucketedCount<>();
-    private final Map<PsiPackage, HashSet<PsiClass>> dependents = new ConcurrentHashMap<>();
+    /**
+     * For each package P: set of unique external packages that P depends on (Ce basis).
+     */
+    private final ConcurrentMap<PsiPackage, Set<PsiPackage>> efferentPackages = new ConcurrentHashMap<>();
+
+    /**
+     * For each package P: set of unique external packages that depend on P (Ca basis).
+     */
+    private final ConcurrentMap<PsiPackage, Set<PsiPackage>> afferentPackages = new ConcurrentHashMap<>();
+
     private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
     private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
@@ -60,19 +100,30 @@ public class PackageMetricsSetCalculator {
     }
 
     private void handlePackage(@NotNull PackageElement p) {
-        int afferentCoupling = dependents.getOrDefault(p.getPsiPackage(), new HashSet<>()).size();
-        int efferentCoupling = externalDependenciesPerPackageNumber.getBucketValue(p.getPsiPackage());
-        Value instability = (afferentCoupling + efferentCoupling) == 0 ? Value.of(1.0) :
-                Value.of((double) efferentCoupling)
-                        .divide(Value.of((double) (afferentCoupling + efferentCoupling)));
+        PsiPackage psiPackage = p.getPsiPackage();
+        if (psiPackage == null) {
+            return;
+        }
+
+        int afferentCoupling = afferentPackages.getOrDefault(psiPackage, Collections.emptySet()).size();
+        int efferentCoupling = efferentPackages.getOrDefault(psiPackage, Collections.emptySet()).size();
+
+        Value instability = (afferentCoupling + efferentCoupling) == 0
+                ? Value.of(0.0)
+                : Value.of((double) efferentCoupling)
+                .divide(Value.of((double) (afferentCoupling + efferentCoupling)));
+
         p.addMetric(Metric.of(Ce, efferentCoupling));
         p.addMetric(Metric.of(Ca, afferentCoupling));
         p.addMetric(Metric.of(I, instability));
 
-        int classesNumber = classesPerPackageNumber.getBucketValue(p.getPsiPackage());
-        int abstractClassesNumber = abstractClassesPerPackageNumber.getBucketValue(p.getPsiPackage());
-        Value abstractness = classesNumber == 0 ? Value.of(1.0) :
-                Value.of((double) abstractClassesNumber).divide(Value.of((double) classesNumber));
+        int classesNumber = classesPerPackageNumber.getBucketValue(psiPackage);
+        int abstractClassesNumber = abstractClassesPerPackageNumber.getBucketValue(psiPackage);
+
+        Value abstractness = classesNumber == 0
+                ? Value.of(0.0)
+                : Value.of((double) abstractClassesNumber).divide(Value.of((double) classesNumber));
+
         p.addMetric(Metric.of(A, abstractness));
 
         Value distance = Value.of(1.0).minus(instability).minus(abstractness).abs();
@@ -84,14 +135,15 @@ public class PackageMetricsSetCalculator {
     private void addStatisticMetrics(PackageElement p) {
         List<PsiClass> psiClasses = p.classes()
                 .map(ClassElement::getPsiClass)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
         long concreteClassesNumber = 0;
         long abstractClassesNumber = 0;
         long staticClassesNumber = 0;
         long interfacesNumber = 0;
 
-        for (PsiClass psiClass: psiClasses) {
+        for (PsiClass psiClass : psiClasses) {
             if (ClassUtils.isConcreteClass(psiClass)) {
                 concreteClassesNumber++;
             }
@@ -119,7 +171,7 @@ public class PackageMetricsSetCalculator {
                 .classes()
                 .flatMap(ClassElement::methods)
                 .map(javaMethod -> javaMethod.metric(LOC))
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .map(Metric::getPsiValue)
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
@@ -194,7 +246,8 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(PACHER, halsteadErrors));
 
         long packageCC = p
-                .classes().flatMap(ClassElement::methods)
+                .classes()
+                .flatMap(ClassElement::methods)
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
                 .map(Metric::getValue)
@@ -203,14 +256,15 @@ public class PackageMetricsSetCalculator {
                 .longValue();
 
         double maintainabilityIndex = 0.0;
-        if (packageCC > 0L && linesOfCode > 0L) {
-            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
-                    - 0.23 * Math.log(packageCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
+        if (halsteadVolume > 0.0 && packageCC > 0L && linesOfCode > 0L) {
+            maintainabilityIndex = Math.max(0, (171
+                    - 5.2 * Math.log(halsteadVolume)
+                    - 0.23 * Math.log(packageCC)
+                    - 16.2 * Math.log(linesOfCode)) * 100 / 171);
         }
 
         p.addMetric(Metric.of(MetricType.PAMI, maintainabilityIndex));
     }
-
 
     private class Visitor extends JavaRecursiveElementVisitor {
         @Override
@@ -229,15 +283,38 @@ public class PackageMetricsSetCalculator {
                 return;
             }
 
-            dependents.computeIfAbsent(psiPackage, k -> new HashSet<>())
-                    .addAll(dependenciesBuilder.getDependentsSet(psiClass, psiPackage));
+            // Ensure buckets exist (defensive).
+            classesPerPackageNumber.createBucket(psiPackage);
+            abstractClassesPerPackageNumber.createBucket(psiPackage);
 
-            externalDependenciesPerPackageNumber.createBucket(psiPackage);
+            // Afferent coupling: unique external packages that depend on this package.
+            // dependenciesBuilder.getDependentsSet(...) is assumed to return classes that depend on psiClass.
+            Set<PsiClass> dependentClasses = dependenciesBuilder.getDependentsSet(psiClass, psiPackage);
+            if (dependentClasses != null && !dependentClasses.isEmpty()) {
+                Set<PsiPackage> afferentSet =
+                        afferentPackages.computeIfAbsent(psiPackage, k -> ConcurrentHashMap.newKeySet());
+                for (PsiClass dependentClass : dependentClasses) {
+                    if (dependentClass == null) {
+                        continue;
+                    }
+                    PsiPackage dependentPackage = ClassUtils.findPackage(dependentClass);
+                    if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
+                        afferentSet.add(dependentPackage);
+                    }
+                }
+            }
+
+            // Efferent coupling: unique external packages that this package depends on.
+            Set<PsiPackage> efferentSet =
+                    efferentPackages.computeIfAbsent(psiPackage, k -> ConcurrentHashMap.newKeySet());
+
             Set<PsiPackage> packageDependencies = dependenciesBuilder.getPackagesDependencies(psiClass)
                     .stream()
+                    .filter(Objects::nonNull)
                     .filter(p -> !p.equals(psiPackage))
                     .collect(Collectors.toSet());
-            externalDependenciesPerPackageNumber.incrementBucketValue(psiPackage, packageDependencies.size());
+
+            efferentSet.addAll(packageDependencies);
 
             if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
                 abstractClassesPerPackageNumber.incrementBucketValue(psiPackage);
