@@ -21,44 +21,84 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.util.Query;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
-import org.jetbrains.kotlin.psi.KtClassOrObject;
-import org.jetbrains.kotlin.psi.KtDeclaration;
-import org.jetbrains.kotlin.psi.KtFile;
 import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.CodeElement;
 import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
-import org.b333vv.metric.model.metric.value.Value;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
+import org.jetbrains.kotlin.psi.KtClassOrObject;
+import org.jetbrains.kotlin.psi.KtDeclaration;
+import org.jetbrains.kotlin.psi.KtFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
 
+/**
+ * Calculates project-level metrics whose inputs are collected while traversing PSI, and/or derived from already
+ * calculated class/package metrics.
+ *
+ * <h2>Package-level aggregation (MOOD)</h2>
+ * This class computes the MOOD metrics AHF and MHF at the project level, but both metrics require a
+ * package-aware aggregation of member visibility.
+ * <p>
+ * During PSI traversal, the calculator collects:
+ * <ul>
+ *   <li>Number of classes per package (via {@link #classesPerPackage}).</li>
+ *   <li>Counts of package-private fields/methods per package (via {@link #packageVisibleAttributesPerPackage} and
+ *       {@link #packageVisibleMethodsPerPackage}).</li>
+ *   <li>Counts of protected fields/methods per declaring class (via {@link #protectedFieldsPerClass} and
+ *       {@link #protectedMethodsPerClass}).</li>
+ * </ul>
+ * <p>
+ * Visibility contribution rules applied when computing the "total visibility" term used by AHF/MHF:
+ * <ul>
+ *   <li><b>public</b> member contributes {@code (classesInProject - 1)} (visible to every other class).</li>
+ *   <li>package-private member contributes {@code (classesInSamePackage - 1)}.</li>
+ *   <li>protected member contributes {@code (classesInSamePackage - 1)} plus the number of subclasses located
+ *       outside of that package (subclasses within the same package are not double-counted).</li>
+ * </ul>
+ * <p>
+ * Finally, the hiding factors are computed by the MOOD definition:
+ * {@code HF = 1 - (totalVisibility / (totalMembers * (classesInProject - 1)))}.
+ */
 public class ProjectMetricsSetCalculator {
     private final AnalysisScope scope;
     private final DependenciesBuilder dependenciesBuilder;
     private final ProjectElement projectElement;
+
     private ProgressIndicator indicator;
     private int filesCount;
     private int progress = 0;
+
     private int attributesNumber = 0;
     private int publicAttributesNumber = 0;
     private int classesNumber = 0;
     private Value totalAttributesVisibility = Value.of(0.0);
     private final Bag<String> classesPerPackage = new Bag<>();
     private final Bag<String> packageVisibleAttributesPerPackage = new Bag<>();
+
+    /**
+     * Number of protected fields per declaring class.
+     * Protected visibility requires a package-aware calculation performed after traversal.
+     */
+    private final Map<PsiClass, Integer> protectedFieldsPerClass = new HashMap<>();
+
     private final Map<PsiClass, Integer> subclassesPerClass = new HashMap<>();
+
+    /** Cached number of subclasses outside the declaring class package. */
+    private final Map<PsiClass, Integer> subclassesOutsidePackagePerClass = new HashMap<>();
 
     private int availableFields = 0;
     private int inheritedFields = 0;
@@ -69,6 +109,12 @@ public class ProjectMetricsSetCalculator {
     private int publicMethodsNumber = 0;
     private Value totalMethodsVisibility = Value.of(0.0);
     private final Bag<String> packageVisibleMethodsPerPackage = new Bag<>();
+
+    /**
+     * Number of protected methods per declaring class.
+     * Protected visibility requires a package-aware calculation performed after traversal.
+     */
+    private final Map<PsiClass, Integer> protectedMethodsPerClass = new HashMap<>();
 
     private int availableMethods = 0;
     private int inheritedMethods = 0;
@@ -120,7 +166,7 @@ public class ProjectMetricsSetCalculator {
         double zInheritance = calculateZInheritance();
 
         double Reusability = -0.25 * zCoupling + 0.25 * zCohesion + 0.5 * zMessaging + 0.5 * zDesignSize;
-        double Flexibility = 0.25 * zEncapsulation -0.25 * zCoupling + 0.5 * zComposition + 0.5 * zPolymorphism;
+        double Flexibility = 0.25 * zEncapsulation - 0.25 * zCoupling + 0.5 * zComposition + 0.5 * zPolymorphism;
         double Understandability = -0.33 * zAbstraction + 0.33 * zEncapsulation - 0.33 * zCoupling
                 + 0.33 * zCohesion - 0.33 * zPolymorphism - 0.33 * zComplexity - 0.33 * zDesignSize;
         double Functionality = 0.12 * zCohesion + 0.22 * zPolymorphism + 0.22 * zMessaging + 0.22 * zDesignSize
@@ -163,15 +209,15 @@ public class ProjectMetricsSetCalculator {
                 .longValue();
 
         double maintainabilityIndex = 0.0;
-        if (projectCC > 0L && linesOfCode > 0L) {
+        if (projectCC > 0L && linesOfCode > 0L && halsteadVolume > 0.0) {
             maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
                     - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
         }
 
         projectElement.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
     }
-    private void calculateHalstead() {
 
+    private void calculateHalstead() {
         halsteadVolume = projectElement
                 .allPackages().flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == PAHVL)
@@ -231,27 +277,28 @@ public class ProjectMetricsSetCalculator {
     private double calculateZCoupling() {
         return calculateZScore(
                 projectElement.allPackages().flatMap(CodeElement::metrics)
-                    .filter(metric -> metric.getType() == Ce)
-                    .map(Metric::getValue)
-                    .collect(Collectors.toUnmodifiableList())
+                        .filter(metric -> metric.getType() == Ce)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
         );
     }
 
     private double calculateZCohesion() {
-        return 1.0/calculateZScore(
+        double z = calculateZScore(
                 projectElement.allClasses().flatMap(CodeElement::metrics)
-                    .filter(metric -> metric.getType() == LCOM)
-                    .map(Metric::getValue)
-                    .collect(Collectors.toUnmodifiableList())
+                        .filter(metric -> metric.getType() == LCOM)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
         );
+        return z == 0.0 ? 0.0 : 1.0 / z;
     }
 
     private double calculateZMessaging() {
         return calculateZScore(
                 projectElement.allClasses().flatMap(CodeElement::metrics)
-                    .filter(metric -> metric.getType() == NOM)
-                    .map(Metric::getValue)
-                    .collect(Collectors.toUnmodifiableList())
+                        .filter(metric -> metric.getType() == NOM)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
         );
     }
 
@@ -265,12 +312,12 @@ public class ProjectMetricsSetCalculator {
     }
 
     private double calculateZComposition() {
-            return calculateZScore(
-                    projectElement.allClasses().flatMap(CodeElement::metrics)
-                            .filter(metric -> metric.getType() == NOA)
-                            .map(Metric::getValue)
-                            .collect(Collectors.toUnmodifiableList())
-            );
+        return calculateZScore(
+                projectElement.allClasses().flatMap(CodeElement::metrics)
+                        .filter(metric -> metric.getType() == NOA)
+                        .map(Metric::getValue)
+                        .collect(Collectors.toUnmodifiableList())
+        );
     }
 
     private double calculateZPolymorphism() {
@@ -328,15 +375,25 @@ public class ProjectMetricsSetCalculator {
     }
 
     private double calculateZScore(List<Value> source) {
+        if (source == null || source.isEmpty()) {
+            return 0.0;
+        }
+
         Value max = source.stream().max(Value::compareTo).orElse(Value.ZERO);
         Value avg = source.stream().reduce(Value::plus).orElse(Value.ZERO)
                 .divide(Value.of(source.size()));
+
         Value dispersion = source.stream()
                 .map(v -> v.minus(avg).pow(2))
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
                 .divide(Value.of(source.size()));
+
         Value std = Value.of(Math.sqrt(dispersion.doubleValue()));
+        if (std.equals(Value.ZERO)) {
+            return 0.0;
+        }
+
         Value zScore = max.minus(avg).divide(std);
         return zScore.doubleValue();
     }
@@ -386,17 +443,42 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void addMethodHidingFactor() {
+        // Public methods are visible from all other classes.
         totalMethodsVisibility = totalMethodsVisibility
                 .plus((Value.of(publicMethodsNumber)
                         .times(Value.of(classesNumber - 1))));
+
+        // Package-private methods are visible only within the same package.
         final Set<String> packages = classesPerPackage.getContents();
         for (String aPackage : packages) {
             final int visibleMethods = packageVisibleMethodsPerPackage.getCountForObject(aPackage);
             final int classes = classesPerPackage.getCountForObject(aPackage);
             totalMethodsVisibility = totalMethodsVisibility
                     .plus((Value.of(visibleMethods)
-                            .times(Value.of(classes - 1))));
+                            .times(Value.of(Math.max(0, classes - 1)))));
         }
+
+        // Protected methods: visible within the same package and to subclasses in other packages.
+        for (Map.Entry<PsiClass, Integer> entry : protectedMethodsPerClass.entrySet()) {
+            PsiClass declaringClass = entry.getKey();
+            if (declaringClass == null) {
+                continue;
+            }
+            int protectedMembersCount = entry.getValue();
+            if (protectedMembersCount <= 0) {
+                continue;
+            }
+            String declaringPackage = ClassUtils.calculatePackageName(declaringClass);
+            int classesInPackage = classesPerPackage.getCountForObject(declaringPackage);
+            int visibleInSamePackage = Math.max(0, classesInPackage - 1);
+            int subclassesOutsidePackage = getSubclassesOutsidePackageCount(declaringClass, declaringPackage);
+
+            totalMethodsVisibility = totalMethodsVisibility.plus(
+                    Value.of(protectedMembersCount)
+                            .times(Value.of(visibleInSamePackage + subclassesOutsidePackage))
+            );
+        }
+
         final Value denominator = Value.of(methodsNumber).times(Value.of(classesNumber - 1));
         Value methodHidingFactor = Value.ZERO;
         if (!denominator.equals(Value.ZERO)) {
@@ -430,17 +512,42 @@ public class ProjectMetricsSetCalculator {
     }
 
     private void addAttributeHidingFactor() {
+        // Public fields are visible from all other classes.
         totalAttributesVisibility = totalAttributesVisibility
                 .plus((Value.of(publicAttributesNumber)
                         .times(Value.of(classesNumber - 1))));
+
+        // Package-private fields are visible only within the same package.
         final Set<String> packages = classesPerPackage.getContents();
         for (String aPackage : packages) {
             final int visibleAttributes = packageVisibleAttributesPerPackage.getCountForObject(aPackage);
             final int classes = classesPerPackage.getCountForObject(aPackage);
             totalAttributesVisibility = totalAttributesVisibility
                     .plus((Value.of(visibleAttributes)
-                            .times(Value.of(classes - 1))));
+                            .times(Value.of(Math.max(0, classes - 1)))));
         }
+
+        // Protected fields: visible within the same package and to subclasses in other packages.
+        for (Map.Entry<PsiClass, Integer> entry : protectedFieldsPerClass.entrySet()) {
+            PsiClass declaringClass = entry.getKey();
+            if (declaringClass == null) {
+                continue;
+            }
+            int protectedMembersCount = entry.getValue();
+            if (protectedMembersCount <= 0) {
+                continue;
+            }
+            String declaringPackage = ClassUtils.calculatePackageName(declaringClass);
+            int classesInPackage = classesPerPackage.getCountForObject(declaringPackage);
+            int visibleInSamePackage = Math.max(0, classesInPackage - 1);
+            int subclassesOutsidePackage = getSubclassesOutsidePackageCount(declaringClass, declaringPackage);
+
+            totalAttributesVisibility = totalAttributesVisibility.plus(
+                    Value.of(protectedMembersCount)
+                            .times(Value.of(visibleInSamePackage + subclassesOutsidePackage))
+            );
+        }
+
         final Value denominator = Value.of(attributesNumber).times(Value.of(classesNumber - 1));
         Value attributeHidingFactor = Value.ZERO;
         if (!denominator.equals(Value.ZERO)) {
@@ -449,6 +556,49 @@ public class ProjectMetricsSetCalculator {
         }
 
         projectElement.addMetric(Metric.of(AHF, attributeHidingFactor));
+    }
+
+    private int getSubclassesOutsidePackageCount(@NotNull PsiClass psiClass, @NotNull String declaringPackage) {
+        if (subclassesOutsidePackagePerClass.containsKey(psiClass)) {
+            return subclassesOutsidePackagePerClass.get(psiClass);
+        }
+
+        int subclassesNumber = 0;
+        final GlobalSearchScope globalScope = GlobalSearchScope.allScope(scope.getProject());
+        final Query<PsiClass> query = ClassInheritorsSearch.search(
+                psiClass, globalScope, true, true, true);
+        for (final PsiClass inheritor : query) {
+            if (inheritor.isInterface()) {
+                continue;
+            }
+            if (classIsInLibrary(inheritor)) {
+                continue;
+            }
+            String inheritorPackage = ClassUtils.calculatePackageName(inheritor);
+            if (!declaringPackage.equals(inheritorPackage)) {
+                subclassesNumber++;
+            }
+        }
+
+        subclassesOutsidePackagePerClass.put(psiClass, subclassesNumber);
+        return subclassesNumber;
+    }
+
+    private boolean classIsInLibrary(@NotNull PsiClass psiClass) {
+        PsiFile file = psiClass.getContainingFile();
+        if (file == null) {
+            // If we cannot resolve a file for the class, treat it as library to be safe
+            return true;
+        }
+        VirtualFile vFile = file.getVirtualFile();
+        if (vFile == null) {
+            return true;
+        }
+        ProjectFileIndex index = ProjectRootManager.getInstance(file.getProject()).getFileIndex();
+        // Class is considered in library only if it is indexed as library; Kotlin sources are in content/source
+        boolean inLibrary = index.isInLibrary(vFile);
+        boolean inContentOrSource = index.isInContent(vFile) || index.isInSource(vFile);
+        return inLibrary || !inContentOrSource;
     }
 
     private class Visitor extends JavaRecursiveElementVisitor {
@@ -472,39 +622,46 @@ public class ProjectMetricsSetCalculator {
                             processPolymorphismFactor(light);
                             processStatisticMetrics(light);
 
-                            // Simulate visit of methods to collect visibility stats
+                            // Collect visibility stats from light class members.
                             for (PsiMethod psiMethod : light.getMethods()) {
                                 methodsNumber++;
                                 final PsiClass containingClass = psiMethod.getContainingClass();
+                                if (containingClass == null) {
+                                    continue;
+                                }
+
                                 if (psiMethod.hasModifierProperty(PsiModifier.PRIVATE) ||
-                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PRIVATE))) {
+                                        containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
                                     // private: not visible outside
                                 } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) ||
-                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PROTECTED))) {
-                                    totalMethodsVisibility = totalMethodsVisibility.plus(Value.of(getSubclassCount(containingClass)));
-                                } else if ((psiMethod.hasModifierProperty(PsiModifier.PUBLIC) || (containingClass != null && containingClass.isInterface())) &&
-                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PUBLIC))) {
+                                        containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
+                                    protectedMethodsPerClass.merge(containingClass, 1, Integer::sum);
+                                } else if ((psiMethod.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
+                                        containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
                                     publicMethodsNumber++;
-                                } else if (containingClass != null) {
+                                } else {
                                     final String packageName = ClassUtils.calculatePackageName(containingClass);
                                     packageVisibleMethodsPerPackage.add(packageName);
                                 }
                             }
 
-                            // Simulate visit of fields to collect visibility stats
                             for (PsiField psiField : light.getFields()) {
                                 attributesNumber++;
                                 final PsiClass containingClass = psiField.getContainingClass();
+                                if (containingClass == null) {
+                                    continue;
+                                }
+
                                 if (psiField.hasModifierProperty(PsiModifier.PRIVATE) ||
-                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PRIVATE))) {
+                                        containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
                                     // private: not visible outside
                                 } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) ||
-                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PROTECTED))) {
-                                    totalAttributesVisibility = totalAttributesVisibility.plus(Value.of(getSubclassCount(containingClass)));
-                                } else if ((psiField.hasModifierProperty(PsiModifier.PUBLIC) || (containingClass != null && containingClass.isInterface())) &&
-                                        (containingClass != null && containingClass.hasModifierProperty(PsiModifier.PUBLIC))) {
+                                        containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
+                                    protectedFieldsPerClass.merge(containingClass, 1, Integer::sum);
+                                } else if ((psiField.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
+                                        containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
                                     publicAttributesNumber++;
-                                } else if (containingClass != null) {
+                                } else {
                                     final String packageName = ClassUtils.calculatePackageName(containingClass);
                                     packageVisibleAttributesPerPackage.add(packageName);
                                 }
@@ -519,19 +676,20 @@ public class ProjectMetricsSetCalculator {
                 }
             }
         }
+
         @Override
         public void visitClass(PsiClass aClass) {
-            super.visitClass(aClass);
-
             indicator.checkCanceled();
 
+            // Collect class-level inputs before descending into members.
             processAttributeInheritanceFactor(aClass);
             processAttributeAndMethodHidingFactor(aClass);
             processCouplingFactor(aClass);
             processMethodInheritanceFactor(aClass);
             processPolymorphismFactor(aClass);
-
             processStatisticMetrics(aClass);
+
+            super.visitClass(aClass);
 
             indicator.setText("Calculating metrics on project level: processing class " + aClass.getName() + "...");
             progress++;
@@ -612,23 +770,6 @@ public class ProjectMetricsSetCalculator {
             return false;
         }
 
-        public boolean classIsInLibrary(@NotNull PsiClass psiClass) {
-            PsiFile file = psiClass.getContainingFile();
-            if (file == null) {
-                // If we cannot resolve a file for the class, treat it as library to be safe
-                return true;
-            }
-            VirtualFile vFile = file.getVirtualFile();
-            if (vFile == null) {
-                return true;
-            }
-            ProjectFileIndex index = ProjectRootManager.getInstance(file.getProject()).getFileIndex();
-            // Class is considered in library only if it is indexed as library; Kotlin sources are in content/source
-            boolean inLibrary = index.isInLibrary(vFile);
-            boolean inContentOrSource = index.isInContent(vFile) || index.isInSource(vFile);
-            return inLibrary || !inContentOrSource;
-        }
-
         private void processCouplingFactor(PsiClass psiClass) {
             final Set<PsiClass> dependencies = dependenciesBuilder.getClassesDependencies(psiClass);
             totalCoupling += dependencies.stream()
@@ -663,13 +804,16 @@ public class ProjectMetricsSetCalculator {
         public void visitMethod(PsiMethod psiMethod) {
             super.visitMethod(psiMethod);
             methodsNumber++;
-            final PsiClass containingClass = psiMethod.getContainingClass();
 
-            if (psiMethod.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    Objects.requireNonNull(containingClass).hasModifierProperty(PsiModifier.PRIVATE)) {
-            } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) ||
-                    containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
-                totalMethodsVisibility = totalMethodsVisibility.plus(Value.of(getSubclassCount(containingClass)));
+            final PsiClass containingClass = psiMethod.getContainingClass();
+            if (containingClass == null) {
+                return;
+            }
+
+            if (psiMethod.hasModifierProperty(PsiModifier.PRIVATE) || containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
+                // private: not visible outside
+            } else if (psiMethod.hasModifierProperty(PsiModifier.PROTECTED) || containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
+                protectedMethodsPerClass.merge(containingClass, 1, Integer::sum);
             } else if ((psiMethod.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
                     containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
                 publicMethodsNumber++;
@@ -683,13 +827,16 @@ public class ProjectMetricsSetCalculator {
         public void visitField(PsiField psiField) {
             super.visitField(psiField);
             attributesNumber++;
-            final PsiClass containingClass = psiField.getContainingClass();
 
-            if (psiField.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    Objects.requireNonNull(containingClass).hasModifierProperty(PsiModifier.PRIVATE)) {
-            } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) ||
-                    containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
-                totalAttributesVisibility = totalAttributesVisibility.plus(Value.of(getSubclassCount(containingClass)));
+            final PsiClass containingClass = psiField.getContainingClass();
+            if (containingClass == null) {
+                return;
+            }
+
+            if (psiField.hasModifierProperty(PsiModifier.PRIVATE) || containingClass.hasModifierProperty(PsiModifier.PRIVATE)) {
+                // private: not visible outside
+            } else if (psiField.hasModifierProperty(PsiModifier.PROTECTED) || containingClass.hasModifierProperty(PsiModifier.PROTECTED)) {
+                protectedFieldsPerClass.merge(containingClass, 1, Integer::sum);
             } else if ((psiField.hasModifierProperty(PsiModifier.PUBLIC) || containingClass.isInterface()) &&
                     containingClass.hasModifierProperty(PsiModifier.PUBLIC)) {
                 publicAttributesNumber++;
@@ -708,7 +855,7 @@ public class ProjectMetricsSetCalculator {
             final Query<PsiClass> query = ClassInheritorsSearch.search(
                     psiClass, globalScope, true, true, true);
             for (final PsiClass inheritor : query) {
-                if (!inheritor.isInterface()) {
+                if (!inheritor.isInterface() && !classIsInLibrary(inheritor)) {
                     subclassesNumber++;
                 }
             }
