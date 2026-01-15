@@ -580,7 +580,7 @@ public class ProjectMetricsSetCalculator {
                 continue;
             }
             Value nom = nomMetric.getPsiValue();
-            if (nom.isLessThanOrEqualTo(Value.ZERO)) {
+            if (nom.isEqualsOrLessThan(Value.ZERO)) {
                 continue;
             }
             Metric noomMetric = aClass.metric(NOOM);
