@@ -390,70 +390,25 @@ public class ProjectMetricsSetCalculator {
     }
 
     /**
-     * Prefer a PSI-derived metric value when it is present and positive.
-     *
-     * <p>Historically some element metrics (especially method-level ones such as CC/LOC)
-     * were stored in the "psi" value field while the computed value field could be left at 0.
-     * Using {@link Metric#getValue()} for those metrics makes project aggregates (such as PRMI)
-     * degenerate to 0. This helper provides a robust value selection policy.</p>
-     *
-     * @param metric metric instance
-     * @return psi value if it exists and is positive; otherwise computed value (or 0)
-     */
-    @NotNull
-    private static Value metricValuePreferPsi(@NotNull Metric metric) {
-        Value psi = metric.getPsiValue();
-        if (psi != null && !psi.isEqualsOrLessThan(Value.ZERO)) {
-            return psi;
-        }
-        Value value = metric.getValue();
-        return value != null ? value : Value.ZERO;
-    }
-
-    /**
      * Calculates the Maintainability Index using the Microsoft formula.
      *
      * <p>Formula: MI = max(0, (171 - 5.2*ln(V) - 0.23*ln(CC) - 16.2*ln(LOC)) * 100/171)</p>
      * <p>Where V = Halstead Volume, CC = Cyclomatic Complexity, LOC = Lines of Code</p>
      */
     private void calculateMaintainabilityIndex() {
-        double projectCC = projectElement
+        long projectCC = projectElement
                 .allClasses().flatMap(ClassElement::methods)
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
-                .map(ProjectMetricsSetCalculator::metricValuePreferPsi)
+                .map(Metric::getValue)
                 .reduce(Value::plus)
                 .orElse(Value.ZERO)
-                .doubleValue();
-
-        long projectLOC = linesOfCode;
-        if (projectLOC <= 0L) {
-            projectLOC = projectElement
-                    .allClasses().flatMap(ClassElement::methods)
-                    .flatMap(CodeElement::metrics)
-                    .filter(metric -> metric.getType() == LOC)
-                    .map(ProjectMetricsSetCalculator::metricValuePreferPsi)
-                    .reduce(Value::plus)
-                    .orElse(Value.ZERO)
-                    .longValue();
-        }
-
-        double halsteadVolumeForMi = halsteadVolume;
-        if (halsteadVolumeForMi <= 0.0) {
-            halsteadVolumeForMi = projectElement
-                    .allPackages().flatMap(CodeElement::metrics)
-                    .filter(metric -> metric.getType() == PAHVL)
-                    .map(ProjectMetricsSetCalculator::metricValuePreferPsi)
-                    .reduce(Value::plus)
-                    .orElse(Value.ZERO)
-                    .doubleValue();
-        }
+                .longValue();
 
         double maintainabilityIndex = 0.0;
-        if (projectCC > 0.0 && projectLOC > 0L && halsteadVolumeForMi > 0.0) {
-            maintainabilityIndex = (171 - 5.2 * Math.log(halsteadVolumeForMi)
-                    - 0.23 * Math.log(projectCC) - 16.2 * Math.log(projectLOC)) * 100 / 171;
-            maintainabilityIndex = Math.max(0.0, maintainabilityIndex);
+        if (projectCC > 0L && linesOfCode > 0L && halsteadVolume > 0.0) {
+            maintainabilityIndex = Math.max(0, (171 - 5.2 * Math.log(halsteadVolume)
+                    - 0.23 * Math.log(projectCC) - 16.2 * Math.log(linesOfCode)) * 100 / 171);
         }
 
         projectElement.addMetric(Metric.of(MetricType.PRMI, maintainabilityIndex));
