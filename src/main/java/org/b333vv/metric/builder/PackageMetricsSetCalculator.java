@@ -20,7 +20,6 @@ import com.intellij.analysis.AnalysisScope;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.JavaRecursiveElementVisitor;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiPackage;
 import org.b333vv.metric.model.code.ClassElement;
@@ -45,30 +44,33 @@ import java.util.stream.Collectors;
 import static org.b333vv.metric.model.metric.MetricType.*;
 
 /**
- * Calculates package-level metrics (Martin metrics + aggregated statistics) for all packages
- * available via {@link ProjectElement#allPackages()}.
+ * Calculates package-level metrics for packages visited in the given {@link AnalysisScope}.<br>
+ *
+ * <h3>What is considered a package</h3>
+ * Metrics are calculated only for packages that contain at least one <b>non-anonymous</b> class visited while
+ * traversing the {@link AnalysisScope}. This avoids producing misleading "all zeros" metric sets for packages
+ * that are present in {@link ProjectElement#allPackages()} but are outside the scope being analyzed.
  *
  * <h3>Martin metrics</h3>
+ * The following Robert C. Martin package metrics are computed:
  * <ul>
  *   <li><b>Ce</b> (efferent coupling): number of unique external packages that the package depends on.</li>
  *   <li><b>Ca</b> (afferent coupling): number of unique external packages that depend on the package.</li>
  *   <li><b>I</b> (instability): {@code Ce / (Ca + Ce)}. When {@code Ca + Ce == 0} treated as {@code 0.0}.</li>
- *   <li><b>A</b> (abstractness): {@code Na / Nc}, where {@code Na} is number of abstract classes+interfaces,
- *       {@code Nc} is total number of classes+interfaces in the package. When {@code Nc == 0} treated as {@code 0.0}.</li>
+ *   <li><b>A</b> (abstractness): {@code Na / Nc}, where {@code Na} is number of abstract classes + interfaces,
+ *       {@code Nc} is total number of classes + interfaces in the package. When {@code Nc == 0} treated as {@code 0.0}.</li>
  *   <li><b>D</b> (distance from main sequence): {@code | 1 - A - I |}.</li>
  * </ul>
  *
  * <p>
- * Important: {@code Ce} and {@code Ca} are computed using <b>unique package sets</b> (union across all classes)
- * to avoid overcounting the same dependency multiple times when many classes reference the same package.
+ * Couplings ({@code Ce}/{@code Ca}) are computed using <b>unique package sets</b> aggregated across all classes
+ * in a package, which prevents overcounting the same dependency multiple times.
  * </p>
  *
- * <h3>Aggregated statistics</h3>
+ * <h3>Aggregated package statistics</h3>
  * Additionally calculates package-aggregated sums/counters such as:
- * {@link MetricType#PNCSS}, {@link MetricType#PLOC},
- * counts of class kinds (concrete/abstract/static/interfaces),
- * package-aggregated Halstead metrics (prefixed with {@code PA*}),
- * and package Maintainability Index ({@link MetricType#PAMI}).
+ * {@link MetricType#PNCSS}, {@link MetricType#PLOC}, counts of class kinds (concrete/abstract/static/interfaces),
+ * package-aggregated Halstead metrics (prefixed with {@code PA*}), and package Maintainability Index ({@link MetricType#PAMI}).
  */
 public class PackageMetricsSetCalculator {
     private final AnalysisScope scope;
@@ -85,6 +87,11 @@ public class PackageMetricsSetCalculator {
      */
     private final ConcurrentMap<PsiPackage, Set<PsiPackage>> afferentPackages = new ConcurrentHashMap<>();
 
+    /**
+     * Packages that were actually visited while traversing the analysis scope.
+     */
+    private final Set<PsiPackage> visitedPackages = ConcurrentHashMap.newKeySet();
+
     private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
     private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
 
@@ -96,7 +103,12 @@ public class PackageMetricsSetCalculator {
 
     public void calculate() {
         scope.accept(new Visitor());
-        projectElement.allPackages().forEach(this::handlePackage);
+        projectElement.allPackages()
+                .filter(p -> {
+                    PsiPackage psiPackage = p.getPsiPackage();
+                    return psiPackage != null && visitedPackages.contains(psiPackage);
+                })
+                .forEach(this::handlePackage);
     }
 
     private void handlePackage(@NotNull PackageElement p) {
@@ -133,7 +145,8 @@ public class PackageMetricsSetCalculator {
     }
 
     private void addStatisticMetrics(PackageElement p) {
-        List<PsiClass> psiClasses = p.classes()
+        List<ClassElement> classes = p.classes().collect(Collectors.toList());
+        List<PsiClass> psiClasses = classes.stream()
                 .map(ClassElement::getPsiClass)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -158,8 +171,7 @@ public class PackageMetricsSetCalculator {
             }
         }
 
-        long nonCommentingSourceStatements = p
-                .classes()
+        long nonCommentingSourceStatements = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == NCSS)
                 .map(Metric::getValue)
@@ -167,8 +179,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        long linesOfCode = p
-                .classes()
+        long linesOfCode = classes.stream()
                 .flatMap(ClassElement::methods)
                 .map(javaMethod -> javaMethod.metric(LOC))
                 .filter(Objects::nonNull)
@@ -177,8 +188,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        double halsteadVolume = p
-                .classes()
+        double halsteadVolume = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHVL)
                 .map(Metric::getValue)
@@ -186,8 +196,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        double halsteadDifficulty = p
-                .classes()
+        double halsteadDifficulty = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHD)
                 .map(Metric::getValue)
@@ -195,8 +204,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        long halsteadLength = p
-                .classes()
+        long halsteadLength = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHL)
                 .map(Metric::getValue)
@@ -204,8 +212,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        double halsteadEffort = p
-                .classes()
+        double halsteadEffort = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHEF)
                 .map(Metric::getValue)
@@ -213,8 +220,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .doubleValue();
 
-        long halsteadVocabulary = p
-                .classes()
+        long halsteadVocabulary = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHVC)
                 .map(Metric::getValue)
@@ -222,8 +228,7 @@ public class PackageMetricsSetCalculator {
                 .orElse(Value.ZERO)
                 .longValue();
 
-        double halsteadErrors = p
-                .classes()
+        double halsteadErrors = classes.stream()
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CHER)
                 .map(Metric::getValue)
@@ -245,8 +250,7 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(PACHVC, halsteadVocabulary));
         p.addMetric(Metric.of(PACHER, halsteadErrors));
 
-        long packageCC = p
-                .classes()
+        long packageCC = classes.stream()
                 .flatMap(ClassElement::methods)
                 .flatMap(CodeElement::metrics)
                 .filter(metric -> metric.getType() == CC)
@@ -268,20 +272,18 @@ public class PackageMetricsSetCalculator {
 
     private class Visitor extends JavaRecursiveElementVisitor {
         @Override
-        public void visitFile(PsiFile psiFile) {
-            super.visitFile(psiFile);
-        }
-
-        @Override
         public void visitClass(PsiClass psiClass) {
             super.visitClass(psiClass);
             if (ClassUtils.isAnonymous(psiClass)) {
                 return;
             }
+
             PsiPackage psiPackage = ClassUtils.findPackage(psiClass);
             if (psiPackage == null) {
                 return;
             }
+
+            visitedPackages.add(psiPackage);
 
             // Ensure buckets exist (defensive).
             classesPerPackageNumber.createBucket(psiPackage);
