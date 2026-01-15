@@ -17,7 +17,9 @@
 package org.b333vv.metric.builder;
 
 import com.intellij.analysis.AnalysisScope;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -914,20 +916,22 @@ public class ProjectMetricsSetCalculator {
      * @return true if the class is from a library, false if it's project source code
      */
     private boolean classIsInLibrary(@NotNull PsiClass psiClass) {
-        PsiFile file = psiClass.getContainingFile();
-        if (file == null) {
-            // If we cannot resolve a file for the class, treat it as library to be safe
-            return true;
-        }
-        VirtualFile vFile = file.getVirtualFile();
-        if (vFile == null) {
-            return true;
-        }
-        ProjectFileIndex index = ProjectRootManager.getInstance(file.getProject()).getFileIndex();
-        // Class is considered in library only if it is indexed as library; Kotlin sources are in content/source
-        boolean inLibrary = index.isInLibrary(vFile);
-        boolean inContentOrSource = index.isInContent(vFile) || index.isInSource(vFile);
-        return inLibrary || !inContentOrSource;
+        return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> {
+            PsiFile file = psiClass.getContainingFile();
+            if (file == null) {
+                // If we cannot resolve a file for the class, treat it as library to be safe
+                return true;
+            }
+            VirtualFile vFile = file.getVirtualFile();
+            if (vFile == null) {
+                return true;
+            }
+            ProjectFileIndex index = ProjectRootManager.getInstance(file.getProject()).getFileIndex();
+            // Class is considered in library only if it is indexed as library; Kotlin sources are in content/source
+            boolean inLibrary = index.isInLibrary(vFile);
+            boolean inContentOrSource = index.isInContent(vFile) || index.isInSource(vFile);
+            return inLibrary || !inContentOrSource;
+        });
     }
 
     /**
