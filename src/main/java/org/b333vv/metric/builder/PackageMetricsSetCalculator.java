@@ -85,72 +85,74 @@ public class PackageMetricsSetCalculator {
     }
 
     private void handlePackage(@NotNull PackageElement p) {
-        PsiPackage psiPackage = p.getPsiPackage();
-        if (psiPackage == null) {
-            return;
-        }
-
-        Set<PsiPackage> efferentPackages = new HashSet<>();
-        Set<PsiPackage> afferentPackages = new HashSet<>();
-        int classesNumber = 0;
-        int abstractClassesNumber = 0;
-
-        List<ClassElement> classElements = p.classes().collect(Collectors.toList());
-
-        for (ClassElement classElement : classElements) {
-            PsiClass psiClass = classElement.getPsiClass();
-            if (psiClass == null || ClassUtils.isAnonymous(psiClass)) {
-                continue;
+        ApplicationManager.getApplication().runReadAction(() -> {
+            PsiPackage psiPackage = p.getPsiPackage();
+            if (psiPackage == null) {
+                return;
             }
 
-            classesNumber++;
-            if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
-                abstractClassesNumber++;
-            }
+            Set<PsiPackage> efferentPackages = new HashSet<>();
+            Set<PsiPackage> afferentPackages = new HashSet<>();
+            int classesNumber = 0;
+            int abstractClassesNumber = 0;
 
-            Set<PsiClass> dependentClasses = dependenciesBuilder.getDependentsSet(psiClass, psiPackage);
-            if (dependentClasses != null && !dependentClasses.isEmpty()) {
-                for (PsiClass dependentClass : dependentClasses) {
-                    if (dependentClass == null) continue;
-                    PsiPackage dependentPackage = ClassUtils.findPackage(dependentClass);
-                    if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
-                        afferentPackages.add(dependentPackage);
+            List<ClassElement> classElements = p.classes().collect(Collectors.toList());
+
+            for (ClassElement classElement : classElements) {
+                PsiClass psiClass = classElement.getPsiClass();
+                if (psiClass == null || ClassUtils.isAnonymous(psiClass)) {
+                    continue;
+                }
+
+                classesNumber++;
+                if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
+                    abstractClassesNumber++;
+                }
+
+                Set<PsiClass> dependentClasses = dependenciesBuilder.getDependentsSet(psiClass, psiPackage);
+                if (dependentClasses != null && !dependentClasses.isEmpty()) {
+                    for (PsiClass dependentClass : dependentClasses) {
+                        if (dependentClass == null) continue;
+                        PsiPackage dependentPackage = ClassUtils.findPackage(dependentClass);
+                        if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
+                            afferentPackages.add(dependentPackage);
+                        }
+                    }
+                }
+
+                Set<PsiPackage> packageDependencies = dependenciesBuilder.getPackagesDependencies(psiClass);
+                if (packageDependencies != null) {
+                    for (PsiPackage dependentPackage : packageDependencies) {
+                        if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
+                            efferentPackages.add(dependentPackage);
+                        }
                     }
                 }
             }
 
-            Set<PsiPackage> packageDependencies = dependenciesBuilder.getPackagesDependencies(psiClass);
-            if (packageDependencies != null) {
-                for (PsiPackage dependentPackage : packageDependencies) {
-                    if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
-                        efferentPackages.add(dependentPackage);
-                    }
-                }
-            }
-        }
+            int afferentCoupling = afferentPackages.size();
+            int efferentCoupling = efferentPackages.size();
 
-        int afferentCoupling = afferentPackages.size();
-        int efferentCoupling = efferentPackages.size();
+            Value instability = (afferentCoupling + efferentCoupling) == 0
+                    ? Value.of(0.0)
+                    : Value.of((double) efferentCoupling)
+                    .divide(Value.of((double) (afferentCoupling + efferentCoupling)));
 
-        Value instability = (afferentCoupling + efferentCoupling) == 0
-                ? Value.of(0.0)
-                : Value.of((double) efferentCoupling)
-                .divide(Value.of((double) (afferentCoupling + efferentCoupling)));
+            p.addMetric(Metric.of(Ce, efferentCoupling));
+            p.addMetric(Metric.of(Ca, afferentCoupling));
+            p.addMetric(Metric.of(I, instability));
 
-        p.addMetric(Metric.of(Ce, efferentCoupling));
-        p.addMetric(Metric.of(Ca, afferentCoupling));
-        p.addMetric(Metric.of(I, instability));
+            Value abstractness = classesNumber == 0
+                    ? Value.of(0.0)
+                    : Value.of((double) abstractClassesNumber).divide(Value.of((double) classesNumber));
 
-        Value abstractness = classesNumber == 0
-                ? Value.of(0.0)
-                : Value.of((double) abstractClassesNumber).divide(Value.of((double) classesNumber));
+            p.addMetric(Metric.of(A, abstractness));
 
-        p.addMetric(Metric.of(A, abstractness));
+            Value distance = Value.of(1.0).minus(instability).minus(abstractness).abs();
+            p.addMetric(Metric.of(D, distance));
 
-        Value distance = Value.of(1.0).minus(instability).minus(abstractness).abs();
-        p.addMetric(Metric.of(D, distance));
-
-        ApplicationManager.getApplication().runReadAction(() -> addStatisticMetrics(p));
+            addStatisticMetrics(p);
+        });
     }
 
     private void addStatisticMetrics(PackageElement p) {
@@ -164,7 +166,7 @@ public class PackageMetricsSetCalculator {
         long abstractClassesNumber = 0;
         long staticClassesNumber = 0;
         long interfacesNumber = 0;
-        
+
         long kotlinObjectsNumber = 0;
         long companionObjectsNumber = 0;
         long dataClassesNumber = 0;
@@ -189,7 +191,7 @@ public class PackageMetricsSetCalculator {
             if (psiClass.isInterface()) {
                 interfacesNumber++;
             }
-            
+
             if (navElement instanceof KtClass) {
                 KtClass ktClass = (KtClass) navElement;
                 if (ktClass.isData()) {
@@ -279,7 +281,7 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(PNOAC, abstractClassesNumber));
         p.addMetric(Metric.of(PNOSC, staticClassesNumber));
         p.addMetric(Metric.of(PNOI, interfacesNumber));
-        
+
         p.addMetric(Metric.of(PNOKOBJ, kotlinObjectsNumber));
         p.addMetric(Metric.of(PNOKCO, companionObjectsNumber));
         p.addMetric(Metric.of(PNOKDC, dataClassesNumber));
