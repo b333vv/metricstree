@@ -26,18 +26,15 @@ import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
 import org.b333vv.metric.model.metric.MetricType;
 import org.b333vv.metric.model.metric.value.Value;
-import org.b333vv.metric.model.util.BucketedCount;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtObjectDeclaration;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import static org.b333vv.metric.model.metric.MetricType.*;
@@ -76,24 +73,6 @@ public class PackageMetricsSetCalculator {
     private final DependenciesBuilder dependenciesBuilder;
     private final ProjectElement projectElement;
 
-    /**
-     * For each package P: set of unique external packages that P depends on (Ce basis).
-     */
-    private final ConcurrentMap<PsiPackage, Set<PsiPackage>> efferentPackages = new ConcurrentHashMap<>();
-
-    /**
-     * For each package P: set of unique external packages that depend on P (Ca basis).
-     */
-    private final ConcurrentMap<PsiPackage, Set<PsiPackage>> afferentPackages = new ConcurrentHashMap<>();
-
-    /**
-     * Packages that were actually visited while traversing the analysis scope.
-     */
-    private final Set<PsiPackage> visitedPackages = ConcurrentHashMap.newKeySet();
-
-    private final BucketedCount<PsiPackage> abstractClassesPerPackageNumber = new BucketedCount<>();
-    private final BucketedCount<PsiPackage> classesPerPackageNumber = new BucketedCount<>();
-
     public PackageMetricsSetCalculator(AnalysisScope scope, DependenciesBuilder dependenciesBuilder, ProjectElement projectElement) {
         this.scope = scope;
         this.dependenciesBuilder = dependenciesBuilder;
@@ -101,12 +80,7 @@ public class PackageMetricsSetCalculator {
     }
 
     public void calculate() {
-        scope.accept(new Visitor());
         projectElement.allPackages()
-                .filter(p -> {
-                    PsiPackage psiPackage = p.getPsiPackage();
-                    return psiPackage != null && visitedPackages.contains(psiPackage);
-                })
                 .forEach(this::handlePackage);
     }
 
@@ -116,8 +90,47 @@ public class PackageMetricsSetCalculator {
             return;
         }
 
-        int afferentCoupling = afferentPackages.getOrDefault(psiPackage, Collections.emptySet()).size();
-        int efferentCoupling = efferentPackages.getOrDefault(psiPackage, Collections.emptySet()).size();
+        Set<PsiPackage> efferentPackages = new HashSet<>();
+        Set<PsiPackage> afferentPackages = new HashSet<>();
+        int classesNumber = 0;
+        int abstractClassesNumber = 0;
+
+        List<ClassElement> classElements = p.classes().collect(Collectors.toList());
+
+        for (ClassElement classElement : classElements) {
+            PsiClass psiClass = classElement.getPsiClass();
+            if (psiClass == null || ClassUtils.isAnonymous(psiClass)) {
+                continue;
+            }
+
+            classesNumber++;
+            if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
+                abstractClassesNumber++;
+            }
+
+            Set<PsiClass> dependentClasses = dependenciesBuilder.getDependentsSet(psiClass, psiPackage);
+            if (dependentClasses != null && !dependentClasses.isEmpty()) {
+                for (PsiClass dependentClass : dependentClasses) {
+                    if (dependentClass == null) continue;
+                    PsiPackage dependentPackage = ClassUtils.findPackage(dependentClass);
+                    if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
+                        afferentPackages.add(dependentPackage);
+                    }
+                }
+            }
+
+            Set<PsiPackage> packageDependencies = dependenciesBuilder.getPackagesDependencies(psiClass);
+            if (packageDependencies != null) {
+                for (PsiPackage dependentPackage : packageDependencies) {
+                    if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
+                        efferentPackages.add(dependentPackage);
+                    }
+                }
+            }
+        }
+
+        int afferentCoupling = afferentPackages.size();
+        int efferentCoupling = efferentPackages.size();
 
         Value instability = (afferentCoupling + efferentCoupling) == 0
                 ? Value.of(0.0)
@@ -127,9 +140,6 @@ public class PackageMetricsSetCalculator {
         p.addMetric(Metric.of(Ce, efferentCoupling));
         p.addMetric(Metric.of(Ca, afferentCoupling));
         p.addMetric(Metric.of(I, instability));
-
-        int classesNumber = classesPerPackageNumber.getBucketValue(psiPackage);
-        int abstractClassesNumber = abstractClassesPerPackageNumber.getBucketValue(psiPackage);
 
         Value abstractness = classesNumber == 0
                 ? Value.of(0.0)
@@ -300,60 +310,5 @@ public class PackageMetricsSetCalculator {
         }
 
         p.addMetric(Metric.of(MetricType.PAMI, maintainabilityIndex));
-    }
-
-    private class Visitor extends JavaRecursiveElementVisitor {
-        @Override
-        public void visitClass(PsiClass psiClass) {
-            super.visitClass(psiClass);
-            if (ClassUtils.isAnonymous(psiClass)) {
-                return;
-            }
-
-            PsiPackage psiPackage = ClassUtils.findPackage(psiClass);
-            if (psiPackage == null) {
-                return;
-            }
-
-            visitedPackages.add(psiPackage);
-
-            // Ensure buckets exist (defensive).
-            classesPerPackageNumber.createBucket(psiPackage);
-            abstractClassesPerPackageNumber.createBucket(psiPackage);
-
-            // Afferent coupling: unique external packages that depend on this package.
-            // dependenciesBuilder.getDependentsSet(...) is assumed to return classes that depend on psiClass.
-            Set<PsiClass> dependentClasses = dependenciesBuilder.getDependentsSet(psiClass, psiPackage);
-            if (dependentClasses != null && !dependentClasses.isEmpty()) {
-                Set<PsiPackage> afferentSet =
-                        afferentPackages.computeIfAbsent(psiPackage, k -> ConcurrentHashMap.newKeySet());
-                for (PsiClass dependentClass : dependentClasses) {
-                    if (dependentClass == null) {
-                        continue;
-                    }
-                    PsiPackage dependentPackage = ClassUtils.findPackage(dependentClass);
-                    if (dependentPackage != null && !dependentPackage.equals(psiPackage)) {
-                        afferentSet.add(dependentPackage);
-                    }
-                }
-            }
-
-            // Efferent coupling: unique external packages that this package depends on.
-            Set<PsiPackage> efferentSet =
-                    efferentPackages.computeIfAbsent(psiPackage, k -> ConcurrentHashMap.newKeySet());
-
-            Set<PsiPackage> packageDependencies = dependenciesBuilder.getPackagesDependencies(psiClass)
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .filter(p -> !p.equals(psiPackage))
-                    .collect(Collectors.toSet());
-
-            efferentSet.addAll(packageDependencies);
-
-            if (psiClass.isInterface() || psiClass.hasModifierProperty(PsiModifier.ABSTRACT)) {
-                abstractClassesPerPackageNumber.incrementBucketValue(psiPackage);
-            }
-            classesPerPackageNumber.incrementBucketValue(psiPackage);
-        }
     }
 }
