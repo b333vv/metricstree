@@ -21,7 +21,7 @@ import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.util.ConcurrentStack;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.asJava.LightClassUtil;
+import static org.jetbrains.kotlin.asJava.LightClassUtilsKt.toLightClass;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.*;
@@ -293,7 +293,7 @@ public class DependenciesBuilder {
         }
 
         private void handleClass(KtClassOrObject classOrObject, Runnable superCall) {
-            PsiClass psiClass = LightClassUtil.getPsiClass(classOrObject);
+            PsiClass psiClass = toLightClass(classOrObject);
             if (psiClass != null && !ClassUtils.isAnonymous(psiClass)) {
                 classStack.push(currentClass);
                 currentClass = psiClass;
@@ -311,11 +311,11 @@ public class DependenciesBuilder {
         @Override
         public void visitReferenceExpression(KtReferenceExpression expression) {
             super.visitReferenceExpression(expression);
-            PsiElement resolved = expression.resolve();
+            PsiElement resolved = expression.getReference().resolve();
             if (resolved instanceof PsiClass) {
                 addDependencyForClass(currentClass, (PsiClass) resolved);
             } else if (resolved instanceof KtClassOrObject) {
-                PsiClass psiClass = LightClassUtil.getPsiClass((KtClassOrObject) resolved);
+                PsiClass psiClass = toLightClass((KtClassOrObject) resolved);
                 if (psiClass != null) {
                     addDependencyForClass(currentClass, psiClass);
                 }
