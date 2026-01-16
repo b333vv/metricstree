@@ -21,6 +21,8 @@ import org.b333vv.metric.model.util.Bag;
 import org.b333vv.metric.model.util.ClassUtils;
 import org.b333vv.metric.model.util.ConcurrentStack;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.asJava.LightClassUtil;
+import org.jetbrains.kotlin.psi.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,9 +38,19 @@ public class DependenciesBuilder {
     // Track unresolved type dependencies (e.g., standard library classes)
     private final Map<PsiClass, Set<String>> unresolvedDependencies = new ConcurrentHashMap<>();
 
-    public void  build(PsiElement psiElement) {
-        final DependenciesVisitor visitor = new DependenciesVisitor();
-        psiElement.accept(visitor);
+    public void build(PsiElement psiElement) {
+        psiElement.accept(new PsiRecursiveElementVisitor() {
+            @Override
+            public void visitElement(PsiElement element) {
+                if (element instanceof PsiJavaFile) {
+                    element.accept(new DependenciesVisitor());
+                } else if (element instanceof KtFile) {
+                    element.accept(new KotlinDependenciesVisitor());
+                } else {
+                    super.visitElement(element);
+                }
+            }
+        });
     }
 
     public Set<PsiClass> getClassesDependents(PsiClass psiClass) {
@@ -54,7 +66,7 @@ public class DependenciesBuilder {
         }
         return classesDependents.get(psiClass).getContents()
                 .stream()
-                .filter(c -> !ClassUtils.findPackage(c).equals(psiPackage))
+                .filter(c -> !Objects.equals(ClassUtils.findPackage(c), psiPackage))
                 .collect(Collectors.toSet());
     }
 
@@ -84,6 +96,87 @@ public class DependenciesBuilder {
         return union.size() + unresolvedDeps.size();
     }
 
+    private <K, V> void add(K k, V v, Map<K, Bag<V>> map) {
+        map.computeIfAbsent(k, (unused) -> new Bag<>()).add(v);
+    }
+
+    private void addDependencyForClass(PsiClass currentClass, PsiClass referencedClass) {
+        if (currentClass == null || referencedClass == null || referencedClass.equals(currentClass)) {
+            return;
+        }
+        
+        if (referencedClass instanceof PsiAnonymousClass || referencedClass instanceof PsiTypeParameter) {
+            return;
+        }
+        add(currentClass, referencedClass, classesDependencies);
+        add(referencedClass, currentClass, classesDependents);
+
+        final PsiPackage dependencyPackage = ClassUtils.findPackage(referencedClass);
+        if (dependencyPackage != null) {
+            add(currentClass, dependencyPackage, packagesDependencies);
+        }
+
+        final PsiPackage aPackage = ClassUtils.findPackage(currentClass);
+        if (aPackage != null) {
+            add(referencedClass, aPackage, packagesDependents);
+        }
+    }
+    
+    private void addUnresolvedTypeDependency(PsiClass currentClass, PsiClassType classType) {
+        if (currentClass == null) {
+            return;
+        }
+        
+        String typeName = classType.getCanonicalText();
+        
+        if (typeName == null || typeName.contains("<") || typeName.contains("[")) {
+            if (typeName != null && typeName.contains("<")) {
+                int genericStart = typeName.indexOf('<');
+                typeName = typeName.substring(0, genericStart);
+            }
+        }
+        
+        if (typeName != null && !typeName.isEmpty()) {
+            unresolvedDependencies.computeIfAbsent(currentClass, k -> new HashSet<>()).add(typeName);
+        }
+    }
+
+    private void addDependencyForType(PsiClass currentClass, @Nullable PsiType psiType) {
+        if (psiType == null) {
+            return;
+        }
+        final PsiType baseType = psiType.getDeepComponentType();
+        if (!(baseType instanceof PsiClassType)) {
+            if (baseType instanceof PsiWildcardType) {
+                final PsiWildcardType wildcardType = (PsiWildcardType) baseType;
+                addDependencyForType(currentClass, wildcardType.getBound());
+            }
+            return;
+        }
+        final PsiClassType classType = (PsiClassType) baseType;
+        addDependencyForTypes(currentClass, classType.getParameters());
+        
+        PsiClass resolvedClass = classType.resolve();
+        if (resolvedClass != null) {
+            addDependencyForClass(currentClass, resolvedClass);
+        } else {
+            addUnresolvedTypeDependency(currentClass, classType);
+        }
+    }
+
+    private void addDependencyForTypes(PsiClass currentClass, PsiType[] psiTypes) {
+        for (PsiType type : psiTypes) {
+            addDependencyForType(currentClass, type);
+        }
+    }
+
+    private void addDependencyForTypeParameters(PsiClass currentClass, PsiTypeParameter[] psiTypeParameters) {
+        for (PsiTypeParameter parameter : psiTypeParameters) {
+            final PsiReferenceList extendsList = parameter.getExtendsList();
+            addDependencyForTypes(currentClass, extendsList.getReferencedTypes());
+        }
+    }
+
     private class DependenciesVisitor extends JavaRecursiveElementVisitor {
 
         private final ConcurrentStack<PsiClass> classStack = new ConcurrentStack<>();
@@ -94,8 +187,8 @@ public class DependenciesBuilder {
             if (!ClassUtils.isAnonymous(psiClass)) {
                 classStack.push(currentClass);
                 currentClass = psiClass;
-                addDependencyForTypes(psiClass.getSuperTypes());
-                addDependencyForTypeParameters(psiClass.getTypeParameters());
+                addDependencyForTypes(currentClass, psiClass.getSuperTypes());
+                addDependencyForTypeParameters(currentClass, psiClass.getTypeParameters());
             }
             super.visitClass(psiClass);
             if (!ClassUtils.isAnonymous(psiClass)) {
@@ -110,8 +203,8 @@ public class DependenciesBuilder {
             if (method == null) {
                 return;
             }
-            addDependencyForClass(method.getContainingClass());
-            addDependencyForTypes(psiMethodCallExpression.getTypeArguments());
+            addDependencyForClass(currentClass, method.getContainingClass());
+            addDependencyForTypes(currentClass, psiMethodCallExpression.getTypeArguments());
         }
 
         @Override
@@ -123,39 +216,39 @@ public class DependenciesBuilder {
             }
             if (element instanceof PsiField) {
                 final PsiField field = (PsiField) element;
-                addDependencyForClass(field.getContainingClass());
+                addDependencyForClass(currentClass, field.getContainingClass());
             } else if (element instanceof PsiClass) {
-                addDependencyForClass((PsiClass) element);
+                addDependencyForClass(currentClass, (PsiClass) element);
             }
         }
 
         @Override
         public void visitMethod(PsiMethod psiMethod) {
             super.visitMethod(psiMethod);
-            addDependencyForType(psiMethod.getReturnType());
-            addDependencyForTypeParameters(psiMethod.getTypeParameters());
+            addDependencyForType(currentClass, psiMethod.getReturnType());
+            addDependencyForTypeParameters(currentClass, psiMethod.getTypeParameters());
             final PsiReferenceList throwsList = psiMethod.getThrowsList();
-            addDependencyForTypes(throwsList.getReferencedTypes());
+            addDependencyForTypes(currentClass, throwsList.getReferencedTypes());
         }
 
         @Override
         public void visitNewExpression(PsiNewExpression psiNewExpression) {
             super.visitNewExpression(psiNewExpression);
-            addDependencyForType(psiNewExpression.getType());
-            addDependencyForTypes(psiNewExpression.getTypeArguments());
+            addDependencyForType(currentClass, psiNewExpression.getType());
+            addDependencyForTypes(currentClass, psiNewExpression.getTypeArguments());
         }
 
         @Override
         public void visitVariable(PsiVariable psiVariable) {
             super.visitVariable(psiVariable);
-            addDependencyForType(psiVariable.getType());
+            addDependencyForType(currentClass, psiVariable.getType());
         }
 
         @Override
         public void visitClassObjectAccessExpression(PsiClassObjectAccessExpression psiClassObjectAccessExpression) {
             super.visitClassObjectAccessExpression(psiClassObjectAccessExpression);
             final PsiTypeElement operand = psiClassObjectAccessExpression.getOperand();
-            addDependencyForType(operand.getType());
+            addDependencyForType(currentClass, operand.getType());
         }
 
         @Override
@@ -165,7 +258,7 @@ public class DependenciesBuilder {
             if (checkType == null) {
                 return;
             }
-            addDependencyForType(checkType.getType());
+            addDependencyForType(currentClass, checkType.getType());
         }
 
         @Override
@@ -175,101 +268,59 @@ public class DependenciesBuilder {
             if (castType == null) {
                 return;
             }
-            addDependencyForType(castType.getType());
+            addDependencyForType(currentClass, castType.getType());
         }
 
         @Override
         public void visitLambdaExpression(PsiLambdaExpression psiLambdaExpression) {
             super.visitLambdaExpression(psiLambdaExpression);
-            addDependencyForType(psiLambdaExpression.getFunctionalInterfaceType());
+            addDependencyForType(currentClass, psiLambdaExpression.getFunctionalInterfaceType());
+        }
+    }
+
+    private class KotlinDependenciesVisitor extends KtTreeVisitorVoid {
+        private final ConcurrentStack<PsiClass> classStack = new ConcurrentStack<>();
+        private PsiClass currentClass = null;
+
+        @Override
+        public void visitClass(KtClass ktClass) {
+            handleClass(ktClass, () -> super.visitClass(ktClass));
         }
 
-        private void addDependencyForTypeParameters(PsiTypeParameter[] psiTypeParameters) {
-            for (PsiTypeParameter parameter : psiTypeParameters) {
-                final PsiReferenceList extendsList = parameter.getExtendsList();
-                addDependencyForTypes(extendsList.getReferencedTypes());
+        @Override
+        public void visitObjectDeclaration(KtObjectDeclaration declaration) {
+            handleClass(declaration, () -> super.visitObjectDeclaration(declaration));
+        }
+
+        private void handleClass(KtClassOrObject classOrObject, Runnable superCall) {
+            PsiClass psiClass = LightClassUtil.getPsiClass(classOrObject);
+            if (psiClass != null && !ClassUtils.isAnonymous(psiClass)) {
+                classStack.push(currentClass);
+                currentClass = psiClass;
+                addDependencyForTypes(currentClass, psiClass.getSuperTypes());
+                addDependencyForTypeParameters(currentClass, psiClass.getTypeParameters());
+            }
+
+            superCall.run();
+
+            if (psiClass != null && !ClassUtils.isAnonymous(psiClass)) {
+                currentClass = classStack.pop();
             }
         }
 
-        private void addDependencyForTypes(PsiType[] psiTypes) {
-            for (PsiType type : psiTypes) {
-                addDependencyForType(type);
-            }
-        }
-
-        private void addDependencyForType(@Nullable PsiType psiType) {
-            if (psiType == null) {
-                return;
-            }
-            final PsiType baseType = psiType.getDeepComponentType();
-            if (!(baseType instanceof PsiClassType)) {
-                if (baseType instanceof PsiWildcardType) {
-                    final PsiWildcardType wildcardType = (PsiWildcardType) baseType;
-                    addDependencyForType(wildcardType.getBound());
+        @Override
+        public void visitReferenceExpression(KtReferenceExpression expression) {
+            super.visitReferenceExpression(expression);
+            PsiElement resolved = expression.resolve();
+            if (resolved instanceof PsiClass) {
+                addDependencyForClass(currentClass, (PsiClass) resolved);
+            } else if (resolved instanceof KtClassOrObject) {
+                PsiClass psiClass = LightClassUtil.getPsiClass((KtClassOrObject) resolved);
+                if (psiClass != null) {
+                    addDependencyForClass(currentClass, psiClass);
                 }
-                return;
-            }
-            final PsiClassType classType = (PsiClassType) baseType;
-            addDependencyForTypes(classType.getParameters());
-            
-            PsiClass resolvedClass = classType.resolve();
-            if (resolvedClass != null) {
-                addDependencyForClass(resolvedClass);
-            } else {
-                // Handle unresolved types (e.g., standard library classes)
-                // Create a synthetic dependency entry for CBO counting
-                addUnresolvedTypeDependency(classType);
-            }
-        }
-
-        private void addDependencyForClass(PsiClass referencedClass) {
-            if (currentClass == null || referencedClass == null || referencedClass.equals(currentClass)) {
-                return;
-            }
-            
-            if (referencedClass instanceof PsiAnonymousClass || referencedClass instanceof PsiTypeParameter) {
-                return;
-            }
-            add(currentClass, referencedClass, classesDependencies);
-            add(referencedClass, currentClass, classesDependents);
-
-            final PsiPackage dependencyPackage = ClassUtils.findPackage(referencedClass);
-            if (dependencyPackage != null) {
-                add(currentClass, dependencyPackage, packagesDependencies);
-            }
-
-            final PsiPackage aPackage = ClassUtils.findPackage(currentClass);
-            if (aPackage != null) {
-                add(referencedClass, aPackage, packagesDependents);
-            }
-        }
-
-        private <K, V> void add(K k, V v, Map<K, Bag<V>> map) {
-            map.computeIfAbsent(k, (unused) -> new Bag<>()).add(v);
-        }
-        
-        private void addUnresolvedTypeDependency(PsiClassType classType) {
-            if (currentClass == null) {
-                return;
-            }
-            
-            // Create a synthetic PsiClass for unresolved types (standard library classes)
-            // We'll use the canonical text to identify the type
-            String typeName = classType.getCanonicalText();
-            
-            // Skip primitive wrappers and basic types if they're already handled elsewhere
-            if (typeName == null || typeName.contains("<") || typeName.contains("[")) {
-                // For generic types, extract the base type name
-                if (typeName != null && typeName.contains("<")) {
-                    int genericStart = typeName.indexOf('<');
-                    typeName = typeName.substring(0, genericStart);
-                }
-            }
-            
-            // Create a synthetic dependency entry
-            // We'll track unresolved types in a separate collection
-            if (typeName != null && !typeName.isEmpty()) {
-                unresolvedDependencies.computeIfAbsent(currentClass, k -> new HashSet<>()).add(typeName);
+            } else if (resolved instanceof PsiMember) {
+                addDependencyForClass(currentClass, ((PsiMember) resolved).getContainingClass());
             }
         }
     }
