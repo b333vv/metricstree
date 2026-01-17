@@ -12,30 +12,38 @@ import static org.b333vv.metric.model.metric.MetricType.LOC;
 /**
  * Computes Lines of Code (LOC) metric for Kotlin functions and constructors.
  * 
- * <p>The LOC metric measures the number of actual code lines in a function, excluding:
+ * <p>
+ * The LOC metric measures the number of actual code lines in a function,
+ * excluding:
  * <ul>
- *   <li>Single-line comments starting with //</li>
- *   <li>Multi-line comments</li>
- *   <li>KDoc comments</li>
- *   <li>Blank lines containing only whitespace</li>
- *   <li>Lines with only opening or closing braces</li>
+ * <li>Single-line comments starting with //</li>
+ * <li>Multi-line comments</li>
+ * <li>KDoc comments</li>
+ * <li>Blank lines containing only whitespace</li>
+ * <li>Lines with only opening or closing braces</li>
  * </ul>
  * 
- * <p>The metric counts:
+ * <p>
+ * The metric counts:
  * <ul>
- *   <li>Executable statements</li>
- *   <li>Variable declarations and initializations</li>
- *   <li>Control flow statements (if, when, for, while, etc.)</li>
- *   <li>Expression statements</li>
- *   <li>Function calls and property accesses</li>
- *   <li>Lines containing code before single-line comments (e.g., "val x = 5 // comment" counts as 1)</li>
- *   <li>For expression-body functions: the expression itself (minimum 1 line)</li>
- *   <li>For block-body functions: all code lines within the block</li>
+ * <li>Executable statements</li>
+ * <li>Variable declarations and initializations</li>
+ * <li>Control flow statements (if, when, for, while, etc.)</li>
+ * <li>Expression statements</li>
+ * <li>Function calls and property accesses</li>
+ * <li>Lines containing code before single-line comments (e.g., "val x = 5 //
+ * comment" counts as 1)</li>
+ * <li>For expression-body functions: the expression itself (minimum 1
+ * line)</li>
+ * <li>For block-body functions: all code lines within the block</li>
  * </ul>
  * 
- * <p>String literals spanning multiple lines are counted as multiple lines.
+ * <p>
+ * String literals spanning multiple lines are counted as multiple lines.
  * 
- * <p>Examples:
+ * <p>
+ * Examples:
+ * 
  * <pre>
  * // Function with 3 LOC
  * fun calculate(x: Int): Int {
@@ -69,11 +77,24 @@ public class KotlinLinesOfCodeVisitor extends KotlinMethodVisitor {
 
     @Override
     public void visitSecondaryConstructor(@NotNull KtSecondaryConstructor constructor) {
-        metric = Metric.of(LOC, countLinesOfCode(constructor.getBodyExpression()));
+        int lines = countLinesOfCode(constructor.getBodyExpression());
+        metric = Metric.of(LOC, lines);
+    }
+
+    @Override
+    public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
+        metric = Metric.of(LOC, 1);
+    }
+
+    @Override
+    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+        int lines = countLinesOfCode(initializer.getBody());
+        metric = Metric.of(LOC, lines);
     }
 
     /**
-     * Counts lines of code in a Kotlin expression, excluding comments and blank lines.
+     * Counts lines of code in a Kotlin expression, excluding comments and blank
+     * lines.
      * 
      * @param expr the expression to analyze (can be null)
      * @return the number of code lines
@@ -82,53 +103,53 @@ public class KotlinLinesOfCodeVisitor extends KotlinMethodVisitor {
         if (expr == null) {
             return 0;
         }
-        
+
         String text = expr.getText();
         if (text == null || text.isEmpty()) {
             return 0;
         }
-        
+
         String[] lines = text.split("\\n", -1);
         int codeLines = 0;
         boolean inMultiLineComment = false;
         boolean inStringLiteral = false;
-        
+
         for (String line : lines) {
             String trimmed = line.trim();
-            
+
             // Process character by character to handle comments and strings properly
             StringBuilder processedLine = new StringBuilder();
             boolean lineHasCode = false;
-            
+
             for (int i = 0; i < trimmed.length(); i++) {
                 char c = trimmed.charAt(i);
                 char next = (i + 1 < trimmed.length()) ? trimmed.charAt(i + 1) : '\0';
-                
+
                 // Handle multi-line comment start
                 if (!inStringLiteral && !inMultiLineComment && c == '/' && next == '*') {
                     inMultiLineComment = true;
                     i++; // skip next char
                     continue;
                 }
-                
+
                 // Handle multi-line comment end
                 if (inMultiLineComment && c == '*' && next == '/') {
                     inMultiLineComment = false;
                     i++; // skip next char
                     continue;
                 }
-                
+
                 // Skip if inside multi-line comment
                 if (inMultiLineComment) {
                     continue;
                 }
-                
+
                 // Handle single-line comment
                 if (!inStringLiteral && c == '/' && next == '/') {
                     // Rest of line is comment
                     break;
                 }
-                
+
                 // Handle string literals (simplified - doesn't handle all edge cases)
                 if (c == '"' && (i == 0 || trimmed.charAt(i - 1) != '\\')) {
                     inStringLiteral = !inStringLiteral;
@@ -136,14 +157,14 @@ public class KotlinLinesOfCodeVisitor extends KotlinMethodVisitor {
                     lineHasCode = true;
                     continue;
                 }
-                
+
                 // Add character to processed line
                 processedLine.append(c);
                 if (!Character.isWhitespace(c)) {
                     lineHasCode = true;
                 }
             }
-            
+
             // Check if line has actual code (not just braces or whitespace)
             String finalProcessed = processedLine.toString().trim();
             if (lineHasCode && !finalProcessed.isEmpty()) {
@@ -153,7 +174,7 @@ public class KotlinLinesOfCodeVisitor extends KotlinMethodVisitor {
                 }
             }
         }
-        
+
         // Ensure at least 1 line for expression-body functions
         if (codeLines == 0 && !(expr instanceof KtBlockExpression)) {
             // Expression-body function
@@ -162,7 +183,7 @@ public class KotlinLinesOfCodeVisitor extends KotlinMethodVisitor {
                 return 1;
             }
         }
-        
+
         return codeLines;
     }
 }

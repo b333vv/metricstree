@@ -26,12 +26,13 @@ import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.value.Value;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CsvMethodMetricsBuilder {
@@ -45,16 +46,23 @@ public class CsvMethodMetricsBuilder {
     public void buildAndExport(String fileName, ProjectElement projectElement) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<MethodElement> headerSupplierOpt = projectElement.allClasses().flatMap(ClassElement::methods).findAny();
-            if (headerSupplierOpt.isEmpty()) {
+            List<MetricType> metricTypes = projectElement.allClasses()
+                    .flatMap(ClassElement::methods)
+                    .flatMap(MethodElement::metrics)
+                    .map(Metric::getType)
+                    .distinct()
+                    .sorted(Comparator.comparing(MetricType::name))
+                    .collect(Collectors.toList());
+
+            if (metricTypes.isEmpty()) {
                 return;
             }
-            MethodElement headerSupplier = headerSupplierOpt.get();
-            String header = "Method Name;" + headerSupplier.metrics()
-                    .map(m -> m.getType().name())
+
+            String header = "Method Name;" + metricTypes.stream()
+                    .map(MetricType::name)
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
-            
+
             // Wrap PSI access in read action
             ApplicationManager.getApplication().runReadAction(() -> {
                 projectElement.allClasses()
@@ -65,7 +73,7 @@ public class CsvMethodMetricsBuilder {
                             String name2 = getQualifiedNameSafely(c2);
                             return name1.compareTo(name2);
                         })
-                        .map(this::convertToCsv)
+                        .map(m -> convertToCsv(m, metricTypes))
                         .forEach(printWriter::println);
             });
         } catch (FileNotFoundException e) {
@@ -76,7 +84,7 @@ public class CsvMethodMetricsBuilder {
                     .printInfo("Method metrics have been exported in " + csvOutputFile.getAbsolutePath());
         }
     }
-    
+
     private String getQualifiedNameSafely(MethodElement javaMethod) {
         try {
             ClassElement classElement = javaMethod.getJavaClass();
@@ -102,7 +110,7 @@ public class CsvMethodMetricsBuilder {
         }
     }
 
-    private String convertToCsv(MethodElement javaMethod) {
+    private String convertToCsv(MethodElement javaMethod, List<MetricType> metricTypes) {
         try {
             StringBuilder signature = new StringBuilder();
             // Get the method signature safely
@@ -111,7 +119,7 @@ public class CsvMethodMetricsBuilder {
                 signature.append(javaMethod.getPsiMethod().getName());
                 signature.append("(");
                 signature.append(Arrays.stream(
-                                methodSignature.getParameterTypes())
+                        methodSignature.getParameterTypes())
                         .map(PsiType::getPresentableText)
                         .collect(Collectors.joining(", ")));
                 signature.append(")");
@@ -119,18 +127,25 @@ public class CsvMethodMetricsBuilder {
                 // For Kotlin methods, use the existing name
                 signature.append(javaMethod.getName());
             }
-            
+
             String qualifiedName = getQualifiedNameSafely(javaMethod);
-            String methodName = (qualifiedName != null && !qualifiedName.equals("Unknown") ? qualifiedName : "Unknown") + "." + signature + ";";
-            
-            String metrics = javaMethod.metrics()
-                    .map(Metric::getFormattedValue)
+            String methodName = (qualifiedName != null && !qualifiedName.equals("Unknown") ? qualifiedName : "Unknown")
+                    + "." + signature + ";";
+
+            String metrics = metricTypes.stream()
+                    .map(type -> {
+                        Metric m = javaMethod.metric(type);
+                        return m != null ? m.getFormattedValue() : Value.ZERO.toString();
+                    })
                     .collect(Collectors.joining(";"));
             return methodName + metrics;
         } catch (Exception e) {
             // Fallback in case of PSI access issues
-            String metrics = javaMethod.metrics()
-                    .map(Metric::getFormattedValue)
+            String metrics = metricTypes.stream()
+                    .map(type -> {
+                        Metric m = javaMethod.metric(type);
+                        return m != null ? m.getFormattedValue() : Value.ZERO.toString();
+                    })
                     .collect(Collectors.joining(";"));
             return "Unknown.unknownMethod();" + metrics;
         }

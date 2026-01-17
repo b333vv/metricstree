@@ -14,49 +14,63 @@ import static org.b333vv.metric.model.metric.MetricType.CCM;
 /**
  * Visitor for calculating Cognitive Complexity Metric (CCM) for Kotlin code.
  * 
- * <p>Cognitive Complexity is a measure of how difficult code is to understand, based on the
- * cognitive load required to comprehend the control flow. Unlike Cyclomatic Complexity,
- * which measures structural complexity, Cognitive Complexity focuses on human readability
+ * <p>
+ * Cognitive Complexity is a measure of how difficult code is to understand,
+ * based on the
+ * cognitive load required to comprehend the control flow. Unlike Cyclomatic
+ * Complexity,
+ * which measures structural complexity, Cognitive Complexity focuses on human
+ * readability
  * and comprehension effort.
  * 
  * <h2>Metric Calculation Rules</h2>
  * 
  * <h3>Basic Increments (+1 for each):</h3>
  * <ul>
- *   <li><b>Decision structures</b>: if, when, while, do-while, for loops</li>
- *   <li><b>Exception handling</b>: each catch clause</li>
- *   <li><b>Jump expressions</b>: break, continue, and return with labels</li>
- *   <li><b>Recursion</b>: function calls to itself (detected by name and arity match)</li>
- *   <li><b>Boolean operators</b>: transitions between && and || operators in chains</li>
- *   <li><b>Elvis operator</b>: ?: conditional expressions</li>
- *   <li><b>When entries</b>: each branch after the first in when expressions</li>
+ * <li><b>Decision structures</b>: if, when, while, do-while, for loops</li>
+ * <li><b>Exception handling</b>: each catch clause</li>
+ * <li><b>Jump expressions</b>: break, continue, and return with labels</li>
+ * <li><b>Recursion</b>: function calls to itself (detected by name and arity
+ * match)</li>
+ * <li><b>Boolean operators</b>: transitions between && and || operators in
+ * chains</li>
+ * <li><b>Elvis operator</b>: ?: conditional expressions</li>
+ * <li><b>When entries</b>: each branch after the first in when expressions</li>
  * </ul>
  * 
  * <h3>Nesting Increments (+nesting level):</h3>
  * <ul>
- *   <li>Additional penalty for each level of nesting inside decision structures</li>
- *   <li>Lambda expressions increase nesting level for enclosed structures</li>
- *   <li>Scope functions (let, also, apply, run, with) increase nesting when containing decisions</li>
+ * <li>Additional penalty for each level of nesting inside decision
+ * structures</li>
+ * <li>Lambda expressions increase nesting level for enclosed structures</li>
+ * <li>Scope functions (let, also, apply, run, with) increase nesting when
+ * containing decisions</li>
  * </ul>
  * 
  * <h3>Zero Increment (no complexity added):</h3>
  * <ul>
- *   <li><b>Safe call operator</b>: ?. (designed for safety, reduces cognitive load)</li>
- *   <li><b>Non-null assertion</b>: !! (simple operation)</li>
- *   <li><b>Else clauses</b>: counted as part of the if structure</li>
- *   <li><b>Finally blocks</b>: always executed, no decision involved</li>
+ * <li><b>Safe call operator</b>: ?. (designed for safety, reduces cognitive
+ * load)</li>
+ * <li><b>Non-null assertion</b>: !! (simple operation)</li>
+ * <li><b>Else clauses</b>: counted as part of the if structure</li>
+ * <li><b>Finally blocks</b>: always executed, no decision involved</li>
  * </ul>
  * 
  * <h2>Kotlin-Specific Constructs</h2>
  * <ul>
- *   <li><b>Lambda expressions</b>: increase nesting level for enclosed decision structures</li>
- *   <li><b>When expressions</b>: first branch free, each subsequent branch +1</li>
- *   <li><b>Scope functions</b>: let, also, apply, run, with increase nesting level</li>
- *   <li><b>Elvis operator</b>: ?: adds +1 as a conditional branch</li>
- *   <li><b>Labeled jumps</b>: break@label, continue@label, return@label add +1</li>
+ * <li><b>Lambda expressions</b>: increase nesting level for enclosed decision
+ * structures</li>
+ * <li><b>When expressions</b>: first branch free, each subsequent branch
+ * +1</li>
+ * <li><b>Scope functions</b>: let, also, apply, run, with increase nesting
+ * level</li>
+ * <li><b>Elvis operator</b>: ?: adds +1 as a conditional branch</li>
+ * <li><b>Labeled jumps</b>: break@label, continue@label, return@label add
+ * +1</li>
  * </ul>
  * 
  * <h2>Example</h2>
+ * 
  * <pre>{@code
  * fun example(list: List<Int>?) {  // CCM = 0
  *     if (list != null) {          // +1 (decision)
@@ -70,7 +84,9 @@ import static org.b333vv.metric.model.metric.MetricType.CCM;
  * }
  * }</pre>
  * 
- * @see <a href="https://www.sonarsource.com/docs/CognitiveComplexity.pdf">Cognitive Complexity White Paper</a>
+ * @see <a href=
+ *      "https://www.sonarsource.com/docs/CognitiveComplexity.pdf">Cognitive
+ *      Complexity White Paper</a>
  */
 public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
 
@@ -99,8 +115,25 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
         metric = Metric.of(CCM, complexity);
     }
 
+    @Override
+    public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
+        metric = Metric.of(CCM, 0);
+    }
+
+    @Override
+    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+        complexity = 0;
+        nesting = 0;
+        KtExpression body = initializer.getBody();
+        if (body != null) {
+            body.accept(new BodyVisitor(null));
+        }
+        metric = Metric.of(CCM, complexity);
+    }
+
     /**
-     * Internal visitor for traversing method/constructor body and calculating complexity.
+     * Internal visitor for traversing method/constructor body and calculating
+     * complexity.
      */
     private class BodyVisitor extends KtTreeVisitorVoid {
         private final KtNamedFunction owner;
@@ -174,26 +207,26 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
         @Override
         public void visitBinaryExpression(@NotNull KtBinaryExpression expression) {
             // Count transitions between boolean operators (&&, ||)
-            if (expression.getOperationToken() == KtTokens.ANDAND || 
-                expression.getOperationToken() == KtTokens.OROR) {
-                
+            if (expression.getOperationToken() == KtTokens.ANDAND ||
+                    expression.getOperationToken() == KtTokens.OROR) {
+
                 // Only count if there's a transition (different from previous operator)
                 if (lastBooleanOp != null && lastBooleanOp != expression.getOperationToken()) {
                     complexity += 1;
                 }
                 lastBooleanOp = expression.getOperationToken();
             }
-            
+
             // Elvis operator ?: is a conditional branch
             if (expression.getOperationToken() == KtTokens.ELVIS) {
                 complexity += 1;
             }
-            
+
             super.visitBinaryExpression(expression);
-            
+
             // Reset after visiting the expression
-            if (expression.getOperationToken() != KtTokens.ANDAND && 
-                expression.getOperationToken() != KtTokens.OROR) {
+            if (expression.getOperationToken() != KtTokens.ANDAND &&
+                    expression.getOperationToken() != KtTokens.OROR) {
                 lastBooleanOp = null;
             }
         }
@@ -212,7 +245,7 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
             KtExpression calleeExpression = expression.getCalleeExpression();
             if (calleeExpression != null) {
                 String calleeName = calleeExpression.getText();
-                
+
                 // Scope functions: let, also, apply, run, with
                 Set<String> scopeFunctions = new HashSet<>();
                 scopeFunctions.add("let");
@@ -220,14 +253,14 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
                 scopeFunctions.add("apply");
                 scopeFunctions.add("run");
                 scopeFunctions.add("with");
-                
+
                 if (scopeFunctions.contains(calleeName)) {
                     // Scope functions with lambda arguments increase nesting
                     if (!expression.getLambdaArguments().isEmpty()) {
                         // Nesting is handled by visitLambdaExpression
                     }
                 }
-                
+
                 // Recursion detection: same name and arity
                 if (owner != null && owner.getName() != null && owner.getName().equals(calleeName)) {
                     int args = expression.getValueArguments().size();
@@ -275,7 +308,8 @@ public class KotlinCognitiveComplexityVisitor extends KotlinMethodVisitor {
         }
 
         /**
-         * Enters a decision structure, incrementing complexity by 1 + current nesting level.
+         * Enters a decision structure, incrementing complexity by 1 + current nesting
+         * level.
          */
         private void enterDecision() {
             complexity += 1 + nesting;

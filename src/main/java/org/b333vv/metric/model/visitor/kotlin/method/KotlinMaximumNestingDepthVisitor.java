@@ -22,60 +22,86 @@ import org.jetbrains.kotlin.psi.*;
 import static org.b333vv.metric.model.metric.MetricType.MND;
 
 /**
- * Visitor that computes the Maximum Nesting Depth (MND) metric for Kotlin functions.
+ * Visitor that computes the Maximum Nesting Depth (MND) metric for Kotlin
+ * functions.
  * <p>
- * The MND metric measures the deepest level of nesting of control structures within a function.
- * Higher values indicate more complex control flow that may be harder to understand, test, and maintain.
- * Deep nesting often suggests a need for refactoring, such as extracting nested logic into separate methods
+ * The MND metric measures the deepest level of nesting of control structures
+ * within a function.
+ * Higher values indicate more complex control flow that may be harder to
+ * understand, test, and maintain.
+ * Deep nesting often suggests a need for refactoring, such as extracting nested
+ * logic into separate methods
  * or using early returns to reduce nesting levels.
  * </p>
  *
  * <h2>Metric Calculation</h2>
- * The metric considers all control flow and scoping constructs that create nesting levels in Kotlin:
+ * The metric considers all control flow and scoping constructs that create
+ * nesting levels in Kotlin:
  *
  * <h3>Conditional Constructs</h3>
  * <ul>
- *   <li><b>if expressions</b> - Each if/else-if/else block increases nesting depth when entered.
- *       Nested if statements within branches further increase depth.</li>
- *   <li><b>when expressions</b> - Kotlin's pattern matching construct. Each when expression increases
- *       nesting depth, and nested when expressions within branches increase it further.</li>
+ * <li><b>if expressions</b> - Each if/else-if/else block increases nesting
+ * depth when entered.
+ * Nested if statements within branches further increase depth.</li>
+ * <li><b>when expressions</b> - Kotlin's pattern matching construct. Each when
+ * expression increases
+ * nesting depth, and nested when expressions within branches increase it
+ * further.</li>
  * </ul>
  *
  * <h3>Loop Constructs</h3>
  * <ul>
- *   <li><b>for loops</b> - Each for loop increases nesting depth. Includes traditional loops and
- *       Kotlin's enhanced for-in loops over ranges, collections, and sequences.</li>
- *   <li><b>while loops</b> - Traditional while loops that increase nesting depth.</li>
- *   <li><b>do-while loops</b> - Post-condition loops that increase nesting depth.</li>
+ * <li><b>for loops</b> - Each for loop increases nesting depth. Includes
+ * traditional loops and
+ * Kotlin's enhanced for-in loops over ranges, collections, and sequences.</li>
+ * <li><b>while loops</b> - Traditional while loops that increase nesting
+ * depth.</li>
+ * <li><b>do-while loops</b> - Post-condition loops that increase nesting
+ * depth.</li>
  * </ul>
  *
  * <h3>Exception Handling</h3>
  * <ul>
- *   <li><b>try-catch-finally blocks</b> - Exception handling constructs that increase nesting depth.
- *       The try block, each catch clause, and finally block are all considered at the same nesting level,
- *       but nested try-catch within them increases depth further.</li>
+ * <li><b>try-catch-finally blocks</b> - Exception handling constructs that
+ * increase nesting depth.
+ * The try block, each catch clause, and finally block are all considered at the
+ * same nesting level,
+ * but nested try-catch within them increases depth further.</li>
  * </ul>
  *
  * <h3>Kotlin-Specific Constructs</h3>
  * <ul>
- *   <li><b>Lambda expressions</b> - Anonymous function literals that create a new scope.
- *       Control structures within lambda bodies contribute to the overall nesting depth.
- *       This includes lambdas passed to scope functions and higher-order functions.</li>
- *   <li><b>Anonymous functions</b> - Explicit anonymous function declarations (fun() { ... })
- *       that create nested scopes. Control structures within them increase nesting depth.</li>
- *   <li><b>Object expressions</b> - Anonymous object creation with potential method implementations.
- *       Methods within object expressions can contain nested control structures.</li>
- *   <li><b>Property accessors</b> - Custom getter and setter implementations that may contain
- *       control flow logic. Complex accessors with nested control structures increase depth.</li>
- *   <li><b>Local/nested functions</b> - Functions defined within other functions. Control
- *       structures within local functions contribute to the enclosing function's complexity.</li>
+ * <li><b>Lambda expressions</b> - Anonymous function literals that create a new
+ * scope.
+ * Control structures within lambda bodies contribute to the overall nesting
+ * depth.
+ * This includes lambdas passed to scope functions and higher-order
+ * functions.</li>
+ * <li><b>Anonymous functions</b> - Explicit anonymous function declarations
+ * (fun() { ... })
+ * that create nested scopes. Control structures within them increase nesting
+ * depth.</li>
+ * <li><b>Object expressions</b> - Anonymous object creation with potential
+ * method implementations.
+ * Methods within object expressions can contain nested control structures.</li>
+ * <li><b>Property accessors</b> - Custom getter and setter implementations that
+ * may contain
+ * control flow logic. Complex accessors with nested control structures increase
+ * depth.</li>
+ * <li><b>Local/nested functions</b> - Functions defined within other functions.
+ * Control
+ * structures within local functions contribute to the enclosing function's
+ * complexity.</li>
  * </ul>
  *
  * <h3>Scope Functions</h3>
  * <p>
- * Kotlin's scope functions (let, run, with, apply, also) that accept lambdas are tracked as
- * they create new execution contexts. Control structures within these lambdas increase nesting depth:
+ * Kotlin's scope functions (let, run, with, apply, also) that accept lambdas
+ * are tracked as
+ * they create new execution contexts. Control structures within these lambdas
+ * increase nesting depth:
  * </p>
+ * 
  * <pre>
  * // MND = 2 (if + let's lambda scope)
  * fun processUser(user: User?) {
@@ -89,15 +115,17 @@ import static org.b333vv.metric.model.metric.MetricType.MND;
  *
  * <h2>Depth Calculation Rules</h2>
  * <ul>
- *   <li>The depth starts at 0 for functions with no control structures</li>
- *   <li>Each control structure increases the current depth by 1 when entered</li>
- *   <li>The maximum depth encountered during traversal is recorded</li>
- *   <li>Sequential control structures at the same level do not increase depth</li>
- *   <li>Only nesting (structures inside structures) increases depth</li>
- *   <li>Exiting a control structure decreases the current depth by 1</li>
+ * <li>The depth starts at 0 for functions with no control structures</li>
+ * <li>Each control structure increases the current depth by 1 when entered</li>
+ * <li>The maximum depth encountered during traversal is recorded</li>
+ * <li>Sequential control structures at the same level do not increase
+ * depth</li>
+ * <li>Only nesting (structures inside structures) increases depth</li>
+ * <li>Exiting a control structure decreases the current depth by 1</li>
  * </ul>
  *
  * <h2>Examples</h2>
+ * 
  * <pre>
  * // MND = 1 (single if)
  * fun simple(x: Int) {
@@ -153,28 +181,36 @@ import static org.b333vv.metric.model.metric.MetricType.MND;
  *
  * <h2>Interpretation</h2>
  * <ul>
- *   <li><b>MND = 0-1:</b> Simple, flat control flow - easy to understand and test</li>
- *   <li><b>MND = 2-3:</b> Moderate nesting - generally acceptable complexity</li>
- *   <li><b>MND = 4-5:</b> High nesting - consider refactoring to reduce complexity</li>
- *   <li><b>MND > 5:</b> Very high nesting - strongly recommend refactoring using techniques like:
- *     <ul>
- *       <li>Extracting nested logic into separate functions</li>
- *       <li>Using early returns or guard clauses to reduce nesting</li>
- *       <li>Applying the strategy pattern for complex conditional logic</li>
- *       <li>Leveraging Kotlin's when expressions to replace nested if-else chains</li>
- *       <li>Using scope functions appropriately without over-nesting</li>
- *     </ul>
- *   </li>
+ * <li><b>MND = 0-1:</b> Simple, flat control flow - easy to understand and
+ * test</li>
+ * <li><b>MND = 2-3:</b> Moderate nesting - generally acceptable complexity</li>
+ * <li><b>MND = 4-5:</b> High nesting - consider refactoring to reduce
+ * complexity</li>
+ * <li><b>MND > 5:</b> Very high nesting - strongly recommend refactoring using
+ * techniques like:
+ * <ul>
+ * <li>Extracting nested logic into separate functions</li>
+ * <li>Using early returns or guard clauses to reduce nesting</li>
+ * <li>Applying the strategy pattern for complex conditional logic</li>
+ * <li>Leveraging Kotlin's when expressions to replace nested if-else
+ * chains</li>
+ * <li>Using scope functions appropriately without over-nesting</li>
+ * </ul>
+ * </li>
  * </ul>
  *
  * <h2>Comparison with Related Metrics</h2>
  * <ul>
- *   <li><b>vs. Cyclomatic Complexity (CC):</b> MND measures depth of nesting, while CC measures
- *       the number of independent paths. High CC doesn't always mean high MND and vice versa.</li>
- *   <li><b>vs. Condition Nesting Depth (CND):</b> CND only counts conditional constructs (if, when),
- *       while MND includes all control structures (loops, try-catch, lambdas, etc.).</li>
- *   <li><b>vs. Loop Nesting Depth (LND):</b> LND only counts loop constructs,
- *       while MND is a comprehensive measure of all nesting.</li>
+ * <li><b>vs. Cyclomatic Complexity (CC):</b> MND measures depth of nesting,
+ * while CC measures
+ * the number of independent paths. High CC doesn't always mean high MND and
+ * vice versa.</li>
+ * <li><b>vs. Condition Nesting Depth (CND):</b> CND only counts conditional
+ * constructs (if, when),
+ * while MND includes all control structures (loops, try-catch, lambdas,
+ * etc.).</li>
+ * <li><b>vs. Loop Nesting Depth (LND):</b> LND only counts loop constructs,
+ * while MND is a comprehensive measure of all nesting.</li>
  * </ul>
  *
  * @see Metric
@@ -201,6 +237,12 @@ public class KotlinMaximumNestingDepthVisitor extends KotlinMethodVisitor {
         metric = Metric.of(MND, 0);
     }
 
+    @Override
+    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+        int depth = maxNestingDepth(initializer.getBody());
+        metric = Metric.of(MND, depth);
+    }
+
     /**
      * Calculates the maximum nesting depth within the given expression.
      *
@@ -208,16 +250,19 @@ public class KotlinMaximumNestingDepthVisitor extends KotlinMethodVisitor {
      * @return the maximum nesting depth, or 0 if body is null
      */
     private int maxNestingDepth(KtExpression body) {
-        if (body == null) return 0;
+        if (body == null)
+            return 0;
 
-        final int[] max = {0};
+        final int[] max = { 0 };
         body.accept(new NestingDepthVisitor(max));
         return max[0];
     }
 
     /**
-     * Internal visitor that traverses the PSI tree and tracks nesting depth of all control structures.
-     * This visitor maintains the current depth as it enters and exits nested constructs, recording
+     * Internal visitor that traverses the PSI tree and tracks nesting depth of all
+     * control structures.
+     * This visitor maintains the current depth as it enters and exits nested
+     * constructs, recording
      * the maximum depth encountered.
      */
     private static class NestingDepthVisitor extends KtTreeVisitorVoid {
@@ -236,7 +281,8 @@ public class KotlinMaximumNestingDepthVisitor extends KotlinMethodVisitor {
         }
 
         /**
-         * Enters a nesting level, updates max, traverses children, then exits the level.
+         * Enters a nesting level, updates max, traverses children, then exits the
+         * level.
          */
         private void withNesting(Runnable action) {
             current++;
@@ -280,7 +326,8 @@ public class KotlinMaximumNestingDepthVisitor extends KotlinMethodVisitor {
 
         @Override
         public void visitLambdaExpression(@NotNull KtLambdaExpression lambdaExpression) {
-            // Lambda expressions create a new scope and can contain nested control structures
+            // Lambda expressions create a new scope and can contain nested control
+            // structures
             withNesting(() -> NestingDepthVisitor.super.visitLambdaExpression(lambdaExpression));
         }
 
@@ -299,7 +346,8 @@ public class KotlinMaximumNestingDepthVisitor extends KotlinMethodVisitor {
 
         @Override
         public void visitObjectLiteralExpression(@NotNull KtObjectLiteralExpression expression) {
-            // Anonymous objects (object : Type { ... }) can contain methods with control structures
+            // Anonymous objects (object : Type { ... }) can contain methods with control
+            // structures
             withNesting(() -> NestingDepthVisitor.super.visitObjectLiteralExpression(expression));
         }
 

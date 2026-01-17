@@ -9,6 +9,8 @@ import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.FileElement;
 import org.b333vv.metric.model.code.MethodElement;
 import org.b333vv.metric.model.metric.MetricType;
+import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.value.Value;
 import org.b333vv.metric.model.visitor.method.JavaMethodVisitor;
 import org.b333vv.metric.model.visitor.type.JavaClassVisitor;
 import org.b333vv.metric.model.visitor.kotlin.method.*;
@@ -413,154 +415,189 @@ public class KotlinModelBuilder extends ModelBuilder {
     }
 
     protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtNamedFunction function) {
-        Project project = function.getProject();
-        if (isMetricEnabled(project, LOC)) {
-            KotlinLinesOfCodeVisitor loc = new KotlinLinesOfCodeVisitor();
-            loc.computeFor(function);
-            if (loc.getMetric() != null)
-                method.addMetric(loc.getMetric());
-        }
-        if (isMetricEnabled(project, MetricType.CC)) {
-            KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-            cc.computeFor(function);
-            if (cc.getMetric() != null)
-                method.addMetric(cc.getMetric());
-        }
-        if (isMetricEnabled(project, CND)) {
-            KotlinConditionNestingDepthVisitor cnd = new KotlinConditionNestingDepthVisitor();
-            cnd.computeFor(function);
-            if (cnd.getMetric() != null)
-                method.addMetric(cnd.getMetric());
-        }
-        if (isMetricEnabled(project, LND)) {
-            KotlinLoopNestingDepthVisitor lnd = new KotlinLoopNestingDepthVisitor();
-            lnd.computeFor(function);
-            if (lnd.getMetric() != null)
-                method.addMetric(lnd.getMetric());
-        }
-        if (isMetricEnabled(project, CCM)) {
-            KotlinCognitiveComplexityVisitor ccm = new KotlinCognitiveComplexityVisitor();
-            ccm.computeFor(function);
-            if (ccm.getMetric() != null)
-                method.addMetric(ccm.getMetric());
-        }
-        if (isMetricEnabled(project, MND)) {
-            KotlinMaximumNestingDepthVisitor mnd = new KotlinMaximumNestingDepthVisitor();
-            mnd.computeFor(function);
-            if (mnd.getMetric() != null)
-                method.addMetric(mnd.getMetric());
-        }
-        if (isMetricEnabled(project, NOPM)) {
-            KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
-            nopm.computeFor(function);
-            if (nopm.getMetric() != null)
-                method.addMetric(nopm.getMetric());
-        }
-        if (isMetricEnabled(project, NOL)) {
-            KotlinNumberOfLoopsVisitor nol = new KotlinNumberOfLoopsVisitor();
-            nol.computeFor(function);
-            if (nol.getMetric() != null)
-                method.addMetric(nol.getMetric());
-        }
-        if (isMetricEnabled(project, LAA)) {
-            KotlinLocalityOfAttributeAccessesVisitor laa = new KotlinLocalityOfAttributeAccessesVisitor();
-            laa.computeFor(function);
-            if (laa.getMetric() != null)
-                method.addMetric(laa.getMetric());
-        }
-        if (isMetricEnabled(project, FDP)) {
-            KotlinForeignDataProvidersVisitor fdp = new KotlinForeignDataProvidersVisitor();
-            fdp.computeFor(function);
-            if (fdp.getMetric() != null)
-                method.addMetric(fdp.getMetric());
-        }
-        if (isMetricEnabled(project, CINT)) {
-            KotlinCouplingIntensityVisitor cint = new KotlinCouplingIntensityVisitor();
-            cint.computeFor(function);
-            if (cint.getMetric() != null)
-                method.addMetric(cint.getMetric());
-        }
-        if (isMetricEnabled(project, CDISP)) {
-            KotlinCouplingDispersionVisitor cdisp = new KotlinCouplingDispersionVisitor();
-            cdisp.computeFor(function);
-            if (cdisp.getMetric() != null)
-                method.addMetric(cdisp.getMetric());
-        }
-        if (isMetricEnabled(project, NOAV)) {
-            KotlinNumberOfAccessedVariablesVisitor noav = new KotlinNumberOfAccessedVariablesVisitor();
-            noav.computeFor(function);
-            if (noav.getMetric() != null)
-                method.addMetric(noav.getMetric());
-        }
-        // Halstead metrics for methods: always compute full suite similar to Java
-        // pipeline
-        KotlinHalsteadMethodVisitor hal = new KotlinHalsteadMethodVisitor();
-        hal.computeFor(function);
-        for (org.b333vv.metric.model.metric.Metric m : hal.buildMetrics()) {
-            method.addMetric(m);
-        }
+        applyAllKotlinMethodVisitors(method, function);
     }
 
     protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtPrimaryConstructor ctor) {
-        Project project = ctor.getProject();
-        if (isMetricEnabled(project, MetricType.CC)) {
-            KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-            cc.computeFor(ctor);
-            if (cc.getMetric() != null)
-                method.addMetric(cc.getMetric());
-        }
-        if (isMetricEnabled(project, CCM)) {
-            KotlinCognitiveComplexityVisitor ccm = new KotlinCognitiveComplexityVisitor();
-            ccm.computeFor(ctor);
-            if (ccm.getMetric() != null)
-                method.addMetric(ccm.getMetric());
-        }
-        if (isMetricEnabled(project, NOPM)) {
-            KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
-            nopm.computeFor(ctor);
-            if (nopm.getMetric() != null)
-                method.addMetric(nopm.getMetric());
-        }
-        if (isMetricEnabled(project, NOL)) {
-            KotlinNumberOfLoopsVisitor nol = new KotlinNumberOfLoopsVisitor();
-            nol.computeFor(ctor);
-            if (nol.getMetric() != null)
-                method.addMetric(nol.getMetric());
-        }
-        if (isMetricEnabled(project, MND)) {
-            KotlinMaximumNestingDepthVisitor mnd = new KotlinMaximumNestingDepthVisitor();
-            mnd.computeFor(ctor);
-            if (mnd.getMetric() != null)
-                method.addMetric(mnd.getMetric());
-        }
-        // Halstead metrics for constructors (likely zero or minimal)
-        KotlinHalsteadMethodVisitor hal = new KotlinHalsteadMethodVisitor();
-        hal.computeFor(ctor);
-        for (org.b333vv.metric.model.metric.Metric m : hal.buildMetrics()) {
-            method.addMetric(m);
+        applyAllKotlinMethodVisitors(method, ctor);
+
+        // Aggregate metrics from anonymous initializers in the same class
+        KtClassOrObject parentClass = ctor.getContainingClassOrObject();
+        if (parentClass != null) {
+            for (KtAnonymousInitializer initializer : parentClass.getAnonymousInitializers()) {
+                applyMetricsFromInitializer(method, initializer);
+            }
         }
     }
 
     protected void applyKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtSecondaryConstructor ctor) {
-        Project project = ctor.getProject();
+        applyAllKotlinMethodVisitors(method, ctor);
+    }
+
+    private void applyAllKotlinMethodVisitors(@NotNull MethodElement method, @NotNull KtElement element) {
+        Project project = element.getProject();
+        if (isMetricEnabled(project, LOC)) {
+            KotlinLinesOfCodeVisitor visitor = new KotlinLinesOfCodeVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
         if (isMetricEnabled(project, MetricType.CC)) {
-            KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
-            cc.computeFor(ctor);
-            if (cc.getMetric() != null)
-                method.addMetric(cc.getMetric());
+            KotlinMcCabeCyclomaticComplexityVisitor visitor = new KotlinMcCabeCyclomaticComplexityVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, CND)) {
+            KotlinConditionNestingDepthVisitor visitor = new KotlinConditionNestingDepthVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, LND)) {
+            KotlinLoopNestingDepthVisitor visitor = new KotlinLoopNestingDepthVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, CCM)) {
+            KotlinCognitiveComplexityVisitor visitor = new KotlinCognitiveComplexityVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, MND)) {
+            KotlinMaximumNestingDepthVisitor visitor = new KotlinMaximumNestingDepthVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
         }
         if (isMetricEnabled(project, NOPM)) {
-            KotlinNumberOfParametersVisitor nopm = new KotlinNumberOfParametersVisitor();
-            nopm.computeFor(ctor);
-            if (nopm.getMetric() != null)
-                method.addMetric(nopm.getMetric());
+            KotlinNumberOfParametersVisitor visitor = new KotlinNumberOfParametersVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
         }
-        // Halstead metrics for constructors
+        if (isMetricEnabled(project, NOL)) {
+            KotlinNumberOfLoopsVisitor visitor = new KotlinNumberOfLoopsVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, LAA)) {
+            KotlinLocalityOfAttributeAccessesVisitor visitor = new KotlinLocalityOfAttributeAccessesVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, FDP)) {
+            KotlinForeignDataProvidersVisitor visitor = new KotlinForeignDataProvidersVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, CINT)) {
+            KotlinCouplingIntensityVisitor visitor = new KotlinCouplingIntensityVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, CDISP)) {
+            KotlinCouplingDispersionVisitor visitor = new KotlinCouplingDispersionVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+        if (isMetricEnabled(project, NOAV)) {
+            KotlinNumberOfAccessedVariablesVisitor visitor = new KotlinNumberOfAccessedVariablesVisitor();
+            computeFor(visitor, element);
+            if (visitor.getMetric() != null)
+                method.addMetric(visitor.getMetric());
+        }
+
         KotlinHalsteadMethodVisitor hal = new KotlinHalsteadMethodVisitor();
-        hal.computeFor(ctor);
+        computeFor(hal, element);
         for (org.b333vv.metric.model.metric.Metric m : hal.buildMetrics()) {
             method.addMetric(m);
         }
+    }
+
+    private void applyMetricsFromInitializer(@NotNull MethodElement method,
+            @NotNull KtAnonymousInitializer initializer) {
+        KotlinLinesOfCodeVisitor loc = new KotlinLinesOfCodeVisitor();
+        loc.computeFor(initializer);
+        if (loc.getMetric() != null) {
+            Metric existing = method.metric(LOC);
+            Value newValue = existing != null ? existing.getPsiValue().plus(loc.getMetric().getPsiValue())
+                    : loc.getMetric().getPsiValue();
+            method.addMetric(Metric.of(LOC, newValue));
+        }
+
+        KotlinMcCabeCyclomaticComplexityVisitor cc = new KotlinMcCabeCyclomaticComplexityVisitor();
+        cc.computeFor(initializer);
+        if (cc.getMetric() != null) {
+            Metric existing = method.metric(MetricType.CC);
+            Value newValue = existing != null
+                    ? existing.getPsiValue().plus(cc.getMetric().getPsiValue().minus(Value.ONE))
+                    : cc.getMetric().getPsiValue().minus(Value.ONE);
+            method.addMetric(Metric.of(MetricType.CC, newValue));
+        }
+
+        KotlinCognitiveComplexityVisitor ccm = new KotlinCognitiveComplexityVisitor();
+        ccm.computeFor(initializer);
+        if (ccm.getMetric() != null) {
+            Metric existing = method.metric(CCM);
+            Value newValue = existing != null ? existing.getPsiValue().plus(ccm.getMetric().getPsiValue())
+                    : ccm.getMetric().getPsiValue();
+            method.addMetric(Metric.of(CCM, newValue));
+        }
+
+        KotlinNumberOfLoopsVisitor nol = new KotlinNumberOfLoopsVisitor();
+        nol.computeFor(initializer);
+        if (nol.getMetric() != null) {
+            Metric existing = method.metric(NOL);
+            Value newValue = existing != null ? existing.getPsiValue().plus(nol.getMetric().getPsiValue())
+                    : nol.getMetric().getPsiValue();
+            method.addMetric(Metric.of(NOL, newValue));
+        }
+
+        KotlinConditionNestingDepthVisitor cnd = new KotlinConditionNestingDepthVisitor();
+        cnd.computeFor(initializer);
+        if (cnd.getMetric() != null) {
+            Metric existing = method.metric(CND);
+            int max = Math.max(existing != null ? existing.getPsiValue().intValue() : 0,
+                    cnd.getMetric().getPsiValue().intValue());
+            method.addMetric(Metric.of(CND, max));
+        }
+
+        KotlinLoopNestingDepthVisitor lnd = new KotlinLoopNestingDepthVisitor();
+        lnd.computeFor(initializer);
+        if (lnd.getMetric() != null) {
+            Metric existing = method.metric(LND);
+            int max = Math.max(existing != null ? existing.getPsiValue().intValue() : 0,
+                    lnd.getMetric().getPsiValue().intValue());
+            method.addMetric(Metric.of(LND, max));
+        }
+
+        KotlinMaximumNestingDepthVisitor mnd = new KotlinMaximumNestingDepthVisitor();
+        mnd.computeFor(initializer);
+        if (mnd.getMetric() != null) {
+            Metric existing = method.metric(MND);
+            int max = Math.max(existing != null ? existing.getPsiValue().intValue() : 0,
+                    mnd.getMetric().getPsiValue().intValue());
+            method.addMetric(Metric.of(MND, max));
+        }
+    }
+
+    private void computeFor(KotlinMethodVisitor visitor, KtElement element) {
+        if (element instanceof KtNamedFunction)
+            visitor.computeFor((KtNamedFunction) element);
+        else if (element instanceof KtPrimaryConstructor)
+            visitor.computeFor((KtPrimaryConstructor) element);
+        else if (element instanceof KtSecondaryConstructor)
+            visitor.computeFor((KtSecondaryConstructor) element);
+        else if (element instanceof KtAnonymousInitializer)
+            visitor.computeFor((KtAnonymousInitializer) element);
     }
 
     @Override

@@ -33,39 +33,58 @@ import java.util.Set;
 import static org.b333vv.metric.model.metric.MetricType.FDP;
 
 /**
- * Visitor for calculating the Foreign Data Providers (FDP) metric for Kotlin functions.
+ * Visitor for calculating the Foreign Data Providers (FDP) metric for Kotlin
+ * functions.
  * 
- * <p>The FDP metric counts the number of distinct external classes (foreign providers) 
- * whose data (properties or fields) are accessed within a function. A lower FDP value 
- * indicates better encapsulation and reduced coupling.</p>
+ * <p>
+ * The FDP metric counts the number of distinct external classes (foreign
+ * providers)
+ * whose data (properties or fields) are accessed within a function. A lower FDP
+ * value
+ * indicates better encapsulation and reduced coupling.
+ * </p>
  * 
  * <h3>What is counted as a foreign data provider:</h3>
  * <ul>
- *   <li><b>Direct property access:</b> Qualified expressions like {@code obj.property} or {@code obj?.property},
- *       where the property belongs to a class different from the function's containing class</li>
- *   <li><b>Getter/Setter calls:</b> Method calls that are recognized as simple property accessors
- *       (getters or setters) via {@link PropertyUtil}, counting the class owning the accessor method</li>
- *   <li><b>Field references:</b> References to fields from external classes (including Java interop)</li>
+ * <li><b>Direct property access:</b> Qualified expressions like
+ * {@code obj.property} or {@code obj?.property},
+ * where the property belongs to a class different from the function's
+ * containing class</li>
+ * <li><b>Getter/Setter calls:</b> Method calls that are recognized as simple
+ * property accessors
+ * (getters or setters) via {@link PropertyUtil}, counting the class owning the
+ * accessor method</li>
+ * <li><b>Field references:</b> References to fields from external classes
+ * (including Java interop)</li>
  * </ul>
  * 
  * <h3>What is excluded from the count:</h3>
  * <ul>
- *   <li><b>Local access:</b> References to {@code this} or {@code super}, and unqualified property names
- *       (treated as local to the function or its class)</li>
- *   <li><b>Own class:</b> Properties and fields from the function's containing class</li>
- *   <li><b>Parent classes:</b> Properties and fields from any superclass or superinterface
- *       of the function's containing class (excluded to avoid counting inherited members)</li>
+ * <li><b>Local access:</b> References to {@code this} or {@code super}, and
+ * unqualified property names
+ * (treated as local to the function or its class)</li>
+ * <li><b>Own class:</b> Properties and fields from the function's containing
+ * class</li>
+ * <li><b>Parent classes:</b> Properties and fields from any superclass or
+ * superinterface
+ * of the function's containing class (excluded to avoid counting inherited
+ * members)</li>
  * </ul>
  * 
  * <h3>Resolution strategy:</h3>
  * <ol>
- *   <li>For qualified expressions, attempt to resolve the selector to a {@link KtProperty} or {@link PsiField}</li>
- *   <li>Determine the fully qualified name (FQN) of the class owning that property/field</li>
- *   <li>If the FQN differs from the function's containing class and its parents, count it as a foreign provider</li>
- *   <li>Use textual receiver representation as a fallback key only when resolution fails</li>
+ * <li>For qualified expressions, attempt to resolve the selector to a
+ * {@link KtProperty} or {@link PsiField}</li>
+ * <li>Determine the fully qualified name (FQN) of the class owning that
+ * property/field</li>
+ * <li>If the FQN differs from the function's containing class and its parents,
+ * count it as a foreign provider</li>
+ * <li>Use textual receiver representation as a fallback key only when
+ * resolution fails</li>
  * </ol>
  * 
  * <h3>Example:</h3>
+ * 
  * <pre>
  * class OrderService {
  *     fun processOrder(order: Order, user: User) {
@@ -92,31 +111,41 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
         compute(constructor, constructor.getBodyExpression());
     }
 
+    @Override
+    public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
+        metric = Metric.of(FDP, 0);
+    }
+
+    @Override
+    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+        compute(initializer, initializer.getBody());
+    }
+
     private void compute(@NotNull KtElement context, @Nullable KtExpression body) {
         if (body == null) {
             metric = Metric.of(FDP, 0);
             return;
         }
-        
+
         KtClassOrObject ownerClass = findOwnerClass(context);
         final Set<String> foreignProviderFqns = new HashSet<>();
-        
+
         body.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expression) {
-                processQualifiedExpression(expression.getSelectorExpression(), 
-                                          expression.getReceiverExpression(), 
-                                          ownerClass, 
-                                          foreignProviderFqns);
+                processQualifiedExpression(expression.getSelectorExpression(),
+                        expression.getReceiverExpression(),
+                        ownerClass,
+                        foreignProviderFqns);
                 super.visitDotQualifiedExpression(expression);
             }
 
             @Override
             public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expression) {
-                processQualifiedExpression(expression.getSelectorExpression(), 
-                                          expression.getReceiverExpression(), 
-                                          ownerClass, 
-                                          foreignProviderFqns);
+                processQualifiedExpression(expression.getSelectorExpression(),
+                        expression.getReceiverExpression(),
+                        ownerClass,
+                        foreignProviderFqns);
                 super.visitSafeQualifiedExpression(expression);
             }
 
@@ -126,26 +155,27 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
                 super.visitCallExpression(expression);
             }
         });
-        
+
         metric = Metric.of(FDP, foreignProviderFqns.size());
     }
 
     /**
-     * Processes qualified expressions (dot or safe call) to identify foreign data providers.
+     * Processes qualified expressions (dot or safe call) to identify foreign data
+     * providers.
      */
-    private void processQualifiedExpression(@Nullable KtExpression selector, 
-                                           @Nullable KtExpression receiver,
-                                           @Nullable KtClassOrObject ownerClass,
-                                           @NotNull Set<String> foreignProviderFqns) {
+    private void processQualifiedExpression(@Nullable KtExpression selector,
+            @Nullable KtExpression receiver,
+            @Nullable KtClassOrObject ownerClass,
+            @NotNull Set<String> foreignProviderFqns) {
         if (selector == null || receiver == null) {
             return;
         }
-        
+
         // Exclude this/super references
         if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression) {
             return;
         }
-        
+
         String providerFqn = resolveProviderFqn(selector, ownerClass);
         if (providerFqn != null) {
             foreignProviderFqns.add(providerFqn);
@@ -156,13 +186,13 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
      * Processes call expressions to detect getter/setter method calls.
      */
     private void processCallExpression(@NotNull KtCallExpression callExpression,
-                                      @Nullable KtClassOrObject ownerClass,
-                                      @NotNull Set<String> foreignProviderFqns) {
+            @Nullable KtClassOrObject ownerClass,
+            @NotNull Set<String> foreignProviderFqns) {
         for (var ref : callExpression.getReferences()) {
             PsiElement resolved = ref.resolve();
             if (resolved instanceof PsiMethod) {
                 PsiMethod method = (PsiMethod) resolved;
-                
+
                 // Check if it's a getter or setter
                 if (PropertyUtil.isSimpleGetter(method) || PropertyUtil.isSimpleSetter(method)) {
                     PsiClass containingClass = method.getContainingClass();
@@ -178,9 +208,10 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
     }
 
     /**
-     * Resolves the fully qualified name of the class owning the accessed property/field.
+     * Resolves the fully qualified name of the class owning the accessed
+     * property/field.
      * 
-     * @param selector the property access expression
+     * @param selector   the property access expression
      * @param ownerClass the class containing the current function
      * @return FQN of the foreign provider class, or null if local/unresolved
      */
@@ -189,10 +220,10 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
         if (!(selector instanceof KtSimpleNameExpression)) {
             return null;
         }
-        
+
         for (var ref : selector.getReferences()) {
             PsiElement resolved = ref.resolve();
-            
+
             // Handle Kotlin properties
             if (resolved instanceof KtProperty) {
                 KtClassOrObject propertyOwner = findOwnerClass((KtProperty) resolved);
@@ -203,7 +234,7 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
                     }
                 }
             }
-            
+
             // Handle Java fields (for interop)
             if (resolved instanceof PsiField) {
                 PsiField field = (PsiField) resolved;
@@ -216,43 +247,44 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
                 }
             }
         }
-        
+
         return null;
     }
 
     /**
-     * Determines if a given FQN represents a foreign provider (not own class or parent).
+     * Determines if a given FQN represents a foreign provider (not own class or
+     * parent).
      * 
      * @param candidateFqn the FQN to check
-     * @param ownerClass the function's containing class
+     * @param ownerClass   the function's containing class
      * @return true if the FQN is foreign, false if it's the own class or a parent
      */
     private boolean isForeignProvider(@NotNull String candidateFqn, @Nullable KtClassOrObject ownerClass) {
         if (ownerClass == null) {
             return true;
         }
-        
+
         // Check if it's the owner class itself
         if (ownerClass.getFqName() != null && candidateFqn.equals(ownerClass.getFqName().asString())) {
             return false;
         }
-        
+
         // Check if it's a parent class (superclass or interface)
         for (KtSuperTypeListEntry superTypeEntry : ownerClass.getSuperTypeListEntries()) {
             KtTypeReference typeRef = superTypeEntry.getTypeReference();
             if (typeRef != null) {
                 for (var ref : typeRef.getReferences()) {
                     PsiElement resolved = ref.resolve();
-                    
+
                     // Handle Kotlin classes
                     if (resolved instanceof KtClassOrObject) {
                         KtClassOrObject superClass = (KtClassOrObject) resolved;
-                        if (superClass.getFqName() != null && 
-                            candidateFqn.equals(superClass.getFqName().asString())) {
+                        if (superClass.getFqName() != null &&
+                                candidateFqn.equals(superClass.getFqName().asString())) {
                             return false;
                         }
                     }
-                    
+
                     // Handle Java classes (for interop)
                     if (resolved instanceof KtLightClass) {
                         KtLightClass lightClass = (KtLightClass) resolved;
@@ -261,7 +293,7 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
                             return false;
                         }
                     }
-                    
+
                     if (resolved instanceof PsiClass) {
                         PsiClass psiClass = (PsiClass) resolved;
                         String superFqn = psiClass.getQualifiedName();
@@ -272,7 +304,7 @@ public class KotlinForeignDataProvidersVisitor extends KotlinMethodVisitor {
                 }
             }
         }
-        
+
         return true;
     }
 

@@ -64,7 +64,7 @@
 
     <change-notes><![CDATA[
         <ul>
-            <li>2025.3.0:
+            <li>2026.0.0:
                 <ul>
                     <li>Added Kotlin support.</li>
                 </ul>
@@ -258,7 +258,7 @@
       ]]>
     </change-notes>
 
-    <version>2025.3.0</version>
+    <version>2026.0.0</version>
 
     <vendor email="b333vv@gmail.com" url="https://github.com/b333vv">b333vv</vendor>
 

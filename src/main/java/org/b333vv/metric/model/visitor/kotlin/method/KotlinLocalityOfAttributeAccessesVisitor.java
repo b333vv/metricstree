@@ -16,47 +16,59 @@ import java.util.Set;
 import static org.b333vv.metric.model.metric.MetricType.LAA;
 
 /**
- * Calculates the Locality of Attribute Accesses (LAA) metric for Kotlin methods and constructors.
+ * Calculates the Locality of Attribute Accesses (LAA) metric for Kotlin methods
+ * and constructors.
  * 
- * <p>LAA measures the ratio of accesses to the class's own properties (attributes) versus all property accesses
- * in a method. This metric helps identify methods that heavily depend on external data, which may indicate
+ * <p>
+ * LAA measures the ratio of accesses to the class's own properties (attributes)
+ * versus all property accesses
+ * in a method. This metric helps identify methods that heavily depend on
+ * external data, which may indicate
  * poor encapsulation or high coupling.
  * 
- * <p><b>Formula:</b> LAA = (Number of own property accesses) / (Total number of property accesses)
+ * <p>
+ * <b>Formula:</b> LAA = (Number of own property accesses) / (Total number of
+ * property accesses)
  * 
- * <p>The metric value ranges from 0.0 to 1.0:
+ * <p>
+ * The metric value ranges from 0.0 to 1.0:
  * <ul>
- *   <li>1.0 - all property accesses are to own properties (high locality)</li>
- *   <li>0.0 - all property accesses are to foreign properties (low locality, high coupling)</li>
- *   <li>0.0 - also returned when there are no property accesses at all</li>
+ * <li>1.0 - all property accesses are to own properties (high locality)</li>
+ * <li>0.0 - all property accesses are to foreign properties (low locality, high
+ * coupling)</li>
+ * <li>0.0 - also returned when there are no property accesses at all</li>
  * </ul>
  * 
  * <h3>What counts as an "own property access":</h3>
  * <ul>
- *   <li>Direct access to properties declared in the same class: {@code propertyName}</li>
- *   <li>Explicit access via {@code this}: {@code this.propertyName}</li>
- *   <li>Access to properties from primary constructor: {@code class Person(val name: String)}</li>
- *   <li>Access to inherited properties from superclasses</li>
- *   <li>Access to companion object properties of the same class</li>
- *   <li>Access to backing fields using {@code field} keyword inside property accessors</li>
+ * <li>Direct access to properties declared in the same class:
+ * {@code propertyName}</li>
+ * <li>Explicit access via {@code this}: {@code this.propertyName}</li>
+ * <li>Access to properties from primary constructor:
+ * {@code class Person(val name: String)}</li>
+ * <li>Access to inherited properties from superclasses</li>
+ * <li>Access to companion object properties of the same class</li>
+ * <li>Access to backing fields using {@code field} keyword inside property
+ * accessors</li>
  * </ul>
  * 
  * <h3>What counts as a "foreign property access":</h3>
  * <ul>
- *   <li>Qualified property access on other objects: {@code obj.property}</li>
- *   <li>Safe qualified access: {@code obj?.property}</li>
- *   <li>Properties from other classes, even if accessed through parameters</li>
- *   <li>Static properties from other classes</li>
+ * <li>Qualified property access on other objects: {@code obj.property}</li>
+ * <li>Safe qualified access: {@code obj?.property}</li>
+ * <li>Properties from other classes, even if accessed through parameters</li>
+ * <li>Static properties from other classes</li>
  * </ul>
  * 
  * <h3>What is NOT counted:</h3>
  * <ul>
- *   <li>Function calls: {@code obj.method()} - only property accesses count</li>
- *   <li>Local variables and parameters - only class properties/fields</li>
- *   <li>Package-level functions</li>
+ * <li>Function calls: {@code obj.method()} - only property accesses count</li>
+ * <li>Local variables and parameters - only class properties/fields</li>
+ * <li>Package-level functions</li>
  * </ul>
  * 
  * <h3>Examples:</h3>
+ * 
  * <pre>
  * class Person(val name: String) {
  *     private var age: Int = 0
@@ -85,10 +97,13 @@ import static org.b333vv.metric.model.metric.MetricType.LAA;
  * 
  * <h3>Interpretation:</h3>
  * <ul>
- *   <li><b>High LAA (close to 1.0):</b> Method primarily works with its own data - good encapsulation</li>
- *   <li><b>Medium LAA (around 0.5):</b> Method balances own and foreign data access</li>
- *   <li><b>Low LAA (close to 0.0):</b> Method heavily depends on external data - potential code smell,
- *       consider refactoring or moving the method closer to the data it uses</li>
+ * <li><b>High LAA (close to 1.0):</b> Method primarily works with its own data
+ * - good encapsulation</li>
+ * <li><b>Medium LAA (around 0.5):</b> Method balances own and foreign data
+ * access</li>
+ * <li><b>Low LAA (close to 0.0):</b> Method heavily depends on external data -
+ * potential code smell,
+ * consider refactoring or moving the method closer to the data it uses</li>
  * </ul>
  * 
  * @see org.b333vv.metric.model.visitor.kotlin.method.KotlinMethodVisitor
@@ -106,36 +121,46 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
         compute(constructor, constructor.getBodyExpression());
     }
 
+    @Override
+    public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
+        metric = Metric.of(LAA, 0.0);
+    }
+
+    @Override
+    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+        compute(initializer, initializer.getBody());
+    }
+
     /**
      * Computes the LAA metric for the given method context and body.
      * 
      * @param context the method or constructor element
-     * @param body the body expression to analyze
+     * @param body    the body expression to analyze
      */
     private void compute(@NotNull KtElement context, KtExpression body) {
         Set<String> ownPropertyNames = collectOwnPropertyNames(context);
         KtClassOrObject owner = findOwnerClass(context);
-        
+
         if (body == null) {
             metric = Metric.of(LAA, 0.0);
             return;
         }
-        
-        final int[] own = {0};
-        final int[] total = {0};
-        
+
+        final int[] own = { 0 };
+        final int[] total = { 0 };
+
         body.accept(new KtTreeVisitorVoid() {
             @Override
             public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expression) {
-                processQualifiedExpression(expression.getReceiverExpression(), 
-                                          expression.getSelectorExpression(), owner, ownPropertyNames, own, total);
+                processQualifiedExpression(expression.getReceiverExpression(),
+                        expression.getSelectorExpression(), owner, ownPropertyNames, own, total);
                 super.visitDotQualifiedExpression(expression);
             }
 
             @Override
             public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expression) {
-                processQualifiedExpression(expression.getReceiverExpression(), 
-                                          expression.getSelectorExpression(), owner, ownPropertyNames, own, total);
+                processQualifiedExpression(expression.getReceiverExpression(),
+                        expression.getSelectorExpression(), owner, ownPropertyNames, own, total);
                 super.visitSafeQualifiedExpression(expression);
             }
 
@@ -146,7 +171,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     super.visitSimpleNameExpression(expression);
                     return;
                 }
-                
+
                 // Check if this is a reference to the 'field' keyword (backing field)
                 String name = expression.getReferencedName();
                 if ("field".equals(name)) {
@@ -156,7 +181,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     super.visitSimpleNameExpression(expression);
                     return;
                 }
-                
+
                 // Check if this is an unqualified reference to an own property
                 if (ownPropertyNames.contains(name)) {
                     if (isOwnPropertyReference(expression, owner)) {
@@ -167,7 +192,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                 super.visitSimpleNameExpression(expression);
             }
         });
-        
+
         if (total[0] == 0) {
             metric = Metric.of(LAA, 0.0);
         } else {
@@ -178,29 +203,31 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
     /**
      * Processes a qualified expression (both dot and safe call operators).
      * 
-     * @param receiver the receiver expression (left side of the dot/safe-call)
-     * @param selector the selector expression (right side of the dot/safe-call)
-     * @param owner the owner class
+     * @param receiver         the receiver expression (left side of the
+     *                         dot/safe-call)
+     * @param selector         the selector expression (right side of the
+     *                         dot/safe-call)
+     * @param owner            the owner class
      * @param ownPropertyNames set of own property names
-     * @param own counter for own property accesses
-     * @param total counter for total property accesses
+     * @param own              counter for own property accesses
+     * @param total            counter for total property accesses
      */
     private void processQualifiedExpression(KtExpression receiver, KtExpression selector,
-                                           KtClassOrObject owner, Set<String> ownPropertyNames,
-                                           int[] own, int[] total) {
+            KtClassOrObject owner, Set<String> ownPropertyNames,
+            int[] own, int[] total) {
         // Only count property accesses, not method calls
         if (!(selector instanceof KtSimpleNameExpression)) {
             return;
         }
-        
+
         total[0] += 1;
-        
+
         // Check if receiver is 'this' or 'super' - these are own property accesses
         if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression) {
             own[0] += 1;
             return;
         }
-        
+
         // Try to determine if the selector refers to an own property
         if (isOwnPropertyReference((KtSimpleNameExpression) selector, owner)) {
             own[0] += 1;
@@ -228,17 +255,17 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
      * Determines if a simple name expression refers to an own property.
      * 
      * @param expression the expression to check
-     * @param owner the owner class
+     * @param owner      the owner class
      * @return true if the expression refers to an own property
      */
     private boolean isOwnPropertyReference(@NotNull KtSimpleNameExpression expression, KtClassOrObject owner) {
         if (owner == null) {
             return false;
         }
-        
+
         for (var ref : expression.getReferences()) {
             PsiElement resolved = ref.resolve();
-            
+
             // Handle Java interop - PsiField from compiled Java classes
             if (resolved instanceof PsiField) {
                 PsiField field = (PsiField) resolved;
@@ -249,7 +276,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     }
                 }
             }
-            
+
             // Handle Kotlin properties
             if (resolved instanceof KtProperty) {
                 KtClassOrObject declOwner = findOwnerClass((KtProperty) resolved);
@@ -257,7 +284,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     return true;
                 }
             }
-            
+
             // Handle primary constructor parameters with val/var
             if (resolved instanceof KtParameter) {
                 KtParameter param = (KtParameter) resolved;
@@ -266,7 +293,8 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     if (paramParent instanceof KtParameterList) {
                         PsiElement ctorParent = paramParent.getParent();
                         if (ctorParent instanceof KtPrimaryConstructor) {
-                            KtClassOrObject paramClass = ((KtPrimaryConstructor) ctorParent).getContainingClassOrObject();
+                            KtClassOrObject paramClass = ((KtPrimaryConstructor) ctorParent)
+                                    .getContainingClassOrObject();
                             if (paramClass != null && isSameOrSuperclass(owner, paramClass)) {
                                 return true;
                             }
@@ -275,14 +303,14 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                 }
             }
         }
-        
+
         return false;
     }
 
     /**
      * Checks if two classes are the same or if declOwner is a superclass of owner.
      * 
-     * @param owner the owner class
+     * @param owner     the owner class
      * @param declOwner the declaring class
      * @return true if they are the same or declOwner is a superclass
      */
@@ -290,15 +318,15 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
         if (owner.getFqName() == null || declOwner.getFqName() == null) {
             return false;
         }
-        
+
         String ownerFqn = owner.getFqName().asString();
         String declFqn = declOwner.getFqName().asString();
-        
+
         // Direct match
         if (ownerFqn.equals(declFqn)) {
             return true;
         }
-        
+
         // Check superclasses
         if (owner instanceof KtClass) {
             for (var superTypeEntry : ((KtClass) owner).getSuperTypeListEntries()) {
@@ -312,14 +340,14 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                 }
             }
         }
-        
+
         return false;
     }
 
     /**
      * Checks if a qualified class name matches the owner class or its superclasses.
      * 
-     * @param owner the owner class
+     * @param owner         the owner class
      * @param qualifiedName the qualified class name to check
      * @return true if they match
      */
@@ -341,7 +369,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
     private Set<String> collectOwnPropertyNames(@NotNull KtElement element) {
         Set<String> names = new HashSet<>();
         KtClassOrObject owner = findOwnerClass(element);
-        
+
         if (owner != null) {
             // Collect properties from class body
             for (KtDeclaration decl : owner.getDeclarations()) {
@@ -352,7 +380,7 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     }
                 }
             }
-            
+
             // Collect properties from primary constructor
             if (owner instanceof KtClass) {
                 KtPrimaryConstructor ctor = ((KtClass) owner).getPrimaryConstructor();
@@ -367,11 +395,11 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
                     }
                 }
             }
-            
+
             // Add 'field' keyword for backing field access
             names.add("field");
         }
-        
+
         return names;
     }
 
@@ -384,19 +412,19 @@ public class KotlinLocalityOfAttributeAccessesVisitor extends KotlinMethodVisito
      */
     private KtClassOrObject findOwnerClass(@NotNull KtElement element) {
         PsiElement current = element;
-        
+
         while (current != null) {
             if (current instanceof KtClassOrObject) {
                 return (KtClassOrObject) current;
             }
             current = current.getParent();
-            
+
             // Stop if we exit Kotlin PSI hierarchy
             if (current != null && !(current instanceof KtElement)) {
                 break;
             }
         }
-        
+
         return null;
     }
 }
