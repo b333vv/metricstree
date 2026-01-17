@@ -22,41 +22,46 @@ import org.b333vv.metric.event.MetricsEventListener;
 import org.b333vv.metric.model.code.ClassElement;
 import org.b333vv.metric.model.code.ProjectElement;
 import org.b333vv.metric.model.metric.Metric;
+import org.b333vv.metric.model.metric.MetricLevel;
+import org.b333vv.metric.model.metric.MetricType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CsvClassMetricsBuilder {
 
     private final Project project;
+    private final List<MetricType> classMetricTypes;
 
     public CsvClassMetricsBuilder(Project project) {
         this.project = project;
+        this.classMetricTypes = Arrays.stream(MetricType.values())
+                .filter(m -> m.level() == MetricLevel.CLASS)
+                .sorted(Comparator.comparing(MetricType::description))
+                .collect(Collectors.toList());
     }
 
     public void buildAndExport(String fileName, ProjectElement projectElement) {
         File csvOutputFile = new File(fileName);
         try (PrintWriter printWriter = new PrintWriter(csvOutputFile)) {
-            Optional<ClassElement> headerSupplierOpt = projectElement.allClasses().findAny();
-            if (headerSupplierOpt.isEmpty()) {
-                return;
-            }
-            ClassElement headerSupplier = headerSupplierOpt.get();
-            String header = "Class Name;" + headerSupplier.metrics()
-                    .map(m -> m.getType().name())
+            String header = "Class Name;" + classMetricTypes.stream()
+                    .map(Enum::name)
                     .collect(Collectors.joining(";"));
             printWriter.println(header);
             projectElement.allClasses()
-                    .sorted((c1, c2) -> com.intellij.openapi.application.ApplicationManager.getApplication().<Integer>runReadAction(
-                            (Computable<Integer>) () -> {
-                                String name1 = getClassQualifiedName(c1);
-                                String name2 = getClassQualifiedName(c2);
-                                return Objects.requireNonNull(name1).compareTo(Objects.requireNonNull(name2));
-                            }))
+                    .sorted((c1, c2) -> com.intellij.openapi.application.ApplicationManager.getApplication()
+                            .<Integer>runReadAction(
+                                    (Computable<Integer>) () -> {
+                                        String name1 = getClassQualifiedName(c1);
+                                        String name2 = getClassQualifiedName(c2);
+                                        return Objects.requireNonNull(name1).compareTo(Objects.requireNonNull(name2));
+                                    }))
                     .map(this::convertToCsv)
                     .forEach(printWriter::println);
         } catch (FileNotFoundException e) {
@@ -70,30 +75,35 @@ public class CsvClassMetricsBuilder {
     }
 
     private String getClassQualifiedName(ClassElement classElement) {
-        return com.intellij.openapi.application.ApplicationManager.getApplication().runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
-            if (classElement.getPsiClass() != null) {
-                return classElement.getPsiClass().getQualifiedName();
-            } else if (classElement.getKtClassOrObject() != null) {
-                // For Kotlin classes, try to get a qualified name
-                String ktName = classElement.getKtClassOrObject().getName();
-                String containingFile = classElement.getKtClassOrObject().getContainingFile().getName();
-                // Create a qualified name using file name + class name
-                String baseName = containingFile.replace(".kt", "");
-                return baseName + "." + ktName;
-            } else {
-                // For synthetic class elements, use the name directly
-                return classElement.getName();
-            }
-        });
+        return com.intellij.openapi.application.ApplicationManager.getApplication()
+                .runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
+                    if (classElement.getPsiClass() != null) {
+                        return classElement.getPsiClass().getQualifiedName();
+                    } else if (classElement.getKtClassOrObject() != null) {
+                        // For Kotlin classes, try to get a qualified name
+                        String ktName = classElement.getKtClassOrObject().getName();
+                        String containingFile = classElement.getKtClassOrObject().getContainingFile().getName();
+                        // Create a qualified name using file name + class name
+                        String baseName = containingFile.replace(".kt", "");
+                        return baseName + "." + ktName;
+                    } else {
+                        // For synthetic class elements, use the name directly
+                        return classElement.getName();
+                    }
+                });
     }
 
     private String convertToCsv(ClassElement javaClass) {
-        return com.intellij.openapi.application.ApplicationManager.getApplication().runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
-            String className = Objects.requireNonNull(getClassQualifiedName(javaClass)) + ";";
-            String metrics = javaClass.metrics()
-                    .map(Metric::getFormattedValue)
-                    .collect(Collectors.joining(";"));
-            return className + metrics;
-        });
+        return com.intellij.openapi.application.ApplicationManager.getApplication()
+                .runReadAction((com.intellij.openapi.util.Computable<String>) () -> {
+                    String className = Objects.requireNonNull(getClassQualifiedName(javaClass)) + ";";
+                    String metrics = classMetricTypes.stream()
+                            .map(m -> {
+                                Metric metric = javaClass.metric(m);
+                                return metric != null ? metric.getFormattedValue() : "";
+                            })
+                            .collect(Collectors.joining(";"));
+                    return className + metrics;
+                });
     }
 }

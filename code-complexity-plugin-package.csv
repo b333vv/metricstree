@@ -1,0 +1,12 @@
+Package Name;A;Ca;Ce;PAHD;PACHEF;PACHER;PACHL;PACHVC;PAHVL;I;PLOC;PAMI;PNCSS;D;PNOAC;PNOCC;PNOI;PNOKCO;PNOKDC;PNOKOBJ;PNOKSC;PNOSC
+;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0,0;0;0,0;0;1,0;0;0;0;0;0;0;0;0
+com;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0,0;0;0,0;0;1,0;0;0;0;0;0;0;0;0
+com.github;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0,0;0;0,0;0;1,0;0;0;0;0;0;0;0;0
+com.github.nikolaikopernik;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0,0;0;0,0;0;1,0;0;0;0;0;0;0;0;0
+com.github.nikolaikopernik.codecomplexity;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0,0;0;0,0;0;1,0;0;0;0;0;0;0;0;0
+com.github.nikolaikopernik.codecomplexity.core;0,3333;4;5;54,6466;21660,6406;0,3675;261;126;1293,2721;0,5556;47;41,2986;45;0,1111;1;3;1;0;1;0;0;0
+com.github.nikolaikopernik.codecomplexity.java;0,0;0;6;64,1788;122139,5652;0,9041;449;120;2794,9641;1,0;60;36,5409;55;0,0;0;2;0;0;0;0;0;0
+com.github.nikolaikopernik.codecomplexity.kotlin;0,0;0;14;95,7791;385833,9747;1,9243;825;202;5818,6855;1,0;111;28,4067;102;0,0;0;2;0;0;0;0;0;0
+com.github.nikolaikopernik.codecomplexity.python;0,0;0;5;66,414;162755,3358;1,0734;524;143;3441,7569;1,0;56;36,5476;58;0,0;0;2;0;0;0;0;0;0
+com.github.nikolaikopernik.codecomplexity.settings;0,0;2;18;121,8462;300078,4115;1,9362;938;215;5897,86;0,9;81;31,4175;114;0,1;0;5;0;0;0;1;0;0
+com.github.nikolaikopernik.codecomplexity.ui;0,0;0;11;56,4854;80865,5155;0,7071;375;167;2362,8166;1,0;52;38,5306;57;0,0;0;3;0;0;0;0;0;0

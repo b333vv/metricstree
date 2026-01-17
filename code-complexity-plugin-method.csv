@@ -1,0 +1,113 @@
+Method Name;CCM;CND;CDISP;CINT;FDP;HD;HEF;HER;HL;HVC;HVL;LOC;LAA;LND;MMI;MND;CC;NOAV;NOL;NOPM
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.<init>(ComplexityInfoProvider, Editor);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;2
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.applySinkResults(PsiElement, ComplexitySink, InlayHintsSink);0;0;1,0;3;0;3,4615;367,6091;0,0171;25;19;106,1982;7;0,0;0;67,3838;1;1;4;0;3
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.collect(PsiElement, Editor, InlayHintsSink);3;2;0,75;4;0;9,6923;1889,5191;0,0509;41;27;194,9504;8;1,0;0;64,0943;2;4;5;0;3
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.correctTextColour(InlayPresentation);0;0;1,0;2;0;3,4286;215,6828;0,012;17;13;62,9075;4;1,0;0;74,3163;0;1;2;0;1
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.equals(Any?);1;1;1,0;1;0;4,0;186,028;0,0109;14;10;46,507;3;1,0;0;77,8562;1;2;2;0;1
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.getClassComplexity(PsiElement);2;1;0,8571;7;0;10,5;2677,5;0,0643;51;32;255,0;8;0,5;0;63,3562;3;2;3;0;1
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.getPresentation(PsiElement, ComplexitySink);1;1;0,5;6;1;8,4615;1745,8126;0,0483;45;24;206,3233;9;0,6667;0;62,8892;1;2;4;0;2
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.getTextPresentation(ComplexitySink, Editor);0;0;0,6667;3;0;3,6667;315,1558;0,0154;22;15;85,9516;4;0,0;0;73,3569;0;1;1;0;2
+ComplexityFactoryInlayHintsCollector.ComplexityFactoryInlayHintsCollector.hashCode();1;0;1,0;1;0;2,0;31,0196;0,0033;6;6;15,5098;1;1,0;0;91,765;0;1;1;0;0
+ComplexityInfoProvider.ComplexityInfoProvider.getNameElementFor(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ComplexityInfoProvider.ComplexityInfoProvider.getVisitor(ComplexitySink);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ComplexityInfoProvider.ComplexityInfoProvider.isClassWithBody(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ComplexityInfoProvider.ComplexityInfoProvider.isComplexitySuitableMember(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ComplexityInlayHintsProvider.ComplexityInlayHintsProvider.<init>(ComplexityInfoProvider);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+ComplexityInlayHintsProvider.ComplexityInlayHintsProvider.createConfigurable(NoSettings);0;0;0,0;0;0;4,1667;125,0;0,0083;10;8;30,0;2;0,0;0;83,0905;1;1;0;0;1
+ComplexityInlayHintsProvider.ComplexityInlayHintsProvider.createSettings();0;0;0,0;0;0;1,0;4,7549;0,0009;3;3;4,7549;1;0,0;0;95,7844;0;1;0;0;0
+ComplexityInlayHintsProvider.ComplexityInlayHintsProvider.getCollectorFor(PsiFile, Editor, NoSettings, InlayHintsSink);1;1;1,0;2;1;3,375;218,447;0,0121;17;14;64,725;3;0,3333;0;76,852;1;2;2;0;4
+ComplexityInlayHintsProvider.ComplexityInlayHintsProvider.isLanguageSupported(Language);0;0;1,0;1;0;2,0;31,0196;0,0033;6;6;15,5098;1;0,0;0;91,765;0;1;1;0;1
+ComplexityInlayHintsProviderFactory.ComplexityInlayHintsProviderFactory.getProvidersInfo();0;0;1,0;3;2;4,0;289,359;0,0146;19;14;72,3397;1;0,0;1;86,9949;1;1;1;1;0
+ComplexityPoint.ComplexityPoint.<init>(Int, Int, PointType);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;3
+ComplexityPoint.ComplexityPoint.toString();0;0;1,0;1;0;2,3333;85,2628;0,0065;11;10;36,5412;1;1,0;0;89,1027;0;1;3;0;0
+ComplexitySettings.kt.customHintTextWithScore(String, String);1;1;0,5;2;0;4,9;281,0611;0,0143;16;12;57,3594;4;0,0;0;74,4788;1;2;2;0;2
+ComplexitySettings.kt.determineLevel(Int, Boolean, (Int) -> T, (Int) -> T, (Int) -> T);7;2;1,0;3;0;8,8462;1760,7095;0,0486;44;23;199,0367;4;0,0;0;70,5291;2;6;5;0;6
+ComplexitySettings.kt.getConfiguredIcon();0;0;1,0;8;0;10,0294;3326,831;0,0743;69;28;331,7075;5;0,0;0;67,1088;1;1;2;0;1
+ComplexitySettings.kt.getConfiguredLevel();0;0;1,0;2;0;3,0;246,1341;0,0131;21;15;82,0447;1;0,0;0;86,5995;1;1;1;0;1
+ComplexitySettings.kt.getConfiguredText();0;0;0,75;8;1;9,1;2983,7591;0,0691;65;33;327,8856;7;0,0;0;63,9582;1;1;4;0;1
+ComplexitySettings.kt.getValueToShow();3;2;0,8571;7;1;10,15;3511,3669;0,077;68;34;345,9475;6;0,0;0;65,1078;3;3;3;0;1
+ComplexitySettings.kt.parseColor();0;0;1,0;1;0;2,5;134,4361;0,0087;15;12;53,7744;1;0,0;0;87,9266;0;1;1;0;1
+ComplexitySettings.kt.toHex();0;0;1,0;1;0;1,9286;96,0986;0,007;15;10;49,8289;1;1,0;0;88,1652;0;1;1;0;1
+ComplexitySink.ComplexitySink.decreaseNesting();1;1;1,0;0;0;1,875;47,3741;0,0044;9;7;25,2662;1;1,0;0;90,1184;1;2;1;0;0
+ComplexitySink.ComplexitySink.getComplexity();0;0;1,0;2;0;2,5;79,2481;0,0061;10;9;31,6993;1;0,5;0;89,5575;1;1;2;0;0
+ComplexitySink.ComplexitySink.getNesting();0;0;0,0;0;0;0,5;1,0;0,0003;2;2;2,0;1;1,0;0;97,8922;0;1;1;0;0
+ComplexitySink.ComplexitySink.getPoints();0;0;1,0;1;0;1,5;17,4145;0,0022;5;5;11,6096;1;1,0;0;92,7082;0;1;1;0;0
+ComplexitySink.ComplexitySink.increaseComplexity(Int, PointType);0;0;1,0;1;0;2,5714;124,5395;0,0083;14;11;48,432;7;1,0;0;69,793;0;1;4;0;2
+ComplexitySink.ComplexitySink.increaseComplexity(PointType);0;0;0,0;0;0;1,0;11,6096;0,0017;5;5;11,6096;1;0,0;0;92,7082;0;1;1;0;1
+ComplexitySink.ComplexitySink.increaseComplexityAndNesting(PointType);0;0;1,0;1;0;4,0;312,5512;0,0154;20;15;78,1378;7;1,0;0;68,3166;0;1;3;0;1
+ComplexitySink.ComplexitySink.increaseNesting();0;0;1,0;0;0;0,5;3,1699;0,0007;4;3;6,3399;1;1,0;0;94,5514;0;1;1;0;0
+ElementVisitor.ElementVisitor.postProcess(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ElementVisitor.ElementVisitor.processElement(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ElementVisitor.ElementVisitor.shouldVisitElement(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;0;0;0,0;0;0,0;0;0,0;0;1;0;0;1
+ElementVisitor.ElementVisitor.visitElement(PsiElement);2;1;0,0;0;0;5,25;369,1189;0,0172;19;13;70,3084;4;0,0;0;73,8541;1;2;1;0;1
+FileComplexityVisitor.kt.visitFileFast(ComplexityInfoProvider, (ComplexitySink, PsiElement) -> Unit);3;1;0,5714;7;0;9,9412;2780,4751;0,0659;57;30;279,6928;9;0,5;1;61,9123;2;3;6;1;3
+HighCodeComplexityInspection.HighCodeComplexityInspection.checkFile(PsiFile, InspectionManager, Boolean);4;2;0,6923;13;1;11,4828;5166,3422;0,0996;81;47;449,9217;13;0,0;0;56,9816;3;3;9;0;3
+JavaComplexityInfoProvider.JavaComplexityInfoProvider.<init>(Language);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+JavaComplexityInfoProvider.JavaComplexityInfoProvider.getNameElementFor(PsiElement);5;3;0,8;5;0;7,0;677,5579;0,0257;27;12;96,794;5;0,0;0;70,6563;2;5;1;0;1
+JavaComplexityInfoProvider.JavaComplexityInfoProvider.getVisitor(ComplexitySink);0;0;0,0;0;0;1,5;17,4145;0,0022;5;5;11,6096;1;0,0;0;92,7082;0;1;1;0;1
+JavaComplexityInfoProvider.JavaComplexityInfoProvider.isClassWithBody(PsiElement);0;0;1,0;2;0;4,2;203,4146;0,0115;14;11;48,432;1;0,0;0;88,1347;0;2;1;0;1
+JavaComplexityInfoProvider.JavaComplexityInfoProvider.isComplexitySuitableMember(PsiElement);0;0;0,0;0;0;2,625;81,0624;0,0062;11;7;30,8809;2;0,0;0;82,9973;0;2;1;0;1
+JavaLanguageVisitor.JavaLanguageVisitor.<init>(ComplexitySink);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+JavaLanguageVisitor.JavaLanguageVisitor.calculateBinaryComplexity();15;3;0,625;7;1;16,32;8218,9134;0,1358;94;41;503,6099;14;0,25;1;55,8023;4;8;4;1;1
+JavaLanguageVisitor.JavaLanguageVisitor.postProcess(PsiElement);4;2;1,0;2;0;13,125;4503,6088;0,0909;73;26;343,1321;12;1,0;0;58,3841;2;11;2;0;1
+JavaLanguageVisitor.JavaLanguageVisitor.processElement(PsiElement);24;2;0,3;10;1;19,2821;19396,9066;0,2406;174;55;1005,9566;21;0,6667;0;49,7265;2;21;2;0;1
+JavaLanguageVisitor.JavaLanguageVisitor.processIfExpression();1;1;1,0;1;0;3,0;134,9178;0,0088;13;11;44,9726;3;1,0;0;77,9914;1;2;2;0;1
+JavaLanguageVisitor.JavaLanguageVisitor.shouldVisitElement(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;1;1;0,0;1;0,0;0;∞;0;1;0;0;1
+KtComplexityInfoProvider.KtComplexityInfoProvider.<init>(Language);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+KtComplexityInfoProvider.KtComplexityInfoProvider.considerPropertyAccessorsComplexity(PsiElement);0;0;0,0;0;0;0,75;4,7549;0,0009;4;3;6,3399;1;0,0;0;94,5514;0;1;1;0;1
+KtComplexityInfoProvider.KtComplexityInfoProvider.getNameElementFor(PsiElement);9;2;0,75;8;1;6,6667;1015,2946;0,0337;40;14;152,2942;6;0,0;0;67,4139;1;12;1;0;1
+KtComplexityInfoProvider.KtComplexityInfoProvider.getVisitor(ComplexitySink);0;0;0,0;0;0;1,5;17,4145;0,0022;5;5;11,6096;1;0,0;0;92,7082;0;1;1;0;1
+KtComplexityInfoProvider.KtComplexityInfoProvider.isClassWithBody(PsiElement);0;0;1,0;1;0;3,3333;149,9087;0,0094;13;11;44,9726;1;0,0;0;88,3993;0;2;1;0;1
+KtComplexityInfoProvider.KtComplexityInfoProvider.isComplexitySuitableMember(PsiElement);0;0;1,0;1;0;3,6;149,4474;0,0094;12;11;41,5132;1;0,5;0;88,614;0;2;2;0;1
+KtLanguageVisitor.KtLanguageVisitor.<init>(ComplexitySink);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+KtLanguageVisitor.KtLanguageVisitor.calculateLogicalComplexity(KtToken?);14;3;0,7143;5;1;23,3182;12742,6939;0,1819;102;41;546,4703;13;0,2857;1;56,2391;4;9;5;1;2
+KtLanguageVisitor.KtLanguageVisitor.getCallNameFromPsi(KtElement);21;5;0,7778;9;1;17,2308;11056,7395;0,1654;119;42;641,6858;18;0,0;0;52,6413;5;11;5;0;1
+KtLanguageVisitor.KtLanguageVisitor.getEnclosingFunction(NavigatablePsiElement, Boolean);16;3;0,8333;4;0;14,0;5358,3245;0,1021;78;30;382,7375;19;0,0;1;53,7031;4;11;3;1;2
+KtLanguageVisitor.KtLanguageVisitor.getLogicalOperationsTokens();0;0;0,6667;3;1;2,4;91,2938;0,0068;12;9;38,0391;4;0,0;0;75,805;0;1;0;0;0
+KtLanguageVisitor.KtLanguageVisitor.getNegationOperationToken();0;0;1,0;1;1;1,0;8,0;0,0013;4;4;8,0;1;0,0;0;93,6766;0;1;0;0;0
+KtLanguageVisitor.KtLanguageVisitor.getTempNegOperationToken();0;0;1,0;1;1;1,0;8,0;0,0013;4;4;8,0;1;0,0;0;93,6766;0;1;0;0;0
+KtLanguageVisitor.KtLanguageVisitor.isRecursiveCall(KtNameReferenceExpression);6;2;0,7273;11;1;9,0588;2438,7429;0,0604;56;28;269,2119;7;0,0;0;64,2722;2;8;3;0;1
+KtLanguageVisitor.KtLanguageVisitor.postProcess(PsiElement);2;1;1,0;2;0;10,4615;2481,3215;0,0611;54;21;237,1851;9;0,5;0;62,2606;1;9;2;0;1
+KtLanguageVisitor.KtLanguageVisitor.processElement(PsiElement);22;2;0,1875;16;2;20,2692;20010,8049;0,2457;170;56;987,2503;17;0,4167;0;51,7898;2;20;2;0;1
+KtLanguageVisitor.KtLanguageVisitor.processIfExpression(KtIfExpression);2;1;0,5;8;1;11,6471;3508,0338;0,077;62;29;301,1948;11;0,4;0;59,7117;1;5;4;0;1
+KtLanguageVisitor.KtLanguageVisitor.shouldVisitElement(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;1;1;0,0;1;0,0;0;∞;0;1;0;0;1
+LabelledComponent.LabelledComponent.<init>(String, JComponent);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;2
+PythonComplexityInfoProvider.PythonComplexityInfoProvider.<init>(Language);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+PythonComplexityInfoProvider.PythonComplexityInfoProvider.getNameElementFor(PsiElement);2;2;1,0;2;0;5,8333;227,5;0,0124;13;8;39,0;2;0,0;0;82,1449;1;3;1;0;1
+PythonComplexityInfoProvider.PythonComplexityInfoProvider.getVisitor(ComplexitySink);0;0;0,0;0;0;1,5;17,4145;0,0022;5;5;11,6096;1;0,0;0;92,7082;0;1;1;0;1
+PythonComplexityInfoProvider.PythonComplexityInfoProvider.isClassWithBody(PsiElement);0;0;1,0;2;0;4,2;203,4146;0,0115;14;11;48,432;1;0,0;0;88,1347;0;2;1;0;1
+PythonComplexityInfoProvider.PythonComplexityInfoProvider.isComplexitySuitableMember(PsiElement);0;0;1,0;2;0;5,1429;341,5739;0,0163;17;15;66,4171;1;0,0;0;87,1118;0;3;1;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.<init>(ComplexitySink);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.calculateBinaryComplexity(MutableList<PyElementType>);17;3;0,5;9;0;20,5833;15370,7361;0,2061;133;49;746,7564;18;0,75;1;52,1683;4;12;5;1;2
+PythonLanguageVisitor.PythonLanguageVisitor.isDecorator();0;0;1,0;1;0;3,5714;230,4619;0,0125;18;12;64,5293;1;1,0;0;87,2599;0;2;1;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.isRecursion();3;1;0,8571;7;0;7,0714;1375,4859;0,0412;43;23;194,5132;4;0,25;0;70,631;1;5;2;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.postProcess(PsiElement);3;1;1,0;2;0;10,1538;2542,1382;0,0621;57;21;250,3621;9;1,0;0;62,0982;1;9;2;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.processElement(PsiElement);21;2;0,1875;16;0;15,1667;12314,7814;0,1778;147;46;811,9636;14;0,4762;0;54,2483;2;17;2;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.shouldVisitElement(PsiElement);0;0;0,0;0;0;0,0;0,0;0,0;1;1;0,0;1;0,0;0;∞;0;1;0;0;1
+PythonLanguageVisitor.PythonLanguageVisitor.toPointType();3;1;0,4;5;0;2,0625;142,7016;0,0091;20;11;69,1886;4;0,0;0;73,8046;1;4;1;0;1
+SettingsBundle.SettingsBundle.message(String, Any);0;0;0,0;0;0;1,0;11,6096;0,0017;5;5;11,6096;1;0,0;0;92,7082;0;1;2;0;2
+SettingsBundle.SettingsBundle.messagePointer(String, Any);0;0;0,0;0;0;1,0;11,6096;0,0017;5;5;11,6096;1;0,0;0;92,7082;0;1;2;0;2
+SettingsComponent.SettingsComponent.getMildlyComplexText();0;0;1,0;1;0;0,5;2,3774;0,0006;3;3;4,7549;1;0,5;0;95,7844;0;1;1;0;0
+SettingsComponent.SettingsComponent.getShowIcon();0;0;1,0;2;0;1,5;27,1421;0,003;7;6;18,0947;1;0,5;0;91,2106;0;1;1;0;0
+SettingsComponent.SettingsComponent.getShowPlainComplexity();0;0;1,0;2;0;1,5;27,1421;0,003;7;6;18,0947;1;0,5;0;91,2106;0;1;1;0;0
+SettingsComponent.SettingsComponent.getSimpleComplexText();0;0;1,0;1;0;0,5;2,3774;0,0006;3;3;4,7549;1;0,5;0;95,7844;0;1;1;0;0
+SettingsComponent.SettingsComponent.getSimpleLimit();0;0;1,0;1;0;0,5;2,3774;0,0006;3;3;4,7549;1;0,5;0;95,7844;0;1;1;0;0
+SettingsComponent.SettingsComponent.getUseDefaults();0;0;1,0;2;0;1,5;27,1421;0,003;7;6;18,0947;1;0,5;0;91,2106;0;1;1;0;0
+SettingsComponent.SettingsComponent.getVeryComplexLimit();0;0;1,0;1;0;0,5;2,3774;0,0006;3;3;4,7549;1;0,5;0;95,7844;0;1;1;0;0
+SettingsComponent.SettingsComponent.getVeryComplexText();0;0;1,0;1;0;0,5;2,3774;0,0006;3;3;4,7549;1;0,5;0;95,7844;0;1;1;0;0
+SettingsComponent.SettingsComponent.setMildlyComplexText(String);0;0;1,0;1;0;1,25;25,8496;0,0029;8;6;20,6797;1;0,5;0;90,8902;0;1;3;0;1
+SettingsComponent.SettingsComponent.setShowIcon(Boolean);0;0;1,0;1;0;2,0;41,3594;0,004;8;6;20,6797;1;1,0;0;90,8902;0;1;2;0;1
+SettingsComponent.SettingsComponent.setShowPlainComplexity(Boolean);0;0;1,0;1;0;1,5;33,6883;0,0035;8;7;22,4588;1;1,0;0;90,6003;0;1;3;0;1
+SettingsComponent.SettingsComponent.setSimpleComplexText(String);0;0;1,0;1;0;1,25;25,8496;0,0029;8;6;20,6797;1;0,5;0;90,8902;0;1;3;0;1
+SettingsComponent.SettingsComponent.setSimpleLimit(Int);0;0;1,0;1;0;1,25;25,8496;0,0029;8;6;20,6797;1;0,5;0;90,8902;0;1;2;0;1
+SettingsComponent.SettingsComponent.setUseDefaults(Boolean);0;0;1,0;1;0;2,0;41,3594;0,004;8;6;20,6797;1;1,0;0;90,8902;0;1;2;0;1
+SettingsComponent.SettingsComponent.setVeryComplexLimit(Int);0;0;1,0;1;0;1,25;25,8496;0,0029;8;6;20,6797;1;0,5;0;90,8902;0;1;2;0;1
+SettingsComponent.SettingsComponent.setVeryComplexText(String);0;0;1,0;1;0;1,25;25,8496;0,0029;8;6;20,6797;1;0,5;0;90,8902;0;1;3;0;1
+SettingsConfigurable.SettingsConfigurable.<init>(Project);0,0;0,0;0,0;0;0;0,0;0,0;0;1;0;1
+SettingsConfigurable.SettingsConfigurable.apply();0;0;0,3;9;1;12,2727;5690,1438;0,1062;89;37;463,6413;10;0,8889;0;59,5216;1;1;2;0;0
+SettingsConfigurable.SettingsConfigurable.createComponent();0;0;1,0;1;1;3,75;149,4868;0,0094;12;10;39,8631;2;0,6667;0;82,2927;0;1;1;0;0
+SettingsConfigurable.SettingsConfigurable.getDisplayName();0;0;0,0;0;0;0,5;1,0;0,0003;2;2;2,0;1;0,0;0;97,8922;0;1;0;0;0
+SettingsConfigurable.SettingsConfigurable.isModified();0;0;0,1765;17;2;16,7045;8615,1335;0,1401;99;37;515,7359;9;0,4706;0;59,8232;0;16;2;0;0
+SettingsConfigurable.SettingsConfigurable.reset();0;0;0,2222;18;2;11,4545;4382,2164;0,0893;74;36;382,5745;10;0,1;0;60,0132;1;2;3;0;0
+SettingsState.SettingsState.getState();0;0;0,0;0;0;0,5;1,0;0,0003;2;2;2,0;1;0,0;0;97,8922;0;1;1;0;0
+SettingsState.SettingsState.loadState(SettingsState);0;0;1,0;1;0;1,5;29,4772;0,0032;7;7;19,6515;1;0,0;0;91,0462;0;1;2;0;1
