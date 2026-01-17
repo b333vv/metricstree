@@ -18,12 +18,15 @@ import static org.b333vv.metric.model.metric.MetricType.TCC;
 /**
  * Calculates Tight Class Cohesion (TCC) metric for Kotlin classes.
  * <p>
- * TCC is the ratio of directly connected method pairs to all possible method pairs.
- * Two methods are considered directly connected if they share access to at least one
+ * TCC is the ratio of directly connected method pairs to all possible method
+ * pairs.
+ * Two methods are considered directly connected if they share access to at
+ * least one
  * common instance property.
  * </p>
  *
  * <h3>Formula</h3>
+ * 
  * <pre>
  * TCC = NP / (N * (N - 1) / 2)
  * where:
@@ -33,30 +36,30 @@ import static org.b333vv.metric.model.metric.MetricType.TCC;
  *
  * <h3>Counted as Methods</h3>
  * <ul>
- *   <li>Non-abstract named functions declared in class body</li>
- *   <li>Custom property getters with explicit body</li>
- *   <li>Custom property setters with explicit body</li>
+ * <li>Non-abstract named functions declared in class body</li>
+ * <li>Custom property getters with explicit body</li>
+ * <li>Custom property setters with explicit body</li>
  * </ul>
  *
  * <h3>Excluded from Method Count</h3>
  * <ul>
- *   <li>Abstract functions</li>
- *   <li>Functions in companion objects</li>
- *   <li>Functions in nested/inner classes</li>
- *   <li>Implicit (generated) property accessors</li>
+ * <li>Abstract functions</li>
+ * <li>Functions in companion objects</li>
+ * <li>Functions in nested/inner classes</li>
+ * <li>Implicit (generated) property accessors</li>
  * </ul>
  *
  * <h3>Counted as Instance Properties</h3>
  * <ul>
- *   <li>Primary constructor parameters with val/var</li>
- *   <li>Properties declared in class body (excluding companion object)</li>
+ * <li>Primary constructor parameters with val/var</li>
+ * <li>Properties declared in class body (excluding companion object)</li>
  * </ul>
  *
  * <h3>Property Access Detection</h3>
  * <ul>
- *   <li>Direct property references (e.g., {@code name})</li>
- *   <li>Explicit this references (e.g., {@code this.name})</li>
- *   <li>Backing field keyword in custom accessors (e.g., {@code field})</li>
+ * <li>Direct property references (e.g., {@code name})</li>
+ * <li>Explicit this references (e.g., {@code this.name})</li>
+ * <li>Backing field keyword in custom accessors (e.g., {@code field})</li>
  * </ul>
  *
  * @see org.b333vv.metric.model.visitor.kotlin.type.KotlinLackOfCohesionOfMethodsVisitor
@@ -65,8 +68,22 @@ public class KotlinTightClassCohesionVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
-        Set<PsiElement> instanceProps = collectInstanceProperties(klass);
-        List<KtDeclarationWithBody> methods = collectMethods(klass);
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
+        Set<PsiElement> instanceProps = collectInstanceProperties(element);
+        List<KtDeclarationWithBody> methods = collectMethods(element);
 
         int n = methods.size();
         int possiblePairs = n * (n - 1) / 2;
@@ -103,8 +120,8 @@ public class KotlinTightClassCohesionVisitor extends KotlinClassVisitor {
      * Instance properties include:
      * </p>
      * <ul>
-     *   <li>Primary constructor parameters declared with val/var keywords</li>
-     *   <li>Properties declared in class body (excluding companion object)</li>
+     * <li>Primary constructor parameters declared with val/var keywords</li>
+     * <li>Properties declared in class body (excluding companion object)</li>
      * </ul>
      *
      * <p>
@@ -115,27 +132,37 @@ public class KotlinTightClassCohesionVisitor extends KotlinClassVisitor {
      * @param klass the Kotlin class to analyze
      * @return set of PsiElement instances representing instance properties
      */
-    private Set<PsiElement> collectInstanceProperties(KtClass klass) {
+    private Set<PsiElement> collectInstanceProperties(KtElement element) {
         Set<PsiElement> props = new HashSet<>();
 
         // Primary constructor properties
-        KtPrimaryConstructor primary = klass.getPrimaryConstructor();
-        if (primary != null) {
-            for (KtParameter p : primary.getValueParameters()) {
-                if (p.hasValOrVar()) {
-                    props.add(p);
+        if (element instanceof KtClass) {
+            KtClass klass = (KtClass) element;
+            KtPrimaryConstructor primary = klass.getPrimaryConstructor();
+            if (primary != null) {
+                for (KtParameter p : primary.getValueParameters()) {
+                    if (p.hasValOrVar()) {
+                        props.add(p);
+                    }
                 }
             }
         }
 
-        // Class body properties (excluding companion)
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            for (KtDeclaration decl : body.getDeclarations()) {
-                if (decl instanceof KtProperty) {
-                    if (!KotlinMetricUtils.isInCompanionObject((KtProperty) decl)) {
-                        props.add(decl);
-                    }
+        // Class body or file properties (excluding companion)
+        List<KtDeclaration> declarations = Collections.emptyList();
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        for (KtDeclaration decl : declarations) {
+            if (decl instanceof KtProperty) {
+                if (!KotlinMetricUtils.isInCompanionObject((KtProperty) decl)) {
+                    props.add(decl);
                 }
             }
         }
@@ -148,32 +175,40 @@ public class KotlinTightClassCohesionVisitor extends KotlinClassVisitor {
      * Counted methods include:
      * </p>
      * <ul>
-     *   <li><b>Non-abstract named functions</b> - Regular functions with implementation</li>
-     *   <li><b>Custom property getters</b> - Getters with explicit body
-     *       (e.g., {@code get() = field.toString()})</li>
-     *   <li><b>Custom property setters</b> - Setters with explicit body
-     *       (e.g., {@code set(value) { field = value.trim() }})</li>
+     * <li><b>Non-abstract named functions</b> - Regular functions with
+     * implementation</li>
+     * <li><b>Custom property getters</b> - Getters with explicit body
+     * (e.g., {@code get() = field.toString()})</li>
+     * <li><b>Custom property setters</b> - Setters with explicit body
+     * (e.g., {@code set(value) { field = value.trim() }})</li>
      * </ul>
      *
      * <p>
      * Excluded from count:
      * </p>
      * <ul>
-     *   <li>Abstract functions (no implementation)</li>
-     *   <li>Functions in companion objects (static-like behavior)</li>
-     *   <li>Functions in nested or inner classes (separate cohesion scope)</li>
-     *   <li>Implicit property accessors (generated by compiler)</li>
+     * <li>Abstract functions (no implementation)</li>
+     * <li>Functions in companion objects (static-like behavior)</li>
+     * <li>Functions in nested or inner classes (separate cohesion scope)</li>
+     * <li>Implicit property accessors (generated by compiler)</li>
      * </ul>
      *
      * @param klass the Kotlin class to analyze
      * @return list of method declarations (functions and custom accessors)
      */
-    private List<KtDeclarationWithBody> collectMethods(KtClass klass) {
+    private List<KtDeclarationWithBody> collectMethods(KtElement element) {
         List<KtDeclarationWithBody> methods = new ArrayList<>();
-        KtClassBody body = klass.getBody();
-        if (body == null) return methods;
+        List<KtDeclaration> declarations = Collections.emptyList();
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
 
-        for (KtDeclaration decl : body.getDeclarations()) {
+        for (KtDeclaration decl : declarations) {
             // Named functions
             if (decl instanceof KtNamedFunction) {
                 KtNamedFunction f = (KtNamedFunction) decl;
@@ -209,30 +244,36 @@ public class KotlinTightClassCohesionVisitor extends KotlinClassVisitor {
      * Detection methods:
      * </p>
      * <ul>
-     *   <li><b>Direct references</b> - Simple name expressions that resolve to instance properties
-     *       (e.g., {@code println(name)})</li>
-     *   <li><b>Explicit this</b> - Qualified expressions with this receiver
-     *       (e.g., {@code this.name})</li>
-     *   <li><b>Backing field</b> - The {@code field} keyword in custom accessors, which refers
-     *       to the property's backing field</li>
+     * <li><b>Direct references</b> - Simple name expressions that resolve to
+     * instance properties
+     * (e.g., {@code println(name)})</li>
+     * <li><b>Explicit this</b> - Qualified expressions with this receiver
+     * (e.g., {@code this.name})</li>
+     * <li><b>Backing field</b> - The {@code field} keyword in custom accessors,
+     * which refers
+     * to the property's backing field</li>
      * </ul>
      *
      * <p>
-     * The method uses PSI reference resolution to accurately identify property access,
-     * avoiding false positives from local variables or parameters with the same name.
+     * The method uses PSI reference resolution to accurately identify property
+     * access,
+     * avoiding false positives from local variables or parameters with the same
+     * name.
      * </p>
      *
-     * @param method the method (function or accessor) to analyze
-     * @param instanceProps set of all instance properties in the class
-     * @param contextProperty the property being accessed (for accessors), or null for regular functions
+     * @param method          the method (function or accessor) to analyze
+     * @param instanceProps   set of all instance properties in the class
+     * @param contextProperty the property being accessed (for accessors), or null
+     *                        for regular functions
      * @return set of PsiElement instances representing accessed properties
      */
     private Set<PsiElement> collectAccessedProps(KtDeclarationWithBody method,
-                                                 Set<PsiElement> instanceProps,
-                                                 KtProperty contextProperty) {
+            Set<PsiElement> instanceProps,
+            KtProperty contextProperty) {
         Set<PsiElement> used = new HashSet<>();
         KtExpression body = method.getBodyExpression();
-        if (body == null) return used;
+        if (body == null)
+            return used;
 
         body.accept(new KtTreeVisitorVoid() {
             @Override
@@ -285,9 +326,11 @@ public class KotlinTightClassCohesionVisitor extends KotlinClassVisitor {
      * @return true if sets have at least one common element, false otherwise
      */
     private boolean shares(Set<PsiElement> a, Set<PsiElement> b) {
-        if (a.isEmpty() || b.isEmpty()) return false;
+        if (a.isEmpty() || b.isEmpty())
+            return false;
         for (PsiElement x : a) {
-            if (b.contains(x)) return true;
+            if (b.contains(x))
+                return true;
         }
         return false;
     }

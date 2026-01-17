@@ -12,69 +12,91 @@ import java.util.Set;
 import static org.b333vv.metric.model.metric.MetricType.ATFD;
 
 /**
- * Visitor for calculating the Access To Foreign Data (ATFD) metric for Kotlin classes.
+ * Visitor for calculating the Access To Foreign Data (ATFD) metric for Kotlin
+ * classes.
  * <p>
- * ATFD measures the degree to which a class accesses data from other classes, indicating
- * potential Feature Envy code smell. Higher ATFD values suggest that a class is more
- * interested in data of other classes than its own, which may indicate poor encapsulation
+ * ATFD measures the degree to which a class accesses data from other classes,
+ * indicating
+ * potential Feature Envy code smell. Higher ATFD values suggest that a class is
+ * more
+ * interested in data of other classes than its own, which may indicate poor
+ * encapsulation
  * or misplaced responsibilities.
  * </p>
  *
  * <h2>What is Counted as Foreign Data Access</h2>
- * The metric counts the number of distinct external classes whose data is accessed.
+ * The metric counts the number of distinct external classes whose data is
+ * accessed.
  * The following constructs are considered data access:
  *
  * <h3>Direct Property Access</h3>
  * <ul>
- *   <li><b>Property access via dot notation:</b> {@code foreignObject.property}</li>
- *   <li><b>Property access via safe call:</b> {@code foreignObject?.property}</li>
- *   <li><b>Extension property access:</b> {@code foreignObject.extensionProperty} (when extension is defined elsewhere)</li>
- *   <li><b>Delegated property access:</b> {@code foreignObject.delegatedProperty} (properties using {@code by} delegation)</li>
+ * <li><b>Property access via dot notation:</b>
+ * {@code foreignObject.property}</li>
+ * <li><b>Property access via safe call:</b>
+ * {@code foreignObject?.property}</li>
+ * <li><b>Extension property access:</b> {@code foreignObject.extensionProperty}
+ * (when extension is defined elsewhere)</li>
+ * <li><b>Delegated property access:</b> {@code foreignObject.delegatedProperty}
+ * (properties using {@code by} delegation)</li>
  * </ul>
  *
  * <h3>Accessor Method Calls</h3>
  * Method calls are counted only if they follow accessor naming conventions:
  * <ul>
- *   <li><b>Getters:</b> Methods starting with {@code get}, e.g., {@code foreignObject.getName()}</li>
- *   <li><b>Setters:</b> Methods starting with {@code set}, e.g., {@code foreignObject.setName(value)}</li>
- *   <li><b>Boolean getters:</b> Methods starting with {@code is}, e.g., {@code foreignObject.isActive()}</li>
+ * <li><b>Getters:</b> Methods starting with {@code get}, e.g.,
+ * {@code foreignObject.getName()}</li>
+ * <li><b>Setters:</b> Methods starting with {@code set}, e.g.,
+ * {@code foreignObject.setName(value)}</li>
+ * <li><b>Boolean getters:</b> Methods starting with {@code is}, e.g.,
+ * {@code foreignObject.isActive()}</li>
  * </ul>
- * Non-accessor methods are considered behavior rather than data access and are excluded.
+ * Non-accessor methods are considered behavior rather than data access and are
+ * excluded.
  *
  * <h3>Kotlin-Specific Constructs</h3>
  * <ul>
- *   <li><b>Indexed access operators:</b> {@code foreignObject[key]} or {@code foreignObject[index]}</li>
- *   <li><b>Property references:</b> {@code foreignObject::property} (property reference expressions)</li>
- *   <li><b>Companion object properties:</b> {@code ForeignClass.Companion.property} or {@code ForeignClass.CONSTANT}</li>
+ * <li><b>Indexed access operators:</b> {@code foreignObject[key]} or
+ * {@code foreignObject[index]}</li>
+ * <li><b>Property references:</b> {@code foreignObject::property} (property
+ * reference expressions)</li>
+ * <li><b>Companion object properties:</b>
+ * {@code ForeignClass.Companion.property} or {@code ForeignClass.CONSTANT}</li>
  * </ul>
  *
  * <h3>Java Interoperability</h3>
  * When accessing Java classes from Kotlin:
  * <ul>
- *   <li><b>Java field access:</b> Direct access to public fields</li>
- *   <li><b>Java getter/setter calls:</b> Following JavaBean conventions</li>
+ * <li><b>Java field access:</b> Direct access to public fields</li>
+ * <li><b>Java getter/setter calls:</b> Following JavaBean conventions</li>
  * </ul>
  *
  * <h2>What is NOT Counted</h2>
  * <ul>
- *   <li><b>Access to own class properties:</b> {@code this.property} or implicit access</li>
- *   <li><b>Access to superclass properties:</b> {@code super.property}</li>
- *   <li><b>Method calls for behavior:</b> Methods not following accessor naming patterns</li>
- *   <li><b>Constructor calls:</b> Creating new objects</li>
- *   <li><b>Local variables and parameters:</b> Variables declared within the method scope</li>
- *   <li><b>Static utility methods:</b> Stateless utility function calls</li>
+ * <li><b>Access to own class properties:</b> {@code this.property} or implicit
+ * access</li>
+ * <li><b>Access to superclass properties:</b> {@code super.property}</li>
+ * <li><b>Method calls for behavior:</b> Methods not following accessor naming
+ * patterns</li>
+ * <li><b>Constructor calls:</b> Creating new objects</li>
+ * <li><b>Local variables and parameters:</b> Variables declared within the
+ * method scope</li>
+ * <li><b>Static utility methods:</b> Stateless utility function calls</li>
  * </ul>
  *
  * <h2>Resolution Strategy</h2>
  * The visitor uses a two-phase approach:
  * <ol>
- *   <li><b>Primary (resolved):</b> When PSI resolution succeeds, the actual declaring class is identified</li>
- *   <li><b>Fallback (unresolved):</b> When resolution fails, a heuristic based on receiver expression text
- *       is used to avoid undercounting in incomplete/compiling code</li>
+ * <li><b>Primary (resolved):</b> When PSI resolution succeeds, the actual
+ * declaring class is identified</li>
+ * <li><b>Fallback (unresolved):</b> When resolution fails, a heuristic based on
+ * receiver expression text
+ * is used to avoid undercounting in incomplete/compiling code</li>
  * </ol>
  *
  * <h2>Metric Calculation</h2>
- * The final ATFD value is the count of <b>distinct external classes</b> (not individual accesses).
+ * The final ATFD value is the count of <b>distinct external classes</b> (not
+ * individual accesses).
  * Multiple accesses to the same foreign class count as one.
  *
  * @see org.b333vv.metric.model.metric.MetricType#ATFD
@@ -83,11 +105,29 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         final Set<String> providers = new HashSet<>();
 
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            body.accept(new KtTreeVisitorVoid() {
+        KtElement bodyToVisit = element;
+        if (element instanceof KtClassOrObject) {
+            bodyToVisit = ((KtClassOrObject) element).getBody();
+        }
+
+        if (bodyToVisit != null) {
+            bodyToVisit.accept(new KtTreeVisitorVoid() {
                 @Override
                 public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expression) {
                     collectFromQualified(expression.getSelectorExpression(), expression.getReceiverExpression());
@@ -116,7 +156,8 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
                     KtExpression receiver = expression.getReceiverExpression();
                     if (receiver != null && expression.getCallableReference() instanceof KtSimpleNameExpression) {
                         // Only count property references (not function references)
-                        collectFromPropertyReference(receiver, (KtSimpleNameExpression) expression.getCallableReference());
+                        collectFromPropertyReference(receiver,
+                                (KtSimpleNameExpression) expression.getCallableReference());
                     }
                     super.visitCallableReferenceExpression(expression);
                 }
@@ -135,7 +176,8 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
 
                 /**
                  * Handles property reference expressions.
-                 * Property references like {@code obj::property} indicate potential data access.
+                 * Property references like {@code obj::property} indicate potential data
+                 * access.
                  */
                 private void collectFromPropertyReference(KtExpression receiver, KtSimpleNameExpression propertyRef) {
                     if (receiver instanceof KtThisExpression || receiver instanceof KtSuperExpression) {
@@ -158,7 +200,8 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
 
                 /**
                  * Main collection logic for qualified expressions (dot and safe-call).
-                 * Handles direct property access, accessor method calls, and extension properties.
+                 * Handles direct property access, accessor method calls, and extension
+                 * properties.
                  */
                 private void collectFromQualified(KtExpression selector, KtExpression receiver) {
                     if (selector == null)
@@ -272,8 +315,11 @@ public class KotlinAccessToForeignDataVisitor extends KotlinClassVisitor {
         }
 
         // Exclude this class/object itself by its FQN if present
-        if (klass.getFqName() != null) {
-            providers.remove(klass.getFqName().asString());
+        if (element instanceof KtClassOrObject) {
+            KtClassOrObject klassOrObj = (KtClassOrObject) element;
+            if (klassOrObj.getFqName() != null) {
+                providers.remove(klassOrObj.getFqName().asString());
+            }
         }
 
         metric = Metric.of(ATFD, providers.size());

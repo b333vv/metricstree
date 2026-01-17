@@ -8,40 +8,55 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.lexer.KtTokens;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.b333vv.metric.model.metric.MetricType.NOM;
 
 /**
  * Calculates the Number of Methods (NOM) metric for a Kotlin class.
  * <p>
- * This metric counts all executable members that contribute to the class's behavioral complexity:
+ * This metric counts all executable members that contribute to the class's
+ * behavioral complexity:
  *
  * <h3>Counted elements:</h3>
  * <ul>
- *   <li><b>Constructors:</b> Primary constructor (if present) and all secondary constructors</li>
- *   <li><b>Init blocks:</b> All init blocks (each init block counts as one method-equivalent)</li>
- *   <li><b>Named functions:</b> All named functions declared directly in the class body</li>
- *   <li><b>Property accessors:</b> Custom getters and setters with explicit implementations</li>
- *   <li><b>Companion object methods:</b> Functions declared in companion objects (static-like behavior)</li>
- *   <li><b>Nested object methods:</b> Functions in nested objects and inner classes</li>
+ * <li><b>Constructors:</b> Primary constructor (if present) and all secondary
+ * constructors</li>
+ * <li><b>Init blocks:</b> All init blocks (each init block counts as one
+ * method-equivalent)</li>
+ * <li><b>Named functions:</b> All named functions declared directly in the
+ * class body</li>
+ * <li><b>Property accessors:</b> Custom getters and setters with explicit
+ * implementations</li>
+ * <li><b>Companion object methods:</b> Functions declared in companion objects
+ * (static-like behavior)</li>
+ * <li><b>Nested object methods:</b> Functions in nested objects and inner
+ * classes</li>
  * </ul>
  *
  * <h3>Not counted:</h3>
  * <ul>
- *   <li>Abstract function declarations without implementation</li>
- *   <li>Property declarations without custom accessors (default accessors)</li>
- *   <li>Anonymous functions and lambdas within method bodies</li>
- *   <li>Top-level extension functions defined outside the class</li>
+ * <li>Abstract function declarations without implementation</li>
+ * <li>Property declarations without custom accessors (default accessors)</li>
+ * <li>Anonymous functions and lambdas within method bodies</li>
+ * <li>Top-level extension functions defined outside the class</li>
  * </ul>
  *
  * <h3>Rationale:</h3>
- * Unlike the Java interpretation where static members are simply class members, Kotlin's
- * companion objects and nested objects are separate types with their own scope. However,
- * they contribute to the overall complexity of the containing class and should be counted
+ * Unlike the Java interpretation where static members are simply class members,
+ * Kotlin's
+ * companion objects and nested objects are separate types with their own scope.
+ * However,
+ * they contribute to the overall complexity of the containing class and should
+ * be counted
  * for comprehensive complexity analysis.
  *
  * <p>
- * This enhanced implementation provides a more accurate measure of class complexity
- * in Kotlin by accounting for language-specific features like property accessors,
+ * This enhanced implementation provides a more accurate measure of class
+ * complexity
+ * in Kotlin by accounting for language-specific features like property
+ * accessors,
  * init blocks, and object declarations.
  *
  * @see org.b333vv.metric.model.metric.MetricType#NOM
@@ -50,52 +65,75 @@ public class KotlinNumberOfMethodsVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         int count = 0;
 
-        // 1. Primary constructor counts as a method
-        if (klass.getPrimaryConstructor() != null) {
-            count += 1;
-        }
-
-        // 2. Secondary constructors
-        count += klass.getSecondaryConstructors().size();
-
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            // 3. Init blocks (each init block is a method-equivalent)
-            for (KtAnonymousInitializer initializer : klass.getAnonymousInitializers()) {
+        // 1. Constructors (only for classes)
+        if (element instanceof KtClass) {
+            KtClass klass = (KtClass) element;
+            if (klass.getPrimaryConstructor() != null) {
                 count += 1;
             }
+            count += klass.getSecondaryConstructors().size();
+        }
 
-            // 4. Process all declarations in class body
-            for (KtDeclaration decl : body.getDeclarations()) {
-                // 4a. Named functions
-                if (decl instanceof KtNamedFunction) {
-                    KtNamedFunction function = (KtNamedFunction) decl;
-                    // Count only functions with implementation (not abstract)
-                    if (!function.hasModifier(KtTokens.ABSTRACT_KEYWORD) || function.hasBody()) {
-                        count += 1;
-                    }
-                }
+        // 2. Init blocks and declarations
+        List<KtDeclaration> declarations = Collections.emptyList();
+        List<KtAnonymousInitializer> initializers = Collections.emptyList();
 
-                // 4b. Properties with custom accessors
-                else if (decl instanceof KtProperty) {
-                    count += countPropertyAccessors((KtProperty) decl);
-                }
+        if (element instanceof KtClassOrObject) {
+            KtClassOrObject classOrObject = (KtClassOrObject) element;
+            initializers = classOrObject.getAnonymousInitializers();
+            KtClassBody body = classOrObject.getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
 
-                // 4c. Companion objects and nested objects
-                else if (decl instanceof KtObjectDeclaration) {
-                    KtObjectDeclaration objectDecl = (KtObjectDeclaration) decl;
-                    count += countMethodsInObjectDeclaration(objectDecl);
-                }
+        // 3. Init blocks
+        count += initializers.size();
 
-                // 4d. Inner and nested classes (recursive)
-                else if (decl instanceof KtClass) {
-                    KtClass nestedClass = (KtClass) decl;
-                    // For nested/inner classes, count their methods as part of complexity
-                    // (optional: you can make this configurable)
-                    count += countMethodsInNestedClass(nestedClass);
+        // 4. Process all declarations
+        for (KtDeclaration decl : declarations) {
+            // 4a. Named functions
+            if (decl instanceof KtNamedFunction) {
+                KtNamedFunction function = (KtNamedFunction) decl;
+                // Count only functions with implementation (not abstract)
+                if (!function.hasModifier(KtTokens.ABSTRACT_KEYWORD) || function.hasBody()) {
+                    count += 1;
                 }
+            }
+
+            // 4b. Properties with custom accessors
+            else if (decl instanceof KtProperty) {
+                count += countPropertyAccessors((KtProperty) decl);
+            }
+
+            // 4c. Companion objects and nested objects
+            else if (decl instanceof KtObjectDeclaration) {
+                KtObjectDeclaration objectDecl = (KtObjectDeclaration) decl;
+                count += countMethodsInObjectDeclaration(objectDecl);
+            }
+
+            // 4d. Inner and nested classes (recursive)
+            else if (decl instanceof KtClass) {
+                KtClass nestedClass = (KtClass) decl;
+                count += countMethodsInNestedClass(nestedClass);
             }
         }
 
@@ -103,7 +141,8 @@ public class KotlinNumberOfMethodsVisitor extends KotlinClassVisitor {
     }
 
     /**
-     * Counts custom property accessors (getters and setters with explicit implementations).
+     * Counts custom property accessors (getters and setters with explicit
+     * implementations).
      * Default accessors are not counted as they don't add behavioral complexity.
      *
      * @param property the property to analyze
@@ -182,7 +221,8 @@ public class KotlinNumberOfMethodsVisitor extends KotlinClassVisitor {
      * to include nested class complexity in the parent class metric.
      *
      * @param nestedClass the nested class to analyze
-     * @return method count in nested class (0 if you want to exclude nested classes)
+     * @return method count in nested class (0 if you want to exclude nested
+     *         classes)
      */
     private int countMethodsInNestedClass(@NotNull KtClass nestedClass) {
         // Option 1: Include nested class methods (default)
@@ -206,8 +246,7 @@ public class KotlinNumberOfMethodsVisitor extends KotlinClassVisitor {
                     if (!function.hasModifier(KtTokens.ABSTRACT_KEYWORD) || function.hasBody()) {
                         count += 1;
                     }
-                }
-                else if (decl instanceof KtProperty) {
+                } else if (decl instanceof KtProperty) {
                     count += countPropertyAccessors((KtProperty) decl);
                 }
             }

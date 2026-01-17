@@ -26,36 +26,47 @@ import java.util.*;
 import static org.b333vv.metric.model.metric.MetricType.LCOM;
 
 /**
- * Visitor that computes the Lack of Cohesion of Methods (LCOM) metric for Kotlin classes.
+ * Visitor that computes the Lack of Cohesion of Methods (LCOM) metric for
+ * Kotlin classes.
  * <p>
  * LCOM is calculated as the number of connected components in a graph where:
  * <ul>
- *   <li>Each node represents a method, accessor, constructor, or init block</li>
- *   <li>An edge exists between two nodes if they access at least one common instance property</li>
+ * <li>Each node represents a method, accessor, constructor, or init block</li>
+ * <li>An edge exists between two nodes if they access at least one common
+ * instance property</li>
  * </ul>
  * <p>
  * The metric considers the following elements and their property accesses:
  * <ul>
- *   <li><b>Named functions</b> - All functions declared in the class body</li>
- *   <li><b>Property accessors</b> - Both custom and implicit getters/setters for instance properties</li>
- *   <li><b>Primary constructor properties</b> - Properties declared with val/var in primary constructor</li>
- *   <li><b>Secondary constructors</b> - Additional constructors and their property accesses</li>
- *   <li><b>Init blocks</b> - Initialization code that may access properties</li>
- *   <li><b>Property initializers</b> - Default values that reference other instance properties</li>
- *   <li><b>Delegated properties</b> - Properties using delegation with by keyword</li>
- *   <li><b>Backing field references</b> - Uses of the 'field' keyword in custom accessors</li>
- *   <li><b>Nested expressions</b> - Lambda expressions and other nested scopes that capture properties</li>
+ * <li><b>Named functions</b> - All functions declared in the class body</li>
+ * <li><b>Property accessors</b> - Both custom and implicit getters/setters for
+ * instance properties</li>
+ * <li><b>Primary constructor properties</b> - Properties declared with val/var
+ * in primary constructor</li>
+ * <li><b>Secondary constructors</b> - Additional constructors and their
+ * property accesses</li>
+ * <li><b>Init blocks</b> - Initialization code that may access properties</li>
+ * <li><b>Property initializers</b> - Default values that reference other
+ * instance properties</li>
+ * <li><b>Delegated properties</b> - Properties using delegation with by
+ * keyword</li>
+ * <li><b>Backing field references</b> - Uses of the 'field' keyword in custom
+ * accessors</li>
+ * <li><b>Nested expressions</b> - Lambda expressions and other nested scopes
+ * that capture properties</li>
  * </ul>
  * <p>
  * The following are <b>excluded</b> from the calculation:
  * <ul>
- *   <li>Companion object members and their properties</li>
- *   <li>Methods or accessors that don't access any instance properties</li>
- *   <li>Static/companion functions</li>
+ * <li>Companion object members and their properties</li>
+ * <li>Methods or accessors that don't access any instance properties</li>
+ * <li>Static/companion functions</li>
  * </ul>
  * <p>
- * A higher LCOM value indicates lower cohesion, suggesting the class may have multiple
- * responsibilities and could benefit from decomposition. A value of 1 indicates perfect
+ * A higher LCOM value indicates lower cohesion, suggesting the class may have
+ * multiple
+ * responsibilities and could benefit from decomposition. A value of 1 indicates
+ * perfect
  * cohesion (all methods are connected through shared property access).
  *
  * @author b333vv
@@ -65,127 +76,148 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
-        Set<PsiElement> instanceProps = collectInstanceProperties(klass);
+        compute(klass);
+    }
 
-        // List of sets of accessed properties (each element representing a method/accessor/block)
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
+        Set<PsiElement> instanceProps = collectInstanceProperties(element);
+
+        // List of sets of accessed properties (each element representing a
+        // method/accessor/block)
         List<Set<PsiElement>> accesses = new ArrayList<>();
 
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            // Process regular functions
-            for (KtDeclaration decl : body.getDeclarations()) {
-                if (decl instanceof KtNamedFunction) {
-                    KtNamedFunction f = (KtNamedFunction) decl;
-                    Set<PsiElement> accessed = collectAccessedFields(f, instanceProps, null);
-                    if (!accessed.isEmpty()) {
-                        accesses.add(accessed);
+        List<KtDeclaration> declarations = Collections.emptyList();
+        List<KtAnonymousInitializer> initializers = Collections.emptyList();
+
+        if (element instanceof KtClassOrObject) {
+            KtClassOrObject classOrObject = (KtClassOrObject) element;
+            initializers = classOrObject.getAnonymousInitializers();
+            KtClassBody body = classOrObject.getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        // Process declarations
+        for (KtDeclaration decl : declarations) {
+            if (decl instanceof KtNamedFunction) {
+                KtNamedFunction f = (KtNamedFunction) decl;
+                Set<PsiElement> accessed = collectAccessedFields(f, instanceProps, null);
+                if (!accessed.isEmpty()) {
+                    accesses.add(accessed);
+                }
+            } else if (decl instanceof KtProperty) {
+                KtProperty prop = (KtProperty) decl;
+                if (!KotlinMetricUtils.isInCompanionObject(prop) && instanceProps.contains(prop)) {
+                    // Process property initializer
+                    KtExpression initializer = prop.getInitializer();
+                    if (initializer != null) {
+                        Set<PsiElement> initAccessed = collectAccessedFieldsFromExpression(
+                                initializer, instanceProps, prop);
+                        if (!initAccessed.isEmpty()) {
+                            accesses.add(initAccessed);
+                        }
                     }
-                } else if (decl instanceof KtProperty) {
-                    KtProperty prop = (KtProperty) decl;
-                    if (!KotlinMetricUtils.isInCompanionObject(prop) && instanceProps.contains(prop)) {
-                        // Process property initializer
-                        KtExpression initializer = prop.getInitializer();
-                        if (initializer != null) {
-                            Set<PsiElement> initAccessed = collectAccessedFieldsFromExpression(
-                                    initializer, instanceProps, prop);
-                            if (!initAccessed.isEmpty()) {
-                                accesses.add(initAccessed);
-                            }
-                        }
 
-                        // Process delegated property
-                        KtPropertyDelegate delegate = prop.getDelegate();
-                        if (delegate != null) {
-                            Set<PsiElement> delegateAccessed = collectAccessedFieldsFromExpression(
-                                    delegate.getExpression(), instanceProps, prop);
-                            if (!delegateAccessed.isEmpty()) {
-                                accesses.add(delegateAccessed);
-                            }
+                    // Process delegated property
+                    KtPropertyDelegate delegate = prop.getDelegate();
+                    if (delegate != null) {
+                        Set<PsiElement> delegateAccessed = collectAccessedFieldsFromExpression(
+                                delegate.getExpression(), instanceProps, prop);
+                        if (!delegateAccessed.isEmpty()) {
+                            accesses.add(delegateAccessed);
                         }
+                    }
 
-                        // Getter
-                        KtPropertyAccessor getter = prop.getGetter();
-                        if (getter != null && getter.hasBody()) {
-                            Set<PsiElement> getterAccessed = collectAccessedFields(getter, instanceProps, prop);
-                            if (!getterAccessed.isEmpty()) {
-                                accesses.add(getterAccessed);
+                    // Getter
+                    KtPropertyAccessor getter = prop.getGetter();
+                    if (getter != null && getter.hasBody()) {
+                        Set<PsiElement> getterAccessed = collectAccessedFields(getter, instanceProps, prop);
+                        if (!getterAccessed.isEmpty()) {
+                            accesses.add(getterAccessed);
+                        }
+                    } else if (delegate == null) {
+                        Set<PsiElement> getterAccess = new HashSet<>();
+                        getterAccess.add(prop);
+                        accesses.add(getterAccess);
+                    }
+
+                    // Setter
+                    if (prop.isVar()) {
+                        KtPropertyAccessor setter = prop.getSetter();
+                        if (setter != null && setter.hasBody()) {
+                            Set<PsiElement> setterAccessed = collectAccessedFields(setter, instanceProps, prop);
+                            if (!setterAccessed.isEmpty()) {
+                                accesses.add(setterAccessed);
                             }
                         } else if (delegate == null) {
-                            // Implicit getter accesses its backing field (the property itself)
-                            // Skip if property is delegated as it uses different access mechanism
-                            Set<PsiElement> getterAccess = new HashSet<>();
-                            getterAccess.add(prop);
-                            accesses.add(getterAccess);
+                            Set<PsiElement> setterAccess = new HashSet<>();
+                            setterAccess.add(prop);
+                            accesses.add(setterAccess);
                         }
-
-                        // Setter
-                        if (prop.isVar()) {
-                            KtPropertyAccessor setter = prop.getSetter();
-                            if (setter != null && setter.hasBody()) {
-                                Set<PsiElement> setterAccessed = collectAccessedFields(setter, instanceProps, prop);
-                                if (!setterAccessed.isEmpty()) {
-                                    accesses.add(setterAccessed);
-                                }
-                            } else if (delegate == null) {
-                                // Implicit setter accesses its backing field
-                                Set<PsiElement> setterAccess = new HashSet<>();
-                                setterAccess.add(prop);
-                                accesses.add(setterAccess);
-                            }
-                        }
-                    }
-                } else if (decl instanceof KtSecondaryConstructor) {
-                    // Process secondary constructors
-                    KtSecondaryConstructor ctor = (KtSecondaryConstructor) decl;
-                    Set<PsiElement> ctorAccessed = collectAccessedFields(ctor, instanceProps, null);
-                    if (!ctorAccessed.isEmpty()) {
-                        accesses.add(ctorAccessed);
                     }
                 }
-            }
-
-            // Process init blocks
-            for (KtAnonymousInitializer init : body.getAnonymousInitializers()) {
-                Set<PsiElement> initAccessed = collectAccessedFieldsFromExpression(
-                        init.getBody(), instanceProps, null);
-                if (!initAccessed.isEmpty()) {
-                    accesses.add(initAccessed);
+            } else if (decl instanceof KtSecondaryConstructor) {
+                KtSecondaryConstructor ctor = (KtSecondaryConstructor) decl;
+                Set<PsiElement> ctorAccessed = collectAccessedFields(ctor, instanceProps, null);
+                if (!ctorAccessed.isEmpty()) {
+                    accesses.add(ctorAccessed);
                 }
             }
         }
 
-        // Process primary constructor and its properties
-        KtPrimaryConstructor primary = klass.getPrimaryConstructor();
-        if (primary != null) {
-            // Check for property access in primary constructor body (delegation calls, etc.)
-            Set<PsiElement> primaryCtorAccessed = collectAccessedFields(primary, instanceProps, null);
-            if (!primaryCtorAccessed.isEmpty()) {
-                accesses.add(primaryCtorAccessed);
+        // Process init blocks
+        for (KtAnonymousInitializer init : initializers) {
+            Set<PsiElement> initAccessed = collectAccessedFieldsFromExpression(
+                    init.getBody(), instanceProps, null);
+            if (!initAccessed.isEmpty()) {
+                accesses.add(initAccessed);
             }
+        }
 
-            // Add implicit accessors for primary constructor properties
-            for (KtParameter param : primary.getValueParameters()) {
-                if (instanceProps.contains(param)) {
-                    // Check if parameter has default value that accesses other properties
-                    KtExpression defaultValue = param.getDefaultValue();
-                    if (defaultValue != null) {
-                        Set<PsiElement> defaultAccessed = collectAccessedFieldsFromExpression(
-                                defaultValue, instanceProps, null);
-                        if (!defaultAccessed.isEmpty()) {
-                            accesses.add(defaultAccessed);
+        // Process primary constructor (only for classes)
+        if (element instanceof KtClass) {
+            KtClass klass = (KtClass) element;
+            KtPrimaryConstructor primary = klass.getPrimaryConstructor();
+            if (primary != null) {
+                Set<PsiElement> primaryCtorAccessed = collectAccessedFields(primary, instanceProps, null);
+                if (!primaryCtorAccessed.isEmpty()) {
+                    accesses.add(primaryCtorAccessed);
+                }
+
+                // Add implicit accessors for primary constructor properties
+                for (KtParameter param : primary.getValueParameters()) {
+                    if (instanceProps.contains(param)) {
+                        KtExpression defaultValue = param.getDefaultValue();
+                        if (defaultValue != null) {
+                            Set<PsiElement> defaultAccessed = collectAccessedFieldsFromExpression(
+                                    defaultValue, instanceProps, null);
+                            if (!defaultAccessed.isEmpty()) {
+                                accesses.add(defaultAccessed);
+                            }
                         }
-                    }
 
-                    // Getter accesses the property
-                    Set<PsiElement> getterAccess = new HashSet<>();
-                    getterAccess.add(param);
-                    accesses.add(getterAccess);
+                        Set<PsiElement> getterAccess = new HashSet<>();
+                        getterAccess.add(param);
+                        accesses.add(getterAccess);
 
-                    // Setter
-                    if (param.isMutable()) {
-                        Set<PsiElement> setterAccess = new HashSet<>();
-                        setterAccess.add(param);
-                        accesses.add(setterAccess);
+                        if (param.isMutable()) {
+                            Set<PsiElement> setterAccess = new HashSet<>();
+                            setterAccess.add(param);
+                            accesses.add(setterAccess);
+                        }
                     }
                 }
             }
@@ -195,31 +227,35 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
         metric = Metric.of(LCOM, components);
     }
 
-    /**
-     * Collects all instance properties from the class, including both primary constructor
-     * properties (declared with val/var) and properties declared in the class body.
-     * Excludes companion object properties.
-     *
-     * @param klass the Kotlin class to analyze
-     * @return set of PSI elements representing instance properties
-     */
-    private Set<PsiElement> collectInstanceProperties(KtClass klass) {
+    private Set<PsiElement> collectInstanceProperties(KtElement element) {
         Set<PsiElement> props = new HashSet<>();
-        KtPrimaryConstructor primary = klass.getPrimaryConstructor();
-        if (primary != null) {
-            for (KtParameter p : primary.getValueParameters()) {
-                if (p.hasValOrVar()) {
-                    props.add(p);
+        List<KtDeclaration> declarations = Collections.emptyList();
+
+        if (element instanceof KtClass) {
+            KtClass klass = (KtClass) element;
+            KtPrimaryConstructor primary = klass.getPrimaryConstructor();
+            if (primary != null) {
+                for (KtParameter p : primary.getValueParameters()) {
+                    if (p.hasValOrVar()) {
+                        props.add(p);
+                    }
                 }
             }
         }
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            for (KtDeclaration decl : body.getDeclarations()) {
-                if (decl instanceof KtProperty) {
-                    if (!KotlinMetricUtils.isInCompanionObject((KtProperty) decl)) {
-                        props.add(decl);
-                    }
+
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        for (KtDeclaration decl : declarations) {
+            if (decl instanceof KtProperty) {
+                if (!KotlinMetricUtils.isInCompanionObject((KtProperty) decl)) {
+                    props.add(decl);
                 }
             }
         }
@@ -230,9 +266,10 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
      * Collects all instance properties accessed within a method or accessor body.
      * Handles references to the 'field' keyword in custom accessors.
      *
-     * @param method the method or accessor to analyze
-     * @param instanceProps set of instance properties in the class
-     * @param contextProperty the property being accessed (for 'field' keyword resolution)
+     * @param method          the method or accessor to analyze
+     * @param instanceProps   set of instance properties in the class
+     * @param contextProperty the property being accessed (for 'field' keyword
+     *                        resolution)
      * @return set of accessed properties
      */
     private Set<PsiElement> collectAccessedFields(KtDeclarationWithBody method, Set<PsiElement> instanceProps,
@@ -250,9 +287,10 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
      * This method handles nested scopes including lambdas, anonymous functions,
      * and other complex expressions.
      *
-     * @param expression the expression to analyze
-     * @param instanceProps set of instance properties in the class
-     * @param contextProperty the property being accessed (for 'field' keyword resolution)
+     * @param expression      the expression to analyze
+     * @param instanceProps   set of instance properties in the class
+     * @param contextProperty the property being accessed (for 'field' keyword
+     *                        resolution)
      * @return set of accessed properties
      */
     private Set<PsiElement> collectAccessedFieldsFromExpression(KtExpression expression,
@@ -292,8 +330,10 @@ public class KotlinLackOfCohesionOfMethodsVisitor extends KotlinClassVisitor {
     }
 
     /**
-     * Computes the number of connected components in the method-property access graph.
-     * Uses depth-first search to identify components where methods are connected if they
+     * Computes the number of connected components in the method-property access
+     * graph.
+     * Uses depth-first search to identify components where methods are connected if
+     * they
      * share at least one accessed property.
      *
      * @param accesses list of property access sets, one per method/accessor

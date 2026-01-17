@@ -5,45 +5,52 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
 import com.intellij.psi.PsiElement;
 
+import java.util.List;
+
 import static org.b333vv.metric.model.metric.MetricType.SIZE2;
 
 /**
  * Kotlin Number Of Attributes And Methods (SIZE2) Visitor.
  * 
- * <p>This visitor calculates the SIZE2 metric for Kotlin classes, which represents
- * the total number of attributes (properties) and methods (functions) in a class.
+ * <p>
+ * This visitor calculates the SIZE2 metric for Kotlin classes, which represents
+ * the total number of attributes (properties) and methods (functions) in a
+ * class.
  * 
  * <h3>What is counted as ATTRIBUTES:</h3>
  * <ul>
- *   <li>Properties declared in the class body (val/var)</li>
- *   <li>Primary constructor parameters with val/var modifiers</li>
- *   <li>Properties with custom getters/setters (counted as attributes, with accessors counted as methods)</li>
- *   <li>Delegated properties (by lazy, by Delegates, etc.)</li>
- *   <li>Late-initialized properties (lateinit var)</li>
+ * <li>Properties declared in the class body (val/var)</li>
+ * <li>Primary constructor parameters with val/var modifiers</li>
+ * <li>Properties with custom getters/setters (counted as attributes, with
+ * accessors counted as methods)</li>
+ * <li>Delegated properties (by lazy, by Delegates, etc.)</li>
+ * <li>Late-initialized properties (lateinit var)</li>
  * </ul>
  * 
  * <h3>What is counted as METHODS:</h3>
  * <ul>
- *   <li>Named functions declared in the class (fun)</li>
- *   <li>Primary constructor (if present)</li>
- *   <li>Secondary constructors (constructor)</li>
- *   <li>Custom property getters (get())</li>
- *   <li>Custom property setters (set())</li>
- *   <li>Operator functions (operator fun)</li>
- *   <li>Infix functions (infix fun)</li>
+ * <li>Named functions declared in the class (fun)</li>
+ * <li>Primary constructor (if present)</li>
+ * <li>Secondary constructors (constructor)</li>
+ * <li>Custom property getters (get())</li>
+ * <li>Custom property setters (set())</li>
+ * <li>Operator functions (operator fun)</li>
+ * <li>Infix functions (infix fun)</li>
  * </ul>
  * 
  * <h3>What is NOT counted:</h3>
  * <ul>
- *   <li>Companion object members (treated as static, not instance members)</li>
- *   <li>Nested/inner class declarations (counted separately)</li>
- *   <li>Init blocks (initialization code, not methods)</li>
- *   <li>Anonymous initializers</li>
- *   <li>Type aliases</li>
- *   <li>Default property accessors (synthetic getters/setters without custom implementation)</li>
+ * <li>Companion object members (treated as static, not instance members)</li>
+ * <li>Nested/inner class declarations (counted separately)</li>
+ * <li>Init blocks (initialization code, not methods)</li>
+ * <li>Anonymous initializers</li>
+ * <li>Type aliases</li>
+ * <li>Default property accessors (synthetic getters/setters without custom
+ * implementation)</li>
  * </ul>
  * 
  * <h3>Examples:</h3>
+ * 
  * <pre>
  * class Example(val x: Int) {              // x counts as 1 attribute, constructor as 1 method
  *     var y: String = ""                    // y counts as 1 attribute
@@ -71,56 +78,78 @@ public class KotlinNumberOfAttributesAndMethodsVisitor extends KotlinClassVisito
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         int attributes = 0;
         int methods = 0;
 
-        // Count primary constructor and its properties
-        KtPrimaryConstructor primaryConstructor = klass.getPrimaryConstructor();
-        if (primaryConstructor != null) {
-            methods++; // Primary constructor counts as a method
-            
-            // Count properties declared in primary constructor (val/var parameters)
-            for (KtParameter parameter : primaryConstructor.getValueParameters()) {
-                if (parameter.hasValOrVar()) {
-                    attributes++;
+        // Count primary constructor and its properties (only for classes)
+        if (element instanceof KtClass) {
+            KtClass klass = (KtClass) element;
+            KtPrimaryConstructor primaryConstructor = klass.getPrimaryConstructor();
+            if (primaryConstructor != null) {
+                methods++; // Primary constructor counts as a method
+
+                // Count properties declared in primary constructor (val/var parameters)
+                for (KtParameter parameter : primaryConstructor.getValueParameters()) {
+                    if (parameter.hasValOrVar()) {
+                        attributes++;
+                    }
                 }
             }
         }
 
-        // Process class body declarations
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            for (KtDeclaration declaration : body.getDeclarations()) {
-                if (declaration instanceof KtProperty) {
-                    KtProperty property = (KtProperty) declaration;
-                    
-                    // Exclude properties in companion objects (static members)
-                    if (!isInCompanionObject(property)) {
-                        attributes++; // Count the property itself
-                        
-                        // Count custom accessors as methods
-                        KtPropertyAccessor getter = property.getGetter();
-                        if (getter != null && getter.hasBody()) {
-                            methods++; // Custom getter with implementation
-                        }
-                        
-                        KtPropertyAccessor setter = property.getSetter();
-                        if (setter != null && setter.hasBody()) {
-                            methods++; // Custom setter with implementation
-                        }
+        // Process body elements or file declarations
+        List<KtDeclaration> declarations = java.util.Collections.emptyList();
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        for (KtDeclaration declaration : declarations) {
+            if (declaration instanceof KtProperty) {
+                KtProperty property = (KtProperty) declaration;
+
+                // Exclude properties in companion objects (static members)
+                if (!isInCompanionObject(property)) {
+                    attributes++; // Count the property itself
+
+                    // Count custom accessors as methods
+                    KtPropertyAccessor getter = property.getGetter();
+                    if (getter != null && getter.hasBody()) {
+                        methods++; // Custom getter with implementation
                     }
-                } else if (declaration instanceof KtNamedFunction) {
-                    // Count all named functions (regular, operator, infix, etc.)
-                    methods++;
-                } else if (declaration instanceof KtSecondaryConstructor) {
-                    // Count secondary constructors
-                    methods++;
+
+                    KtPropertyAccessor setter = property.getSetter();
+                    if (setter != null && setter.hasBody()) {
+                        methods++; // Custom setter with implementation
+                    }
                 }
-                // Note: KtClassInitializer (init blocks) are NOT counted as methods
-                // Note: Nested/inner classes are NOT counted here (processed separately)
+            } else if (declaration instanceof KtNamedFunction) {
+                // Count all named functions (regular, operator, infix, etc.)
+                methods++;
+            } else if (declaration instanceof KtSecondaryConstructor) {
+                // Count secondary constructors
+                methods++;
             }
         }
-        
+
         metric = Metric.of(SIZE2, (long) attributes + methods);
     }
 
@@ -133,21 +162,21 @@ public class KotlinNumberOfAttributesAndMethodsVisitor extends KotlinClassVisito
      */
     private boolean isInCompanionObject(@NotNull KtProperty property) {
         PsiElement parent = property.getParent();
-        
+
         // Navigate up to find KtClassBody
         while (parent != null && !(parent instanceof KtClassBody)) {
             parent = parent.getParent();
         }
-        
+
         if (parent instanceof KtClassBody) {
             PsiElement possibleCompanion = parent.getParent();
-            
+
             // Check if the parent of class body is a companion object
             if (possibleCompanion instanceof KtObjectDeclaration) {
                 return ((KtObjectDeclaration) possibleCompanion).isCompanion();
             }
         }
-        
+
         return false;
     }
 }

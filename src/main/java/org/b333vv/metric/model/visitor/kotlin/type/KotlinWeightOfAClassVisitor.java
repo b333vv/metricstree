@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
 import com.intellij.psi.PsiElement;
+import java.util.Collections;
 import java.util.List;
 
 import static org.b333vv.metric.model.metric.MetricType.WOC;
@@ -14,64 +15,81 @@ import static org.b333vv.metric.model.metric.MetricType.WOC;
 /**
  * Kotlin Weight Of A Class (WOC) Metric Calculator
  *
- * <p><b>Definition:</b> WOC = (number of functional methods) / (total declared methods)</p>
+ * <p>
+ * <b>Definition:</b> WOC = (number of functional methods) / (total declared
+ * methods)
+ * </p>
  *
- * <p><b>Purpose:</b> Measures the proportion of methods in a class that contain actual business logic
- * versus trivial accessors, delegations, or boilerplate code. Higher WOC indicates more behavioral
- * complexity, while lower WOC suggests a data-centric class design.</p>
+ * <p>
+ * <b>Purpose:</b> Measures the proportion of methods in a class that contain
+ * actual business logic
+ * versus trivial accessors, delegations, or boilerplate code. Higher WOC
+ * indicates more behavioral
+ * complexity, while lower WOC suggests a data-centric class design.
+ * </p>
  *
  * <h3>What is Counted as TOTAL Methods:</h3>
  * <ul>
- *   <li>All named functions declared in the class body ({@link KtNamedFunction})</li>
- *   <li>Excludes constructors (primary and secondary)</li>
- *   <li>Excludes init blocks</li>
- *   <li>Excludes property declarations themselves (but counts explicit accessor methods)</li>
+ * <li>All named functions declared in the class body
+ * ({@link KtNamedFunction})</li>
+ * <li>Excludes constructors (primary and secondary)</li>
+ * <li>Excludes init blocks</li>
+ * <li>Excludes property declarations themselves (but counts explicit accessor
+ * methods)</li>
  * </ul>
  *
  * <h3>What is Counted as FUNCTIONAL (Non-Trivial) Methods:</h3>
  * <ul>
- *   <li><b>Included:</b>
- *     <ul>
- *       <li>Methods with multiple statements in body (> 2 lines)</li>
- *       <li>Methods with complex expressions (when, if, lambdas)</li>
- *       <li>Business logic methods calling external services/repositories</li>
- *       <li>Operator overloading functions with non-trivial logic</li>
- *       <li>Methods performing computations or transformations</li>
- *     </ul>
- *   </li>
- *   <li><b>Excluded (Non-Functional):</b>
- *     <ul>
- *       <li>Abstract methods (no implementation)</li>
- *       <li>External methods (delegated to native code)</li>
- *       <li>Property accessors (getters/setters matching class properties)</li>
- *       <li>Simple delegations: {@code return field} or {@code field = value}</li>
- *       <li>Trivial single-call delegations: {@code return otherObject.method()}</li>
- *       <li>Data class component methods (componentN for destructuring)</li>
- *       <li>Empty methods or methods with only return statement of a simple reference</li>
- *       <li>Simple field assignments in expression body</li>
- *     </ul>
- *   </li>
+ * <li><b>Included:</b>
+ * <ul>
+ * <li>Methods with multiple statements in body (> 2 lines)</li>
+ * <li>Methods with complex expressions (when, if, lambdas)</li>
+ * <li>Business logic methods calling external services/repositories</li>
+ * <li>Operator overloading functions with non-trivial logic</li>
+ * <li>Methods performing computations or transformations</li>
+ * </ul>
+ * </li>
+ * <li><b>Excluded (Non-Functional):</b>
+ * <ul>
+ * <li>Abstract methods (no implementation)</li>
+ * <li>External methods (delegated to native code)</li>
+ * <li>Property accessors (getters/setters matching class properties)</li>
+ * <li>Simple delegations: {@code return field} or {@code field = value}</li>
+ * <li>Trivial single-call delegations: {@code return otherObject.method()}</li>
+ * <li>Data class component methods (componentN for destructuring)</li>
+ * <li>Empty methods or methods with only return statement of a simple
+ * reference</li>
+ * <li>Simple field assignments in expression body</li>
+ * </ul>
+ * </li>
  * </ul>
  *
  * <h3>Kotlin-Specific Handling:</h3>
  * <ul>
- *   <li><b>Properties:</b> Automatically generated property accessors are excluded. Explicit
- *       custom getters/setters with logic are counted as functional.</li>
- *   <li><b>Backing Fields:</b> Methods that simply return or assign to backing fields
- *       (using {@code field} keyword) are considered non-functional.</li>
- *   <li><b>Operator Overloading:</b> Operators like {@code plus}, {@code invoke}, {@code get}
- *       are analyzed for complexity. Simple delegation operators are excluded.</li>
- *   <li><b>Data Classes:</b> Returns special value (-1.0) as WOC is not meaningful for
- *       data-centric classes by design.</li>
- *   <li><b>Expression Body:</b> Single-expression functions are analyzed contextually:
- *     <ul>
- *       <li>Trivial: {@code fun getX() = x}</li>
- *       <li>Functional: {@code fun calculate() = repository.findAll().map { transform(it) }}</li>
- *     </ul>
- *   </li>
+ * <li><b>Properties:</b> Automatically generated property accessors are
+ * excluded. Explicit
+ * custom getters/setters with logic are counted as functional.</li>
+ * <li><b>Backing Fields:</b> Methods that simply return or assign to backing
+ * fields
+ * (using {@code field} keyword) are considered non-functional.</li>
+ * <li><b>Operator Overloading:</b> Operators like {@code plus}, {@code invoke},
+ * {@code get}
+ * are analyzed for complexity. Simple delegation operators are excluded.</li>
+ * <li><b>Data Classes:</b> Returns special value (-1.0) as WOC is not
+ * meaningful for
+ * data-centric classes by design.</li>
+ * <li><b>Expression Body:</b> Single-expression functions are analyzed
+ * contextually:
+ * <ul>
+ * <li>Trivial: {@code fun getX() = x}</li>
+ * <li>Functional:
+ * {@code fun calculate() = repository.findAll().map { transform(it) }}</li>
+ * </ul>
+ * </li>
  * </ul>
  *
  * <h3>Examples:</h3>
+ * 
  * <pre>{@code
  * class UserService(private val repository: UserRepository) {
  *     // NON-FUNCTIONAL (1): simple property accessor
@@ -105,36 +123,61 @@ import static org.b333vv.metric.model.metric.MetricType.WOC;
  *
  * <h3>Interpretation Guidelines:</h3>
  * <ul>
- *   <li><b>WOC &lt; 0.3:</b> Possible Data Class antipattern - consider refactoring to Kotlin data class</li>
- *   <li><b>0.3 ≤ WOC ≤ 0.7:</b> Balanced mix of data and behavior (typical for well-designed classes)</li>
- *   <li><b>WOC &gt; 0.7:</b> Behavior-heavy class - ensure single responsibility is maintained</li>
- *   <li><b>WOC = -1.0:</b> Data class marker (metric not applicable)</li>
+ * <li><b>WOC &lt; 0.3:</b> Possible Data Class antipattern - consider
+ * refactoring to Kotlin data class</li>
+ * <li><b>0.3 ≤ WOC ≤ 0.7:</b> Balanced mix of data and behavior (typical for
+ * well-designed classes)</li>
+ * <li><b>WOC &gt; 0.7:</b> Behavior-heavy class - ensure single responsibility
+ * is maintained</li>
+ * <li><b>WOC = -1.0:</b> Data class marker (metric not applicable)</li>
  * </ul>
  *
- * @see <a href="https://dcm.dev/docs/metrics/class/weight-of-class/">WOC Metric Definition</a>
+ * @see <a href="https://dcm.dev/docs/metrics/class/weight-of-class/">WOC Metric
+ *      Definition</a>
  */
 public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         // Special handling for data classes - WOC is not meaningful for them
-        if (klass.isData()) {
+        if (element instanceof KtClass && ((KtClass) element).isData()) {
             metric = Metric.of(WOC, -1.0); // marker value indicating data class
             return;
         }
 
         long total = 0;
         long functional = 0;
-        KtClassBody body = klass.getBody();
+        java.util.List<KtDeclaration> declarations = java.util.Collections.emptyList();
 
-        if (body != null) {
-            for (KtDeclaration d : body.getDeclarations()) {
-                if (d instanceof KtNamedFunction) {
-                    KtNamedFunction f = (KtNamedFunction) d;
-                    total++;
-                    if (isFunctional(f)) {
-                        functional++;
-                    }
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        for (KtDeclaration d : declarations) {
+            if (d instanceof KtNamedFunction) {
+                KtNamedFunction f = (KtNamedFunction) d;
+                total++;
+                if (isFunctional(f)) {
+                    functional++;
                 }
             }
         }
@@ -150,7 +193,8 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
      * Determines if a method is functional (contains non-trivial logic).
      *
      * @param f the function to analyze
-     * @return true if the function is considered functional, false for trivial/accessor methods
+     * @return true if the function is considered functional, false for
+     *         trivial/accessor methods
      */
     private boolean isFunctional(@NotNull KtNamedFunction f) {
         // Exclude property accessors (compiler-generated or explicit)
@@ -186,8 +230,10 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
     /**
      * Checks if a method is a property accessor (getter/setter).
      *
-     * <p>Identifies both compiler-generated accessors and explicit accessor methods
-     * that match property names in the class.</p>
+     * <p>
+     * Identifies both compiler-generated accessors and explicit accessor methods
+     * that match property names in the class.
+     * </p>
      *
      * @param f the function to check
      * @return true if the method is a property accessor
@@ -233,17 +279,23 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
     }
 
     /**
-     * Checks if the class containing the function has a property matching the given name.
+     * Checks if the class containing the function has a property matching the given
+     * name.
      *
-     * @param f the function to check
+     * @param f            the function to check
      * @param propertyName the property name to look for
      * @return true if a matching property exists
      */
     private boolean hasMatchingProperty(@NotNull KtNamedFunction f, @NotNull String propertyName) {
         PsiElement parent = f.getParent();
-        if (parent instanceof KtClassBody) {
-            KtClassBody classBody = (KtClassBody) parent;
-            for (KtDeclaration decl : classBody.getDeclarations()) {
+        if (parent instanceof KtClassBody || parent instanceof KtFile) {
+            List<KtDeclaration> declarations = Collections.emptyList();
+            if (parent instanceof KtClassBody) {
+                declarations = ((KtClassBody) parent).getDeclarations();
+            } else {
+                declarations = ((KtFile) parent).getDeclarations();
+            }
+            for (KtDeclaration decl : declarations) {
                 if (decl instanceof KtProperty) {
                     KtProperty prop = (KtProperty) decl;
                     if (propertyName.equals(prop.getName())) {
@@ -254,13 +306,16 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
         }
 
         // Check constructor properties
-        KtClass ktClass = (KtClass) parent.getParent();
-        if (ktClass != null) {
-            KtPrimaryConstructor constructor = ktClass.getPrimaryConstructor();
-            if (constructor != null) {
-                for (KtParameter param : constructor.getValueParameters()) {
-                    if (param.hasValOrVar() && propertyName.equals(param.getName())) {
-                        return true;
+        if (parent instanceof KtClassBody) {
+            PsiElement container = parent.getParent();
+            if (container instanceof KtClass) {
+                KtClass ktClass = (KtClass) container;
+                KtPrimaryConstructor constructor = ktClass.getPrimaryConstructor();
+                if (constructor != null) {
+                    for (KtParameter param : constructor.getValueParameters()) {
+                        if (param.hasValOrVar() && propertyName.equals(param.getName())) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -272,11 +327,12 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
     /**
      * Determines if an operator overloading function is trivial.
      *
-     * <p>Examples of trivial operators:
+     * <p>
+     * Examples of trivial operators:
      * <ul>
-     *   <li>componentN() for destructuring declarations</li>
-     *   <li>equals() with simple field comparison</li>
-     *   <li>get/set operators that directly delegate to collection</li>
+     * <li>componentN() for destructuring declarations</li>
+     * <li>equals() with simple field comparison</li>
+     * <li>get/set operators that directly delegate to collection</li>
      * </ul>
      *
      * @param f the operator function to analyze
@@ -304,14 +360,16 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
     /**
      * Analyzes whether a single-expression function body is functional.
      *
-     * <p>Expression bodies are functional unless they are:
+     * <p>
+     * Expression bodies are functional unless they are:
      * <ul>
-     *   <li>Simple property references: {@code fun getX() = x}</li>
-     *   <li>Direct method delegations to fields: {@code fun find() = repository.find()}</li>
+     * <li>Simple property references: {@code fun getX() = x}</li>
+     * <li>Direct method delegations to fields:
+     * {@code fun find() = repository.find()}</li>
      * </ul>
      *
      * @param expr the expression to analyze
-     * @param f the containing function
+     * @param f    the containing function
      * @return true if the expression represents functional logic
      */
     private boolean isFunctionalExpression(@NotNull KtExpression expr, @NotNull KtNamedFunction f) {
@@ -447,7 +505,9 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
     /**
      * Checks if statements follow a validation + delegation pattern.
      *
-     * <p>Example: validate(input); return repository.save(input)</p>
+     * <p>
+     * Example: validate(input); return repository.save(input)
+     * </p>
      *
      * @param statements the statements to check
      * @return true if it matches the pattern
@@ -484,7 +544,8 @@ public class KotlinWeightOfAClassVisitor extends KotlinClassVisitor {
     }
 
     /**
-     * Checks if an expression uses lambda arguments (indicating functional complexity).
+     * Checks if an expression uses lambda arguments (indicating functional
+     * complexity).
      *
      * @param expr the expression to check
      * @return true if lambda arguments are present

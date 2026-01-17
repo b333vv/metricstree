@@ -16,27 +16,33 @@ import static org.b333vv.metric.model.metric.MetricType.NOO;
  *
  * <h3>Counted elements:</h3>
  * <ul>
- *   <li><b>Named functions:</b> All named functions declared directly in the class body,
- *       including regular methods, operator functions, infix functions, and extension functions</li>
- *   <li><b>Custom property accessors:</b> Getters and setters with explicit implementations
- *       (properties with custom logic in get() or set() blocks)</li>
- *   <li><b>Companion object functions:</b> Named functions declared in companion objects
- *       (static-like behavior accessible via class name)</li>
- *   <li><b>Nested object functions:</b> Named functions in nested object declarations
- *       and their custom property accessors</li>
+ * <li><b>Named functions:</b> All named functions declared directly in the
+ * class body,
+ * including regular methods, operator functions, infix functions, and extension
+ * functions</li>
+ * <li><b>Custom property accessors:</b> Getters and setters with explicit
+ * implementations
+ * (properties with custom logic in get() or set() blocks)</li>
+ * <li><b>Companion object functions:</b> Named functions declared in companion
+ * objects
+ * (static-like behavior accessible via class name)</li>
+ * <li><b>Nested object functions:</b> Named functions in nested object
+ * declarations
+ * and their custom property accessors</li>
  * </ul>
  *
  * <h3>Not counted:</h3>
  * <ul>
- *   <li>Constructors (primary and secondary) - excluded by metric definition</li>
- *   <li>Init blocks - initialization logic, not operations</li>
- *   <li>Properties with default accessors - no custom behavioral logic</li>
- *   <li>Inherited or overridden methods - PSI-only analysis limitation</li>
- *   <li>Anonymous functions and lambdas - not class-level operations</li>
- *   <li>Abstract function declarations - no implementation</li>
+ * <li>Constructors (primary and secondary) - excluded by metric definition</li>
+ * <li>Init blocks - initialization logic, not operations</li>
+ * <li>Properties with default accessors - no custom behavioral logic</li>
+ * <li>Inherited or overridden methods - PSI-only analysis limitation</li>
+ * <li>Anonymous functions and lambdas - not class-level operations</li>
+ * <li>Abstract function declarations - no implementation</li>
  * </ul>
  *
  * <h3>Examples:</h3>
+ * 
  * <pre>{@code
  * class Example {
  *     // Counted: 1 (named function)
@@ -62,9 +68,12 @@ import static org.b333vv.metric.model.metric.MetricType.NOO;
  * }</pre>
  *
  * <h3>Rationale:</h3>
- * The NOO metric measures the behavioral complexity and public interface of a class.
- * Kotlin's property accessors with custom logic are equivalent to methods in terms of
- * behavioral complexity. Companion object functions are included as they represent
+ * The NOO metric measures the behavioral complexity and public interface of a
+ * class.
+ * Kotlin's property accessors with custom logic are equivalent to methods in
+ * terms of
+ * behavioral complexity. Companion object functions are included as they
+ * represent
  * static-like operations accessible through the class interface.
  *
  * @see org.b333vv.metric.model.metric.MetricType#NOO
@@ -73,11 +82,33 @@ public class KotlinNumberOfOperationsVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         int count = 0;
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            count = countOperations(body);
+        java.util.List<KtDeclaration> declarations = java.util.Collections.emptyList();
+
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
         }
+
+        count = countOperations(declarations);
         metric = Metric.of(NOO, count);
     }
 
@@ -88,11 +119,12 @@ public class KotlinNumberOfOperationsVisitor extends KotlinClassVisitor {
      * @param body the class body to analyze
      * @return total count of operations
      */
-    private int countOperations(@NotNull KtClassBody body) {
+    private int countOperations(@NotNull java.util.List<KtDeclaration> declarations) {
         int count = 0;
 
-        for (KtDeclaration d : body.getDeclarations()) {
-            // Count named functions (includes regular, operator, infix, extension functions)
+        for (KtDeclaration d : declarations) {
+            // Count named functions (includes regular, operator, infix, extension
+            // functions)
             if (d instanceof KtNamedFunction) {
                 count++;
             }
@@ -117,7 +149,7 @@ public class KotlinNumberOfOperationsVisitor extends KotlinClassVisitor {
                 KtObjectDeclaration obj = (KtObjectDeclaration) d;
                 KtClassBody objBody = obj.getBody();
                 if (objBody != null) {
-                    count += countOperations(objBody);
+                    count += countOperations(objBody.getDeclarations());
                 }
             }
         }

@@ -27,60 +27,82 @@ import static org.b333vv.metric.model.metric.MetricType.RFC;
 /**
  * RFC (Response For Class) metric calculator for Kotlin classes.
  *
- * <p>RFC measures the size of the response set for a class, which consists of:
+ * <p>
+ * RFC measures the size of the response set for a class, which consists of:
  * <ul>
- *   <li>Methods declared in the class (functions, constructors, and property accessors)</li>
- *   <li>Unique method calls from within the class (by fully qualified signature when resolved)</li>
+ * <li>Methods declared in the class (functions, constructors, and property
+ * accessors)</li>
+ * <li>Unique method calls from within the class (by fully qualified signature
+ * when resolved)</li>
  * </ul>
  *
  * <h2>Kotlin-Specific Considerations</h2>
  *
  * <h3>1. Declared Methods</h3>
  * <ul>
- *   <li><b>Named functions:</b> All non-private functions declared in the class body</li>
- *   <li><b>Constructors:</b> Primary and all secondary constructors</li>
- *   <li><b>Property accessors:</b> Implicit getters/setters for properties (including primary constructor properties)</li>
- *   <li><b>Data class methods:</b> Auto-generated equals(), hashCode(), toString(), copy(), and componentN() methods</li>
- *   <li><b>Companion object members:</b> Excluded (treated as static/class-level)</li>
+ * <li><b>Named functions:</b> All non-private functions declared in the class
+ * body</li>
+ * <li><b>Constructors:</b> Primary and all secondary constructors</li>
+ * <li><b>Property accessors:</b> Implicit getters/setters for properties
+ * (including primary constructor properties)</li>
+ * <li><b>Data class methods:</b> Auto-generated equals(), hashCode(),
+ * toString(), copy(), and componentN() methods</li>
+ * <li><b>Companion object members:</b> Excluded (treated as
+ * static/class-level)</li>
  * </ul>
  *
  * <h3>2. Method Calls</h3>
  * <ul>
- *   <li><b>Regular calls:</b> Standard function invocations like {@code foo()}</li>
- *   <li><b>Extension functions:</b> Calls like {@code list.map { }}, resolved to actual function signature</li>
- *   <li><b>Operator functions:</b> Operators translated to function calls:
- *     <ul>
- *       <li>Binary: {@code a + b} → {@code plus}, {@code a[i]} → {@code get}</li>
- *       <li>Unary: {@code !a} → {@code not}, {@code ++a} → {@code inc}</li>
- *       <li>Comparison: {@code a > b} → {@code compareTo}</li>
- *     </ul>
- *   </li>
- *   <li><b>Infix calls:</b> {@code a to b} resolved as regular function call</li>
- *   <li><b>Invoke operator:</b> {@code obj()} → {@code invoke}</li>
- *   <li><b>Property delegates:</b> {@code by lazy} → implicit {@code getValue/setValue} calls</li>
- *   <li><b>Destructuring:</b> {@code val (x, y) = pair} → {@code component1(), component2()}</li>
- *   <li><b>Scope functions:</b> {@code let, run, apply, also, with} - counted when called</li>
- *   <li><b>Lambda parameters:</b> Trailing lambdas included in arity calculation</li>
+ * <li><b>Regular calls:</b> Standard function invocations like
+ * {@code foo()}</li>
+ * <li><b>Extension functions:</b> Calls like {@code list.map { }}, resolved to
+ * actual function signature</li>
+ * <li><b>Operator functions:</b> Operators translated to function calls:
+ * <ul>
+ * <li>Binary: {@code a + b} → {@code plus}, {@code a[i]} → {@code get}</li>
+ * <li>Unary: {@code !a} → {@code not}, {@code ++a} → {@code inc}</li>
+ * <li>Comparison: {@code a > b} → {@code compareTo}</li>
+ * </ul>
+ * </li>
+ * <li><b>Infix calls:</b> {@code a to b} resolved as regular function call</li>
+ * <li><b>Invoke operator:</b> {@code obj()} → {@code invoke}</li>
+ * <li><b>Property delegates:</b> {@code by lazy} → implicit
+ * {@code getValue/setValue} calls</li>
+ * <li><b>Destructuring:</b> {@code val (x, y) = pair} →
+ * {@code component1(), component2()}</li>
+ * <li><b>Scope functions:</b> {@code let, run, apply, also, with} - counted
+ * when called</li>
+ * <li><b>Lambda parameters:</b> Trailing lambdas included in arity
+ * calculation</li>
  * </ul>
  *
  * <h3>3. Resolution Strategy</h3>
- * <p>This implementation uses PSI resolve where possible to determine actual function signatures,
- * falling back to name-based heuristics when resolution fails. This hybrid approach provides:
+ * <p>
+ * This implementation uses PSI resolve where possible to determine actual
+ * function signatures,
+ * falling back to name-based heuristics when resolution fails. This hybrid
+ * approach provides:
  * <ul>
- *   <li>Accurate counting of polymorphic and overloaded calls</li>
- *   <li>Proper handling of extension functions from standard library and third-party code</li>
- *   <li>Graceful degradation when resolution context is unavailable</li>
+ * <li>Accurate counting of polymorphic and overloaded calls</li>
+ * <li>Proper handling of extension functions from standard library and
+ * third-party code</li>
+ * <li>Graceful degradation when resolution context is unavailable</li>
  * </ul>
  *
  * <h3>4. Signature Format</h3>
- * <p>Methods are identified by signature: {@code name/arity} where:
+ * <p>
+ * Methods are identified by signature: {@code name/arity} where:
  * <ul>
- *   <li>{@code name} is the simple function name (or operator function name for operators)</li>
- *   <li>{@code arity} is the number of parameters (including trailing lambdas)</li>
- *   <li>For resolved calls, fully qualified names may be used to distinguish overloads</li>
+ * <li>{@code name} is the simple function name (or operator function name for
+ * operators)</li>
+ * <li>{@code arity} is the number of parameters (including trailing
+ * lambdas)</li>
+ * <li>For resolved calls, fully qualified names may be used to distinguish
+ * overloads</li>
  * </ul>
  *
- * @see <a href="https://en.wikipedia.org/wiki/Response_for_a_class">RFC Metric</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Response_for_a_class">RFC
+ *      Metric</a>
  * @see org.b333vv.metric.model.visitor.kotlin.KotlinMetricUtils
  */
 public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
@@ -90,32 +112,50 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         try {
             Set<String> responses = new HashSet<>();
 
             // Get binding context for resolution
             BindingContext bindingContext = null;
             try {
-                bindingContext = ResolutionUtils.analyze(klass, BodyResolveMode.PARTIAL);
+                bindingContext = ResolutionUtils.analyze(element, BodyResolveMode.PARTIAL);
             } catch (Exception e) {
                 // Resolution unavailable, proceed with PSI-only analysis
             }
 
             // 1. Add declared methods
-            addDeclaredMethods(klass, responses);
+            addDeclaredMethods(element, responses);
 
-            // 2. Add constructors
-            addConstructors(klass, responses);
+            // 2. Add constructors (only for classes)
+            if (element instanceof KtClass) {
+                addConstructors((KtClass) element, responses);
+            }
 
-            // 3. Add property accessors (from body and primary constructor)
-            addPropertyAccessors(klass, responses);
+            // 3. Add property accessors
+            addPropertyAccessors(element, responses);
 
             // 4. Add data class implicit methods
-            addDataClassMethods(klass, responses);
+            if (element instanceof KtClass) {
+                addDataClassMethods((KtClass) element, responses);
+            }
 
-            // 5. Traverse class to collect all method calls
+            // 5. Traverse element to collect all method calls
             BindingContext finalBindingContext = bindingContext;
-            klass.accept(new KtTreeVisitorVoid() {
+            element.accept(new KtTreeVisitorVoid() {
 
                 @Override
                 public void visitCallExpression(@NotNull KtCallExpression expression) {
@@ -169,11 +209,18 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
     /**
      * Adds declared named functions from the class body.
      */
-    private void addDeclaredMethods(@NotNull KtClass klass, @NotNull Set<String> responses) {
-        KtClassBody body = klass.getBody();
-        if (body == null) return;
+    private void addDeclaredMethods(@NotNull KtElement element, @NotNull Set<String> responses) {
+        java.util.List<KtDeclaration> declarations = java.util.Collections.emptyList();
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
 
-        for (KtDeclaration decl : body.getDeclarations()) {
+        for (KtDeclaration decl : declarations) {
             if (decl instanceof KtNamedFunction) {
                 KtNamedFunction function = (KtNamedFunction) decl;
                 String name = function.getName();
@@ -190,7 +237,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      */
     private void addConstructors(@NotNull KtClass klass, @NotNull Set<String> responses) {
         String className = klass.getName();
-        if (className == null) return;
+        if (className == null)
+            return;
 
         // Primary constructor
         KtPrimaryConstructor primary = klass.getPrimaryConstructor();
@@ -209,17 +257,20 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
     /**
      * Adds implicit property accessors (getters/setters).
      */
-    private void addPropertyAccessors(@NotNull KtClass klass, @NotNull Set<String> responses) {
+    private void addPropertyAccessors(@NotNull KtElement element, @NotNull Set<String> responses) {
         // Primary constructor properties
-        KtPrimaryConstructor primary = klass.getPrimaryConstructor();
-        if (primary != null) {
-            for (KtParameter param : primary.getValueParameters()) {
-                if (param.hasValOrVar()) {
-                    String paramName = param.getName();
-                    if (paramName != null) {
-                        responses.add(GETTER_PREFIX + capitalize(paramName) + "/0");
-                        if (param.isMutable()) {
-                            responses.add(SETTER_PREFIX + capitalize(paramName) + "/1");
+        if (element instanceof KtClass) {
+            KtClass klass = (KtClass) element;
+            KtPrimaryConstructor primary = klass.getPrimaryConstructor();
+            if (primary != null) {
+                for (KtParameter param : primary.getValueParameters()) {
+                    if (param.hasValOrVar()) {
+                        String paramName = param.getName();
+                        if (paramName != null) {
+                            responses.add(GETTER_PREFIX + capitalize(paramName) + "/0");
+                            if (param.isMutable()) {
+                                responses.add(SETTER_PREFIX + capitalize(paramName) + "/1");
+                            }
                         }
                     }
                 }
@@ -227,18 +278,25 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
         }
 
         // Body properties
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            for (KtDeclaration decl : body.getDeclarations()) {
-                if (decl instanceof KtProperty) {
-                    KtProperty prop = (KtProperty) decl;
-                    if (!KotlinMetricUtils.isInCompanionObject(prop)) {
-                        String propName = prop.getName();
-                        if (propName != null) {
-                            responses.add(GETTER_PREFIX + capitalize(propName) + "/0");
-                            if (prop.isVar()) {
-                                responses.add(SETTER_PREFIX + capitalize(propName) + "/1");
-                            }
+        java.util.List<KtDeclaration> declarations = java.util.Collections.emptyList();
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        for (KtDeclaration decl : declarations) {
+            if (decl instanceof KtProperty) {
+                KtProperty prop = (KtProperty) decl;
+                if (!KotlinMetricUtils.isInCompanionObject(prop)) {
+                    String propName = prop.getName();
+                    if (propName != null) {
+                        responses.add(GETTER_PREFIX + capitalize(propName) + "/0");
+                        if (prop.isVar()) {
+                            responses.add(SETTER_PREFIX + capitalize(propName) + "/1");
                         }
                     }
                 }
@@ -247,10 +305,12 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
     }
 
     /**
-     * Adds data class implicit methods: equals, hashCode, toString, copy, componentN.
+     * Adds data class implicit methods: equals, hashCode, toString, copy,
+     * componentN.
      */
     private void addDataClassMethods(@NotNull KtClass klass, @NotNull Set<String> responses) {
-        if (!klass.isData()) return;
+        if (!klass.isData())
+            return;
 
         responses.add("equals/1");
         responses.add("hashCode/0");
@@ -272,8 +332,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Processes regular call expressions, including those with trailing lambdas.
      */
     private void addCallExpression(@NotNull KtCallExpression expression,
-                                   @NotNull Set<String> responses,
-                                   @Nullable BindingContext bindingContext) {
+            @NotNull Set<String> responses,
+            @Nullable BindingContext bindingContext) {
         // Try to resolve the call
         String signature = resolveCallSignature(expression, bindingContext);
         if (signature != null) {
@@ -303,8 +363,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Processes qualified expressions (extension functions and method chains).
      */
     private void addQualifiedExpression(@NotNull KtQualifiedExpression expression,
-                                        @NotNull Set<String> responses,
-                                        @Nullable BindingContext bindingContext) {
+            @NotNull Set<String> responses,
+            @Nullable BindingContext bindingContext) {
         KtExpression selector = expression.getSelectorExpression();
         if (selector instanceof KtCallExpression) {
             KtCallExpression callExpr = (KtCallExpression) selector;
@@ -321,14 +381,14 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Processes binary operators (arithmetic, comparison, range, etc.).
      */
     private void addBinaryOperator(@NotNull KtBinaryExpression expression,
-                                   @NotNull Set<String> responses,
-                                   @Nullable BindingContext bindingContext) {
+            @NotNull Set<String> responses,
+            @Nullable BindingContext bindingContext) {
         // Try to resolve the operator call
         if (bindingContext != null) {
             try {
                 @SuppressWarnings("unchecked")
-                ResolvedCall<? extends CallableDescriptor> resolvedCall =
-                        (ResolvedCall<? extends CallableDescriptor>) bindingContext.get(BindingContext.CALL, expression);
+                ResolvedCall<? extends CallableDescriptor> resolvedCall = (ResolvedCall<? extends CallableDescriptor>) bindingContext
+                        .get(BindingContext.CALL, expression);
                 if (resolvedCall != null) {
                     CallableDescriptor descriptor = resolvedCall.getResultingDescriptor();
                     if (descriptor instanceof FunctionDescriptor) {
@@ -338,11 +398,13 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
                         return;
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         // Fallback: map token to operator function name
-        org.jetbrains.kotlin.lexer.KtToken token = (org.jetbrains.kotlin.lexer.KtToken) expression.getOperationReference().getReferencedNameElementType();
+        org.jetbrains.kotlin.lexer.KtToken token = (org.jetbrains.kotlin.lexer.KtToken) expression
+                .getOperationReference().getReferencedNameElementType();
         String operatorName = getOperatorFunctionName(token);
         if (operatorName != null) {
             responses.add(operatorName + "/1");
@@ -353,14 +415,14 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Processes unary operators (!, ++, --, +, -).
      */
     private void addUnaryOperator(@NotNull KtUnaryExpression expression,
-                                  @NotNull Set<String> responses,
-                                  @Nullable BindingContext bindingContext) {
+            @NotNull Set<String> responses,
+            @Nullable BindingContext bindingContext) {
         // Try to resolve
         if (bindingContext != null) {
             try {
                 @SuppressWarnings("unchecked")
-                ResolvedCall<? extends CallableDescriptor> resolvedCall =
-                        (ResolvedCall<? extends CallableDescriptor>) bindingContext.get(BindingContext.CALL, expression);
+                ResolvedCall<? extends CallableDescriptor> resolvedCall = (ResolvedCall<? extends CallableDescriptor>) bindingContext
+                        .get(BindingContext.CALL, expression);
                 if (resolvedCall != null) {
                     CallableDescriptor descriptor = resolvedCall.getResultingDescriptor();
                     if (descriptor instanceof FunctionDescriptor) {
@@ -369,11 +431,13 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
                         return;
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         // Fallback: map token to operator function name
-        org.jetbrains.kotlin.lexer.KtToken token = (org.jetbrains.kotlin.lexer.KtToken) expression.getOperationReference().getReferencedNameElementType();
+        org.jetbrains.kotlin.lexer.KtToken token = (org.jetbrains.kotlin.lexer.KtToken) expression
+                .getOperationReference().getReferencedNameElementType();
         String operatorName = getUnaryOperatorName(token);
         if (operatorName != null) {
             responses.add(operatorName + "/0");
@@ -384,8 +448,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Processes array access expressions: a[i] → get(i) or set(i, value).
      */
     private void addArrayAccess(@NotNull KtArrayAccessExpression expression,
-                                @NotNull Set<String> responses,
-                                @Nullable BindingContext bindingContext) {
+            @NotNull Set<String> responses,
+            @Nullable BindingContext bindingContext) {
         // Check if this is on the left side of assignment (set) or right side (get)
         PsiElement parent = expression.getParent();
         boolean isAssignment = parent instanceof KtBinaryExpression &&
@@ -407,7 +471,7 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Adds implicit getValue/setValue calls from property delegates.
      */
     private void addPropertyDelegateCalls(@NotNull KtProperty property,
-                                          @NotNull Set<String> responses) {
+            @NotNull Set<String> responses) {
         KtPropertyDelegate delegate = property.getDelegate();
         if (delegate != null) {
             // by lazy, by Delegates.observable, etc.
@@ -425,8 +489,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      * Adds componentN calls from destructuring declarations.
      */
     private void addDestructuringCalls(@NotNull KtDestructuringDeclaration declaration,
-                                       @NotNull Set<String> responses,
-                                       @Nullable BindingContext bindingContext) {
+            @NotNull Set<String> responses,
+            @Nullable BindingContext bindingContext) {
         int componentCount = declaration.getEntries().size();
         for (int i = 1; i <= componentCount; i++) {
             responses.add("component" + i + "/0");
@@ -453,14 +517,15 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      */
     @Nullable
     private String resolveCallSignature(@NotNull KtCallExpression expression,
-                                        @Nullable BindingContext bindingContext) {
-        if (bindingContext == null) return null;
+            @Nullable BindingContext bindingContext) {
+        if (bindingContext == null)
+            return null;
 
         try {
             KtExpression calleeExpression = expression.getCalleeExpression();
             @SuppressWarnings("unchecked")
-            ResolvedCall<? extends CallableDescriptor> resolvedCall =
-                    (ResolvedCall<? extends CallableDescriptor>) bindingContext.get(BindingContext.CALL, calleeExpression);
+            ResolvedCall<? extends CallableDescriptor> resolvedCall = (ResolvedCall<? extends CallableDescriptor>) bindingContext
+                    .get(BindingContext.CALL, calleeExpression);
 
             if (resolvedCall != null) {
                 CallableDescriptor descriptor = resolvedCall.getResultingDescriptor();
@@ -482,23 +547,40 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      */
     @Nullable
     private String getOperatorFunctionName(@NotNull KtToken token) {
-        if (token == KtTokens.PLUS) return "plus";
-        if (token == KtTokens.MINUS) return "minus";
-        if (token == KtTokens.MUL) return "times";
-        if (token == KtTokens.DIV) return "div";
-        if (token == KtTokens.PERC) return "rem";
-        if (token == KtTokens.RANGE) return "rangeTo";
-        if (token == KtTokens.IN_KEYWORD) return "contains";
-        if (token == KtTokens.NOT_IN) return "contains"; // negated
-        if (token == KtTokens.PLUSEQ) return "plusAssign";
-        if (token == KtTokens.MINUSEQ) return "minusAssign";
-        if (token == KtTokens.MULTEQ) return "timesAssign";
-        if (token == KtTokens.DIVEQ) return "divAssign";
-        if (token == KtTokens.PERCEQ) return "remAssign";
-        if (token == KtTokens.GT) return "compareTo";
-        if (token == KtTokens.LT) return "compareTo";
-        if (token == KtTokens.GTEQ) return "compareTo";
-        if (token == KtTokens.LTEQ) return "compareTo";
+        if (token == KtTokens.PLUS)
+            return "plus";
+        if (token == KtTokens.MINUS)
+            return "minus";
+        if (token == KtTokens.MUL)
+            return "times";
+        if (token == KtTokens.DIV)
+            return "div";
+        if (token == KtTokens.PERC)
+            return "rem";
+        if (token == KtTokens.RANGE)
+            return "rangeTo";
+        if (token == KtTokens.IN_KEYWORD)
+            return "contains";
+        if (token == KtTokens.NOT_IN)
+            return "contains"; // negated
+        if (token == KtTokens.PLUSEQ)
+            return "plusAssign";
+        if (token == KtTokens.MINUSEQ)
+            return "minusAssign";
+        if (token == KtTokens.MULTEQ)
+            return "timesAssign";
+        if (token == KtTokens.DIVEQ)
+            return "divAssign";
+        if (token == KtTokens.PERCEQ)
+            return "remAssign";
+        if (token == KtTokens.GT)
+            return "compareTo";
+        if (token == KtTokens.LT)
+            return "compareTo";
+        if (token == KtTokens.GTEQ)
+            return "compareTo";
+        if (token == KtTokens.LTEQ)
+            return "compareTo";
 
         return null;
     }
@@ -508,11 +590,16 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      */
     @Nullable
     private String getUnaryOperatorName(@NotNull KtToken token) {
-        if (token == KtTokens.PLUSPLUS) return "inc";
-        if (token == KtTokens.MINUSMINUS) return "dec";
-        if (token == KtTokens.EXCL) return "not";
-        if (token == KtTokens.PLUS) return "unaryPlus";
-        if (token == KtTokens.MINUS) return "unaryMinus";
+        if (token == KtTokens.PLUSPLUS)
+            return "inc";
+        if (token == KtTokens.MINUSMINUS)
+            return "dec";
+        if (token == KtTokens.EXCL)
+            return "not";
+        if (token == KtTokens.PLUS)
+            return "unaryPlus";
+        if (token == KtTokens.MINUS)
+            return "unaryMinus";
 
         return null;
     }
@@ -522,7 +609,8 @@ public class KotlinResponseForClassVisitor extends KotlinClassVisitor {
      */
     @NotNull
     private String capitalize(@NotNull String str) {
-        if (str.isEmpty()) return str;
+        if (str.isEmpty())
+            return str;
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 }

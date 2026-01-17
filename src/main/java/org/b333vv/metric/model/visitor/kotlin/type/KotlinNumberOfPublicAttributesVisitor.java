@@ -12,36 +12,47 @@ import static org.b333vv.metric.model.metric.MetricType.NOPA;
 /**
  * Kotlin Number Of Public Attributes (NOPA) metric visitor.
  *
- * <p>Counts properties declared in the class that are effectively public
- * instance attributes with backing fields.</p>
+ * <p>
+ * Counts properties declared in the class that are effectively public
+ * instance attributes with backing fields.
+ * </p>
  *
  * <h3>Calculation Rules:</h3>
  * <ul>
- *   <li><b>Includes:</b>
- *     <ul>
- *       <li>Public properties declared in class body (val/var)</li>
- *       <li>Public properties declared in primary constructor (val/var parameters)</li>
- *       <li>Properties with backing fields (have actual storage)</li>
- *     </ul>
- *   </li>
- *   <li><b>Excludes:</b>
- *     <ul>
- *       <li>Properties with 'private', 'protected', or 'internal' visibility</li>
- *       <li>Properties in companion objects (static-like members)</li>
- *       <li>Properties with 'const' modifier (compile-time constants)</li>
- *       <li>Computed properties (custom accessors without backing fields)</li>
- *       <li>Delegated properties (using 'by' keyword)</li>
- *     </ul>
- *   </li>
+ * <li><b>Includes:</b>
+ * <ul>
+ * <li>Public properties declared in class body (val/var)</li>
+ * <li>Public properties declared in primary constructor (val/var
+ * parameters)</li>
+ * <li>Properties with backing fields (have actual storage)</li>
+ * </ul>
+ * </li>
+ * <li><b>Excludes:</b>
+ * <ul>
+ * <li>Properties with 'private', 'protected', or 'internal' visibility</li>
+ * <li>Properties in companion objects (static-like members)</li>
+ * <li>Properties with 'const' modifier (compile-time constants)</li>
+ * <li>Computed properties (custom accessors without backing fields)</li>
+ * <li>Delegated properties (using 'by' keyword)</li>
+ * </ul>
+ * </li>
  * </ul>
  *
  * <h3>Kotlin-Specific Considerations:</h3>
- * <p>Computed properties are identified by having custom getters without backing fields.
- * For example, {@code val fullName get() = "$firstName $lastName"} is not counted
- * as an attribute since it doesn't store data.</p>
+ * <p>
+ * Computed properties are identified by having custom getters without backing
+ * fields.
+ * For example, {@code val fullName get() = "$firstName $lastName"} is not
+ * counted
+ * as an attribute since it doesn't store data.
+ * </p>
  *
- * <p>Delegated properties (e.g., {@code by lazy}, {@code by Delegates.observable()})
- * are excluded as they represent behavioral patterns rather than simple data storage.</p>
+ * <p>
+ * Delegated properties (e.g., {@code by lazy},
+ * {@code by Delegates.observable()})
+ * are excluded as they represent behavioral patterns rather than simple data
+ * storage.
+ * </p>
  *
  * @see KotlinMetricUtils#isPublicProperty(KtProperty)
  * @see KotlinMetricUtils#hasCustomAccessor(KtProperty)
@@ -50,20 +61,43 @@ public class KotlinNumberOfPublicAttributesVisitor extends KotlinClassVisitor {
 
     @Override
     public void visitClass(@NotNull KtClass klass) {
+        compute(klass);
+    }
+
+    @Override
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
+        compute(declaration);
+    }
+
+    @Override
+    public void visitKtFile(@NotNull KtFile file) {
+        compute(file);
+    }
+
+    private void compute(@NotNull KtElement element) {
         int publicAttrs = 0;
 
-        // Count properties from primary constructor
-        publicAttrs += countPrimaryConstructorProperties(klass);
+        // Count properties from primary constructor (only for classes)
+        if (element instanceof KtClass) {
+            publicAttrs += countPrimaryConstructorProperties((KtClass) element);
+        }
 
-        // Count properties from class body
-        KtClassBody body = klass.getBody();
-        if (body != null) {
-            for (KtDeclaration d : body.getDeclarations()) {
-                if (d instanceof KtProperty) {
-                    KtProperty p = (KtProperty) d;
-                    if (shouldCountProperty(p)) {
-                        publicAttrs++;
-                    }
+        // Count properties from declarations
+        java.util.List<KtDeclaration> declarations = java.util.Collections.emptyList();
+        if (element instanceof KtClassOrObject) {
+            KtClassBody body = ((KtClassOrObject) element).getBody();
+            if (body != null) {
+                declarations = body.getDeclarations();
+            }
+        } else if (element instanceof KtFile) {
+            declarations = ((KtFile) element).getDeclarations();
+        }
+
+        for (KtDeclaration d : declarations) {
+            if (d instanceof KtProperty) {
+                KtProperty p = (KtProperty) d;
+                if (shouldCountProperty(p)) {
+                    publicAttrs++;
                 }
             }
         }
