@@ -27,7 +27,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
+
 import org.b333vv.metric.builder.DependenciesBuilder;
 
 public class DependenciesCalculator {
@@ -73,7 +73,8 @@ public class DependenciesCalculator {
                 return;
             }
             final FileType fileType = psiFile.getFileType();
-            if (!fileType.getName().equals("JAVA") || fileType.isBinary()) {
+            String name = fileType.getName();
+            if ((!name.equals("JAVA") && !name.equals("Kotlin") && !name.equals("KOTLIN")) || fileType.isBinary()) {
                 return;
             }
             final VirtualFile virtualFile = psiFile.getVirtualFile();
@@ -85,8 +86,7 @@ public class DependenciesCalculator {
             final String fileName = psiFile.getName();
             indicator.setText("Calculating dependencies: processing file " + fileName + "...");
             progress++;
-            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-            dependenciesBuilder.build(psiJavaFile);
+            dependenciesBuilder.build(psiFile);
             indicator.setIndeterminate(false);
             indicator.setFraction((double) progress / (double) filesCount);
         }
