@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/13959.svg)](https://plugins.jetbrains.com/plugin/13959)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/13959.svg)](https://plugins.jetbrains.com/plugin/13959)
 
-MetricsTree is an IDE extension that helps to evaluate quantitative properties of java code.
+MetricsTree is an IDE extension that helps to evaluate quantitative properties of Java and Kotlin code.
 It supports the most common sets of metrics at the project, package, class, and method levels.
 # Metrics
 1. Project level:
