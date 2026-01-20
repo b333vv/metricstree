@@ -134,7 +134,6 @@ It supports the most common sets of metrics at the project, package, class, and 
  - Supports controlling calculated metrics values
  - Implements metric fitness functions at the package level (e.g. for detecting coupling and cohesion problems) and at the class level (e.g. for recognizing 'god class', 'feature envy' antipatterns)
  - Displays various metrics properties (distributions, correlations) in charts
- - Shows class metrics values evolution based on 'git log'
  - Indicates in the code editor the values for those class metrics that do not fit into the reference interval
  
 ![Image of MetricsTree](class_metricstree.png)

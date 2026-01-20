@@ -54,9 +54,6 @@
                 <li>
                     Displays various metrics properties (distributions, correlations) in charts
                 </li>
-                <li>
-                    Shows class metrics values evolution based on 'git log'
-                </li>
             </ul>
         </html>
       ]]>
